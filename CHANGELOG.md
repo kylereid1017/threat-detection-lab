@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. Format follows
 Keep a Changelog; versioning follows SemVer.
 
+## [Unreleased]
+
+### Added
+- Original research note: "Active Content in SVG Phishing Attachments:
+  Detection Opportunities and Evasion Tradeoffs"
+  (`docs/research/active-content-svg-phishing.md`).
+
 ## [0.1.0] — 2026-09-03
 
 ### Added

@@ -15,6 +15,8 @@ It deliberately requires a combination of signals instead of treating every SVG 
 ## Repository layout
 
 - `rules/yara/` — YARA rules
+- `docs/research/` — original research notes
+- `docs/detections/` — methodology, rationale, limitations, and ATT&CK mapping
 - `tests/fixtures/positive/` — inert synthetic samples expected to match
 - `tests/fixtures/negative/` — benign synthetic samples expected not to match
 - `tests/test_yara_rules.py` — executable regression tests
@@ -35,3 +37,7 @@ This repository uses public sources, public tools, and inert synthetic fixtures 
 ## Status
 
 Experimental. This rule is a transparent portfolio exercise, not a production security control. See `docs/detections/suspicious-active-content-svg.md` for assumptions and limitations.
+
+## Research
+
+- [Active Content in SVG Phishing Attachments: Detection Opportunities and Evasion Tradeoffs](docs/research/active-content-svg-phishing.md) — original research note: mechanism, tested detection, measured results, evasion tradeoffs, and layered defenses.
