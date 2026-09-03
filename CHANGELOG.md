@@ -6,6 +6,10 @@ Keep a Changelog; versioning follows SemVer.
 ## [Unreleased]
 
 ### Added
+- Structured Threat Intelligence Cable: `CABLE-2026-001` ("Adversary Initial Access Analysis:
+  Multi-Stage ClickFix Social Engineering and Active-Content SVG Lures Delivering InfoStealer Malware")
+  adhering to Sherman Kent / ICD 203 doctrine, Diamond Model analysis, and MITRE ATT&CK mapping
+  (`docs/cables/CABLE-2026-001-clickfix-initial-access.md`).
 - Adversarial Swarm Intelligence Engine (`tools/swarm/`): a controlled multi-agent
   testing harness with a 4-layer safety architecture and 5-agent closed feedback
   loop (Strategist, Craftsmen, Critic, Detectors, Analyst, Adapter) for automated
@@ -18,6 +22,16 @@ Keep a Changelog; versioning follows SemVer.
   reproducible boundary maps/campaign reports (`docs/swarm/results/`).
 - Swarm regression test suite (`tests/test_swarm.py`) covering Critic safety gates,
   Craftsmen generators, and end-to-end closed-loop orchestration.
+
+### Changed
+- Tuned YARA rule (`Suspicious_Active_Content_SVG_Attachment`) from Swarm recommendations:
+  expanded root search window to 4,096 bytes (`REC-YARA-001`), added XML namespace prefix
+  support (`REC-YARA-003`), and added bracket navigation property matching (`REC-YARA-002`).
+  Maintained 0 false positives across 2,079 benign Bootstrap icons and reached 100.0% Swarm resilience.
+- Tuned Sigma rule (`proc_creation_win_explorer_clickfix_execution.yml`) from Swarm recommendations:
+  added numeric/short PowerShell switch aliases (`-w 1`, `-w h`), `rundll32.exe` with URL handlers
+  (`REC-SIGMA-004`), and Windows Script Host (`wscript`/`cscript`) remote execution (`REC-SIGMA-005`),
+  reaching 100.0% Swarm resilience.
 - Second detection: `Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)`
   Sigma rule (`rules/sigma/proc_creation_win_explorer_clickfix_execution.yml`).
 - Twelve synthetic process creation fixtures (6 positive, 6 negative) covering

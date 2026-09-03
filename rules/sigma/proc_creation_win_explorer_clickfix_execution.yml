@@ -17,6 +17,8 @@ tags:
     - attack.defense_evasion
     - attack.t1027
     - attack.t1218.005
+    - attack.t1218.011
+    - attack.t1059.005
     - attack.command_and_control
     - attack.t1105
 logsource:
@@ -41,7 +43,11 @@ detection:
             - 'DownloadString'
             - 'DownloadFile'
             - '-w hidden'
+            - '-w 1'
+            - '-w h'
             - '-windowstyle hidden'
+            - '-windowstyle 1'
+            - '-windowstyle h'
             - '-encodedcommand'
             - '-enc '
             - '| iex'
@@ -82,7 +88,22 @@ detection:
             - 'irm '
             - 'iwr '
             - 'DownloadString'
-    condition: selection_parent and ((selection_pwsh_img and selection_pwsh_action) or (selection_mshta_img and selection_mshta_target) or (selection_downloader_img and selection_downloader_target) or (selection_cmd_img and selection_cmd_target and selection_cmd_action))
+    selection_rundll32_img:
+        Image|endswith: '\rundll32.exe'
+    selection_rundll32_target:
+        CommandLine|contains:
+            - 'url.dll'
+            - 'FileProtocolHandler'
+            - 'mshtml'
+    selection_wscript_img:
+        Image|endswith:
+            - '\wscript.exe'
+            - '\cscript.exe'
+    selection_wscript_target:
+        CommandLine|contains:
+            - 'http://'
+            - 'https://'
+    condition: selection_parent and ((selection_pwsh_img and selection_pwsh_action) or (selection_mshta_img and selection_mshta_target) or (selection_downloader_img and selection_downloader_target) or (selection_cmd_img and selection_cmd_target and selection_cmd_action) or (selection_rundll32_img and selection_rundll32_target) or (selection_wscript_img and selection_wscript_target))
 fields:
     - CommandLine
     - Image

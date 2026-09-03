@@ -1,10 +1,10 @@
 {
   "target_rule": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
   "target_type": "sigma",
-  "cycles_completed": 2,
-  "total_generated": 7,
-  "critic_approved": 7,
-  "detected_count": 7,
+  "cycles_completed": 3,
+  "total_generated": 11,
+  "critic_approved": 11,
+  "detected_count": 11,
   "evaded_count": 0,
   "resilience_score": 1.0,
   "findings": [
@@ -65,6 +65,42 @@
     {
       "axis": "obfuscation",
       "mutation_name": "proc_powershell_base64_encoded",
+      "detected": true,
+      "evasion_gap_found": false,
+      "root_cause": "Rule logic successfully triggered on variant features.",
+      "policy_recommendation": "Current rule signature is resilient against this variation.",
+      "confidence": "HIGH"
+    },
+    {
+      "axis": "lolbin",
+      "mutation_name": "proc_pwsh_core_clickfix",
+      "detected": true,
+      "evasion_gap_found": false,
+      "root_cause": "Rule logic successfully triggered on variant features.",
+      "policy_recommendation": "Current rule signature is resilient against this variation.",
+      "confidence": "HIGH"
+    },
+    {
+      "axis": "obfuscation",
+      "mutation_name": "proc_powershell_split_invoke_restmethod",
+      "detected": true,
+      "evasion_gap_found": false,
+      "root_cause": "Rule logic successfully triggered on variant features.",
+      "policy_recommendation": "Current rule signature is resilient against this variation.",
+      "confidence": "HIGH"
+    },
+    {
+      "axis": "lolbin",
+      "mutation_name": "proc_rundll32_url_protocol_handler",
+      "detected": true,
+      "evasion_gap_found": false,
+      "root_cause": "Rule logic successfully triggered on variant features.",
+      "policy_recommendation": "Current rule signature is resilient against this variation.",
+      "confidence": "HIGH"
+    },
+    {
+      "axis": "lolbin",
+      "mutation_name": "proc_wscript_remote_script_fetch",
       "detected": true,
       "evasion_gap_found": false,
       "root_cause": "Rule logic successfully triggered on variant features.",

@@ -21,6 +21,7 @@ A sandboxed multi-agent testing harness (`tools/swarm/`) implementing a closed f
 - `rules/yara/` — YARA rules
 - `rules/sigma/` — Sigma rules (process creation, endpoint telemetry)
 - `tools/swarm/` — multi-agent adversarial boundary testing engine
+- `docs/cables/` — structured threat intelligence cables (ICD 203 / Sherman Kent doctrine)
 - `docs/research/` — original research notes
 - `docs/detections/` — methodology, rationale, limitations, and ATT&CK mapping
 - `docs/swarm/` — architecture notes and empirical boundary maps
@@ -51,8 +52,9 @@ This repository uses public sources, public tools, and inert synthetic fixtures 
 
 ## Status
 
-Experimental. This rule is a transparent portfolio exercise, not a production security control. See `docs/detections/suspicious-active-content-svg.md` for assumptions and limitations.
+Experimental. These detections are transparent portfolio exercises, not production security controls. See detection methodology notes for operational assumptions and limitations.
 
-## Research
+## Threat Intelligence & Research
 
+- [CABLE-2026-001: Adversary Initial Access Analysis: Multi-Stage ClickFix Social Engineering and Active-Content SVG Lures Delivering InfoStealer Malware](docs/cables/CABLE-2026-001-clickfix-initial-access.md) — comprehensive campaign analysis, Diamond Model mapping, facts vs. judgments matrix, and MITRE ATT&CK alignment.
 - [Active Content in SVG Phishing Attachments: Detection Opportunities and Evasion Tradeoffs](docs/research/active-content-svg-phishing.md) — original research note: mechanism, tested detection, measured results, evasion tradeoffs, and layered defenses.
