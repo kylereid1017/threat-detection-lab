@@ -1,0 +1,426 @@
+{
+  "profiles": [
+    {
+      "rule_name": "Suspicious Event Log Clearing or Security Software Tampering",
+      "backend": "LogScale",
+      "query_length": 226,
+      "tokens": 16,
+      "nesting_depth": 1,
+      "boolean_clauses": 5,
+      "leading_wildcards": 0,
+      "unanchored_regexes": 6,
+      "case_insensitive_ops": 7,
+      "or_expansion_terms": 5,
+      "complexity_score": 66.5,
+      "impact": "Moderate",
+      "findings": [
+        "6 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
+        "7 case-insensitive operation(s) defeat case-sensitive index structures."
+      ]
+    },
+    {
+      "rule_name": "Suspicious Event Log Clearing or Security Software Tampering",
+      "backend": "Splunk",
+      "query_length": 229,
+      "tokens": 22,
+      "nesting_depth": 2,
+      "boolean_clauses": 2,
+      "leading_wildcards": 7,
+      "unanchored_regexes": 0,
+      "case_insensitive_ops": 0,
+      "or_expansion_terms": 7,
+      "complexity_score": 75.5,
+      "impact": "Moderate",
+      "findings": [
+        "7 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
+      ]
+    },
+    {
+      "rule_name": "Suspicious Event Log Clearing or Security Software Tampering",
+      "backend": "Lucene",
+      "query_length": 198,
+      "tokens": 19,
+      "nesting_depth": 3,
+      "boolean_clauses": 6,
+      "leading_wildcards": 4,
+      "unanchored_regexes": 0,
+      "case_insensitive_ops": 0,
+      "or_expansion_terms": 5,
+      "complexity_score": 65.0,
+      "impact": "Moderate",
+      "findings": [
+        "4 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
+        "Boolean nesting depth of 3 increases clause evaluation cost per event."
+      ]
+    },
+    {
+      "rule_name": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "backend": "LogScale",
+      "query_length": 1519,
+      "tokens": 118,
+      "nesting_depth": 3,
+      "boolean_clauses": 45,
+      "leading_wildcards": 0,
+      "unanchored_regexes": 44,
+      "case_insensitive_ops": 54,
+      "or_expansion_terms": 45,
+      "complexity_score": 502.5,
+      "impact": "Costly",
+      "findings": [
+        "44 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
+        "54 case-insensitive operation(s) defeat case-sensitive index structures.",
+        "Boolean nesting depth of 3 increases clause evaluation cost per event.",
+        "Wide OR expansion across 45 terms multiplies per-event clause evaluation."
+      ]
+    },
+    {
+      "rule_name": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "backend": "Splunk",
+      "query_length": 1073,
+      "tokens": 104,
+      "nesting_depth": 4,
+      "boolean_clauses": 5,
+      "leading_wildcards": 58,
+      "unanchored_regexes": 6,
+      "case_insensitive_ops": 0,
+      "or_expansion_terms": 48,
+      "complexity_score": 528.0,
+      "impact": "Costly",
+      "findings": [
+        "58 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
+        "6 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
+        "Boolean nesting depth of 4 increases clause evaluation cost per event.",
+        "Wide OR expansion across 48 terms multiplies per-event clause evaluation."
+      ]
+    },
+    {
+      "rule_name": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "backend": "Lucene",
+      "query_length": 1085,
+      "tokens": 136,
+      "nesting_depth": 6,
+      "boolean_clauses": 53,
+      "leading_wildcards": 18,
+      "unanchored_regexes": 0,
+      "case_insensitive_ops": 0,
+      "or_expansion_terms": 45,
+      "complexity_score": 373.5,
+      "impact": "Costly",
+      "findings": [
+        "18 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
+        "Boolean nesting depth of 6 increases clause evaluation cost per event.",
+        "Wide OR expansion across 45 terms multiplies per-event clause evaluation."
+      ]
+    },
+    {
+      "rule_name": "LSASS Process Memory Dump via Rundll32 Comsvcs.dll",
+      "backend": "LogScale",
+      "query_length": 180,
+      "tokens": 11,
+      "nesting_depth": 0,
+      "boolean_clauses": 4,
+      "leading_wildcards": 0,
+      "unanchored_regexes": 6,
+      "case_insensitive_ops": 7,
+      "or_expansion_terms": 4,
+      "complexity_score": 56.5,
+      "impact": "Moderate",
+      "findings": [
+        "6 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
+        "7 case-insensitive operation(s) defeat case-sensitive index structures."
+      ]
+    },
+    {
+      "rule_name": "LSASS Process Memory Dump via Rundll32 Comsvcs.dll",
+      "backend": "Splunk",
+      "query_length": 168,
+      "tokens": 16,
+      "nesting_depth": 1,
+      "boolean_clauses": 0,
+      "leading_wildcards": 7,
+      "unanchored_regexes": 0,
+      "case_insensitive_ops": 0,
+      "or_expansion_terms": 6,
+      "complexity_score": 63.0,
+      "impact": "Moderate",
+      "findings": [
+        "7 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
+      ]
+    },
+    {
+      "rule_name": "LSASS Process Memory Dump via Rundll32 Comsvcs.dll",
+      "backend": "Lucene",
+      "query_length": 137,
+      "tokens": 15,
+      "nesting_depth": 2,
+      "boolean_clauses": 6,
+      "leading_wildcards": 3,
+      "unanchored_regexes": 0,
+      "case_insensitive_ops": 0,
+      "or_expansion_terms": 4,
+      "complexity_score": 51.5,
+      "impact": "Moderate",
+      "findings": [
+        "3 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
+      ]
+    },
+    {
+      "rule_name": "Suspicious Scheduled Task Creation Spawning Shell or Script Engine",
+      "backend": "LogScale",
+      "query_length": 448,
+      "tokens": 34,
+      "nesting_depth": 0,
+      "boolean_clauses": 13,
+      "leading_wildcards": 0,
+      "unanchored_regexes": 16,
+      "case_insensitive_ops": 17,
+      "or_expansion_terms": 13,
+      "complexity_score": 159.5,
+      "impact": "High",
+      "findings": [
+        "16 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
+        "17 case-insensitive operation(s) defeat case-sensitive index structures."
+      ]
+    },
+    {
+      "rule_name": "Suspicious Scheduled Task Creation Spawning Shell or Script Engine",
+      "backend": "Splunk",
+      "query_length": 320,
+      "tokens": 32,
+      "nesting_depth": 1,
+      "boolean_clauses": 0,
+      "leading_wildcards": 17,
+      "unanchored_regexes": 2,
+      "case_insensitive_ops": 0,
+      "or_expansion_terms": 15,
+      "complexity_score": 154.5,
+      "impact": "High",
+      "findings": [
+        "17 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
+        "2 unanchored regex literal(s) evaluate against the full field value for every candidate event."
+      ]
+    },
+    {
+      "rule_name": "Suspicious Scheduled Task Creation Spawning Shell or Script Engine",
+      "backend": "Lucene",
+      "query_length": 300,
+      "tokens": 40,
+      "nesting_depth": 2,
+      "boolean_clauses": 16,
+      "leading_wildcards": 4,
+      "unanchored_regexes": 0,
+      "case_insensitive_ops": 0,
+      "or_expansion_terms": 13,
+      "complexity_score": 103.5,
+      "impact": "High",
+      "findings": [
+        "4 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
+      ]
+    },
+    {
+      "rule_name": "PowerShell Script Block Download Cradle Execution",
+      "backend": "LogScale",
+      "query_length": 393,
+      "tokens": 23,
+      "nesting_depth": 0,
+      "boolean_clauses": 10,
+      "leading_wildcards": 0,
+      "unanchored_regexes": 12,
+      "case_insensitive_ops": 12,
+      "or_expansion_terms": 10,
+      "complexity_score": 118.5,
+      "impact": "High",
+      "findings": [
+        "12 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
+        "12 case-insensitive operation(s) defeat case-sensitive index structures."
+      ]
+    },
+    {
+      "rule_name": "PowerShell Script Block Download Cradle Execution",
+      "backend": "Splunk",
+      "query_length": 232,
+      "tokens": 17,
+      "nesting_depth": 1,
+      "boolean_clauses": 0,
+      "leading_wildcards": 12,
+      "unanchored_regexes": 0,
+      "case_insensitive_ops": 0,
+      "or_expansion_terms": 10,
+      "complexity_score": 99.5,
+      "impact": "High",
+      "findings": [
+        "12 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
+      ]
+    },
+    {
+      "rule_name": "PowerShell Script Block Download Cradle Execution",
+      "backend": "Lucene",
+      "query_length": 237,
+      "tokens": 26,
+      "nesting_depth": 2,
+      "boolean_clauses": 11,
+      "leading_wildcards": 2,
+      "unanchored_regexes": 0,
+      "case_insensitive_ops": 0,
+      "or_expansion_terms": 10,
+      "complexity_score": 70.0,
+      "impact": "Moderate",
+      "findings": [
+        "2 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
+      ]
+    },
+    {
+      "rule_name": "LSASS Process Access With Memory-Read Rights",
+      "backend": "LogScale",
+      "query_length": 172,
+      "tokens": 10,
+      "nesting_depth": 0,
+      "boolean_clauses": 4,
+      "leading_wildcards": 0,
+      "unanchored_regexes": 0,
+      "case_insensitive_ops": 6,
+      "or_expansion_terms": 4,
+      "complexity_score": 25.0,
+      "impact": "Low",
+      "findings": [
+        "6 case-insensitive operation(s) defeat case-sensitive index structures."
+      ]
+    },
+    {
+      "rule_name": "LSASS Process Access With Memory-Read Rights",
+      "backend": "Splunk",
+      "query_length": 96,
+      "tokens": 8,
+      "nesting_depth": 1,
+      "boolean_clauses": 0,
+      "leading_wildcards": 1,
+      "unanchored_regexes": 0,
+      "case_insensitive_ops": 0,
+      "or_expansion_terms": 4,
+      "complexity_score": 20.0,
+      "impact": "Low",
+      "findings": [
+        "1 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
+      ]
+    },
+    {
+      "rule_name": "LSASS Process Access With Memory-Read Rights",
+      "backend": "Lucene",
+      "query_length": 95,
+      "tokens": 12,
+      "nesting_depth": 2,
+      "boolean_clauses": 5,
+      "leading_wildcards": 1,
+      "unanchored_regexes": 0,
+      "case_insensitive_ops": 0,
+      "or_expansion_terms": 4,
+      "complexity_score": 36.0,
+      "impact": "Low",
+      "findings": [
+        "1 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
+      ]
+    }
+  ],
+  "backends": [
+    "LogScale",
+    "Lucene",
+    "Splunk"
+  ],
+  "worst": [
+    {
+      "rule_name": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "backend": "Splunk",
+      "query_length": 1073,
+      "tokens": 104,
+      "nesting_depth": 4,
+      "boolean_clauses": 5,
+      "leading_wildcards": 58,
+      "unanchored_regexes": 6,
+      "case_insensitive_ops": 0,
+      "or_expansion_terms": 48,
+      "complexity_score": 528.0,
+      "impact": "Costly",
+      "findings": [
+        "58 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
+        "6 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
+        "Boolean nesting depth of 4 increases clause evaluation cost per event.",
+        "Wide OR expansion across 48 terms multiplies per-event clause evaluation."
+      ]
+    },
+    {
+      "rule_name": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "backend": "LogScale",
+      "query_length": 1519,
+      "tokens": 118,
+      "nesting_depth": 3,
+      "boolean_clauses": 45,
+      "leading_wildcards": 0,
+      "unanchored_regexes": 44,
+      "case_insensitive_ops": 54,
+      "or_expansion_terms": 45,
+      "complexity_score": 502.5,
+      "impact": "Costly",
+      "findings": [
+        "44 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
+        "54 case-insensitive operation(s) defeat case-sensitive index structures.",
+        "Boolean nesting depth of 3 increases clause evaluation cost per event.",
+        "Wide OR expansion across 45 terms multiplies per-event clause evaluation."
+      ]
+    },
+    {
+      "rule_name": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "backend": "Lucene",
+      "query_length": 1085,
+      "tokens": 136,
+      "nesting_depth": 6,
+      "boolean_clauses": 53,
+      "leading_wildcards": 18,
+      "unanchored_regexes": 0,
+      "case_insensitive_ops": 0,
+      "or_expansion_terms": 45,
+      "complexity_score": 373.5,
+      "impact": "Costly",
+      "findings": [
+        "18 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
+        "Boolean nesting depth of 6 increases clause evaluation cost per event.",
+        "Wide OR expansion across 45 terms multiplies per-event clause evaluation."
+      ]
+    },
+    {
+      "rule_name": "Suspicious Scheduled Task Creation Spawning Shell or Script Engine",
+      "backend": "LogScale",
+      "query_length": 448,
+      "tokens": 34,
+      "nesting_depth": 0,
+      "boolean_clauses": 13,
+      "leading_wildcards": 0,
+      "unanchored_regexes": 16,
+      "case_insensitive_ops": 17,
+      "or_expansion_terms": 13,
+      "complexity_score": 159.5,
+      "impact": "High",
+      "findings": [
+        "16 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
+        "17 case-insensitive operation(s) defeat case-sensitive index structures."
+      ]
+    },
+    {
+      "rule_name": "Suspicious Scheduled Task Creation Spawning Shell or Script Engine",
+      "backend": "Splunk",
+      "query_length": 320,
+      "tokens": 32,
+      "nesting_depth": 1,
+      "boolean_clauses": 0,
+      "leading_wildcards": 17,
+      "unanchored_regexes": 2,
+      "case_insensitive_ops": 0,
+      "or_expansion_terms": 15,
+      "complexity_score": 154.5,
+      "impact": "High",
+      "findings": [
+        "17 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
+        "2 unanchored regex literal(s) evaluate against the full field value for every candidate event."
+      ]
+    }
+  ]
+}

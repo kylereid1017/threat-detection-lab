@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adversarial Swarm Workbench | Detection State Machine</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --bg:#0b1020; --card:#121a2e; --card2:#182238; --border:#26314d;
+    --fg:#e6ecff; --muted:#93a1c4;
+    --ok:#34d399; --warn:#fbbf24; --bad:#f87171; --info:#60a5fa; --accent:#a78bfa;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  body{background:var(--bg);color:var(--fg)}
+  .mono{font-family:var(--font-mono)}
+  .panel{background:var(--card);border:1px solid var(--border)}
+  .panel-2{background:var(--card2);border:1px solid var(--border)}
+
+  /* DAG node states */
+  .node rect{transition:fill .35s ease, stroke .35s ease, filter .35s ease}
+  .node.pending rect{fill:#182238;stroke:#26314d}
+  .node.active rect{fill:#1e2b47;stroke:var(--info);filter:drop-shadow(0 0 10px rgba(96,165,250,.55))}
+  .node.detected rect{fill:#0f2f24;stroke:var(--ok);filter:drop-shadow(0 0 10px rgba(52,211,153,.45))}
+  .node.evaded rect{fill:#3a1f1f;stroke:var(--bad);filter:drop-shadow(0 0 10px rgba(248,113,113,.4))}
+  .node.skipped rect{opacity:.35}
+
+  /* Edge traversal animation */
+  .edge{stroke-width:2;fill:none;stroke:#39456b}
+  .edge.evasion{stroke-dasharray:6 5;stroke:#6b5330}
+  .edge.rejoin{stroke-dasharray:2 6;stroke:#3f4a70}
+  .edge.lit{stroke:var(--info);stroke-width:3;filter:drop-shadow(0 0 6px rgba(96,165,250,.6))}
+  .edge.lit-evasion{stroke:var(--warn);stroke-width:3;filter:drop-shadow(0 0 6px rgba(251,191,36,.55))}
+  .edge-flow{stroke-dasharray:10 90;stroke-dashoffset:100;animation:flow .9s linear forwards}
+  @keyframes flow{to{stroke-dashoffset:0}}
+
+  .metric{font-variant-numeric:tabular-nums}
+  .log-line{border-left:2px solid var(--border);padding-left:.6rem}
+  .log-line.hit{border-left-color:var(--ok)}
+  .log-line.miss{border-left-color:var(--bad)}
+  .log-line.branch{border-left-color:var(--warn)}
+</style>
+</head>
+<body class="antialiased p-4 md:p-8 max-w-7xl mx-auto space-y-6">
+
+<header class="panel rounded-2xl p-6 space-y-3">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight">Adversarial Swarm Workbench</h1>
+      <p class="text-sm mt-1" style="color:var(--muted)">
+        Detection state machine visualiser for <span class="mono">tools/swarm/graph_engine.py</span>
+      </p>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <span class="px-2.5 py-0.5 rounded text-xs mono font-bold" style="background:rgba(52,211,153,.15);color:var(--ok);border:1px solid rgba(52,211,153,.3)">TLP: CLEAR</span>
+      <span class="px-2.5 py-0.5 rounded text-xs mono" style="background:rgba(167,139,250,.15);color:var(--accent);border:1px solid rgba(167,139,250,.3)">INERT SYNTHETIC TELEMETRY</span>
+    </div>
+  </div>
+  <p class="text-xs" style="color:var(--muted)">
+    Walk semantics mirror the Python engine: layer weights 1.0 / 0.8 / 0.6 / 0.4 / 0.2, secondary
+    detections discounted &times;0.5, 60&nbsp;s simulated dwell between stages. No live data is used.
+  </p>
+</header>
+
+<!-- View toggle + controls -->
+<section class="panel rounded-2xl p-5 space-y-4">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div class="inline-flex rounded-lg overflow-hidden" style="border:1px solid var(--border)">
+      <button id="btnDag" class="px-4 py-2 text-sm font-semibold">State Machine DAG</button>
+      <button id="btnLinear" class="px-4 py-2 text-sm font-semibold">Linear Pipeline</button>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="btnRun" class="px-5 py-2 rounded-lg text-sm font-bold"
+              style="background:var(--info);color:#06213f">Run Kill Chain Campaign</button>
+      <button id="btnReset" class="px-4 py-2 rounded-lg text-sm font-semibold panel-2">Reset</button>
+    </div>
+  </div>
+
+  <div>
+    <p class="text-xs uppercase tracking-wider mb-2" style="color:var(--muted)">Adversary evasion profile</p>
+    <div id="evasionToggles" class="flex flex-wrap gap-2"></div>
+  </div>
+</section>
+
+<!-- Live metrics -->
+<section class="grid grid-cols-2 md:grid-cols-4 gap-4">
+  <div class="panel rounded-xl p-4">
+    <p class="text-xs uppercase tracking-wider" style="color:var(--muted)">Depth of Defense</p>
+    <p id="mDod" class="text-3xl font-bold metric mt-1">0.00</p>
+    <div class="h-1.5 rounded mt-2" style="background:var(--card2)">
+      <div id="mDodBar" class="h-1.5 rounded" style="width:0%;background:var(--ok);transition:width .5s"></div>
+    </div>
+  </div>
+  <div class="panel rounded-xl p-4">
+    <p class="text-xs uppercase tracking-wider" style="color:var(--muted)">Mean Time to Detect</p>
+    <p id="mMttd" class="text-3xl font-bold metric mt-1">&mdash;</p>
+    <p class="text-xs mt-2" style="color:var(--muted)">simulated seconds</p>
+  </div>
+  <div class="panel rounded-xl p-4">
+    <p class="text-xs uppercase tracking-wider" style="color:var(--muted)">Path to Objective</p>
+    <p id="mPto" class="text-2xl font-bold mt-1">&mdash;</p>
+    <p id="mPtoSub" class="text-xs mt-2" style="color:var(--muted)">awaiting walk</p>
+  </div>
+  <div class="panel rounded-xl p-4">
+    <p class="text-xs uppercase tracking-wider" style="color:var(--muted)">Interception</p>
+    <p id="mIntercept" class="text-lg font-bold mt-1">&mdash;</p>
+    <p id="mInterceptSub" class="text-xs mt-2 mono" style="color:var(--muted)">&nbsp;</p>
+  </div>
+</section>
+
+<!-- DAG canvas -->
+<section id="viewDag" class="panel rounded-2xl p-5">
+  <h2 class="text-sm font-bold uppercase tracking-wider mb-1" style="color:var(--muted)">State Machine DAG Canvas</h2>
+  <p class="text-xs mb-4" style="color:var(--muted)">
+    Solid edges are the primary lifecycle path. Amber dashed edges are taken only when a primary
+    analytic is evaded, branching to a compensating secondary telemetry path. Dotted edges rejoin.
+  </p>
+  <div class="overflow-x-auto">
+    <svg id="dag" viewBox="0 0 1020 400" class="w-full" style="min-width:900px;height:400px">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5680"/>
+        </marker>
+        <marker id="arrowLit" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#60a5fa"/>
+        </marker>
+      </defs>
+      <g id="edgeLayer"></g>
+      <g id="nodeLayer"></g>
+    </svg>
+  </div>
+  <div class="flex flex-wrap gap-4 mt-3 text-xs" style="color:var(--muted)">
+    <span><span class="inline-block w-3 h-3 rounded-sm align-middle" style="background:#0f2f24;border:1px solid var(--ok)"></span> detected</span>
+    <span><span class="inline-block w-3 h-3 rounded-sm align-middle" style="background:#3a1f1f;border:1px solid var(--bad)"></span> evaded</span>
+    <span><span class="inline-block w-3 h-3 rounded-sm align-middle" style="background:#1e2b47;border:1px solid var(--info)"></span> evaluating</span>
+    <span><span class="inline-block w-3 h-3 rounded-sm align-middle" style="background:#182238;border:1px solid var(--border)"></span> pending</span>
+  </div>
+</section>
+
+<!-- Linear pipeline -->
+<section id="viewLinear" class="panel rounded-2xl p-5 hidden">
+  <h2 class="text-sm font-bold uppercase tracking-wider mb-4" style="color:var(--muted)">Linear Kill Chain Pipeline</h2>
+  <div id="linearStages" class="grid grid-cols-1 md:grid-cols-5 gap-3"></div>
+</section>
+
+<!-- Walk log -->
+<section class="panel rounded-2xl p-5">
+  <h2 class="text-sm font-bold uppercase tracking-wider mb-3" style="color:var(--muted)">Walk Log</h2>
+  <div id="log" class="space-y-2 text-sm mono" style="color:var(--muted)">
+    <p class="log-line">Idle. Configure an evasion profile and run a campaign.</p>
+  </div>
+</section>
+
+<script>
+/* --------------------------------------------------------------------------
+   Graph definition. Mirrors tools/swarm/graph_engine.py build_default_graph().
+   Node ids are the engine's real ids so the canvas and the Python walk agree.
+   -------------------------------------------------------------------------- */
+const LAYER_WEIGHTS = [1.0, 0.8, 0.6, 0.4, 0.2];
+const SECONDARY_DISCOUNT = 0.5;
+const STAGE_DWELL = 60;
+
+const NODES = {
+  ingress:              {label:"Ingress",              tech:"T1566.001", kind:"yara",        depth:0, x:60,  y:110, secondary:false},
+  execution:            {label:"Execution",            tech:"T1204.002", kind:"sigma",       depth:1, x:255, y:110, secondary:false},
+  defense_impairment:   {label:"Defense Impairment",   tech:"T1562.001", kind:"sigma",       depth:2, x:450, y:110, secondary:false},
+  credential_telemetry: {label:"Credential Telemetry", tech:"T1003.001", kind:"sigma",       depth:3, x:645, y:110, secondary:false},
+  persistence:          {label:"Persistence",          tech:"T1053.005", kind:"sigma",       depth:4, x:840, y:110, secondary:false},
+  execution_scriptblock:   {label:"Script Block Corr.",  tech:"T1059.001", kind:"correlation", depth:1, x:255, y:270, secondary:true},
+  credential_procaccess:   {label:"Process Access Corr.",tech:"T1003.001", kind:"correlation", depth:3, x:645, y:270, secondary:true},
+};
+const PRIMARY_ORDER = ["ingress","execution","defense_impairment","credential_telemetry","persistence"];
+const SECONDARY_OF = {execution:"execution_scriptblock", credential_telemetry:"credential_procaccess"};
+/* Stages whose analytic still fires even under the evasive variant. */
+const ALWAYS_DETECTS = new Set(["defense_impairment","persistence"]);
+
+const NODE_W = 150, NODE_H = 56;
+
+/* ---------------------------- rendering ---------------------------------- */
+function edgePath(fromId, toId){
+  const a = NODES[fromId], b = NODES[toId];
+  const ax = a.x + NODE_W, ay = a.y + NODE_H/2;
+  const bx = b.x,          by = b.y + NODE_H/2;
+  if (a.y === b.y){
+    return `M ${ax} ${ay} L ${bx} ${by}`;
+  }
+  // Curved branch between rows.
+  const sx = a.x + NODE_W/2, sy = (b.y > a.y) ? a.y + NODE_H : a.y;
+  const tx = b.x + NODE_W/2, ty = (b.y > a.y) ? b.y : b.y + NODE_H;
+  const midY = (sy + ty) / 2;
+  return `M ${sx} ${sy} C ${sx} ${midY}, ${tx} ${midY}, ${tx} ${ty}`;
+}
+
+const EDGES = [
+  ...PRIMARY_ORDER.slice(0,-1).map((s,i)=>({src:s, dst:PRIMARY_ORDER[i+1], kind:"primary"})),
+  {src:"execution",            dst:"execution_scriptblock",  kind:"evasion"},
+  {src:"execution_scriptblock",dst:"defense_impairment",     kind:"rejoin"},
+  {src:"credential_telemetry", dst:"credential_procaccess",  kind:"evasion"},
+  {src:"credential_procaccess",dst:"persistence",            kind:"rejoin"},
+];
+
+function edgeId(e){ return `e_${e.src}__${e.dst}`; }
+
+function renderGraph(){
+  const el = document.getElementById("edgeLayer");
+  const nl = document.getElementById("nodeLayer");
+  el.innerHTML = ""; nl.innerHTML = "";
+
+  EDGES.forEach(e=>{
+    const p = document.createElementNS("http://www.w3.org/2000/svg","path");
+    p.setAttribute("d", edgePath(e.src, e.dst));
+    p.setAttribute("id", edgeId(e));
+    p.setAttribute("class", `edge ${e.kind==="evasion"?"evasion":e.kind==="rejoin"?"rejoin":""}`);
+    p.setAttribute("marker-end","url(#arrow)");
+    el.appendChild(p);
+  });
+
+  Object.entries(NODES).forEach(([id,n])=>{
+    const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+    g.setAttribute("class","node pending");
+    g.setAttribute("id",`n_${id}`);
+
+    const r = document.createElementNS("http://www.w3.org/2000/svg","rect");
+    r.setAttribute("x",n.x); r.setAttribute("y",n.y);
+    r.setAttribute("width",NODE_W); r.setAttribute("height",NODE_H);
+    r.setAttribute("rx","10");
+    r.setAttribute("stroke","#26314d"); r.setAttribute("fill","#182238");
+    r.setAttribute("stroke-width", n.secondary ? "1.5" : "2");
+    if(n.secondary) r.setAttribute("stroke-dasharray","5 4");
+    g.appendChild(r);
+
+    const t1 = document.createElementNS("http://www.w3.org/2000/svg","text");
+    t1.setAttribute("x", n.x + NODE_W/2); t1.setAttribute("y", n.y + 23);
+    t1.setAttribute("text-anchor","middle");
+    t1.setAttribute("fill","#e6ecff");
+    t1.setAttribute("font-size","13"); t1.setAttribute("font-weight","600");
+    t1.textContent = n.label;
+    g.appendChild(t1);
+
+    const t2 = document.createElementNS("http://www.w3.org/2000/svg","text");
+    t2.setAttribute("x", n.x + NODE_W/2); t2.setAttribute("y", n.y + 41);
+    t2.setAttribute("text-anchor","middle");
+    t2.setAttribute("fill","#93a1c4");
+    t2.setAttribute("font-size","11");
+    t2.setAttribute("font-family","ui-monospace, monospace");
+    t2.textContent = n.tech;
+    g.appendChild(t2);
+
+    const st = document.createElementNS("http://www.w3.org/2000/svg","text");
+    st.setAttribute("x", n.x + NODE_W/2); st.setAttribute("y", n.y + NODE_H + 15);
+    st.setAttribute("text-anchor","middle");
+    st.setAttribute("fill","#93a1c4"); st.setAttribute("font-size","10");
+    st.setAttribute("id",`s_${id}`);
+    st.textContent = "";
+    g.appendChild(st);
+
+    nl.appendChild(g);
+  });
+}
+
+function renderLinear(){
+  const wrap = document.getElementById("linearStages");
+  wrap.innerHTML = "";
+  PRIMARY_ORDER.forEach((id,i)=>{
+    const n = NODES[id];
+    const d = document.createElement("div");
+    d.className = "panel-2 rounded-xl p-3";
+    d.id = `lin_${id}`;
+    d.innerHTML = `
+      <p class="text-xs mono" style="color:var(--muted)">STAGE ${i+1}</p>
+      <p class="font-semibold text-sm mt-1">${n.label}</p>
+      <p class="text-xs mono mt-1" style="color:var(--muted)">${n.tech}</p>
+      <p class="text-xs mt-2 font-bold" id="linst_${id}" style="color:var(--muted)">pending</p>`;
+    wrap.appendChild(d);
+  });
+}
+
+function renderToggles(){
+  const wrap = document.getElementById("evasionToggles");
+  wrap.innerHTML = "";
+  PRIMARY_ORDER.forEach(id=>{
+    const b = document.createElement("button");
+    b.className = "px-3 py-1.5 rounded-lg text-xs font-semibold panel-2";
+    b.dataset.node = id;
+    b.dataset.on = "false";
+    b.textContent = NODES[id].label;
+    b.onclick = ()=>{
+      const on = b.dataset.on === "true";
+      b.dataset.on = on ? "false" : "true";
+      b.style.background = on ? "" : "rgba(251,191,36,.18)";
+      b.style.color      = on ? "" : "var(--warn)";
+      b.style.borderColor= on ? "" : "rgba(251,191,36,.4)";
+    };
+    wrap.appendChild(b);
+  });
+}
+
+function selectedEvasions(){
+  return [...document.querySelectorAll("#evasionToggles button")]
+    .filter(b=>b.dataset.on==="true").map(b=>b.dataset.node);
+}
+
+/* ------------------------------ walk ------------------------------------- */
+function setNodeState(id, state, statusText){
+  const g = document.getElementById(`n_${id}`);
+  if(g) g.setAttribute("class", `node ${state}`);
+  const s = document.getElementById(`s_${id}`);
+  if(s && statusText !== undefined){
+    s.textContent = statusText;
+    s.setAttribute("fill", state==="detected" ? "#34d399" : state==="evaded" ? "#f87171" : "#93a1c4");
+  }
+  const lin = document.getElementById(`linst_${id}`);
+  if(lin && statusText !== undefined){
+    lin.textContent = statusText;
+    lin.style.color = state==="detected" ? "var(--ok)" : state==="evaded" ? "var(--bad)" : "var(--muted)";
+  }
+}
+
+function litEdge(src, dst, evasion){
+  const e = document.getElementById(`e_${src}__${dst}`);
+  if(!e) return;
+  e.classList.add(evasion ? "lit-evasion" : "lit", "edge-flow");
+  e.setAttribute("marker-end","url(#arrowLit)");
+}
+
+function log(msg, cls){
+  const box = document.getElementById("log");
+  const p = document.createElement("p");
+  p.className = `log-line ${cls||""}`;
+  p.textContent = msg;
+  box.appendChild(p);
+  box.scrollTop = box.scrollHeight;
+}
+
+function resetWalk(){
+  renderGraph(); renderLinear();
+  document.getElementById("log").innerHTML =
+    '<p class="log-line">Idle. Configure an evasion profile and run a campaign.</p>';
+  ["mDod","mMttd","mPto","mIntercept"].forEach(id=>{
+    document.getElementById(id).textContent = id==="mDod" ? "0.00" : "—";
+  });
+  document.getElementById("mDodBar").style.width = "0%";
+  document.getElementById("mPtoSub").textContent = "awaiting walk";
+  document.getElementById("mInterceptSub").textContent = " ";
+}
+
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+/**
+ * Executes one animated walk of the DAG, mirroring GraphEngine.walk().
+ * Returns the walk result {intercepted, dod, mttd, reachedObjective}.
+ */
+async function runKillChainCampaign(){
+  const runBtn = document.getElementById("btnRun");
+  runBtn.disabled = true; runBtn.style.opacity = .55;
+  resetWalk();
+  document.getElementById("log").innerHTML = "";
+
+  const evasive = new Set(selectedEvasions());
+  log(`Walk start. Evasion profile: ${evasive.size ? [...evasive].join(", ") : "none"}`);
+
+  let intercepted=false, interceptNode=null, interceptTech=null, mttd=null, earned=0;
+  const totalWeight = LAYER_WEIGHTS.reduce((a,b)=>a+b,0);
+
+  for(let i=0;i<PRIMARY_ORDER.length;i++){
+    const id = PRIMARY_ORDER[i];
+    const node = NODES[id];
+    const tOffset = i * STAGE_DWELL;
+
+    if(i>0) litEdge(PRIMARY_ORDER[i-1], id, false);
+    setNodeState(id, "active", "evaluating…");
+    await sleep(520);
+
+    const evaded = evasive.has(id) && !ALWAYS_DETECTS.has(id);
+    const detected = !evaded;
+
+    if(detected){
+      earned += LAYER_WEIGHTS[node.depth];
+      setNodeState(id,"detected", `detected @ ${tOffset}s`);
+      log(`[t+${tOffset}s] ${node.label} (${node.tech}) — DETECTED`, "hit");
+      if(!intercepted){ intercepted=true; interceptNode=node.label; interceptTech=node.tech; mttd=tOffset; }
+    } else {
+      setNodeState(id,"evaded", `evaded @ ${tOffset}s`);
+      log(`[t+${tOffset}s] ${node.label} (${node.tech}) — EVADED`, "miss");
+
+      const secId = SECONDARY_OF[id];
+      if(secId){
+        await sleep(280);
+        litEdge(id, secId, true);
+        const sec = NODES[secId];
+        const secOffset = tOffset + STAGE_DWELL/2;
+        setNodeState(secId,"active","evaluating…");
+        log(`         ↳ branching to secondary telemetry path: ${sec.label}`, "branch");
+        await sleep(520);
+        // Compensating correlation controls fire on the evaded activity.
+        earned += LAYER_WEIGHTS[sec.depth] * SECONDARY_DISCOUNT;
+        setNodeState(secId,"detected", `detected @ ${secOffset}s`);
+        log(`[t+${secOffset}s] ${sec.label} (${sec.tech}) — DETECTED by correlation`, "hit");
+        if(!intercepted){ intercepted=true; interceptNode=sec.label; interceptTech=sec.tech; mttd=secOffset; }
+        const rejoinTo = PRIMARY_ORDER[i+1];
+        if(rejoinTo){ await sleep(220); litEdge(secId, rejoinTo, false); }
+      }
+    }
+    updateMetrics(earned/totalWeight, mttd, intercepted, interceptNode, interceptTech);
+    await sleep(260);
+  }
+
+  const dod = Math.min(earned/totalWeight, 1);
+  const reachedObjective = !intercepted;
+  updateMetrics(dod, mttd, intercepted, interceptNode, interceptTech);
+
+  log(reachedObjective
+    ? "Walk complete. UNCONTAINED BREACH — objective reached with no layer detecting."
+    : `Walk complete. CONTAINED — first interception at ${interceptNode} (${interceptTech}).`,
+    reachedObjective ? "miss" : "hit");
+
+  runBtn.disabled = false; runBtn.style.opacity = 1;
+  return {intercepted, dod, mttd, reachedObjective};
+}
+
+function updateMetrics(dod, mttd, intercepted, node, tech){
+  document.getElementById("mDod").textContent = dod.toFixed(2);
+  document.getElementById("mDodBar").style.width = `${Math.round(dod*100)}%`;
+  document.getElementById("mDodBar").style.background =
+    dod >= .7 ? "var(--ok)" : dod >= .4 ? "var(--warn)" : "var(--bad)";
+
+  document.getElementById("mMttd").textContent = mttd===null ? "—" : `${mttd}s`;
+
+  const pto = document.getElementById("mPto");
+  const ptoSub = document.getElementById("mPtoSub");
+  if(intercepted){
+    pto.textContent = "CONTAINED"; pto.style.color = "var(--ok)";
+    ptoSub.textContent = "objective not reached";
+  } else {
+    pto.textContent = "OPEN"; pto.style.color = "var(--warn)";
+    ptoSub.textContent = "no layer has fired yet";
+  }
+
+  document.getElementById("mIntercept").textContent = node || "—";
+  document.getElementById("mInterceptSub").textContent = tech || " ";
+}
+
+/* ------------------------------ view toggle ------------------------------ */
+function setView(which){
+  const dag = document.getElementById("viewDag");
+  const lin = document.getElementById("viewLinear");
+  const bD = document.getElementById("btnDag"), bL = document.getElementById("btnLinear");
+  const on = {background:"var(--info)", color:"#06213f"};
+  const off= {background:"var(--card2)", color:"var(--muted)"};
+  const apply=(b,s)=>{b.style.background=s.background;b.style.color=s.color;};
+  if(which==="dag"){ dag.classList.remove("hidden"); lin.classList.add("hidden"); apply(bD,on); apply(bL,off); }
+  else             { lin.classList.remove("hidden"); dag.classList.add("hidden"); apply(bL,on); apply(bD,off); }
+}
+
+document.getElementById("btnDag").onclick    = ()=>setView("dag");
+document.getElementById("btnLinear").onclick = ()=>setView("linear");
+document.getElementById("btnRun").onclick    = ()=>runKillChainCampaign();
+document.getElementById("btnReset").onclick  = ()=>resetWalk();
+
+renderToggles();
+renderGraph();
+renderLinear();
+setView("dag");
+</script>
+</body>
+</html>
