@@ -16,8 +16,8 @@
 
 ## Later: add threat-research depth
 
-9. Reproduce a public campaign analysis from public reporting and public artifacts.
-10. Separate observed facts, analytical judgments, hypotheses, and unknowns.
+9. DONE (2026-09-03): published research note on active-content SVG phishing (docs/research/) based on public reporting and v0.1.0 measured results.
+10. Next campaign analysis: reproduce a public campaign analysis from public reporting and public artifacts, separating observed facts, analytical judgments, hypotheses, and unknowns.
 11. Publish indicators with source, first-seen date, confidence, and expiration guidance.
 
 ## Not yet

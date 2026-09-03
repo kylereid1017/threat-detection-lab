@@ -33,9 +33,6 @@ class SuspiciousActiveContentSvgTests(unittest.TestCase):
         hit = [f.name for f in fixtures if self.match(f)]
         self.assertEqual([], hit)
 
-    def test_malicious_alarms_only_when_evidence_is_present(self):
-        pass
-
 
 class SuspiciousActiveContentSvgCorpusTests(unittest.TestCase):
     """Optional benign-corpus regression: runs only if a pinned corpus exists."""
