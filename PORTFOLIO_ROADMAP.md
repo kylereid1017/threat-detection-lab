@@ -17,8 +17,9 @@
 ## Later: add threat-research depth
 
 9. DONE (2026-09-03): published research note on active-content SVG phishing (docs/research/) based on public reporting and v0.1.0 measured results.
-10. Next campaign analysis: reproduce a public campaign analysis from public reporting and public artifacts, separating observed facts, analytical judgments, hypotheses, and unknowns.
-11. Publish indicators with source, first-seen date, confidence, and expiration guidance.
+10. DONE (2026-09-03): built the Adversarial Swarm Intelligence Engine (`tools/swarm/`) with a 4-layer safety architecture and 5-agent closed loop (Strategist, Craftsmen, Critic, Detectors, Analyst, Adapter) mapping detection boundaries for YARA and Sigma rules.
+11. Next campaign analysis: reproduce a public campaign analysis from public reporting and public artifacts, separating observed facts, analytical judgments, hypotheses, and unknowns.
+12. Publish indicators with source, first-seen date, confidence, and expiration guidance.
 
 ## Not yet
 

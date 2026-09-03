@@ -6,6 +6,18 @@ Keep a Changelog; versioning follows SemVer.
 ## [Unreleased]
 
 ### Added
+- Adversarial Swarm Intelligence Engine (`tools/swarm/`): a controlled multi-agent
+  testing harness with a 4-layer safety architecture and 5-agent closed feedback
+  loop (Strategist, Craftsmen, Critic, Detectors, Analyst, Adapter) for automated
+  detection boundary testing against YARA and Sigma rules.
+- Pre-flight safety Critic enforcing RFC 2606 reserved domain boundaries (`.invalid`)
+  and syntax validity.
+- Specialized Craftsmen mutators (`SvgCraftsman`, `ProcessCraftsman`) exploring
+  structural, syntactic, LOLBin, and obfuscation evasion axes.
+- Comprehensive architecture documentation (`docs/swarm/architecture.md`) and
+  reproducible boundary maps/campaign reports (`docs/swarm/results/`).
+- Swarm regression test suite (`tests/test_swarm.py`) covering Critic safety gates,
+  Craftsmen generators, and end-to-end closed-loop orchestration.
 - Second detection: `Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)`
   Sigma rule (`rules/sigma/proc_creation_win_explorer_clickfix_execution.yml`).
 - Twelve synthetic process creation fixtures (6 positive, 6 negative) covering

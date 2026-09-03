@@ -1,0 +1,75 @@
+{
+  "target_rule": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+  "target_type": "sigma",
+  "cycles_completed": 2,
+  "total_generated": 7,
+  "critic_approved": 7,
+  "detected_count": 7,
+  "evaded_count": 0,
+  "resilience_score": 1.0,
+  "findings": [
+    {
+      "axis": "syntax",
+      "mutation_name": "proc_powershell_standard_clickfix",
+      "detected": true,
+      "evasion_gap_found": false,
+      "root_cause": "Rule logic successfully triggered on variant features.",
+      "policy_recommendation": "Current rule signature is resilient against this variation.",
+      "confidence": "HIGH"
+    },
+    {
+      "axis": "obfuscation",
+      "mutation_name": "proc_powershell_windowstyle_numeric",
+      "detected": true,
+      "evasion_gap_found": false,
+      "root_cause": "Rule logic successfully triggered on variant features.",
+      "policy_recommendation": "Current rule signature is resilient against this variation.",
+      "confidence": "HIGH"
+    },
+    {
+      "axis": "syntax",
+      "mutation_name": "proc_powershell_windowstyle_short_h",
+      "detected": true,
+      "evasion_gap_found": false,
+      "root_cause": "Rule logic successfully triggered on variant features.",
+      "policy_recommendation": "Current rule signature is resilient against this variation.",
+      "confidence": "HIGH"
+    },
+    {
+      "axis": "lolbin",
+      "mutation_name": "proc_mshta_remote_url",
+      "detected": true,
+      "evasion_gap_found": false,
+      "root_cause": "Rule logic successfully triggered on variant features.",
+      "policy_recommendation": "Current rule signature is resilient against this variation.",
+      "confidence": "HIGH"
+    },
+    {
+      "axis": "lolbin",
+      "mutation_name": "proc_curl_outbound_download",
+      "detected": true,
+      "evasion_gap_found": false,
+      "root_cause": "Rule logic successfully triggered on variant features.",
+      "policy_recommendation": "Current rule signature is resilient against this variation.",
+      "confidence": "HIGH"
+    },
+    {
+      "axis": "syntax",
+      "mutation_name": "proc_cmd_start_b_staging",
+      "detected": true,
+      "evasion_gap_found": false,
+      "root_cause": "Rule logic successfully triggered on variant features.",
+      "policy_recommendation": "Current rule signature is resilient against this variation.",
+      "confidence": "HIGH"
+    },
+    {
+      "axis": "obfuscation",
+      "mutation_name": "proc_powershell_base64_encoded",
+      "detected": true,
+      "evasion_gap_found": false,
+      "root_cause": "Rule logic successfully triggered on variant features.",
+      "policy_recommendation": "Current rule signature is resilient against this variation.",
+      "confidence": "HIGH"
+    }
+  ]
+}

@@ -12,23 +12,38 @@ Targets SVG email attachments combining script execution/event handlers, navigat
 
 Targets user-assisted host execution common in ClickFix, ClearFake, and social-engineering campaigns where users are instructed to paste malicious downloaders or cradles into the Windows Run dialog (`Win + R`). See `docs/detections/explorer-clickfix-execution.md`.
 
+## Adversarial Swarm Intelligence Engine
+
+A sandboxed multi-agent testing harness (`tools/swarm/`) implementing a closed feedback loop across 5 specialized roles (Strategist, Craftsmen, Critic, Detectors, Analyst, Adapter) to systematically probe detection boundaries across structural, syntactic, and LOLBin evasion axes. See `docs/swarm/architecture.md`.
+
 ## Repository layout
 
 - `rules/yara/` — YARA rules
 - `rules/sigma/` — Sigma rules (process creation, endpoint telemetry)
+- `tools/swarm/` — multi-agent adversarial boundary testing engine
 - `docs/research/` — original research notes
 - `docs/detections/` — methodology, rationale, limitations, and ATT&CK mapping
+- `docs/swarm/` — architecture notes and empirical boundary maps
 - `tests/fixtures/` — inert synthetic samples and telemetry events (positive and negative)
 - `tests/test_yara_rules.py` — YARA regression tests
 - `tests/test_sigma_rules.py` — Sigma schema validation, regression tests, and SIEM conversion tests
+- `tests/test_swarm.py` — Swarm safety gates, mutators, and orchestration tests
 - `PORTFOLIO_ROADMAP.md` — a small, ordered delivery plan
 
 ## Run locally
 
 Requires Python 3.11+.
 
-    python -m pip install -r requirements-dev.txt
-    python -m unittest discover -s tests -v
+```powershell
+python -m pip install -r requirements-dev.txt
+
+# Run all unit and regression tests (YARA, Sigma, Swarm)
+python -m unittest discover -s tests -v
+
+# Run the Adversarial Swarm against detections
+python -m tools.swarm.cli --target yara --max-cycles 3
+python -m tools.swarm.cli --target sigma --max-cycles 3
+```
 
 ## Safety and provenance
 
