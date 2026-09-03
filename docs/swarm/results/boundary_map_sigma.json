@@ -15,7 +15,11 @@
       "evasion_gap_found": false,
       "root_cause": "Rule logic successfully triggered on variant features.",
       "policy_recommendation": "Current rule signature is resilient against this variation.",
-      "confidence": "HIGH"
+      "confidence": "HIGH",
+      "target_rule": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "target_type": "sigma",
+      "cycle": 1,
+      "variant_id": ""
     },
     {
       "axis": "obfuscation",
@@ -24,7 +28,11 @@
       "evasion_gap_found": false,
       "root_cause": "Rule logic successfully triggered on variant features.",
       "policy_recommendation": "Current rule signature is resilient against this variation.",
-      "confidence": "HIGH"
+      "confidence": "HIGH",
+      "target_rule": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "target_type": "sigma",
+      "cycle": 1,
+      "variant_id": ""
     },
     {
       "axis": "syntax",
@@ -33,7 +41,11 @@
       "evasion_gap_found": false,
       "root_cause": "Rule logic successfully triggered on variant features.",
       "policy_recommendation": "Current rule signature is resilient against this variation.",
-      "confidence": "HIGH"
+      "confidence": "HIGH",
+      "target_rule": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "target_type": "sigma",
+      "cycle": 1,
+      "variant_id": ""
     },
     {
       "axis": "lolbin",
@@ -42,7 +54,11 @@
       "evasion_gap_found": false,
       "root_cause": "Rule logic successfully triggered on variant features.",
       "policy_recommendation": "Current rule signature is resilient against this variation.",
-      "confidence": "HIGH"
+      "confidence": "HIGH",
+      "target_rule": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "target_type": "sigma",
+      "cycle": 1,
+      "variant_id": ""
     },
     {
       "axis": "lolbin",
@@ -51,7 +67,11 @@
       "evasion_gap_found": false,
       "root_cause": "Rule logic successfully triggered on variant features.",
       "policy_recommendation": "Current rule signature is resilient against this variation.",
-      "confidence": "HIGH"
+      "confidence": "HIGH",
+      "target_rule": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "target_type": "sigma",
+      "cycle": 1,
+      "variant_id": ""
     },
     {
       "axis": "syntax",
@@ -60,7 +80,11 @@
       "evasion_gap_found": false,
       "root_cause": "Rule logic successfully triggered on variant features.",
       "policy_recommendation": "Current rule signature is resilient against this variation.",
-      "confidence": "HIGH"
+      "confidence": "HIGH",
+      "target_rule": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "target_type": "sigma",
+      "cycle": 1,
+      "variant_id": ""
     },
     {
       "axis": "obfuscation",
@@ -69,7 +93,11 @@
       "evasion_gap_found": false,
       "root_cause": "Rule logic successfully triggered on variant features.",
       "policy_recommendation": "Current rule signature is resilient against this variation.",
-      "confidence": "HIGH"
+      "confidence": "HIGH",
+      "target_rule": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "target_type": "sigma",
+      "cycle": 1,
+      "variant_id": ""
     }
   ]
 }

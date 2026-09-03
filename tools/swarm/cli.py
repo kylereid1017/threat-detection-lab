@@ -55,6 +55,11 @@ def parse_args() -> argparse.Namespace:
         help="Custom operator threat prompt directive to test immediately",
     )
     parser.add_argument(
+        "--self-heal",
+        action="store_true",
+        help="Enable autonomous self-healing loop to synthesize rule patches and threat intelligence cables",
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=Path(__file__).resolve().parents[2] / "docs" / "swarm" / "results",
@@ -103,8 +108,10 @@ def main() -> int:
             status = "[+] DETECTED" if item["detected"] else ("[!] EVASION GAP" if item["critic_passed"] else "[X] CRITIC BLOCKED")
             print(f"    [Iter {item['iteration']:02d}] {status} | Axis: {item['axis']:<12} | Resilience: {item['cumulative_resilience']*100:.1f}%")
             print(f"             Prompt: \"{item['prompt']}\"")
+            if item.get("healing") and item["healing"].get("healed"):
+                print(f"             [+] SELF-HEALED! Synthesized patch & authored cable: {item['healing']['cable_path']}")
 
-        summary = auto_orch.run_autonomous(iterations=args.iterations, on_iteration=on_iter)
+        summary = auto_orch.run_autonomous(iterations=args.iterations, on_iteration=on_iter, self_heal=args.self_heal)
         print("\n[+] Autonomous Sparring Complete!")
         print(f"    - Iterations Run: {summary['iterations_run']}")
         print(f"    - Critic Approved: {summary['critic_approved']}")

@@ -21,6 +21,7 @@
 11. DONE (2026-09-03): published structured threat intelligence cable (`docs/cables/CABLE-2026-001-clickfix-initial-access.md`) analyzing ClickFix / ClearFake initial access campaigns, separating observed facts from analytical judgments, hypotheses, and unknowns under Sherman Kent doctrine.
 12. DONE (2026-09-03): published indicator of compromise (IOC) matrix with role context, analytical confidence ratings, and TTL expiration guidance.
 13. DONE (2026-09-03): built the PromptEngine, Autonomous continuous sparring orchestrator, and visual Workbench endless mode to autonomously simulate continuous waves of novel attack permutations and track boundary resilience over time.
+14. DONE (2026-09-03): built the Self-Healing Loop (`tools/swarm/adapter.py`) and Automated Intelligence Cable Generator (`tools/swarm/cable_writer.py`) producing ICD 203 / Kent doctrine intelligence cables with YAML frontmatter, Diamond Model graphs, and zero-false-positive verified rule patches.
 
 ## Not yet
 

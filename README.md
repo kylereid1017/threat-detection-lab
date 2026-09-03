@@ -45,8 +45,8 @@ python -m unittest discover -s tests -v
 python -m tools.swarm.cli --target yara --max-cycles 3
 python -m tools.swarm.cli --target sigma --max-cycles 3
 
-# Run autonomous continuous sparring stream (10 iterations)
-python -m tools.swarm.cli --target sigma --autonomous --iterations 10
+# Run autonomous continuous sparring with automated self-healing & cable generation
+python -m tools.swarm.cli --target sigma --autonomous --iterations 10 --self-heal
 
 # Test a custom threat simulation prompt
 python -m tools.swarm.cli --target sigma --prompt "Test PowerShell execution with short -w h switch"

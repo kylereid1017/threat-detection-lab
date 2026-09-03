@@ -10,41 +10,44 @@
   "history": [
     {
       "iteration": 1,
-      "timestamp": "2026-09-03T18:51:10.023022+00:00",
+      "timestamp": "2026-09-03T19:26:34.864429+00:00",
       "prompt": "Test SVG parsing with namespace prefix <svg:svg> and location.replace",
-      "variant_id": "prompt-b3587bdc",
+      "variant_id": "prompt-7b7764df",
       "mutation_name": "prompt_svg_structural",
       "axis": "structural",
       "critic_passed": true,
       "critic_reason": "Passed all pre-flight syntax and safety checks",
       "detected": true,
       "evasion_gap": false,
+      "healing": null,
       "cumulative_resilience": 1.0
     },
     {
       "iteration": 2,
-      "timestamp": "2026-09-03T18:51:10.023294+00:00",
+      "timestamp": "2026-09-03T19:26:34.864642+00:00",
       "prompt": "Test SVG foreignObject containing HTML meta-refresh redirect to external URL",
-      "variant_id": "prompt-a6e7420a",
+      "variant_id": "prompt-8a733d75",
       "mutation_name": "prompt_svg_parser_differential",
       "axis": "parser_differential",
       "critic_passed": true,
       "critic_reason": "Passed all pre-flight syntax and safety checks",
       "detected": false,
       "evasion_gap": true,
+      "healing": null,
       "cumulative_resilience": 0.5
     },
     {
       "iteration": 3,
-      "timestamp": "2026-09-03T18:51:10.023501+00:00",
+      "timestamp": "2026-09-03T19:26:34.864816+00:00",
       "prompt": "Test JavaScript bracket access window['location']['href'] to evade literal strings",
-      "variant_id": "prompt-8c07415f",
+      "variant_id": "prompt-9b702ae9",
       "mutation_name": "prompt_svg_obfuscation",
       "axis": "obfuscation",
       "critic_passed": true,
       "critic_reason": "Passed all pre-flight syntax and safety checks",
       "detected": true,
       "evasion_gap": false,
+      "healing": null,
       "cumulative_resilience": 0.667
     }
   ]
