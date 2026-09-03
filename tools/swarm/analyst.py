@@ -103,7 +103,36 @@ class SwarmAnalyst:
                 "REC-YARA-003: Update regex to accept optional namespace prefixes: `<([a-zA-Z0-9_-]+:)?svg`.",
             )
 
+        if "foreignobject" in name or "meta" in name:
+            return (
+                "SVG wraps HTML `<meta http-equiv=\"refresh\">` inside `<foreignObject>`, triggering browser "
+                "redirection without `<script>` tags, DOM event handlers, or `location` strings.",
+                "REC-YARA-004: Add `<foreignObject` and `<meta` refresh to monitored active-content vectors.",
+            )
+        if "animate" in name or "smil" in name:
+            return (
+                "SVG SMIL animation `<animate attributeName=\"href\">` triggers navigation without `<script>` or event handlers.",
+                "REC-YARA-005: Inspect SVG `<animate>` and `<set>` elements altering hyperlinking attributes.",
+            )
+
         # Sigma Evasion Attribution
+        if "pcalua" in name:
+            return (
+                "Explorer spawned `pcalua.exe` (Program Compatibility Assistant) as a proxy to launch PowerShell, "
+                "bypassing direct child binary image filters on `explorer.exe`.",
+                "REC-SIGMA-006: Monitor `pcalua.exe` when invoked from Explorer with shell or network arguments.",
+            )
+        if "stdin" in name or "pipe" in name:
+            return (
+                "Payload commands were streamed via standard input (`powershell -`), leaving the process command line "
+                "telemetry empty of suspicious download cradle arguments.",
+                "REC-SIGMA-007: Correlate with PowerShell Script Block Logging (Event ID 4104) and pipe redirection telemetry.",
+            )
+        if "terminal" in name or "wt" in name:
+            return (
+                "Explorer launched Windows Terminal (`wt.exe`) to wrap shell execution, evading direct explorer->powershell parent-child relationship.",
+                "REC-SIGMA-008: Add modern terminal wrappers (`wt.exe`, `conhost.exe`) to monitored parent/child trees.",
+            )
         if "numeric" in name or "short_h" in name:
             return (
                 "Sigma rule checks for literal `*-w hidden*` or `*-windowstyle hidden*`, missing valid "

