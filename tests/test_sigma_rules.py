@@ -51,11 +51,13 @@ class SigmaRuleFixtureRegressionTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.collection = SigmaCollection.from_yaml(RULE_PATH.read_text(encoding="utf-8"))
         cls.backend = sqliteBackend()
-        cls.queries = cls.backend.convert(cls.collection)
+        cls.rule_queries = {}
+        for rpath in SIGMA_RULES_DIR.glob("*.yml"):
+            col = SigmaCollection.from_yaml(rpath.read_text(encoding="utf-8"))
+            cls.rule_queries[rpath.name] = cls.backend.convert(col)
 
-    def _evaluate_event(self, event_dict: dict) -> bool:
+    def _evaluate_event(self, event_dict: dict, rule_name: str | None = None) -> bool:
         conn = sqlite3.connect(":memory:")
         cursor = conn.cursor()
         cols = list(event_dict.keys())
@@ -66,31 +68,63 @@ class SigmaRuleFixtureRegressionTests(unittest.TestCase):
             f"INSERT INTO events VALUES ({placeholders})",
             [str(v) if v is not None else "" for v in event_dict.values()]
         )
-        for query in self.queries:
+        queries_to_test = []
+        if rule_name:
+            queries_to_test = self.rule_queries.get(rule_name, [])
+        else:
+            for q_list in self.rule_queries.values():
+                queries_to_test.extend(q_list)
+
+        for query in queries_to_test:
             sql = query.replace("<TABLE_NAME>", "events")
             rows = cursor.execute(sql).fetchall()
             if rows:
                 return True
         return False
 
-    def test_every_positive_fixture_matches(self):
-        fixtures = sorted(POSITIVE_DIR.glob("*.json"))
-        self.assertGreater(len(fixtures), 0, "no positive fixtures found")
-        missed = []
-        for fixture in fixtures:
-            event = json.loads(fixture.read_text(encoding="utf-8"))
-            if not self._evaluate_event(event):
-                missed.append(fixture.name)
-        self.assertEqual([], missed, f"Positive fixtures failed to match: {missed}")
+    def test_every_positive_fixture_matches_its_rule(self):
+        rule_fixture_map = {
+            "proc_creation_win_defense_evasion_tampering.yml": [
+                "clickfix_wevtutil_log_clear.json",
+                "clickfix_defender_disable.json",
+            ],
+            "proc_creation_win_rundll32_lsass_dump.yml": [
+                "clickfix_rundll32_comsvcs_dump.json",
+                "clickfix_rundll32_comsvcs_ordinal.json",
+            ],
+            "proc_creation_win_schtasks_persistence.yml": [
+                "clickfix_schtasks_logon_powershell.json",
+                "clickfix_schtasks_minute_cmd.json",
+            ],
+            "proc_creation_win_explorer_clickfix_execution.yml": [
+                "clickfix_cmd_powershell_staging.json",
+                "clickfix_curl_temp_exec.json",
+                "clickfix_mshta_remote.json",
+                "clickfix_powershell_encoded.json",
+                "clickfix_powershell_irm_iex.json",
+                "clickfix_powershell_webclient_hidden.json",
+            ],
+        }
 
-    def test_every_negative_fixture_does_not_match(self):
+        for rule_name, fixture_names in rule_fixture_map.items():
+            for fname in fixture_names:
+                fpath = POSITIVE_DIR / fname
+                self.assertTrue(fpath.exists(), f"Fixture {fname} does not exist")
+                event = json.loads(fpath.read_text(encoding="utf-8"))
+                self.assertTrue(
+                    self._evaluate_event(event, rule_name=rule_name),
+                    f"Rule {rule_name} failed to detect positive fixture {fname}"
+                )
+
+    def test_every_negative_fixture_does_not_match_any_rule(self):
         fixtures = sorted(NEGATIVE_DIR.glob("*.json"))
         self.assertGreater(len(fixtures), 0, "no negative fixtures found")
         false_positives = []
         for fixture in fixtures:
             event = json.loads(fixture.read_text(encoding="utf-8"))
-            if self._evaluate_event(event):
-                false_positives.append(fixture.name)
+            for rule_name in self.rule_queries:
+                if self._evaluate_event(event, rule_name=rule_name):
+                    false_positives.append(f"{fixture.name} triggered {rule_name}")
         self.assertEqual([], false_positives, f"Negative fixtures falsely triggered: {false_positives}")
 
 

@@ -23,7 +23,7 @@ class SwarmAdapter:
         self,
         finding: BoundaryFinding,
         variant: Variant,
-        detector: BaseDetector,
+        detector: Optional[BaseDetector] = None,
         apply_patch: bool = True,
     ) -> Tuple[bool, Optional[Path], str]:
         """Diagnoses an evasion gap, synthesizes a candidate rule patch, verifies it, and authors an intelligence cable."""

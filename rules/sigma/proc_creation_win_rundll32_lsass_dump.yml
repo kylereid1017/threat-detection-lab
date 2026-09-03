@@ -1,0 +1,37 @@
+title: LSASS Process Memory Dump via Rundll32 Comsvcs.dll
+id: 7f8a9b0c-1d2e-4f3a-8b9c-0d1e2f3a4b5c
+status: experimental
+description: Detects execution of rundll32.exe calling comsvcs.dll MiniDump export or ordinal #24 to dump LSASS process memory.
+references:
+    - https://attack.mitre.org/techniques/T1003/001/
+    - https://modexp.wordpress.com/2019/08/30/minidumpwritedump-via-comsvcs-dll/
+author: Kyle Reid
+date: 2026-09-03
+tags:
+    - attack.credential-access
+    - attack.t1003.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        Image|endswith:
+            - '\rundll32.exe'
+    selection_dll:
+        CommandLine|contains:
+            - 'comsvcs.dll'
+            - 'comsvcs'
+    selection_method:
+        CommandLine|contains:
+            - 'MiniDump'
+            - 'minidump'
+            - '#24'
+            - 'MiniDumpW'
+    condition: selection_img and selection_dll and selection_method
+fields:
+    - CommandLine
+    - Image
+    - User
+falsepositives:
+    - Extremely rare developer diagnostics; essentially zero in standard enterprise workstation telemetry.
+level: critical

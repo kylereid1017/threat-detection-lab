@@ -74,3 +74,38 @@ class BoundaryMap:
 
     def to_json(self, indent: int = 2) -> str:
         return json.dumps(self.to_dict(), indent=indent)
+
+
+@dataclass
+class StageResult:
+    """Outcome of a single stage in an attack kill chain campaign."""
+    stage_number: int
+    stage_name: str
+    tactic: str
+    technique_id: str
+    rule_name: str
+    target_type: str
+    variant: Variant
+    critic_verdict: CriticVerdict
+    detection_result: DetectionResult
+    evasion_gap: bool
+
+
+@dataclass
+class CampaignResult:
+    """Outcome of an end-to-end multi-stage intrusion campaign."""
+    campaign_id: str
+    campaign_name: str
+    stages: List[StageResult] = field(default_factory=list)
+    intercepted: bool = False
+    interception_stage: Optional[str] = None
+    interception_technique: Optional[str] = None
+    completed_stages: int = 0
+    total_stages: int = 5
+    depth_of_defense_score: float = 0.0
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+    def to_json(self, indent: int = 2) -> str:
+        return json.dumps(self.to_dict(), indent=indent)

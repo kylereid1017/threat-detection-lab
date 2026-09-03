@@ -1,0 +1,43 @@
+title: Suspicious Event Log Clearing or Security Software Tampering
+id: 5d1e2a9b-3c4f-4a8e-b7d1-0f8e9c2b4a6d
+status: experimental
+description: Detects attempts to clear Windows security/system event logs using wevtutil or disable Windows Defender realtime monitoring via PowerShell cmdlets.
+references:
+    - https://attack.mitre.org/techniques/T1070/001/
+    - https://attack.mitre.org/techniques/T1562/001/
+author: Kyle Reid
+date: 2026-09-03
+tags:
+    - attack.defense-evasion
+    - attack.t1070.001
+    - attack.t1562.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_wevtutil_img:
+        Image|endswith:
+            - '\wevtutil.exe'
+    selection_wevtutil_action:
+        CommandLine|contains:
+            - ' cl '
+            - ' clear-log '
+    selection_tamper_pwsh:
+        CommandLine|contains:
+            - 'Set-MpPreference'
+            - 'Add-MpPreference'
+        CommandLine|contains:
+            - 'DisableRealtimeMonitoring'
+            - 'ExclusionPath'
+            - 'DisableIOAVProtection'
+    selection_pwsh_clearlog:
+        CommandLine|contains:
+            - 'Clear-EventLog'
+    condition: (selection_wevtutil_img and selection_wevtutil_action) or selection_tamper_pwsh or selection_pwsh_clearlog
+fields:
+    - CommandLine
+    - Image
+    - User
+falsepositives:
+    - Highly unusual in standard user activity; occasionally triggered by administrative maintenance scripts.
+level: high

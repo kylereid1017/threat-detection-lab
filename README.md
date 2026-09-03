@@ -48,6 +48,9 @@ python -m tools.swarm.cli --target sigma --max-cycles 3
 # Run autonomous continuous sparring with automated self-healing & cable generation
 python -m tools.swarm.cli --target sigma --autonomous --iterations 10 --self-heal
 
+# Run simulated multi-stage intrusion campaign across 5 MITRE ATT&CK stages
+python -m tools.swarm.cli --campaign infostealer
+
 # Test a custom threat simulation prompt
 python -m tools.swarm.cli --target sigma --prompt "Test PowerShell execution with short -w h switch"
 ```

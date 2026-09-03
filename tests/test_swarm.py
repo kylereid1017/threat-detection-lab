@@ -365,5 +365,34 @@ class SwarmAdapterTests(unittest.TestCase):
         self.assertTrue(is_verified)
 
 
+class CampaignOrchestratorTests(unittest.TestCase):
+    """Evaluates multi-stage kill chain campaign simulation and defense-in-depth scoring."""
+
+    def test_run_campaign_end_to_end(self):
+        from tools.swarm.campaign import CampaignOrchestrator
+        orchestrator = CampaignOrchestrator()
+        result = orchestrator.run_campaign(
+            campaign_name="Test-Stealer-Flow",
+            campaign_id="TEST-CAMP-001",
+            evasion_at_stages=[2],
+        )
+
+        self.assertEqual(result.total_stages, 5)
+        self.assertEqual(len(result.stages), 5)
+        self.assertTrue(result.intercepted)
+        self.assertEqual(result.interception_stage, "Initial Access")
+        self.assertGreater(result.depth_of_defense_score, 0.0)
+
+        # Verify Stage 2 was an evasion gap while Stage 1, 3, 4, 5 were detected
+        st2 = [s for s in result.stages if s.stage_number == 2][0]
+        self.assertTrue(st2.evasion_gap)
+
+        st3 = [s for s in result.stages if s.stage_number == 3][0]
+        self.assertFalse(st3.evasion_gap)
+
+        st4 = [s for s in result.stages if s.stage_number == 4][0]
+        self.assertFalse(st4.evasion_gap)
+
+
 if __name__ == "__main__":
     unittest.main()

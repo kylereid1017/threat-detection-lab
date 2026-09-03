@@ -22,8 +22,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--target",
         choices=["yara", "sigma"],
-        required=True,
-        help="Target detection rule family to evaluate ('yara' or 'sigma')",
+        default="sigma",
+        help="Target detection rule family to evaluate ('yara' or 'sigma', default: 'sigma')",
     )
     parser.add_argument(
         "--max-cycles",
@@ -60,6 +60,12 @@ def parse_args() -> argparse.Namespace:
         help="Enable autonomous self-healing loop to synthesize rule patches and threat intelligence cables",
     )
     parser.add_argument(
+        "--campaign",
+        type=str,
+        default=None,
+        help="Run multi-stage kill-chain intrusion campaign (e.g. 'infostealer', 'ransomware')",
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=Path(__file__).resolve().parents[2] / "docs" / "swarm" / "results",
@@ -70,6 +76,36 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+
+    if args.campaign:
+        from .campaign import CampaignOrchestrator
+        from .cable_writer import CableWriter
+        print(f"[*] Initializing Multi-Stage Kill Chain Campaign: {args.campaign.upper()}")
+        print("[*] Simulating 5-stage MITRE ATT&CK intrusion lifecycle...")
+        orchestrator = CampaignOrchestrator()
+
+        def stage_callback(res):
+            status = "[!] EVADED  " if res.evasion_gap else "[+] DETECTED"
+            print(f"    [Stage {res.stage_number}: {res.stage_name:<17}] {status} | Technique: {res.technique_id} | Rule: {res.rule_name[:40]}...")
+
+        campaign_result = orchestrator.run_campaign(
+            campaign_name=f"{args.campaign.capitalize()}-Intrusion-Flow",
+            campaign_id="CAMP-2026-001",
+            evasion_at_stages=[2],  # Stage 2 uses pcalua LOLBin evasion to test defense-in-depth
+            self_heal=args.self_heal,
+            callback=stage_callback,
+        )
+
+        print("\n[+] Campaign Simulation Complete!")
+        print(f"    - Total Stages Evaluated: {campaign_result.total_stages}")
+        print(f"    - Intercepted by Layered Defense: {campaign_result.intercepted}")
+        print(f"    - Interception Point: {campaign_result.interception_stage} ({campaign_result.interception_technique})")
+        print(f"    - Depth-of-Defense Score: {campaign_result.depth_of_defense_score:.2f}")
+
+        cable_writer = CableWriter()
+        cable_path = cable_writer.write_campaign_cable(campaign_result)
+        print(f"    [+] Authored Multi-Stage Intelligence Cable: {cable_path}")
+        return 0
 
     directive = OperatorDirective(
         target=args.target,
