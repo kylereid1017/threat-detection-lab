@@ -95,6 +95,11 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
+    except Exception:
+        pass
+
     args = parse_args()
 
     if args.validate_gate:
