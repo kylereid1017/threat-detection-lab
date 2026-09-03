@@ -1,3 +1,4 @@
+import json
 import unittest
 from pathlib import Path
 
@@ -28,6 +29,20 @@ from tools.swarm.telemetry_generator import (
     TelemetrySafetyError,
 )
 from tools.swarm.validate_gate import GateReport, ZeroFalsePositiveGate
+from tools.swarm.d3fend_mapper import (
+    ATTACK_TO_D3FEND,
+    BRIEFING_TECHNIQUES,
+    D3fendMapper,
+    mapping_source,
+)
+from tools.swarm.noise_floor import (
+    DetectionMetricsCalculator,
+    EnterpriseNoiseGenerator,
+    NoiseFloorReport,
+    RuleMetrics,
+    run_benchmark,
+)
+from tools.swarm.siem_profiler import SiemQueryProfiler
 
 
 class SwarmCriticTests(unittest.TestCase):
@@ -823,6 +838,302 @@ class ZeroFalsePositiveGateTests(unittest.TestCase):
         report.false_positives.append("benign_x.json triggered rule_y.yml")
         self.assertFalse(report.passed)
         self.assertIn("FAIL", report.to_markdown())
+
+
+class EnterpriseNoiseGeneratorTests(unittest.TestCase):
+    """EPIC 1 — Verifies benign background telemetry generation and safety validation."""
+
+    def test_generates_requested_volume_all_benign(self):
+        events = EnterpriseNoiseGenerator(seed=42).generate(250)
+        self.assertEqual(len(events), 250)
+        self.assertTrue(all(e.label == 0 for e in events))
+        self.assertTrue(all(e.event.event_id == 1 for e in events))
+
+    def test_generation_is_deterministic_for_a_seed(self):
+        a = [e.event.fields["CommandLine"] for e in EnterpriseNoiseGenerator(seed=7).generate(60)]
+        b = [e.event.fields["CommandLine"] for e in EnterpriseNoiseGenerator(seed=7).generate(60)]
+        self.assertEqual(a, b)
+
+    def test_different_seeds_diverge(self):
+        a = [e.event.fields["CommandLine"] for e in EnterpriseNoiseGenerator(seed=1).generate(60)]
+        b = [e.event.fields["CommandLine"] for e in EnterpriseNoiseGenerator(seed=2).generate(60)]
+        self.assertNotEqual(a, b)
+
+    def test_every_event_carries_a_known_profile(self):
+        gen = EnterpriseNoiseGenerator(seed=11)
+        known = set(gen.ROUTINE_PROFILES) | set(gen.AMBIGUOUS_PROFILES)
+        for item in gen.generate(120):
+            self.assertIn(item.profile, known)
+            self.assertEqual(item.event.fields["NoiseProfile"], item.profile)
+
+    def test_ambiguous_rate_bounds_are_enforced(self):
+        with self.assertRaises(ValueError):
+            EnterpriseNoiseGenerator(ambiguous_rate=1.5)
+        with self.assertRaises(ValueError):
+            EnterpriseNoiseGenerator(ambiguous_rate=-0.1)
+
+    def test_negative_count_rejected(self):
+        with self.assertRaises(ValueError):
+            EnterpriseNoiseGenerator().generate(-1)
+
+    def test_zero_ambiguous_rate_yields_only_routine_profiles(self):
+        gen = EnterpriseNoiseGenerator(seed=5, ambiguous_rate=0.0)
+        events = gen.generate(150)
+        self.assertTrue(all(not e.ambiguous for e in events))
+        self.assertTrue(all(e.profile in gen.ROUTINE_PROFILES for e in events))
+
+
+class DetectionMetricsTests(unittest.TestCase):
+    """EPIC 1 — Verifies confusion-matrix arithmetic and corpus evaluation semantics."""
+
+    def test_metric_arithmetic(self):
+        m = RuleMetrics(rule_name="r", true_positives=8, false_positives=2,
+                        true_negatives=90, false_negatives=2)
+        self.assertAlmostEqual(m.precision, 0.8)
+        self.assertAlmostEqual(m.recall, 0.8)
+        self.assertAlmostEqual(m.f1_score, 0.8)
+        self.assertAlmostEqual(m.false_discovery_rate, 0.2)
+        self.assertEqual(m.alerts, 10)
+
+    def test_metrics_are_zero_division_safe(self):
+        m = RuleMetrics(rule_name="empty")
+        self.assertEqual(m.precision, 0.0)
+        self.assertEqual(m.recall, 0.0)
+        self.assertEqual(m.f1_score, 0.0)
+        self.assertEqual(m.false_discovery_rate, 0.0)
+
+    def test_malicious_fixtures_are_assigned_an_owning_rule(self):
+        events = DetectionMetricsCalculator().load_malicious_fixtures()
+        self.assertGreater(len(events), 0)
+        self.assertTrue(all(e.label == 1 for e in events))
+        self.assertTrue(
+            all(e.target_rule.endswith(".yml") for e in events),
+            "every positive fixture must declare the analytic it owns",
+        )
+
+    def test_routine_background_produces_no_false_positives(self):
+        # With no ambiguous activity, well-tuned analytics must stay silent.
+        report = run_benchmark(benign_count=300, ambiguous_rate=0.0, attack_variants=0)
+        self.assertEqual(report.corpus_metrics.false_positives, 0)
+        self.assertEqual(report.false_positive_rate(), 0.0)
+
+    def test_ambiguous_activity_is_the_sole_false_positive_source(self):
+        report = run_benchmark(benign_count=400, ambiguous_rate=0.25, attack_variants=0)
+        self.assertGreater(report.corpus_metrics.false_positives, 0)
+        generator = EnterpriseNoiseGenerator()
+        for profile in report.corpus_metrics.false_positive_profiles:
+            self.assertIn(profile, generator.AMBIGUOUS_PROFILES)
+
+    def test_corpus_metrics_counted_per_event_not_pooled(self):
+        report = run_benchmark(benign_count=200, ambiguous_rate=0.0, attack_variants=0)
+        corpus = report.corpus_metrics
+        # Pooling across 4 analytics would inflate TN to 4x the benign population.
+        self.assertEqual(
+            corpus.true_negatives + corpus.false_positives, report.benign_events
+        )
+        self.assertEqual(
+            corpus.true_positives + corpus.false_negatives, report.malicious_events
+        )
+
+    def test_per_rule_recall_scored_only_over_owned_events(self):
+        report = run_benchmark(benign_count=100, ambiguous_rate=0.0, attack_variants=0)
+        for metric in report.per_rule:
+            owned = metric.true_positives + metric.false_negatives
+            self.assertLess(
+                owned, report.malicious_events,
+                "a rule must not be scored against fixtures it does not own",
+            )
+            self.assertGreater(owned, 0)
+
+    def test_committed_fixtures_are_fully_recalled_by_their_owning_rule(self):
+        report = run_benchmark(benign_count=50, ambiguous_rate=0.0, attack_variants=0)
+        for metric in report.per_rule:
+            self.assertEqual(
+                metric.recall, 1.0,
+                f"{metric.rule_name} failed to recall a fixture it owns",
+            )
+
+    def test_report_serialisation(self):
+        report = run_benchmark(benign_count=80, ambiguous_rate=0.1, attack_variants=0)
+        md = report.to_markdown()
+        self.assertIn("Enterprise Telemetry Noise Floor Assessment", md)
+        self.assertIn("Base-rate caveat", md)
+        self.assertIn("Confidence.", md)
+        data = json.loads(report.to_json())
+        self.assertIn("corpus", data)
+        self.assertIn("per_rule", data)
+        self.assertIn("false_positive_rate", data)
+
+
+class SiemQueryProfilerTests(unittest.TestCase):
+    """EPIC 3 — Verifies multi-SIEM query complexity analysis."""
+
+    def setUp(self):
+        self.profiler = SiemQueryProfiler()
+
+    def test_profiles_every_rule_across_every_backend(self):
+        report = self.profiler.profile_all()
+        backends = {p.backend for p in report.profiles}
+        self.assertEqual(backends, {"LogScale", "Splunk", "Lucene"})
+        self.assertGreaterEqual(len(report.profiles), len(self.profiler.rule_paths()) * 3)
+
+    def test_nesting_depth_measurement(self):
+        self.assertEqual(SiemQueryProfiler._nesting_depth("a AND (b OR (c AND d))"), 2)
+        self.assertEqual(SiemQueryProfiler._nesting_depth("flat query"), 0)
+
+    def test_detects_leading_wildcards(self):
+        profile = self.profiler.analyze("r", "Splunk", 'Image="*\\\\rundll32.exe"')
+        self.assertGreaterEqual(profile.leading_wildcards, 1)
+        self.assertTrue(any("leading-wildcard" in f for f in profile.findings))
+
+    def test_detects_unanchored_and_case_insensitive_regex(self):
+        profile = self.profiler.analyze("r", "LogScale", "CommandLine=/comsvcs/i")
+        self.assertEqual(profile.unanchored_regexes, 1)
+        self.assertEqual(profile.case_insensitive_ops, 1)
+
+    def test_anchored_regex_is_not_flagged_unanchored(self):
+        profile = self.profiler.analyze("r", "LogScale", "Image=/rundll32\\.exe$/i")
+        self.assertEqual(profile.unanchored_regexes, 0)
+
+    def test_impact_rating_bands(self):
+        self.assertEqual(SiemQueryProfiler.rate_impact(10), "Low")
+        self.assertEqual(SiemQueryProfiler.rate_impact(60), "Moderate")
+        self.assertEqual(SiemQueryProfiler.rate_impact(120), "High")
+        self.assertEqual(SiemQueryProfiler.rate_impact(500), "Costly")
+
+    def test_clean_query_reports_no_costly_constructs(self):
+        profile = self.profiler.analyze("r", "Splunk", 'EventCode=4688')
+        self.assertEqual(profile.impact, "Low")
+        self.assertIn("No costly search constructs detected.", profile.findings)
+
+    def test_widest_rule_is_the_most_expensive(self):
+        report = self.profiler.profile_all()
+        worst = report.worst(1)[0]
+        self.assertIn("ClickFix", worst.rule_name)
+        self.assertEqual(worst.impact, "Costly")
+
+    def test_report_serialisation(self):
+        report = self.profiler.profile_all()
+        md = report.to_markdown()
+        self.assertIn("Multi-SIEM Query Complexity Assessment", md)
+        self.assertIn("Confidence.", md)
+        data = json.loads(report.to_json())
+        self.assertIn("profiles", data)
+        self.assertIn("worst", data)
+
+
+class D3fendMapperTests(unittest.TestCase):
+    """EPIC 4 — Verifies ATT&CK/D3FEND crosswalk, provenance, and collision detection."""
+
+    def setUp(self):
+        self.mapper = D3fendMapper()
+
+    def test_briefing_mappings_are_present_and_correct(self):
+        expected = {
+            "T1566.001": {"D3-FAA"},
+            "T1204.002": {"D3-PSB", "D3-SBA"},
+            "T1059.001": {"D3-PSB", "D3-SBA"},
+            "T1070.001": {"D3-LSA"},
+            "T1003.001": {"D3-LSA"},
+            "T1053.005": {"D3-JSA"},
+        }
+        for technique, ids in expected.items():
+            actual = {c.d3fend_id for c in ATTACK_TO_D3FEND[technique]}
+            self.assertEqual(actual, ids, f"mapping drift for {technique}")
+
+    def test_mapping_provenance_distinguishes_briefing_from_extended(self):
+        self.assertEqual(mapping_source("T1566.001"), "briefing")
+        self.assertEqual(mapping_source("T1059.003"), "extended")
+        for technique in BRIEFING_TECHNIQUES:
+            self.assertEqual(mapping_source(technique), "briefing")
+
+    def test_identifier_collision_is_detected(self):
+        collisions = D3fendMapper.find_id_collisions()
+        ids = {c["d3fend_id"] for c in collisions}
+        self.assertIn("D3-LSA", ids)
+        names = next(c["names"] for c in collisions if c["d3fend_id"] == "D3-LSA")
+        self.assertEqual(len(names), 2)
+
+    def test_build_maps_every_covered_technique(self):
+        report = self.mapper.build()
+        self.assertGreater(len(report.mappings), 0)
+        self.assertEqual(report.unmapped, [], "every covered technique should map")
+        self.assertEqual(report.mapped_count, len(report.mappings))
+
+    def test_lsass_hardening_is_the_sole_harden_tactic(self):
+        report = self.mapper.build()
+        by_tactic = report.countermeasures_by_tactic()
+        self.assertIn("Harden", by_tactic)
+        self.assertIn("Detect", by_tactic)
+        self.assertTrue(any("Local Security Authority" in x for x in by_tactic["Harden"]))
+
+    def test_markdown_reports_matrix_and_taxonomy_defect(self):
+        md = self.mapper.build().to_markdown()
+        self.assertIn("Dual-Layer Coverage Assessment", md)
+        self.assertIn("Taxonomy defects", md)
+        self.assertIn("D3-LSA", md)
+        self.assertIn("Confidence.", md)
+
+    def test_export_writes_dual_layer_json(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "d3fend_layer.json"
+            path = self.mapper.export(out_path=out)
+            self.assertTrue(path.exists())
+            data = json.loads(path.read_text(encoding="utf-8"))
+            self.assertIn("mappings", data)
+            self.assertIn("identifier_collisions", data)
+            self.assertIn("countermeasures_by_tactic", data)
+
+
+class WorkbenchCanvasTests(unittest.TestCase):
+    """EPIC 2 — Guards the visual workbench against drift from the Python engine.
+
+    The canvas re-implements the walk in JavaScript. These tests fail if the
+    engine's node set or scoring constants change without the workbench
+    following, which is the failure mode that silently makes the visualiser lie.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.path = Path(__file__).resolve().parents[1] / "swarm_workbench.html"
+        cls.html = cls.path.read_text(encoding="utf-8")
+
+    def test_workbench_exists(self):
+        self.assertTrue(self.path.exists())
+
+    def test_every_engine_node_is_rendered(self):
+        graph = GraphEngine().build_default_graph()
+        for node_id in graph.nodes:
+            self.assertIn(node_id, self.html, f"workbench is missing engine node '{node_id}'")
+
+    def test_secondary_branch_wiring_matches_engine(self):
+        graph = GraphEngine().build_default_graph()
+        self.assertIn(
+            f'execution:"{graph.secondary_of("execution")}"'.replace('"', '"'),
+            self.html.replace(" ", ""),
+        )
+        self.assertIn(graph.secondary_of("credential_telemetry"), self.html)
+
+    def test_layer_weights_match_engine_constants(self):
+        from tools.swarm.graph_engine import (
+            _LAYER_WEIGHTS,
+            _SECONDARY_DISCOUNT,
+            _STAGE_DWELL_SECONDS,
+        )
+        weights = ", ".join(str(w) for w in _LAYER_WEIGHTS)
+        self.assertIn(f"LAYER_WEIGHTS = [{weights}]", self.html)
+        self.assertIn(f"SECONDARY_DISCOUNT = {_SECONDARY_DISCOUNT}", self.html)
+        self.assertIn(f"STAGE_DWELL = {int(_STAGE_DWELL_SECONDS)}", self.html)
+
+    def test_exposes_campaign_entry_point_and_views(self):
+        self.assertIn("function runKillChainCampaign", self.html)
+        self.assertIn("State Machine DAG", self.html)
+        self.assertIn("Linear Pipeline", self.html)
+
+    def test_reports_all_three_live_metrics(self):
+        for label in ("Depth of Defense", "Mean Time to Detect", "Path to Objective"):
+            self.assertIn(label, self.html)
 
 
 if __name__ == "__main__":

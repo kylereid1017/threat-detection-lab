@@ -86,6 +86,33 @@ def parse_args() -> argparse.Namespace:
         help="Run the deterministic zero-false-positive validation gate over the fixture corpus",
     )
     parser.add_argument(
+        "--benchmark-snr",
+        action="store_true",
+        help="Benchmark signal-to-noise: precision/recall against a high-volume benign corpus",
+    )
+    parser.add_argument(
+        "--events",
+        type=int,
+        default=2500,
+        help="Benign background events to generate for --benchmark-snr (default: 2500)",
+    )
+    parser.add_argument(
+        "--attack-variants",
+        type=int,
+        default=14,
+        help="Novel attack permutations to add to the --benchmark-snr corpus (default: 14)",
+    )
+    parser.add_argument(
+        "--profile-siem",
+        action="store_true",
+        help="Profile query complexity across CrowdStrike LogScale, Splunk SPL, and Elastic Lucene",
+    )
+    parser.add_argument(
+        "--export-d3fend",
+        action="store_true",
+        help="Export the dual-layer MITRE ATT&CK / D3FEND countermeasure matrix (d3fend_layer.json)",
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=Path(__file__).resolve().parents[2] / "docs" / "swarm" / "results",
@@ -101,6 +128,43 @@ def main() -> int:
         pass
 
     args = parse_args()
+
+    if args.benchmark_snr:
+        from .noise_floor import run_benchmark
+        print(f"[*] Generating {args.events} benign enterprise background events...")
+        print(f"[*] Adding {args.attack_variants} novel attack permutations to the corpus...")
+        report = run_benchmark(
+            benign_count=args.events, attack_variants=args.attack_variants
+        )
+        print(report.to_markdown())
+        out = args.output_dir / "noise_floor.json"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(report.to_json(), encoding="utf-8")
+        print(f"\n[+] Wrote machine-readable metrics to {out}")
+        return 0
+
+    if args.profile_siem:
+        from .siem_profiler import SiemQueryProfiler
+        print("[*] Compiling analytics across LogScale, Splunk, and Lucene backends...")
+        report = SiemQueryProfiler().profile_all()
+        print(report.to_markdown())
+        out = args.output_dir / "siem_profile.json"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(report.to_json(), encoding="utf-8")
+        print(f"\n[+] Wrote machine-readable profile to {out}")
+        return 0
+
+    if args.export_d3fend:
+        from .d3fend_mapper import D3fendMapper
+        print("[*] Building dual-layer MITRE ATT&CK / D3FEND assessment matrix...")
+        mapper = D3fendMapper()
+        report = mapper.build()
+        print(report.to_markdown())
+        path = mapper.export(out_path=args.output_dir / "d3fend_layer.json")
+        print(f"\n[+] Wrote {path}")
+        print(f"    - Techniques mapped: {report.mapped_count}/{len(report.mappings)}")
+        print(f"    - Identifier collisions: {len(report.collisions)}")
+        return 0
 
     if args.validate_gate:
         from .validate_gate import ZeroFalsePositiveGate

@@ -9,9 +9,19 @@ from .autonomous import AutonomousOrchestrator
 from .cable_writer import CableWriter
 from .campaign import CampaignOrchestrator
 from .config import OperatorDirective, SafetyConstraints
+from .d3fend_mapper import D3fendMapper, D3fendReport, D3fendCountermeasure, TechniqueMapping
 from .evaluator import MultiEventEvaluator, build_correlation_rule
 from .export_layer import MitreLayerExporter, RuleCoverage
 from .graph_engine import DetectionGraph, GraphEdge, GraphEngine, GraphNode
+from .noise_floor import (
+    DetectionMetricsCalculator,
+    EnterpriseNoiseGenerator,
+    LabelledEvent,
+    NoiseFloorReport,
+    RuleMetrics,
+    run_benchmark,
+)
+from .siem_profiler import ProfilerReport, QueryProfile, SiemQueryProfiler
 from .models import (
     Variant,
     CriticVerdict,
@@ -75,4 +85,17 @@ __all__ = [
     "RuleCoverage",
     "ZeroFalsePositiveGate",
     "GateReport",
+    "EnterpriseNoiseGenerator",
+    "DetectionMetricsCalculator",
+    "NoiseFloorReport",
+    "RuleMetrics",
+    "LabelledEvent",
+    "run_benchmark",
+    "SiemQueryProfiler",
+    "QueryProfile",
+    "ProfilerReport",
+    "D3fendMapper",
+    "D3fendReport",
+    "D3fendCountermeasure",
+    "TechniqueMapping",
 ]

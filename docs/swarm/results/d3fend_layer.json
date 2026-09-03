@@ -1,0 +1,289 @@
+{
+  "name": "threat-detection-lab dual-layer coverage",
+  "description": "Integrated MITRE ATT&CK offensive coverage and MITRE D3FEND defensive countermeasure crosswalk generated from the committed rule corpus.",
+  "versions": {
+    "attack": "14",
+    "d3fend": "0.10",
+    "schema": "1.0"
+  },
+  "techniques_total": 13,
+  "techniques_mapped": 13,
+  "techniques_unmapped": [],
+  "identifier_collisions": [
+    {
+      "d3fend_id": "D3-LSA",
+      "names": [
+        "Local Security Authority Protection",
+        "Log Storage Auditing"
+      ]
+    }
+  ],
+  "countermeasures_by_tactic": {
+    "Detect": [
+      "D3-DA (Dynamic Analysis)",
+      "D3-FAA (File Attachment Analysis)",
+      "D3-JSA (Job Scheduling Analysis)",
+      "D3-LSA (Log Storage Auditing)",
+      "D3-NTA (Network Traffic Analysis)",
+      "D3-PA (Process Analysis)",
+      "D3-PSB (Process Spawn Binary Verification)",
+      "D3-SBA (Script Execution Analysis)"
+    ],
+    "Harden": [
+      "D3-LSA (Local Security Authority Protection)"
+    ]
+  },
+  "mappings": [
+    {
+      "technique_id": "T1003.001",
+      "attack_score": 95,
+      "correlation_backed": true,
+      "mapping_source": "briefing",
+      "analytics": [
+        "LSASS Process Memory Dump via Rundll32 Comsvcs.dll",
+        "LSASS Process Access With Memory-Read Rights"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-LSA",
+          "name": "Local Security Authority Protection",
+          "tactic": "Harden",
+          "description": "Hardens the LSA process against memory access by unprivileged or untrusted callers.",
+          "source": "briefing"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1027",
+      "attack_score": 54,
+      "correlation_backed": false,
+      "mapping_source": "extended",
+      "analytics": [
+        "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-DA",
+          "name": "Dynamic Analysis",
+          "tactic": "Detect",
+          "description": "Executes suspected obfuscated content in an instrumented environment to recover intent.",
+          "source": "extended"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1053.005",
+      "attack_score": 54,
+      "correlation_backed": false,
+      "mapping_source": "briefing",
+      "analytics": [
+        "Suspicious Scheduled Task Creation Spawning Shell or Script Engine"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-JSA",
+          "name": "Job Scheduling Analysis",
+          "tactic": "Detect",
+          "description": "Analyses scheduled task creation and modification for persistence establishment.",
+          "source": "briefing"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1059.001",
+      "attack_score": 95,
+      "correlation_backed": true,
+      "mapping_source": "briefing",
+      "analytics": [
+        "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+        "PowerShell Script Block Download Cradle Execution"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-PSB",
+          "name": "Process Spawn Binary Verification",
+          "tactic": "Detect",
+          "description": "Verifies the parent/child process lineage and binary provenance of spawned executables.",
+          "source": "briefing"
+        },
+        {
+          "d3fend_id": "D3-SBA",
+          "name": "Script Execution Analysis",
+          "tactic": "Detect",
+          "description": "Analyses interpreted script content and invocation for download-and-execute behaviour.",
+          "source": "briefing"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1059.003",
+      "attack_score": 54,
+      "correlation_backed": false,
+      "mapping_source": "extended",
+      "analytics": [
+        "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-SBA",
+          "name": "Script Execution Analysis",
+          "tactic": "Detect",
+          "description": "Analyses interpreted script content and invocation for download-and-execute behaviour.",
+          "source": "briefing"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1059.005",
+      "attack_score": 54,
+      "correlation_backed": false,
+      "mapping_source": "extended",
+      "analytics": [
+        "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-SBA",
+          "name": "Script Execution Analysis",
+          "tactic": "Detect",
+          "description": "Analyses interpreted script content and invocation for download-and-execute behaviour.",
+          "source": "briefing"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1070.001",
+      "attack_score": 54,
+      "correlation_backed": false,
+      "mapping_source": "briefing",
+      "analytics": [
+        "Suspicious Event Log Clearing or Security Software Tampering"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-LSA",
+          "name": "Log Storage Auditing",
+          "tactic": "Detect",
+          "description": "Audits integrity and continuity of the event log store to expose clearing or tampering.",
+          "source": "briefing"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1105",
+      "attack_score": 95,
+      "correlation_backed": true,
+      "mapping_source": "extended",
+      "analytics": [
+        "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+        "PowerShell Script Block Download Cradle Execution"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-NTA",
+          "name": "Network Traffic Analysis",
+          "tactic": "Detect",
+          "description": "Analyses egress traffic for tool transfer and staging behaviour.",
+          "source": "extended"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1204.002",
+      "attack_score": 54,
+      "correlation_backed": false,
+      "mapping_source": "briefing",
+      "analytics": [
+        "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-PSB",
+          "name": "Process Spawn Binary Verification",
+          "tactic": "Detect",
+          "description": "Verifies the parent/child process lineage and binary provenance of spawned executables.",
+          "source": "briefing"
+        },
+        {
+          "d3fend_id": "D3-SBA",
+          "name": "Script Execution Analysis",
+          "tactic": "Detect",
+          "description": "Analyses interpreted script content and invocation for download-and-execute behaviour.",
+          "source": "briefing"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1218.005",
+      "attack_score": 54,
+      "correlation_backed": false,
+      "mapping_source": "extended",
+      "analytics": [
+        "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-PSB",
+          "name": "Process Spawn Binary Verification",
+          "tactic": "Detect",
+          "description": "Verifies the parent/child process lineage and binary provenance of spawned executables.",
+          "source": "briefing"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1218.011",
+      "attack_score": 54,
+      "correlation_backed": false,
+      "mapping_source": "extended",
+      "analytics": [
+        "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-PSB",
+          "name": "Process Spawn Binary Verification",
+          "tactic": "Detect",
+          "description": "Verifies the parent/child process lineage and binary provenance of spawned executables.",
+          "source": "briefing"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1562.001",
+      "attack_score": 54,
+      "correlation_backed": false,
+      "mapping_source": "extended",
+      "analytics": [
+        "Suspicious Event Log Clearing or Security Software Tampering"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-PA",
+          "name": "Process Analysis",
+          "tactic": "Detect",
+          "description": "Analyses process behaviour for defensive tooling impairment.",
+          "source": "extended"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1566.001",
+      "attack_score": 54,
+      "correlation_backed": false,
+      "mapping_source": "briefing",
+      "analytics": [
+        "suspicious_active_content_svg"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-FAA",
+          "name": "File Attachment Analysis",
+          "tactic": "Detect",
+          "description": "Inspects message attachments for active content and structural anomalies prior to delivery.",
+          "source": "briefing"
+        }
+      ]
+    }
+  ]
+}
