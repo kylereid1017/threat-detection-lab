@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="80">
+  <text id="status" x="10" y="40">Ready</text>
+  <script><![CDATA[
+    document.getElementById("status").textContent = "Loaded";
+  ]]></script>
+</svg>

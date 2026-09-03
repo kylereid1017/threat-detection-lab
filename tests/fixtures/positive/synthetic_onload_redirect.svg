@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="80"
+     onload="location.replace('https://example.invalid/review')">
+  <!-- Inert synthetic detection fixture; example.invalid never resolves. -->
+  <text x="10" y="40">Review secure message</text>
+</svg>

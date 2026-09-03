@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="80">
+  <a href="https://www.example.com/about">
+    <text x="10" y="40">Read our public documentation</text>
+  </a>
+</svg>
