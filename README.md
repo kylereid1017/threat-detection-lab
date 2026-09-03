@@ -56,7 +56,25 @@ python -m tools.swarm.cli --synthesize-trends
 
 # Test a custom threat simulation prompt
 python -m tools.swarm.cli --target sigma --prompt "Test PowerShell execution with short -w h switch"
+
+# Walk the DAG correlation state machine (defense-in-depth, DoD + MTTD scoring)
+python -m tools.swarm.cli --graph --iterations 6
+
+# Run the deterministic zero-false-positive validation gate (ICD 203 summary)
+python -m tools.swarm.cli --validate-gate
+
+# Export a MITRE ATT&CK Navigator coverage layer (docs/swarm/results/layer.json)
+python -m tools.swarm.cli --export-layer
 ```
+
+### Detection-as-Code platform (`tools/swarm/`)
+
+The harness is a graph-based, continuously validated Detection-as-Code platform:
+
+- **`telemetry_generator.py`** — schema-driven builder for inert Windows telemetry (Sysmon EID 1 / Security 4688 and correlation event families 7, 10, 11, 4104) with programmatic command-line mutation (argument reordering, integer switch aliases, whitespace, wrapper hosts). Every record is validated against RFC 2606 / RFC 5737 reserved endpoints before evaluation.
+- **`graph_engine.py`** — a directed-acyclic-graph state machine over the intrusion lifecycle (Ingress → Execution → Defense Impairment → Credential Telemetry → Persistence). On a primary-analytic miss it branches to an adjacent secondary telemetry path and scores Depth-of-Defense, Mean Time-to-Detect, and path-to-objective containment.
+- **`evaluator.py`** — a multi-event Sigma evaluator with temporal correlation windows, requiring several component detections to fire in order within a bounded timespan. Correlation component rules live in `rules/sigma/correlation/`.
+- **`validate_gate.py`** / **`export_layer.py`** — the zero-false-positive CI gate and the ATT&CK Navigator layer exporter, wired into `.github/workflows/detection-validation.yml`.
 
 ## Safety and provenance
 
