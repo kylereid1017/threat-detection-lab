@@ -66,6 +66,11 @@ def parse_args() -> argparse.Namespace:
         help="Run multi-stage kill-chain intrusion campaign (e.g. 'infostealer', 'ransomware')",
     )
     parser.add_argument(
+        "--synthesize-trends",
+        action="store_true",
+        help="Synthesize all accumulated threat cables and boundary results into a strategic meta-intelligence cable",
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=Path(__file__).resolve().parents[2] / "docs" / "swarm" / "results",
@@ -76,6 +81,24 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+
+    if args.synthesize_trends:
+        from .synthesizer import StrategicSynthesizer
+        print("[*] Initiating Automated Strategic Threat Intelligence Synthesis...")
+        synthesizer = StrategicSynthesizer()
+        cable_path, stats = synthesizer.synthesize()
+        print(f"\n[+] Successfully Synthesized Strategic Cable: {cable_path}")
+        print(f"    - Cable Identifier: {stats['cable_id']}")
+        print(f"    - Cables Ingested: {stats['cables_ingested']}")
+        print(f"    - Evaluated Empirical Probes: {stats['total_evaluations']}")
+        print(f"    - Baseline Resilience: {stats['resilience_rate']:.1%}")
+        print(f"    - Discovered Evasion Gaps: {stats['gaps_discovered']}")
+        print(f"    - Multi-Stage Campaign Containment: {stats['containment_rate']:.1%}")
+        print(f"    - Average Depth-of-Defense (DoD): {stats['average_depth_of_defense']:.2f}")
+        print(f"    - Discovered Clusters:")
+        for k, v in stats['cluster_counts'].items():
+            print(f"      * {k}: {v}")
+        return 0
 
     if args.campaign:
         from .campaign import CampaignOrchestrator

@@ -10,9 +10,9 @@
   "history": [
     {
       "iteration": 1,
-      "timestamp": "2026-09-03T19:57:50.777323+00:00",
+      "timestamp": "2026-09-03T21:29:03.583450+00:00",
       "prompt": "Test SVG parsing with namespace prefix <svg:svg> and location.replace",
-      "variant_id": "prompt-259ed4cc",
+      "variant_id": "prompt-53e553e1",
       "mutation_name": "prompt_svg_structural",
       "axis": "structural",
       "critic_passed": true,
@@ -24,9 +24,9 @@
     },
     {
       "iteration": 2,
-      "timestamp": "2026-09-03T19:57:50.777653+00:00",
+      "timestamp": "2026-09-03T21:29:03.583781+00:00",
       "prompt": "Test SVG foreignObject containing HTML meta-refresh redirect to external URL",
-      "variant_id": "prompt-1bdd52f2",
+      "variant_id": "prompt-1505de8f",
       "mutation_name": "prompt_svg_parser_differential",
       "axis": "parser_differential",
       "critic_passed": true,
@@ -38,9 +38,9 @@
     },
     {
       "iteration": 3,
-      "timestamp": "2026-09-03T19:57:50.777919+00:00",
+      "timestamp": "2026-09-03T21:29:03.584026+00:00",
       "prompt": "Test JavaScript bracket access window['location']['href'] to evade literal strings",
-      "variant_id": "prompt-fb98befe",
+      "variant_id": "prompt-aeabb28b",
       "mutation_name": "prompt_svg_obfuscation",
       "axis": "obfuscation",
       "critic_passed": true,
