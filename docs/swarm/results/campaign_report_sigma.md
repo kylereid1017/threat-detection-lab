@@ -1,8 +1,8 @@
 # Adversarial Swarm Campaign Report — Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)
 
-**Target Type:** `sigma` | **Cycles Completed:** `3`  
-**Total Variants Generated:** `11` | **Critic Approved:** `11`  
-**Detected:** `11` | **Evaded (Gaps Found):** `0`  
+**Target Type:** `sigma` | **Cycles Completed:** `2`  
+**Total Variants Generated:** `7` | **Critic Approved:** `7`  
+**Detected:** `7` | **Evaded (Gaps Found):** `0`  
 **Rule Resilience Score:** `100.0%`
 
 ---
@@ -18,7 +18,3 @@
 | lolbin | `proc_curl_outbound_download` | ✅ Detected | Rule logic successfully triggered on variant features. | Current rule signature is resilient against this variation. |
 | syntax | `proc_cmd_start_b_staging` | ✅ Detected | Rule logic successfully triggered on variant features. | Current rule signature is resilient against this variation. |
 | obfuscation | `proc_powershell_base64_encoded` | ✅ Detected | Rule logic successfully triggered on variant features. | Current rule signature is resilient against this variation. |
-| lolbin | `proc_pwsh_core_clickfix` | ✅ Detected | Rule logic successfully triggered on variant features. | Current rule signature is resilient against this variation. |
-| obfuscation | `proc_powershell_split_invoke_restmethod` | ✅ Detected | Rule logic successfully triggered on variant features. | Current rule signature is resilient against this variation. |
-| lolbin | `proc_rundll32_url_protocol_handler` | ✅ Detected | Rule logic successfully triggered on variant features. | Current rule signature is resilient against this variation. |
-| lolbin | `proc_wscript_remote_script_fetch` | ✅ Detected | Rule logic successfully triggered on variant features. | Current rule signature is resilient against this variation. |

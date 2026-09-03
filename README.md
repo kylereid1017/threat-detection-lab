@@ -41,9 +41,15 @@ python -m pip install -r requirements-dev.txt
 # Run all unit and regression tests (YARA, Sigma, Swarm)
 python -m unittest discover -s tests -v
 
-# Run the Adversarial Swarm against detections
+# Run the Adversarial Swarm against detections (closed-loop)
 python -m tools.swarm.cli --target yara --max-cycles 3
 python -m tools.swarm.cli --target sigma --max-cycles 3
+
+# Run autonomous continuous sparring stream (10 iterations)
+python -m tools.swarm.cli --target sigma --autonomous --iterations 10
+
+# Test a custom threat simulation prompt
+python -m tools.swarm.cli --target sigma --prompt "Test PowerShell execution with short -w h switch"
 ```
 
 ## Safety and provenance

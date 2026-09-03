@@ -6,6 +6,14 @@ Keep a Changelog; versioning follows SemVer.
 ## [Unreleased]
 
 ### Added
+- Autonomous continuous sparring engine (`tools/swarm/autonomous.py`) for simulating
+  endless waves of novel threat mutations and tracking time-series resilience progression.
+- Generative `PromptEngine` (`tools/swarm/prompt_engine.py`) translating natural-language
+  operator directives and continuous threat permutations into safe synthetic test fixtures.
+- CLI flags `--autonomous`, `--iterations`, and `--prompt` in `tools/swarm/cli.py` for
+  scriptable continuous boundary testing.
+- Interactive Visual Workbench upgrades (`swarm_workbench.html`): Autonomous Endless
+  Sparring mode, Novel Threat Brainstormer button, and real-time boundary gap alerting.
 - Structured Threat Intelligence Cable: `CABLE-2026-001` ("Adversary Initial Access Analysis:
   Multi-Stage ClickFix Social Engineering and Active-Content SVG Lures Delivering InfoStealer Malware")
   adhering to Sherman Kent / ICD 203 doctrine, Diamond Model analysis, and MITRE ATT&CK mapping
