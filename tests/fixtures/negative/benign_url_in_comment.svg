@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="80">
+  <!-- External-looking URL appears only inside a comment; no script or navigation. -->
+  <!-- reference: https://example.invalid/not-a-link -->
+  <text x="10" y="40">Chart title</text>
+</svg>

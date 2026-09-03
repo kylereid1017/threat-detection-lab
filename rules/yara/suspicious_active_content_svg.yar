@@ -24,7 +24,7 @@ rule Suspicious_Active_Content_SVG_Attachment
 
     condition:
         filesize < 2MB and
-        $svg_root at 0 and
+        $svg_root in (0..1024) and
         1 of ($active_script, $active_handler, $javascript_uri) and
         1 of ($navigation, $navigation_method, $window_open, $javascript_uri) and
         1 of ($external_http, $external_https)

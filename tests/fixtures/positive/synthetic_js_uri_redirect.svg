@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="80">
+  <!-- javascript URI navigation without an external http(s) destination; inert fixture. -->
+  <text x="10" y="40" onclick="javascript:location.href='https://example.invalid/login'">Continue</text>
+</svg>

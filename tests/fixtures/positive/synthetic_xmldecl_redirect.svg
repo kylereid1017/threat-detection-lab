@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="80">
+  <!-- XML declaration plus leading whitespace and newline; inert fixture. -->
+  <text x="10" y="40">Open message</text>
+  <script type="text/javascript">
+    location.href = "https://example.invalid/secure";
+  </script>
+</svg>

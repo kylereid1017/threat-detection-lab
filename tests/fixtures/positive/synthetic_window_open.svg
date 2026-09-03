@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="80">
+  <!-- Pop-up navigation; inert fixture; example.invalid never resolves. -->
+  <text x="10" y="40" onclick="window.open('https://example.invalid/docs')">Tap here</text>
+</svg>

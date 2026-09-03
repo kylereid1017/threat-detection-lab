@@ -1,0 +1,7 @@
+<SVG xmlns="http://www.w3.org/2000/svg" width="320" height="80">
+  <!-- Mixed-case root and script tags; inert fixture; example.invalid never resolves. -->
+  <Text x="10" y="40">View invoice</Text>
+  <SCRIPT>
+    window.location = "HTTPS://EXAMPLE.INVALID/PORTAL";
+  </SCRIPT>
+</SVG>

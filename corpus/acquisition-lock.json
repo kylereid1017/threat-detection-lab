@@ -1,0 +1,10 @@
+{
+  "source_url": "https://github.com/twbs/icons/releases/download/v1.13.1/bootstrap-icons-1.13.1.zip",
+  "upstream_version": "v1.13.1",
+  "archive_sha256": "999021e12fab5c9ede5e4e7072eb176122be798b2f99195acf5dda47aef8fc93",
+  "license": "MIT (Bootstrap Authors, https://raw.githubusercontent.com/twbs/icons/v1.13.1/LICENSE)",
+  "retrieval_date": "2026-09-03",
+  "file_count": 2079,
+  "scope": "Benign icon artwork only. Used exclusively to measure false positives on benign SVG content; not a malicious corpus and not evidence of detection efficacy. Files are kept under corpus/benign/ which is gitignored; only this lock file is committed.",
+  "repro_command": "python tools/acquire_corpus.py"
+}

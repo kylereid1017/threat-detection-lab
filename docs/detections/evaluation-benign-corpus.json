@@ -1,0 +1,32 @@
+{
+  "rule": "Suspicious_Active_Content_SVG_Attachment",
+  "evaluated_on": "2026-09-03",
+  "synthetic_fixtures": {
+    "positives": {
+      "count": 6,
+      "matched": 6,
+      "missed": []
+    },
+    "negatives": {
+      "count": 5,
+      "matched": 0,
+      "fired": []
+    },
+    "disclaimer": "Synthetic fixtures demonstrate intended behavior only; they are not a representative malicious corpus."
+  },
+  "benign_corpus": {
+    "source_url": "https://github.com/twbs/icons/releases/download/v1.13.1/bootstrap-icons-1.13.1.zip",
+    "upstream_version": "v1.13.1",
+    "archive_sha256": "999021e12fab5c9ede5e4e7072eb176122be798b2f99195acf5dda47aef8fc93",
+    "license": "MIT (Bootstrap Authors, https://raw.githubusercontent.com/twbs/icons/v1.13.1/LICENSE)",
+    "retrieval_date": "2026-09-03",
+    "files_scanned": 2079,
+    "declared_file_count": 2079,
+    "false_positives": 0,
+    "false_positive_files": [],
+    "disclaimer": "False positives measured on benign icon/artwork SVGs only. No accuracy or recall is reported because no representative malicious corpus is available."
+  },
+  "notes": [
+    "A static icon collection measures benign-artwork false positives, not real-world phishing detection efficacy."
+  ]
+}

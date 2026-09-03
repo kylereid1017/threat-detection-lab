@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="80">
+  <!-- Benign interactive behavior: animation toggling; no navigation, no external URL. -->
+  <circle cx="40" cy="40" r="20">
+    <animate attributeName="r" values="20;28;20" dur="2s" repeatCount="indefinite" />
+  </circle>
+  <script><![CDATA[
+    document.addEventListener("click", function () {
+      var c = document.getElementById("dot");
+      c.setAttribute("fill", "#4a7ba6");
+    });
+  ]]></script>
+  <circle id="dot" cx="200" cy="40" r="20" fill="#cccccc" />
+</svg>
