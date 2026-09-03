@@ -1,0 +1,51 @@
+{
+  "target_type": "yara",
+  "target_rule": "Suspicious_Active_Content_SVG_Attachment",
+  "iterations_run": 3,
+  "total_generated": 3,
+  "critic_approved": 3,
+  "detected_count": 3,
+  "evaded_count": 0,
+  "final_resilience": 1.0,
+  "history": [
+    {
+      "iteration": 1,
+      "timestamp": "2026-09-03T18:42:47.292871+00:00",
+      "prompt": "Test SVG parsing with namespace prefix <svg:svg> and location.replace",
+      "variant_id": "prompt-bb88c237",
+      "mutation_name": "prompt_svg_structural",
+      "axis": "structural",
+      "critic_passed": true,
+      "critic_reason": "Passed all pre-flight syntax and safety checks",
+      "detected": true,
+      "evasion_gap": false,
+      "cumulative_resilience": 1.0
+    },
+    {
+      "iteration": 2,
+      "timestamp": "2026-09-03T18:42:47.293095+00:00",
+      "prompt": "Test JavaScript bracket access window['location']['href'] to evade literal strings",
+      "variant_id": "prompt-e4dc6d27",
+      "mutation_name": "prompt_svg_obfuscation",
+      "axis": "obfuscation",
+      "critic_passed": true,
+      "critic_reason": "Passed all pre-flight syntax and safety checks",
+      "detected": true,
+      "evasion_gap": false,
+      "cumulative_resilience": 1.0
+    },
+    {
+      "iteration": 3,
+      "timestamp": "2026-09-03T18:42:47.293227+00:00",
+      "prompt": "Evaluate script execution wrapped in CDATA encapsulation with external https URI",
+      "variant_id": "prompt-efadf28e",
+      "mutation_name": "prompt_svg_structural",
+      "axis": "structural",
+      "critic_passed": true,
+      "critic_reason": "Passed all pre-flight syntax and safety checks",
+      "detected": true,
+      "evasion_gap": false,
+      "cumulative_resilience": 1.0
+    }
+  ]
+}

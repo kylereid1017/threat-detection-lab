@@ -1,0 +1,51 @@
+{
+  "target_type": "sigma",
+  "target_rule": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+  "iterations_run": 3,
+  "total_generated": 3,
+  "critic_approved": 3,
+  "detected_count": 3,
+  "evaded_count": 0,
+  "final_resilience": 1.0,
+  "history": [
+    {
+      "iteration": 1,
+      "timestamp": "2026-09-03T18:42:47.290841+00:00",
+      "prompt": "Simulate PowerShell execution with abbreviated -w h switch",
+      "variant_id": "prompt-66b821e3",
+      "mutation_name": "prompt_powershell_syntax",
+      "axis": "syntax",
+      "critic_passed": true,
+      "critic_reason": "Passed all pre-flight syntax and safety checks",
+      "detected": true,
+      "evasion_gap": false,
+      "cumulative_resilience": 1.0
+    },
+    {
+      "iteration": 2,
+      "timestamp": "2026-09-03T18:42:47.291062+00:00",
+      "prompt": "Probe cmdlet splitting &('Inv'+'oke-RestMethod') with download",
+      "variant_id": "prompt-37fbfd06",
+      "mutation_name": "prompt_cmd_syntax",
+      "axis": "syntax",
+      "critic_passed": true,
+      "critic_reason": "Passed all pre-flight syntax and safety checks",
+      "detected": true,
+      "evasion_gap": false,
+      "cumulative_resilience": 1.0
+    },
+    {
+      "iteration": 3,
+      "timestamp": "2026-09-03T18:42:47.291253+00:00",
+      "prompt": "Simulate Explorer spawning rundll32 url.dll,FileProtocolHandler to remote HTA",
+      "variant_id": "prompt-702dc84e",
+      "mutation_name": "prompt_rundll32_lolbin",
+      "axis": "lolbin",
+      "critic_passed": true,
+      "critic_reason": "Passed all pre-flight syntax and safety checks",
+      "detected": true,
+      "evasion_gap": false,
+      "cumulative_resilience": 1.0
+    }
+  ]
+}

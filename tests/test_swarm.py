@@ -1,6 +1,7 @@
 import unittest
 from pathlib import Path
 
+from tools.swarm.autonomous import AutonomousOrchestrator
 from tools.swarm.config import OperatorDirective, SafetyConstraints
 from tools.swarm.craftsmen.process_craftsman import ProcessCraftsman
 from tools.swarm.craftsmen.svg_craftsman import SvgCraftsman
@@ -8,6 +9,7 @@ from tools.swarm.critic import SwarmCritic
 from tools.swarm.detectors import SigmaDetector, YaraDetector
 from tools.swarm.models import Variant
 from tools.swarm.orchestrator import SwarmOrchestrator
+from tools.swarm.prompt_engine import PromptEngine
 
 
 class SwarmCriticTests(unittest.TestCase):
@@ -170,6 +172,76 @@ class SwarmOrchestratorEndToEndTests(unittest.TestCase):
         self.assertGreater(boundary_map.total_generated, 0)
         self.assertGreater(boundary_map.critic_approved, 0)
         self.assertGreater(len(results), 0)
+
+
+
+class PromptEngineTests(unittest.TestCase):
+    """Verifies that PromptEngine translates natural language directives and generates valid variants."""
+
+    def setUp(self):
+        self.engine = PromptEngine()
+        self.critic = SwarmCritic()
+
+    def test_generate_from_custom_prompt_sigma(self):
+        variant = self.engine.generate_from_prompt(
+            "Simulate Explorer launching rundll32.exe url.dll,FileProtocolHandler",
+            target_type="sigma",
+        )
+        self.assertEqual(variant.target_type, "sigma")
+        self.assertEqual(variant.axis, "lolbin")
+        self.assertIn("rundll32.exe", variant.payload["CommandLine"])
+        verdict = self.critic.evaluate(variant)
+        self.assertTrue(verdict.passed)
+
+    def test_generate_from_custom_prompt_yara(self):
+        variant = self.engine.generate_from_prompt(
+            "Probe YARA scan window with 2048 bytes of comment padding and bracket property access",
+            target_type="yara",
+        )
+        self.assertEqual(variant.target_type, "yara")
+        self.assertIn("<!--", variant.payload)
+        verdict = self.critic.evaluate(variant)
+        self.assertTrue(verdict.passed)
+
+    def test_generate_novel_hypotheses_are_valid(self):
+        for target in ("sigma", "yara"):
+            for idx in range(1, 5):
+                prompt, variant = self.engine.generate_novel_hypothesis(target_type=target, index=idx)
+                self.assertIsNotNone(prompt)
+                verdict = self.critic.evaluate(variant)
+                self.assertTrue(verdict.passed, f"Generated hypothesis rejected by critic: {verdict.reason}")
+
+
+class AutonomousOrchestratorTests(unittest.TestCase):
+    """Verifies continuous autonomous sparring loops and history persistence."""
+
+    def test_autonomous_sparring_sigma(self):
+        directive = OperatorDirective(
+            target="sigma",
+            max_cycles=1,
+            variants_per_cycle=3,
+        )
+        auto_orch = AutonomousOrchestrator(directive)
+        summary = auto_orch.run_autonomous(iterations=3)
+
+        self.assertEqual(summary["iterations_run"], 3)
+        self.assertGreaterEqual(summary["critic_approved"], 3)
+        self.assertGreater(summary["detected_count"], 0)
+        self.assertEqual(len(summary["history"]), 3)
+
+    def test_autonomous_sparring_yara(self):
+        directive = OperatorDirective(
+            target="yara",
+            max_cycles=1,
+            variants_per_cycle=3,
+        )
+        auto_orch = AutonomousOrchestrator(directive)
+        summary = auto_orch.run_autonomous(iterations=3)
+
+        self.assertEqual(summary["iterations_run"], 3)
+        self.assertGreaterEqual(summary["critic_approved"], 3)
+        self.assertGreater(summary["detected_count"], 0)
+        self.assertEqual(len(summary["history"]), 3)
 
 
 if __name__ == "__main__":

@@ -6,8 +6,12 @@ import argparse
 import sys
 from pathlib import Path
 
+from .autonomous import AutonomousOrchestrator
 from .config import OperatorDirective, SafetyConstraints
+from .critic import SwarmCritic
+from .detectors import SigmaDetector, YaraDetector
 from .orchestrator import SwarmOrchestrator
+from .prompt_engine import PromptEngine
 
 
 def parse_args() -> argparse.Namespace:
@@ -34,6 +38,23 @@ def parse_args() -> argparse.Namespace:
         help="Maximum variants to generate per cycle (default: 6)",
     )
     parser.add_argument(
+        "--autonomous",
+        action="store_true",
+        help="Run autonomous continuous sparring mode",
+    )
+    parser.add_argument(
+        "--iterations",
+        type=int,
+        default=10,
+        help="Number of continuous sparring iterations (default: 10)",
+    )
+    parser.add_argument(
+        "--prompt",
+        type=str,
+        default=None,
+        help="Custom operator threat prompt directive to test immediately",
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=Path(__file__).resolve().parents[2] / "docs" / "swarm" / "results",
@@ -53,9 +74,47 @@ def main() -> int:
     )
 
     print(f"[*] Initializing Adversarial Swarm for target: {args.target}")
-    print(f"[*] Max cycles: {directive.max_cycles} | Max variants/cycle: {directive.variants_per_cycle}")
     print(f"[*] Safety containment: RFC 2606 reserved domains only | Local sandbox execution only")
 
+    # 1. Custom Single-Prompt Mode
+    if args.prompt:
+        print(f"[*] Executing Custom Directive: \"{args.prompt}\"")
+        engine = PromptEngine()
+        variant = engine.generate_from_prompt(args.prompt, target_type=args.target)
+        critic = SwarmCritic(directive.safety)
+        verdict = critic.evaluate(variant)
+
+        print(f"    [Critic Gate] Passed: {verdict.passed} ({verdict.reason})")
+        if not verdict.passed:
+            return 1
+
+        detector = YaraDetector() if args.target == "yara" else SigmaDetector()
+        detection = detector.evaluate(variant)
+        status = "[+] DETECTED" if detection.detected else "[!] EVASION GAP"
+        print(f"    [Detector Verdict] {status}")
+        return 0
+
+    # 2. Autonomous Continuous Sparring Mode
+    if args.autonomous:
+        print(f"[*] Deploying Autonomous Continuous Sparring ({args.iterations} iterations)...")
+        auto_orch = AutonomousOrchestrator(directive)
+
+        def on_iter(item):
+            status = "[+] DETECTED" if item["detected"] else ("[!] EVASION GAP" if item["critic_passed"] else "[X] CRITIC BLOCKED")
+            print(f"    [Iter {item['iteration']:02d}] {status} | Axis: {item['axis']:<12} | Resilience: {item['cumulative_resilience']*100:.1f}%")
+            print(f"             Prompt: \"{item['prompt']}\"")
+
+        summary = auto_orch.run_autonomous(iterations=args.iterations, on_iteration=on_iter)
+        print("\n[+] Autonomous Sparring Complete!")
+        print(f"    - Iterations Run: {summary['iterations_run']}")
+        print(f"    - Critic Approved: {summary['critic_approved']}")
+        print(f"    - Detected Count: {summary['detected_count']}")
+        print(f"    - Final Resilience Score: {summary['final_resilience'] * 100:.1f}%")
+        print(f"    - Saved history to: {args.output_dir / f'boundary_history_{args.target}.json'}")
+        return 0
+
+    # 3. Standard Closed-Loop Campaign Mode
+    print(f"[*] Max cycles: {directive.max_cycles} | Max variants/cycle: {directive.variants_per_cycle}")
     orchestrator = SwarmOrchestrator(directive)
     boundary_map, _ = orchestrator.run()
 
