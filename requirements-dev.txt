@@ -1,1 +1,6 @@
 yara-python==4.5.4
+pySigma==1.5.0
+pySigma-backend-splunk==2.1.0
+pySigma-backend-elasticsearch==2.1.1
+pySigma-backend-crowdstrike==3.0.0
+pySigma-backend-sqlite==1.2.4

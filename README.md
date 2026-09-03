@@ -2,25 +2,25 @@
 
 A public-safe, test-driven portfolio of detection rules built from public research and synthetic fixtures.
 
-## First detection: suspicious active-content SVG attachments
+## Detections
 
-The first rule targets SVG email attachments that combine multiple high-signal behaviors commonly associated with credential-phishing redirects:
+### 1. File Inspection: Suspicious active-content SVG attachments (YARA)
 
-- JavaScript execution or event handlers
-- navigation or redirect behavior
-- an external HTTP(S) destination
+Targets SVG email attachments combining script execution/event handlers, navigation behavior, and external destinations commonly associated with credential-phishing redirects. See `docs/detections/suspicious-active-content-svg.md`.
 
-It deliberately requires a combination of signals instead of treating every SVG containing a link as malicious.
+### 2. Endpoint Process Creation: Suspicious process spawning from Windows Explorer (Sigma)
+
+Targets user-assisted host execution common in ClickFix, ClearFake, and social-engineering campaigns where users are instructed to paste malicious downloaders or cradles into the Windows Run dialog (`Win + R`). See `docs/detections/explorer-clickfix-execution.md`.
 
 ## Repository layout
 
 - `rules/yara/` — YARA rules
+- `rules/sigma/` — Sigma rules (process creation, endpoint telemetry)
 - `docs/research/` — original research notes
 - `docs/detections/` — methodology, rationale, limitations, and ATT&CK mapping
-- `tests/fixtures/positive/` — inert synthetic samples expected to match
-- `tests/fixtures/negative/` — benign synthetic samples expected not to match
-- `tests/test_yara_rules.py` — executable regression tests
-- `docs/detections/` — methodology, rationale, limitations, and ATT&CK mapping
+- `tests/fixtures/` — inert synthetic samples and telemetry events (positive and negative)
+- `tests/test_yara_rules.py` — YARA regression tests
+- `tests/test_sigma_rules.py` — Sigma schema validation, regression tests, and SIEM conversion tests
 - `PORTFOLIO_ROADMAP.md` — a small, ordered delivery plan
 
 ## Run locally

@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-03 12:10:03.000",
+  "ParentImage": "C:\\Windows\\explorer.exe",
+  "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+  "CommandLine": "powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File C:\\Automation\\backup.ps1",
+  "User": "WORKSTATION\\kyle"
+}

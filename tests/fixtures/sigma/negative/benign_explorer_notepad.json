@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-03 12:10:02.000",
+  "ParentImage": "C:\\Windows\\explorer.exe",
+  "Image": "C:\\Windows\\System32\\notepad.exe",
+  "CommandLine": "\"C:\\Windows\\System32\\notepad.exe\" \"C:\\Users\\kyle\\notes.txt\"",
+  "User": "WORKSTATION\\kyle"
+}

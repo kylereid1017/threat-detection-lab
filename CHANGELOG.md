@@ -6,6 +6,16 @@ Keep a Changelog; versioning follows SemVer.
 ## [Unreleased]
 
 ### Added
+- Second detection: `Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)`
+  Sigma rule (`rules/sigma/proc_creation_win_explorer_clickfix_execution.yml`).
+- Twelve synthetic process creation fixtures (6 positive, 6 negative) covering
+  PowerShell download cradles, hidden window flags, encoded commands, MSHTA, Curl,
+  and CMD staging vs. benign interactive launches.
+- Automated Sigma test harness (`tests/test_sigma_rules.py`) supporting rule
+  schema validation, in-memory SQLite event regression, and multi-SIEM query
+  conversion (Splunk SPL, Elasticsearch Lucene, CrowdStrike Falcon LogScale).
+- Methodology note with ATT&CK mapping, telemetry requirements, query examples,
+  and evasion limitations (`docs/detections/explorer-clickfix-execution.md`).
 - Original research note: "Active Content in SVG Phishing Attachments:
   Detection Opportunities and Evasion Tradeoffs"
   (`docs/research/active-content-svg-phishing.md`).
