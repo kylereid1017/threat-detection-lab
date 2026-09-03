@@ -4,7 +4,9 @@ Controlled multi-agent test harness for continuous detection boundary mapping
 and automated rule resilience evaluation.
 """
 
+from .adapter import SwarmAdapter
 from .autonomous import AutonomousOrchestrator
+from .cable_writer import CableWriter
 from .config import OperatorDirective, SafetyConstraints
 from .models import Variant, CriticVerdict, DetectionResult, BoundaryFinding, BoundaryMap
 from .orchestrator import SwarmOrchestrator
@@ -21,4 +23,6 @@ __all__ = [
     "SwarmOrchestrator",
     "AutonomousOrchestrator",
     "PromptEngine",
+    "SwarmAdapter",
+    "CableWriter",
 ]

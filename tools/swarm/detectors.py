@@ -28,9 +28,13 @@ class BaseDetector(ABC):
 class YaraDetector(BaseDetector):
     """Local YARA detection runner."""
 
-    def __init__(self, rule_path: Path | None = None) -> None:
-        self.rule_path = rule_path or (ROOT / "rules" / "yara" / "suspicious_active_content_svg.yar")
-        self.rules = yara.compile(filepath=str(self.rule_path))
+    def __init__(self, rule_path: Path | None = None, custom_source: str | None = None) -> None:
+        if custom_source:
+            self.rules = yara.compile(source=custom_source)
+            self.rule_path = None
+        else:
+            self.rule_path = rule_path or (ROOT / "rules" / "yara" / "suspicious_active_content_svg.yar")
+            self.rules = yara.compile(filepath=str(self.rule_path))
         self.target_rule_name = "Suspicious_Active_Content_SVG_Attachment"
 
     def evaluate(self, variant: Variant) -> DetectionResult:
@@ -58,11 +62,15 @@ class YaraDetector(BaseDetector):
 class SigmaDetector(BaseDetector):
     """Local Sigma detection runner executing over in-memory SQLite telemetry."""
 
-    def __init__(self, rule_path: Path | None = None) -> None:
-        self.rule_path = rule_path or (
-            ROOT / "rules" / "sigma" / "proc_creation_win_explorer_clickfix_execution.yml"
-        )
-        self.collection = SigmaCollection.from_yaml(self.rule_path.read_text(encoding="utf-8"))
+    def __init__(self, rule_path: Path | None = None, custom_yaml: str | None = None) -> None:
+        if custom_yaml:
+            self.collection = SigmaCollection.from_yaml(custom_yaml)
+            self.rule_path = None
+        else:
+            self.rule_path = rule_path or (
+                ROOT / "rules" / "sigma" / "proc_creation_win_explorer_clickfix_execution.yml"
+            )
+            self.collection = SigmaCollection.from_yaml(self.rule_path.read_text(encoding="utf-8"))
         self.target_rule_name = self.collection.rules[0].title
         self.backend = sqliteBackend()
         self.queries = self.backend.convert(self.collection)

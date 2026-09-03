@@ -34,6 +34,8 @@ class SwarmAnalyst:
                         root_cause=root_cause,
                         policy_recommendation=recommendation,
                         confidence="HIGH",
+                        target_rule=target_rule,
+                        target_type=target_type,
                     )
                 )
             else:
@@ -47,6 +49,8 @@ class SwarmAnalyst:
                         root_cause="Rule logic successfully triggered on variant features.",
                         policy_recommendation="Current rule signature is resilient against this variation.",
                         confidence="HIGH",
+                        target_rule=target_rule,
+                        target_type=target_type,
                     )
                 )
 

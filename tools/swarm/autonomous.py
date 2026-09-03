@@ -12,18 +12,20 @@ from .config import OperatorDirective
 from .critic import SwarmCritic
 from .detectors import BaseDetector, SigmaDetector, YaraDetector
 from .models import BoundaryFinding, CriticVerdict, DetectionResult, Variant
+from .adapter import SwarmAdapter
 from .prompt_engine import PromptEngine
 
 
 class AutonomousOrchestrator:
     """Runs autonomous continuous sparring sessions modeling an endless wave of attack permutations."""
 
-    def __init__(self, directive: OperatorDirective, prompt_engine: Optional[PromptEngine] = None) -> None:
+    def __init__(self, directive: OperatorDirective, prompt_engine: Optional[PromptEngine] = None, adapter: Optional[SwarmAdapter] = None) -> None:
         directive.validate()
         self.directive = directive
         self.prompt_engine = prompt_engine or PromptEngine()
         self.critic = SwarmCritic(safety=directive.safety)
         self.analyst = SwarmAnalyst()
+        self.adapter = adapter or SwarmAdapter()
 
         if directive.target == "yara":
             self.detector: BaseDetector = YaraDetector()
@@ -34,6 +36,7 @@ class AutonomousOrchestrator:
         self,
         iterations: int = 10,
         on_iteration: Optional[Callable[[Dict[str, Any]], None]] = None,
+        self_heal: bool = False,
     ) -> Dict[str, Any]:
         """Executes N iterations of continuous threat hypothesis generation and evaluation."""
         history: List[Dict[str, Any]] = []
@@ -75,7 +78,26 @@ class AutonomousOrchestrator:
                 target_rule=target_rule_name,
                 target_type=self.directive.target,
             )
-            all_findings.extend(findings)
+            # 4. Adapter self-healing loop (if enabled and gap detected)
+            healing_info: Optional[Dict[str, Any]] = None
+            if self_heal and findings and findings[0].evasion_gap_found:
+                healed, cable_path, patch_diff = self.adapter.heal_gap(
+                    finding=findings[0],
+                    variant=variant,
+                    detector=self.detector,
+                    apply_patch=True,
+                )
+                if healed:
+                    healing_info = {
+                        "healed": True,
+                        "cable_path": str(cable_path) if cable_path else None,
+                        "patch_diff": patch_diff,
+                    }
+                    # Refresh detector with patched rule
+                    if self.directive.target == "sigma":
+                        self.detector = SigmaDetector()
+                    else:
+                        self.detector = YaraDetector()
 
             cum_resilience = (detected_count / approved_count) if approved_count > 0 else 0.0
 
@@ -90,6 +112,7 @@ class AutonomousOrchestrator:
                 "critic_reason": verdict.reason,
                 "detected": detection.detected,
                 "evasion_gap": (findings[0].evasion_gap_found if findings else False),
+                "healing": healing_info,
                 "cumulative_resilience": round(cum_resilience, 3),
             }
             history.append(item)

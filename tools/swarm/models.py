@@ -50,6 +50,10 @@ class BoundaryFinding:
     root_cause: str
     policy_recommendation: str
     confidence: str = "HIGH"  # "HIGH", "MEDIUM", "LOW"
+    target_rule: str = ""
+    target_type: str = ""
+    cycle: int = 1
+    variant_id: str = ""
 
 
 @dataclass
