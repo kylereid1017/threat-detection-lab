@@ -6,6 +6,16 @@ Keep a Changelog; versioning follows SemVer.
 ## [Unreleased]
 
 ### Added
+- Autonomous Multi-Stage Kill Chain Campaign Simulator (`tools/swarm/campaign.py`): evaluates
+  end-to-end multi-vector intrusions chaining 5 MITRE ATT&CK stages (Initial Access, Execution,
+  Defense Evasion, Credential Access, Persistence) and computes Depth-of-Defense (DoD) scores.
+- 3 New Production Sigma Rules & Fixture Suites:
+  - Defense Evasion: `rules/sigma/proc_creation_win_defense_evasion_tampering.yml` (T1070.001 / T1562.001).
+  - Credential Access: `rules/sigma/proc_creation_win_rundll32_lsass_dump.yml` (T1003.001).
+  - Persistence: `rules/sigma/proc_creation_win_schtasks_persistence.yml` (T1053.005).
+- CLI flag `--campaign` in `tools/swarm/cli.py` for simulated multi-stage intrusion flows.
+- Multi-Stage Incident Post-Mortem Cable `CABLE-2026-004` evaluating defense-in-depth containment.
+- Kill Chain Campaign Studio integrated into `swarm_workbench.html` with real-time 5-stage timeline.
 - Self-Healing Loop (`tools/swarm/adapter.py`): Agent 06 (The Adapter) diagnosing evasion
   gaps, synthesizing candidate patches, and validating them against a zero-false-positive
   regression test gate before proposing rule commits.

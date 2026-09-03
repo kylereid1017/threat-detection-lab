@@ -10,9 +10,9 @@
   "history": [
     {
       "iteration": 1,
-      "timestamp": "2026-09-03T19:26:34.861996+00:00",
+      "timestamp": "2026-09-03T19:50:51.939778+00:00",
       "prompt": "Simulate Explorer launching pcalua.exe to proxy powershell download",
-      "variant_id": "prompt-bcdf7a03",
+      "variant_id": "prompt-cc0731da",
       "mutation_name": "prompt_pcalua_lolbin_proxy",
       "axis": "lolbin_proxy",
       "critic_passed": true,
@@ -24,9 +24,9 @@
     },
     {
       "iteration": 2,
-      "timestamp": "2026-09-03T19:26:34.862232+00:00",
+      "timestamp": "2026-09-03T19:50:51.940123+00:00",
       "prompt": "Simulate PowerShell execution with abbreviated -w h switch",
-      "variant_id": "prompt-899e3f81",
+      "variant_id": "prompt-6145bcb8",
       "mutation_name": "prompt_powershell_syntax",
       "axis": "syntax",
       "critic_passed": true,
@@ -38,9 +38,9 @@
     },
     {
       "iteration": 3,
-      "timestamp": "2026-09-03T19:26:34.862427+00:00",
+      "timestamp": "2026-09-03T19:50:51.940364+00:00",
       "prompt": "Simulate CMD streaming download payload via stdin pipe into powershell",
-      "variant_id": "prompt-40cad035",
+      "variant_id": "prompt-6f68ab67",
       "mutation_name": "prompt_powershell_argument_hiding",
       "axis": "argument_hiding",
       "critic_passed": true,

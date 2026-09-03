@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-03 13:40:00.000",
+  "ParentImage": "C:\\Windows\\System32\\cmd.exe",
+  "Image": "C:\\Windows\\System32\\wevtutil.exe",
+  "CommandLine": "wevtutil.exe cl Security",
+  "User": "VICTIM-PC\\analyst"
+}

@@ -1,0 +1,49 @@
+title: Suspicious Scheduled Task Creation Spawning Shell or Script Engine
+id: 9a8b7c6d-5e4f-3a2b-1c0d-9e8f7a6b5c4d
+status: experimental
+description: Detects scheduled tasks created via schtasks.exe that spawn shells (powershell, cmd) or LOLBins (mshta, wscript) on automated logon or recurring intervals.
+references:
+    - https://attack.mitre.org/techniques/T1053/005/
+author: Kyle Reid
+date: 2026-09-03
+tags:
+    - attack.persistence
+    - attack.execution
+    - attack.t1053.005
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        Image|endswith:
+            - '\schtasks.exe'
+    selection_action:
+        CommandLine|contains:
+            - '/create'
+            - '-create'
+    selection_payload:
+        CommandLine|contains:
+            - 'powershell'
+            - 'pwsh'
+            - 'cmd.exe'
+            - 'mshta'
+            - 'wscript'
+            - 'cscript'
+            - 'rundll32'
+            - 'curl'
+    selection_trigger:
+        CommandLine|contains:
+            - '/sc onlogon'
+            - '/sc onstart'
+            - '/sc minute'
+            - '/sc hourly'
+            - 'onlogon'
+            - 'onstart'
+    condition: selection_img and selection_action and selection_payload and selection_trigger
+fields:
+    - CommandLine
+    - Image
+    - User
+falsepositives:
+    - Legitimate enterprise deployment scripts installing scheduled update tasks.
+level: high

@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-03 13:40:45.000",
+  "ParentImage": "C:\\Windows\\System32\\cmd.exe",
+  "Image": "C:\\Windows\\System32\\schtasks.exe",
+  "CommandLine": "schtasks.exe /create /tn \"Defrag\" /tr \"defrag.exe C: /U\" /sc weekly /d SUN",
+  "User": "NT AUTHORITY\\SYSTEM"
+}

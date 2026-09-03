@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-03 13:40:40.000",
+  "ParentImage": "C:\\Windows\\System32\\cmd.exe",
+  "Image": "C:\\Windows\\System32\\schtasks.exe",
+  "CommandLine": "schtasks.exe /query /fo LIST /v",
+  "User": "VICTIM-PC\\analyst"
+}

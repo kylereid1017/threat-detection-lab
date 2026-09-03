@@ -7,8 +7,17 @@ and automated rule resilience evaluation.
 from .adapter import SwarmAdapter
 from .autonomous import AutonomousOrchestrator
 from .cable_writer import CableWriter
+from .campaign import CampaignOrchestrator
 from .config import OperatorDirective, SafetyConstraints
-from .models import Variant, CriticVerdict, DetectionResult, BoundaryFinding, BoundaryMap
+from .models import (
+    Variant,
+    CriticVerdict,
+    DetectionResult,
+    BoundaryFinding,
+    BoundaryMap,
+    StageResult,
+    CampaignResult,
+)
 from .orchestrator import SwarmOrchestrator
 from .prompt_engine import PromptEngine
 
@@ -20,8 +29,11 @@ __all__ = [
     "DetectionResult",
     "BoundaryFinding",
     "BoundaryMap",
+    "StageResult",
+    "CampaignResult",
     "SwarmOrchestrator",
     "AutonomousOrchestrator",
+    "CampaignOrchestrator",
     "PromptEngine",
     "SwarmAdapter",
     "CableWriter",
