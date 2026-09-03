@@ -1,0 +1,93 @@
+title: Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)
+id: 8d2b8b93-5f8a-4d37-8b06-a21c5f3b7c89
+status: experimental
+description: Detects suspicious process execution spawned directly by explorer.exe (such as via the Windows Run dialog or shell shortcut execution) where the child process is an interpreter or downloader utility executed with download cradles, hidden window flags, or remote script invocation. This behavior is heavily observed in ClickFix, ClearFake, and social engineering campaigns where users are instructed to press Win+R, paste clipboard contents, and hit Enter.
+references:
+    - https://www.sekoia.io/en/clickfix-social-engineering-technique/
+    - https://unit42.paloaltonetworks.com/threat-brief-clickfix-social-engineering/
+    - https://hoxhunt.com/blog/svg-phishing-email-attachments-mini-report
+author: Kyle Reid
+date: 2026-09-03
+tags:
+    - attack.initial_access
+    - attack.t1204.002
+    - attack.execution
+    - attack.t1059.001
+    - attack.t1059.003
+    - attack.defense_evasion
+    - attack.t1027
+    - attack.t1218.005
+    - attack.command_and_control
+    - attack.t1105
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_parent:
+        ParentImage|endswith: '\explorer.exe'
+    selection_pwsh_img:
+        Image|endswith:
+            - '\powershell.exe'
+            - '\pwsh.exe'
+    selection_pwsh_action:
+        CommandLine|contains:
+            - 'Invoke-WebRequest'
+            - 'iwr '
+            - 'iwr('
+            - 'Invoke-RestMethod'
+            - 'irm '
+            - 'irm('
+            - 'Net.WebClient'
+            - 'DownloadString'
+            - 'DownloadFile'
+            - '-w hidden'
+            - '-windowstyle hidden'
+            - '-encodedcommand'
+            - '-enc '
+            - '| iex'
+            - '|iex'
+            - '| Invoke-Expression'
+    selection_mshta_img:
+        Image|endswith: '\mshta.exe'
+    selection_mshta_target:
+        CommandLine|contains:
+            - 'http://'
+            - 'https://'
+            - 'javascript:'
+            - 'vbscript:'
+    selection_downloader_img:
+        Image|endswith:
+            - '\curl.exe'
+            - '\certutil.exe'
+    selection_downloader_target:
+        CommandLine|contains:
+            - 'http://'
+            - 'https://'
+    selection_cmd_img:
+        Image|endswith: '\cmd.exe'
+    selection_cmd_target:
+        CommandLine|contains:
+            - 'powershell'
+            - 'pwsh'
+            - 'mshta'
+            - 'curl'
+    selection_cmd_action:
+        CommandLine|contains:
+            - 'start /b'
+            - '/c start'
+            - '-w hidden'
+            - '-windowstyle hidden'
+            - '-enc'
+            - 'Invoke-'
+            - 'irm '
+            - 'iwr '
+            - 'DownloadString'
+    condition: selection_parent and ((selection_pwsh_img and selection_pwsh_action) or (selection_mshta_img and selection_mshta_target) or (selection_downloader_img and selection_downloader_target) or (selection_cmd_img and selection_cmd_target and selection_cmd_action))
+fields:
+    - CommandLine
+    - Image
+    - ParentImage
+    - User
+falsepositives:
+    - Administrative automation or developer testing via the Windows Run dialog
+level: high

@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-03 12:10:04.000",
+  "ParentImage": "C:\\Program Files\\WindowsApps\\Microsoft.WindowsTerminal_1.18\\wt.exe",
+  "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+  "CommandLine": "powershell.exe -c \"irm https://get.scoop.invalid | iex\"",
+  "User": "WORKSTATION\\kyle"
+}

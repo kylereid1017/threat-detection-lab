@@ -10,8 +10,8 @@
 
 ## Next: broaden detection-engineering evidence
 
-6. Add one Sigma rule with public process-creation telemetry, positive/negative fixtures, validation, and backend conversion tests.
-7. Document tuning, expected telemetry, false positives, severity, and ATT&CK mapping.
+6. DONE (2026-09-03): added ClickFix process-creation Sigma rule (`rules/sigma/proc_creation_win_explorer_clickfix_execution.yml`), 12 synthetic fixtures (6 positive, 6 negative), in-memory SQLite regression tests, and multi-SIEM conversion tests (Splunk SPL, Elasticsearch Lucene, CrowdStrike LogScale).
+7. DONE (2026-09-03): documented methodology, ATT&CK mapping, telemetry requirements, query translations, and evasion limitations in `docs/detections/explorer-clickfix-execution.md`.
 8. Submit a genuinely novel, quality-checked rule upstream only after checking SigmaHQ for duplicates.
 
 ## Later: add threat-research depth

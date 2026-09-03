@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-03 12:10:01.000",
+  "ParentImage": "C:\\Windows\\explorer.exe",
+  "Image": "C:\\Windows\\System32\\cmd.exe",
+  "CommandLine": "\"C:\\Windows\\System32\\cmd.exe\"",
+  "User": "WORKSTATION\\kyle"
+}
