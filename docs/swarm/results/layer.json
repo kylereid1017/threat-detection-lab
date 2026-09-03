@@ -1,0 +1,284 @@
+{
+  "name": "threat-detection-lab coverage",
+  "versions": {
+    "attack": "14",
+    "navigator": "4.9.1",
+    "layer": "4.5"
+  },
+  "domain": "enterprise-attack",
+  "description": "Empirical detection coverage from the threat-detection-lab Detection-as-Code harness. Scores: ~75 = single-event analytic (bounded resilience); 95 = additionally correlation-backed (defense in depth).",
+  "sorting": 3,
+  "hideDisabled": false,
+  "techniques": [
+    {
+      "techniqueID": "T1003.001",
+      "score": 95,
+      "color": "#8ec843",
+      "comment": "Covered by: LSASS Process Memory Dump via Rundll32 Comsvcs.dll; LSASS Process Access With Memory-Read Rights",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "true"
+        },
+        {
+          "name": "analytics",
+          "value": "2"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1027",
+      "score": 54,
+      "color": "#ffe766",
+      "comment": "Covered by: Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1053.005",
+      "score": 54,
+      "color": "#ffe766",
+      "comment": "Covered by: Suspicious Scheduled Task Creation Spawning Shell or Script Engine",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1059.001",
+      "score": 95,
+      "color": "#8ec843",
+      "comment": "Covered by: Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern); PowerShell Script Block Download Cradle Execution",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "true"
+        },
+        {
+          "name": "analytics",
+          "value": "2"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1059.003",
+      "score": 54,
+      "color": "#ffe766",
+      "comment": "Covered by: Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1059.005",
+      "score": 54,
+      "color": "#ffe766",
+      "comment": "Covered by: Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1070.001",
+      "score": 54,
+      "color": "#ffe766",
+      "comment": "Covered by: Suspicious Event Log Clearing or Security Software Tampering",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1105",
+      "score": 95,
+      "color": "#8ec843",
+      "comment": "Covered by: Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern); PowerShell Script Block Download Cradle Execution",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "true"
+        },
+        {
+          "name": "analytics",
+          "value": "2"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1204.002",
+      "score": 54,
+      "color": "#ffe766",
+      "comment": "Covered by: Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1218.005",
+      "score": 54,
+      "color": "#ffe766",
+      "comment": "Covered by: Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1218.011",
+      "score": 54,
+      "color": "#ffe766",
+      "comment": "Covered by: Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1562.001",
+      "score": 54,
+      "color": "#ffe766",
+      "comment": "Covered by: Suspicious Event Log Clearing or Security Software Tampering",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1566.001",
+      "score": 54,
+      "color": "#ffe766",
+      "comment": "Covered by: suspicious_active_content_svg",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    }
+  ],
+  "gradient": {
+    "colors": [
+      "#ff6666",
+      "#ffe766",
+      "#8ec843"
+    ],
+    "minValue": 0,
+    "maxValue": 100
+  },
+  "legendItems": [
+    {
+      "label": "Single-event analytic (~75)",
+      "color": "#ffe766"
+    },
+    {
+      "label": "Correlation-backed (95)",
+      "color": "#8ec843"
+    }
+  ],
+  "metadata": [
+    {
+      "name": "generator",
+      "value": "tools.swarm.export_layer"
+    },
+    {
+      "name": "rules-evaluated",
+      "value": "7"
+    },
+    {
+      "name": "techniques-covered",
+      "value": "13"
+    }
+  ],
+  "showTacticRowBackground": true,
+  "tacticRowBackground": "#dddddd",
+  "selectTechniquesAcrossTactics": true
+}

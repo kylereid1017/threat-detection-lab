@@ -1,0 +1,43 @@
+title: PowerShell Script Block Download Cradle Execution
+id: 2c4f6a1b-9d7e-4c3a-8b21-6e5d4c3b2a10
+status: experimental
+description: >
+    Detects a PowerShell Script Block Logging event (Event ID 4104) whose decoded
+    script text contains a remote download cradle chained into in-memory execution.
+    Designed as the script-block component of an execution correlation analytic:
+    when process-creation telemetry is evaded (for example via a proxy LOLBin),
+    the deobfuscated script block still exposes the download-and-execute intent.
+references:
+    - https://attack.mitre.org/techniques/T1059/001/
+    - https://attack.mitre.org/techniques/T1105/
+author: Kyle Reid
+date: 2026-09-03
+tags:
+    - attack.execution
+    - attack.t1059.001
+    - attack.command_and_control
+    - attack.t1105
+logsource:
+    category: ps_script
+    product: windows
+detection:
+    selection_cmdlet:
+        ScriptBlockText|contains:
+            - 'Invoke-WebRequest'
+            - 'Invoke-RestMethod'
+            - 'Net.WebClient'
+            - 'DownloadString'
+            - 'DownloadFile'
+            - 'iwr'
+            - 'irm'
+    selection_exec:
+        ScriptBlockText|contains:
+            - 'IEX'
+            - 'Invoke-Expression'
+            - '| iex'
+            - '|iex'
+            - 'Start-Process'
+    condition: selection_cmdlet and selection_exec
+falsepositives:
+    - Legitimate administrative provisioning scripts fetching internal resources.
+level: high

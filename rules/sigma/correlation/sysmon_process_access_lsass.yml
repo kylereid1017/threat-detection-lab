@@ -1,0 +1,33 @@
+title: LSASS Process Access With Memory-Read Rights
+id: 3b5d7e2c-1a9f-4d6b-9c30-7f6e5d4c3b21
+status: experimental
+description: >
+    Detects a Sysmon Process Access event (Event ID 10) targeting lsass.exe with a
+    granted-access mask that includes the memory-read and query rights used by
+    credential-dumping tooling. Serves as the process-access component of a
+    credential-access correlation analytic paired with a subsequent dump-file
+    write, catching LSASS theft even when the launching command line is obfuscated.
+references:
+    - https://attack.mitre.org/techniques/T1003/001/
+author: Kyle Reid
+date: 2026-09-03
+tags:
+    - attack.credential_access
+    - attack.t1003.001
+logsource:
+    category: process_access
+    product: windows
+detection:
+    selection_target:
+        TargetImage|endswith: '\lsass.exe'
+    selection_access:
+        GrantedAccess:
+            - '0x1010'
+            - '0x1410'
+            - '0x1438'
+            - '0x143a'
+            - '0x1fffff'
+    condition: selection_target and selection_access
+falsepositives:
+    - Endpoint security agents and legitimate diagnostic tooling reading process memory.
+level: critical

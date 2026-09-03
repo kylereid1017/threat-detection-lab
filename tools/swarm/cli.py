@@ -71,6 +71,21 @@ def parse_args() -> argparse.Namespace:
         help="Synthesize all accumulated threat cables and boundary results into a strategic meta-intelligence cable",
     )
     parser.add_argument(
+        "--graph",
+        action="store_true",
+        help="Run the DAG correlation state machine (Epic 2) with defense-in-depth scoring",
+    )
+    parser.add_argument(
+        "--export-layer",
+        action="store_true",
+        help="Export a MITRE ATT&CK Navigator coverage layer (layer.json) from all evaluated rules",
+    )
+    parser.add_argument(
+        "--validate-gate",
+        action="store_true",
+        help="Run the deterministic zero-false-positive validation gate over the fixture corpus",
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=Path(__file__).resolve().parents[2] / "docs" / "swarm" / "results",
@@ -81,6 +96,51 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+
+    if args.validate_gate:
+        from .validate_gate import ZeroFalsePositiveGate
+        print("[*] Running Detection-as-Code zero-false-positive validation gate...")
+        report = ZeroFalsePositiveGate().run()
+        print(report.to_markdown())
+        return 0 if report.passed else 1
+
+    if args.export_layer:
+        from .export_layer import MitreLayerExporter
+        print("[*] Exporting MITRE ATT&CK Navigator coverage layer...")
+        exporter = MitreLayerExporter()
+        path = exporter.export(out_path=args.output_dir / "layer.json")
+        import json as _json
+        layer = _json.loads(path.read_text(encoding="utf-8"))
+        print(f"[+] Wrote {path}")
+        print(f"    - Rules evaluated: {layer['metadata'][1]['value']}")
+        print(f"    - Techniques covered: {len(layer['techniques'])}")
+        return 0
+
+    if args.graph:
+        from .graph_engine import GraphEngine
+        print("[*] Initializing DAG Correlation State Machine (Epic 2)...")
+        engine = GraphEngine()
+
+        def walk_cb(idx: int, res) -> None:
+            outcome = (
+                f"Intercepted at {res.interception_node} ({res.interception_technique})"
+                if res.intercepted else "UNCONTAINED BREACH"
+            )
+            mttd = f"{res.mttd_seconds:.0f}s" if res.mttd_seconds is not None else "n/a"
+            print(f"    [Walk {idx:02d}] {outcome:<48} | DoD: {res.depth_of_defense_score:.2f} | MTTD: {mttd}")
+
+        results = engine.run_walks(iterations=args.iterations, walk_callback=walk_cb)
+        total = len(results)
+        contained = sum(1 for r in results if r.contained)
+        avg_dod = sum(r.depth_of_defense_score for r in results) / total if total else 0.0
+        detected_mttds = [r.mttd_seconds for r in results if r.mttd_seconds is not None]
+        avg_mttd = sum(detected_mttds) / len(detected_mttds) if detected_mttds else None
+        print("\n[+] Graph Correlation Walks Complete!")
+        print(f"    - Walks Evaluated: {total}")
+        print(f"    - Contained by Layered Net: {contained}/{total} ({(contained / total) * 100:.1f}%)")
+        print(f"    - Average Depth-of-Defense (DoD): {avg_dod:.2f}")
+        print(f"    - Mean Time-to-Detect (MTTD): {avg_mttd:.0f}s" if avg_mttd is not None else "    - MTTD: n/a")
+        return 0
 
     if args.synthesize_trends:
         from .synthesizer import StrategicSynthesizer
