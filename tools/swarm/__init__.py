@@ -20,6 +20,7 @@ from .models import (
 )
 from .orchestrator import SwarmOrchestrator
 from .prompt_engine import PromptEngine
+from .synthesizer import StrategicSynthesizer, StrategicReport
 
 __all__ = [
     "OperatorDirective",
@@ -37,4 +38,6 @@ __all__ = [
     "PromptEngine",
     "SwarmAdapter",
     "CableWriter",
+    "StrategicSynthesizer",
+    "StrategicReport",
 ]

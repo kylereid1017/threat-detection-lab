@@ -405,5 +405,50 @@ class CampaignOrchestratorTests(unittest.TestCase):
             self.assertGreater(r.depth_of_defense_score, 0.0)
 
 
+class StrategicSynthesizerTests(unittest.TestCase):
+    """Evaluates strategic trend synthesis, clustering, and meta-cable generation."""
+
+    def test_synthesize_report_and_cable(self):
+        import tempfile
+        import shutil
+        from tools.swarm.synthesizer import StrategicSynthesizer
+
+        temp_cables = Path(tempfile.mkdtemp())
+        temp_results = Path(tempfile.mkdtemp())
+        try:
+            # Create a mock incident cable
+            mock_cable = temp_cables / "CABLE-2026-001-test.md"
+            mock_cable.write_text(
+                "---\n"
+                "cable_id: CABLE-2026-001\n"
+                "campaign_type: multi_stage_kill_chain\n"
+                "intercepted: true\n"
+                "depth_of_defense_score: 0.80\n"
+                "---\n"
+                "# Test Cable\n",
+                encoding="utf-8",
+            )
+            # Create a mock index
+            (temp_cables / "INDEX.md").write_text("# Index\n", encoding="utf-8")
+
+            synthesizer = StrategicSynthesizer(cables_dir=temp_cables, results_dir=temp_results)
+            output_path, stats = synthesizer.synthesize(total_evals_override=100, gaps_count_override=25)
+
+            self.assertTrue(output_path.exists())
+            self.assertEqual(stats["total_evaluations"], 100)
+            self.assertEqual(stats["gaps_discovered"], 25)
+            self.assertEqual(stats["resilience_rate"], 0.75)
+            self.assertIn("CABLE-", stats["cable_id"])
+            self.assertIn("STRAT", stats["cable_id"])
+
+            content = output_path.read_text(encoding="utf-8")
+            self.assertIn("Strategic Intelligence Cable", content)
+            self.assertIn("Cluster A: LOLBin & Process Proxying", content)
+            self.assertIn("Empirical Analysis of 100 Autonomous Adversarial Swarm Probes", content)
+        finally:
+            shutil.rmtree(temp_cables, ignore_errors=True)
+            shutil.rmtree(temp_results, ignore_errors=True)
+
+
 if __name__ == "__main__":
     unittest.main()

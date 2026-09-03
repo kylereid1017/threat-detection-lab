@@ -51,6 +51,9 @@ python -m tools.swarm.cli --target sigma --autonomous --iterations 10 --self-hea
 # Run simulated multi-stage intrusion campaign across 5 MITRE ATT&CK stages
 python -m tools.swarm.cli --campaign infostealer
 
+# Synthesize accumulated threat cables into an ICD 203 Strategic Intelligence Cable
+python -m tools.swarm.cli --synthesize-trends
+
 # Test a custom threat simulation prompt
 python -m tools.swarm.cli --target sigma --prompt "Test PowerShell execution with short -w h switch"
 ```

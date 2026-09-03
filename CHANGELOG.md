@@ -6,6 +6,12 @@ Keep a Changelog; versioning follows SemVer.
 ## [Unreleased]
 
 ### Added
+- Strategic Threat Intelligence Synthesizer (`tools/swarm/synthesizer.py`): automated engine
+  aggregating empirical threat cables and boundary telemetry to author ICD 203 / Sherman Kent
+  doctrine Strategic Intelligence Cables with Diamond Model diagrams and trend breakdowns.
+- Strategic Threat Cable: `CABLE-2026-STRAT-001` analyzing 764 autonomous adversarial probes,
+  cluster distributions, the 71.2% resilience equilibrium, and multi-stage containment proofs.
+- CLI flag `--synthesize-trends` in `tools/swarm/cli.py` for one-command strategic synthesis.
 - Autonomous Multi-Stage Kill Chain Campaign Simulator (`tools/swarm/campaign.py`): evaluates
   end-to-end multi-vector intrusions chaining 5 MITRE ATT&CK stages (Initial Access, Execution,
   Defense Evasion, Credential Access, Persistence) and computes Depth-of-Defense (DoD) scores.
