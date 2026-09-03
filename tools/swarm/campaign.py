@@ -172,3 +172,46 @@ class CampaignOrchestrator:
             total_stages=5,
             depth_of_defense_score=dod_score,
         )
+
+    def run_autonomous_campaigns(
+        self,
+        iterations: int = 5,
+        campaign_name: str = "Autonomous-Kill-Chain-Sparring",
+        self_heal: bool = False,
+        stage_callback: Optional[Callable[[int, StageResult], None]] = None,
+        campaign_callback: Optional[Callable[[int, CampaignResult], None]] = None,
+    ) -> List[CampaignResult]:
+        """Runs continuous simulated multi-stage intrusion campaigns with varying adversary evasion tactics."""
+        results: List[CampaignResult] = []
+
+        evasion_profiles = [
+            [],
+            [1],
+            [2],
+            [1, 2],
+            [2, 3],
+            [1, 2, 4],
+            [2, 5],
+            [1, 3],
+        ]
+
+        for i in range(1, iterations + 1):
+            profile = evasion_profiles[(i - 1) % len(evasion_profiles)]
+            camp_id = f"CAMP-2026-{i:03d}"
+
+            def wrapped_stage_cb(stage_res: StageResult) -> None:
+                if stage_callback:
+                    stage_callback(i, stage_res)
+
+            res = self.run_campaign(
+                campaign_name=f"{campaign_name}-Run{i}",
+                campaign_id=camp_id,
+                evasion_at_stages=profile,
+                self_heal=self_heal,
+                callback=wrapped_stage_cb,
+            )
+            results.append(res)
+            if campaign_callback:
+                campaign_callback(i, res)
+
+        return results

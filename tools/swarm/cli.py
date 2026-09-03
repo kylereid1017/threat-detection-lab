@@ -84,6 +84,36 @@ def main() -> int:
         print("[*] Simulating 5-stage MITRE ATT&CK intrusion lifecycle...")
         orchestrator = CampaignOrchestrator()
 
+        if args.autonomous:
+            print(f"[*] Deploying Autonomous Kill-Chain Sparring ({args.iterations} campaigns)...")
+            cable_writer = CableWriter()
+            authored_cables = []
+
+            def camp_cb(idx: int, res):
+                intercept_str = f"Intercepted at {res.interception_stage} ({res.interception_technique})" if res.intercepted else "UNCONTAINED BREACH"
+                print(f"    [Camp {idx:02d}] {intercept_str:<45} | DoD: {res.depth_of_defense_score:.2f}")
+                # Author campaign cable
+                cpath = cable_writer.write_campaign_cable(res)
+                authored_cables.append(cpath)
+
+            results = orchestrator.run_autonomous_campaigns(
+                iterations=args.iterations,
+                campaign_name=f"{args.campaign.capitalize()}-Sparring",
+                self_heal=args.self_heal,
+                campaign_callback=camp_cb,
+            )
+
+            total_runs = len(results)
+            intercepted_runs = sum(1 for r in results if r.intercepted)
+            avg_dod = sum(r.depth_of_defense_score for r in results) / total_runs if total_runs else 0.0
+
+            print(f"\n[+] Autonomous Kill-Chain Sparring Complete!")
+            print(f"    - Campaigns Evaluated: {total_runs}")
+            print(f"    - Intercepted by Layered Net: {intercepted_runs}/{total_runs} ({(intercepted_runs/total_runs)*100:.1f}%)")
+            print(f"    - Average Depth-of-Defense (DoD) Score: {avg_dod:.2f}")
+            print(f"    - Cables Authored & Cataloged: {len(authored_cables)} in docs/cables/INDEX.md")
+            return 0
+
         def stage_callback(res):
             status = "[!] EVADED  " if res.evasion_gap else "[+] DETECTED"
             print(f"    [Stage {res.stage_number}: {res.stage_name:<17}] {status} | Technique: {res.technique_id} | Rule: {res.rule_name[:40]}...")

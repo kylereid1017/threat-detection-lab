@@ -393,6 +393,17 @@ class CampaignOrchestratorTests(unittest.TestCase):
         st4 = [s for s in result.stages if s.stage_number == 4][0]
         self.assertFalse(st4.evasion_gap)
 
+    def test_run_autonomous_campaigns_multi_iterations(self):
+        from tools.swarm.campaign import CampaignOrchestrator
+        orchestrator = CampaignOrchestrator()
+        results = orchestrator.run_autonomous_campaigns(iterations=3)
+
+        self.assertEqual(len(results), 3)
+        for r in results:
+            self.assertEqual(r.total_stages, 5)
+            self.assertTrue(r.intercepted)
+            self.assertGreater(r.depth_of_defense_score, 0.0)
+
 
 if __name__ == "__main__":
     unittest.main()
