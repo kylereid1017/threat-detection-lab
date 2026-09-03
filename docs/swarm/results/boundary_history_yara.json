@@ -4,15 +4,15 @@
   "iterations_run": 3,
   "total_generated": 3,
   "critic_approved": 3,
-  "detected_count": 3,
-  "evaded_count": 0,
-  "final_resilience": 1.0,
+  "detected_count": 2,
+  "evaded_count": 1,
+  "final_resilience": 0.667,
   "history": [
     {
       "iteration": 1,
-      "timestamp": "2026-09-03T18:42:47.292871+00:00",
+      "timestamp": "2026-09-03T18:51:10.023022+00:00",
       "prompt": "Test SVG parsing with namespace prefix <svg:svg> and location.replace",
-      "variant_id": "prompt-bb88c237",
+      "variant_id": "prompt-b3587bdc",
       "mutation_name": "prompt_svg_structural",
       "axis": "structural",
       "critic_passed": true,
@@ -23,29 +23,29 @@
     },
     {
       "iteration": 2,
-      "timestamp": "2026-09-03T18:42:47.293095+00:00",
+      "timestamp": "2026-09-03T18:51:10.023294+00:00",
+      "prompt": "Test SVG foreignObject containing HTML meta-refresh redirect to external URL",
+      "variant_id": "prompt-a6e7420a",
+      "mutation_name": "prompt_svg_parser_differential",
+      "axis": "parser_differential",
+      "critic_passed": true,
+      "critic_reason": "Passed all pre-flight syntax and safety checks",
+      "detected": false,
+      "evasion_gap": true,
+      "cumulative_resilience": 0.5
+    },
+    {
+      "iteration": 3,
+      "timestamp": "2026-09-03T18:51:10.023501+00:00",
       "prompt": "Test JavaScript bracket access window['location']['href'] to evade literal strings",
-      "variant_id": "prompt-e4dc6d27",
+      "variant_id": "prompt-8c07415f",
       "mutation_name": "prompt_svg_obfuscation",
       "axis": "obfuscation",
       "critic_passed": true,
       "critic_reason": "Passed all pre-flight syntax and safety checks",
       "detected": true,
       "evasion_gap": false,
-      "cumulative_resilience": 1.0
-    },
-    {
-      "iteration": 3,
-      "timestamp": "2026-09-03T18:42:47.293227+00:00",
-      "prompt": "Evaluate script execution wrapped in CDATA encapsulation with external https URI",
-      "variant_id": "prompt-efadf28e",
-      "mutation_name": "prompt_svg_structural",
-      "axis": "structural",
-      "critic_passed": true,
-      "critic_reason": "Passed all pre-flight syntax and safety checks",
-      "detected": true,
-      "evasion_gap": false,
-      "cumulative_resilience": 1.0
+      "cumulative_resilience": 0.667
     }
   ]
 }
