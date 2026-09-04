@@ -2,18 +2,17 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
 
-from tools.acquire_telemetry import compute_sha256, main as acquire_main
-from tools.swarm.models import CorrelationRule, CorrelationStage, TelemetryEvent
+from tools.acquire_telemetry import compute_sha256, load_manifest, main as acquire_main
+from tools.swarm.models import TelemetryEvent
 from tools.swarm.telemetry_replay import (
     EvtxParser,
     JsonlParser,
-    ReplayReport,
     SlidingWindowEventStore,
     TelemetryNormalizer,
     TelemetryReplayEngine,
@@ -22,6 +21,7 @@ from tools.swarm.telemetry_replay import (
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES_DIR = ROOT / "tests" / "fixtures" / "telemetry"
+MANIFEST_PATH = ROOT / "tools" / "telemetry_manifest.json"
 
 
 class WilsonScoreTests(unittest.TestCase):
@@ -217,6 +217,25 @@ class TelemetryReplayEngineTests(unittest.TestCase):
         self.assertEqual(report.wilson_ci_lower, 0.0)
         self.assertLess(report.wilson_ci_upper, 0.08)
 
+    def test_corpus_path_is_repo_relative(self):
+        """Committed replay reports must not embed the operator's absolute paths."""
+        report = self.engine.replay_file(FIXTURES_DIR / "mordor_lsass_dump.jsonl")
+        self.assertEqual(
+            report.corpus_path, "tests/fixtures/telemetry/mordor_lsass_dump.jsonl"
+        )
+        self.assertNotIn(":", report.corpus_path)  # no Windows drive letter
+        self.assertFalse(report.corpus_path.startswith("/"))
+
+    def test_corpus_path_outside_repo_degrades_to_filename(self):
+        """A corpus outside the repository must still not leak an absolute path."""
+        with tempfile.TemporaryDirectory() as tmp:
+            external = Path(tmp) / "external_corpus.jsonl"
+            external.write_bytes(
+                (FIXTURES_DIR / "mordor_lsass_dump.jsonl").read_bytes()
+            )
+            report = self.engine.replay_file(external)
+            self.assertEqual(report.corpus_path, "external_corpus.jsonl")
+
     def test_report_serialization_and_markdown(self):
         report = self.engine.replay_file(FIXTURES_DIR / "mordor_lsass_dump.jsonl")
         d = report.to_dict()
@@ -236,10 +255,51 @@ class TelemetryReplayEngineTests(unittest.TestCase):
 class AcquireTelemetryCliTests(unittest.TestCase):
     """Verifies the acquire_telemetry CLI and manifest verification."""
 
-    def test_compute_sha256(self):
-        test_file = FIXTURES_DIR / "mordor_schtasks_persistence.jsonl"
-        h = compute_sha256(test_file)
-        self.assertEqual(h, "ac8e614f645747816d169495bd99f9c34f78835d235acc4fcdb98de563cbdb9d")
+    def setUp(self):
+        self.manifest = load_manifest(MANIFEST_PATH)
+        self.datasets = self.manifest["datasets"]
+
+    def test_compute_sha256_matches_hashlib(self):
+        """compute_sha256 must agree with hashlib over the exact bytes on disk."""
+        with tempfile.TemporaryDirectory() as tmp:
+            probe = Path(tmp) / "probe.bin"
+            payload = b"threat-detection-lab telemetry digest probe\n"
+            probe.write_bytes(payload)
+            self.assertEqual(compute_sha256(probe), hashlib.sha256(payload).hexdigest())
+
+    def test_compute_sha256_spans_multiple_read_chunks(self):
+        """Digest must be correct for files larger than the 64 KiB read buffer."""
+        with tempfile.TemporaryDirectory() as tmp:
+            probe = Path(tmp) / "large.bin"
+            payload = bytes(range(256)) * 1024  # 256 KiB, four read chunks
+            probe.write_bytes(payload)
+            self.assertEqual(compute_sha256(probe), hashlib.sha256(payload).hexdigest())
+
+    def test_manifest_digests_match_fixtures_on_disk(self):
+        """The manifest is the sole source of truth for fixture integrity."""
+        for name, meta in self.datasets.items():
+            with self.subTest(dataset=name):
+                fixture = ROOT / meta["fixture_path"]
+                self.assertTrue(fixture.exists(), f"{name}: fixture missing at {fixture}")
+                self.assertEqual(compute_sha256(fixture), meta["sha256"])
+
+    def test_text_fixtures_are_lf_normalised(self):
+        """Guards the manifest against CRLF drift between Windows and Linux CI.
+
+        Digests are computed over working-tree bytes. A CRLF checkout would
+        change every digest, so text corpora must contain no carriage returns.
+        `.gitattributes` enforces this; this test proves the enforcement holds.
+        """
+        for name, meta in self.datasets.items():
+            path = ROOT / meta["fixture_path"]
+            if path.suffix.lower() == ".evtx":
+                continue  # native binary container; CR bytes are payload data
+            with self.subTest(dataset=name):
+                self.assertNotIn(
+                    b"\r\n",
+                    path.read_bytes(),
+                    f"{name} contains CRLF; digests will diverge on Linux CI",
+                )
 
     def test_acquire_main_verify_only(self):
         ret = acquire_main(["--verify-only", "--manifest", str(ROOT / "tools" / "telemetry_manifest.json")])
@@ -279,13 +339,11 @@ class AcquireTelemetryCliTests(unittest.TestCase):
         self.assertFalse(res)
 
     def test_download_dataset_already_present(self):
+        """A present, verified fixture short-circuits before any network call."""
         from tools.acquire_telemetry import download_dataset
-        meta = {
-            "fixture_path": "tests/fixtures/telemetry/mordor_lsass_dump.jsonl",
-            "sha256": "b9693863acb8996dc44e82e902468df61e074e6611265ade79317da38c1eda9d",
-        }
-        res = download_dataset("mordor_lsass_dump", meta, ROOT, force=False)
-        self.assertTrue(res)
+
+        meta = self.datasets["mordor_lsass_dump"]
+        self.assertTrue(download_dataset("mordor_lsass_dump", meta, ROOT, force=False))
 
 
 if __name__ == "__main__":

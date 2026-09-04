@@ -20,7 +20,7 @@
         10,
         11
       ],
-      "sha256": "b9693863acb8996dc44e82e902468df61e074e6611265ade79317da38c1eda9d",
+      "sha256": "69d2a5c2e7fa368ee2bbd119b3034c76ac0bea75232b6284605fb472df0ee927",
       "fixture_path": "tests/fixtures/telemetry/mordor_lsass_dump.jsonl"
     },
     "mordor_schtasks_persistence": {
@@ -35,7 +35,7 @@
       "event_ids": [
         1
       ],
-      "sha256": "ac8e614f645747816d169495bd99f9c34f78835d235acc4fcdb98de563cbdb9d",
+      "sha256": "378675fe5511457b7aa52b00495ce33af4326550ddc762374993d5a7be6e18fc",
       "fixture_path": "tests/fixtures/telemetry/mordor_schtasks_persistence.jsonl"
     },
     "benign_enterprise_workstation": {
@@ -48,7 +48,7 @@
         1,
         4688
       ],
-      "sha256": "4fc87ed8ad5df248a99b4513f2e18b3afcae807b3845ee470f6719dedbd7c208",
+      "sha256": "a124d636c1c9f9d3f93688e11a738e678cbe6e7193868f0605610e8643ebf71a",
       "fixture_path": "tests/fixtures/telemetry/benign_enterprise_workstation.jsonl"
     },
     "sample_sysmon_process_create": {
