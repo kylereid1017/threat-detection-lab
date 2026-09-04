@@ -45,6 +45,11 @@ jobs:
       - name: Export dual-layer ATT&CK / D3FEND matrix
         run: python -m tools.swarm.cli --export-d3fend
 
+      - name: Replay authentic telemetry corpora
+        run: |
+          python tools/acquire_telemetry.py --verify-only
+          python -m tools.swarm.cli --replay-telemetry
+
       - name: Upload coverage and profiling artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -55,4 +60,5 @@ jobs:
             docs/swarm/results/d3fend_layer.json
             docs/swarm/results/noise_floor.json
             docs/swarm/results/siem_profile.json
+            docs/swarm/results/telemetry_replay.json
           if-no-files-found: warn

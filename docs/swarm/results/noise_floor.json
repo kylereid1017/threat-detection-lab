@@ -4,6 +4,10 @@
   "malicious_events": 26,
   "ambiguous_events": 81,
   "false_positive_rate": 0.0324,
+  "false_positive_rate_ci_95": [
+    0.02615,
+    0.04009
+  ],
   "alerts_per_1000_benign": 32.4,
   "corpus": {
     "rule_name": "CORPUS",
