@@ -72,6 +72,7 @@
     <div class="flex items-center gap-2">
       <button id="btnRun" class="px-5 py-2 rounded-lg text-sm font-bold"
               style="background:var(--info);color:#06213f">Run Kill Chain Campaign</button>
+      <button id="btnLoop" class="px-4 py-2 rounded-lg text-sm font-semibold panel-2 transition-all">Continuous Sparring: OFF</button>
       <button id="btnReset" class="px-4 py-2 rounded-lg text-sm font-semibold panel-2">Reset</button>
     </div>
   </div>
@@ -452,10 +453,69 @@ function setView(which){
   else             { lin.classList.remove("hidden"); dag.classList.add("hidden"); apply(bL,on); apply(bD,off); }
 }
 
+/* ------------------------------ continuous loop -------------------------- */
+let loopActive = false;
+let loopCampaignCount = 0;
+let loopInterceptionCount = 0;
+const EVASION_PROFILES = [
+  [],
+  ["execution"],
+  ["credential_telemetry"],
+  ["ingress", "execution"],
+  ["execution", "credential_telemetry"],
+  ["ingress", "defense_impairment"],
+  ["ingress", "execution", "credential_telemetry"]
+];
+let profileIndex = 0;
+
+async function stepLoop(){
+  if(!loopActive) return;
+  const profile = EVASION_PROFILES[profileIndex % EVASION_PROFILES.length];
+  profileIndex++;
+
+  document.querySelectorAll("#evasionToggles button").forEach(b => {
+    const shouldBeOn = profile.includes(b.dataset.node);
+    b.dataset.on = shouldBeOn ? "true" : "false";
+    b.style.background = shouldBeOn ? "rgba(251,191,36,.18)" : "";
+    b.style.color      = shouldBeOn ? "var(--warn)" : "";
+    b.style.borderColor= shouldBeOn ? "rgba(251,191,36,.4)" : "";
+  });
+
+  const res = await runKillChainCampaign();
+  loopCampaignCount++;
+  if(res && res.intercepted) loopInterceptionCount++;
+
+  const rate = Math.round((loopInterceptionCount / loopCampaignCount) * 100);
+  log(`[Sparring Loop #${loopCampaignCount}] Containment: ${loopInterceptionCount}/${loopCampaignCount} (${rate}%)`, "branch");
+
+  if(loopActive){
+    await sleep(1500);
+    stepLoop();
+  }
+}
+
+function toggleLoop(){
+  loopActive = !loopActive;
+  const b = document.getElementById("btnLoop");
+  if(loopActive){
+    b.textContent = "Continuous Sparring: ON";
+    b.style.background = "rgba(52,211,153,.2)";
+    b.style.color = "var(--ok)";
+    b.style.borderColor = "rgba(52,211,153,.5)";
+    stepLoop();
+  } else {
+    b.textContent = "Continuous Sparring: OFF";
+    b.style.background = "";
+    b.style.color = "";
+    b.style.borderColor = "";
+  }
+}
+
 document.getElementById("btnDag").onclick    = ()=>setView("dag");
 document.getElementById("btnLinear").onclick = ()=>setView("linear");
 document.getElementById("btnRun").onclick    = ()=>runKillChainCampaign();
-document.getElementById("btnReset").onclick  = ()=>resetWalk();
+document.getElementById("btnLoop").onclick   = ()=>toggleLoop();
+document.getElementById("btnReset").onclick  = ()=>{ if(loopActive) toggleLoop(); resetWalk(); };
 
 renderToggles();
 renderGraph();
