@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from .autonomous import AutonomousOrchestrator
-from .config import OperatorDirective, SafetyConstraints
+from .config import OperatorDirective
 from .critic import SwarmCritic
 from .detectors import SigmaDetector, YaraDetector
 from .orchestrator import SwarmOrchestrator
@@ -164,7 +164,7 @@ def main() -> int:
         print(report.to_markdown())
         out = args.output_dir / "telemetry_replay.json"
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(report.to_json(), encoding="utf-8")
+        out.write_text(report.to_json(), encoding="utf-8", newline="\n")
         print(f"\n[+] Wrote machine-readable ICD 203 replay report to {out}")
         return 0
 
@@ -178,7 +178,7 @@ def main() -> int:
         print(report.to_markdown())
         out = args.output_dir / "noise_floor.json"
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(report.to_json(), encoding="utf-8")
+        out.write_text(report.to_json(), encoding="utf-8", newline="\n")
         print(f"\n[+] Wrote machine-readable metrics to {out}")
         return 0
 
@@ -190,7 +190,7 @@ def main() -> int:
         print(report.to_markdown())
         out = args.output_dir / "siem_profile.json"
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(report.to_json(), encoding="utf-8")
+        out.write_text(report.to_json(), encoding="utf-8", newline="\n")
         print(f"\n[+] Wrote machine-readable profile to {out}")
         return 0
 
@@ -264,7 +264,7 @@ def main() -> int:
         print(f"    - Discovered Evasion Gaps: {stats['gaps_discovered']}")
         print(f"    - Multi-Stage Campaign Containment: {stats['containment_rate']:.1%}")
         print(f"    - Average Depth-of-Defense (DoD): {stats['average_depth_of_defense']:.2f}")
-        print(f"    - Discovered Clusters:")
+        print("    - Discovered Clusters:")
         for k, v in stats['cluster_counts'].items():
             print(f"      * {k}: {v}")
         return 0
@@ -299,7 +299,7 @@ def main() -> int:
             intercepted_runs = sum(1 for r in results if r.intercepted)
             avg_dod = sum(r.depth_of_defense_score for r in results) / total_runs if total_runs else 0.0
 
-            print(f"\n[+] Autonomous Kill-Chain Sparring Complete!")
+            print("\n[+] Autonomous Kill-Chain Sparring Complete!")
             print(f"    - Campaigns Evaluated: {total_runs}")
             print(f"    - Intercepted by Layered Net: {intercepted_runs}/{total_runs} ({(intercepted_runs/total_runs)*100:.1f}%)")
             print(f"    - Average Depth-of-Defense (DoD) Score: {avg_dod:.2f}")
@@ -337,7 +337,7 @@ def main() -> int:
     )
 
     print(f"[*] Initializing Adversarial Swarm for target: {args.target}")
-    print(f"[*] Safety containment: RFC 2606 reserved domains only | Local sandbox execution only")
+    print("[*] Safety containment: RFC 2606 reserved domains only | Local sandbox execution only")
 
     # 1. Custom Single-Prompt Mode
     if args.prompt:

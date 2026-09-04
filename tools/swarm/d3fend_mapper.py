@@ -389,5 +389,5 @@ class D3fendMapper:
             self.repo_root / "docs" / "swarm" / "results" / "d3fend_layer.json"
         )
         out_path.parent.mkdir(parents=True, exist_ok=True)
-        out_path.write_text(self.build().to_json(), encoding="utf-8")
+        out_path.write_text(self.build().to_json(), encoding="utf-8", newline="\n")
         return out_path

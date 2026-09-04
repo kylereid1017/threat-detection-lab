@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import base64
-import random
 import re
 import uuid
-from typing import Dict, List, Tuple
+from typing import Tuple
 
 from .models import Variant
 

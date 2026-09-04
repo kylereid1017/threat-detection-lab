@@ -144,7 +144,7 @@ def main() -> int:
             "not real-world phishing detection efficacy.")
 
     RESULTS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    RESULTS_PATH.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    RESULTS_PATH.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8", newline="\n")
 
     print(json.dumps(report, indent=2))
     print(f"\nResults written to {RESULTS_PATH}")

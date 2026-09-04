@@ -232,7 +232,7 @@ class MitreLayerExporter:
         out_path = out_path or (self.repo_root / "docs" / "swarm" / "results" / "layer.json")
         out_path.parent.mkdir(parents=True, exist_ok=True)
         layer = self.build_layer(layer_name=layer_name)
-        out_path.write_text(json.dumps(layer, indent=2), encoding="utf-8")
+        out_path.write_text(json.dumps(layer, indent=2), encoding="utf-8", newline="\n")
         return out_path
 
 
