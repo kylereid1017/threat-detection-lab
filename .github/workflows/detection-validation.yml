@@ -9,26 +9,61 @@ on:
 permissions:
   contents: read
 
+# A new push supersedes an in-flight run for the same ref. Without this, force
+# pushes to a PR leave stale jobs burning runner minutes and reporting results
+# for code that no longer exists.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+  # Statement coverage floor. The suite currently measures 88%; this is set
+  # below that so the gate catches regression rather than blocking routine work.
+  COVERAGE_FLOOR: "85"
+
 jobs:
-  detection-as-code:
-    name: Detection-as-Code Continuous Validation
+  regression-tests:
+    name: Regression Suite
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
 
       - uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
           cache-dependency-path: requirements-dev.txt
 
       - name: Install dependencies
         run: python -m pip install -r requirements-dev.txt
 
-      - name: Run full regression test suite with coverage
+      - name: Run full regression suite with coverage
+        run: python -m coverage run --source=tools -m unittest discover -s tests -v
+
+      - name: Enforce coverage floor
         run: |
-          python -m coverage run --source=tools -m unittest discover -s tests -v
           python -m coverage report -m
+          python -m coverage report --fail-under=${{ env.COVERAGE_FLOOR }}
+
+  detection-as-code:
+    name: Detection-as-Code Continuous Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Gates and exports are only meaningful against a suite that passes.
+    needs: regression-tests
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements-dev.txt
 
       - name: Zero-false-positive validation gate
         run: python -m tools.swarm.validate_gate
@@ -45,10 +80,11 @@ jobs:
       - name: Export dual-layer ATT&CK / D3FEND matrix
         run: python -m tools.swarm.cli --export-d3fend
 
+      - name: Verify telemetry corpus integrity
+        run: python tools/acquire_telemetry.py --verify-only
+
       - name: Replay authentic telemetry corpora
-        run: |
-          python tools/acquire_telemetry.py --verify-only
-          python -m tools.swarm.cli --replay-telemetry
+        run: python -m tools.swarm.cli --replay-telemetry
 
       - name: Upload coverage and profiling artifacts
         if: always()
