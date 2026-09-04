@@ -30,6 +30,8 @@
 20. DONE (2026-09-04): Exercised multi-stage correlation in production paths (`tools/swarm/graph_engine.py`): wired 2-stage ordered correlation (Sysmon EID 10 ProcessAccess + Sysmon EID 11 FileCreate) with native Sigma correlation syntax (`rules/sigma/correlation/correlation_lsass_dump.yml`).
 21. DONE (2026-09-04): Calibrated SIEM query complexity scores against wall-clock execution timings in `tools/swarm/siem_profiler.py`, benchmarking compiled SQLite queries over in-memory enterprise event store and computing Pearson correlation coefficient ($r$).
 22. DONE (2026-09-04): Expanded regression test coverage to 89.1% across `tools/` (130 tests passing in <1.5s), including complete CLI dispatch coverage in `tests/test_swarm_cli.py`.
+23. DONE (2026-09-04): Synthesized overnight 8,033-probe autonomous run in `docs/cables/CABLE-2026-STRAT-002-empirical-swarm-synthesis.md` and interactive executive dashboard (`CABLE-2026-STRAT-002.html`), demonstrating exact statistical convergence at 71.4% resilience (95% Wilson binomial CI: [70.43%, 72.39%]) and categorizing 2,296 evasion gaps into 4 forensic taxonomies.
+24. DONE (2026-09-04): Built the Dual-Mode Real-World Telemetry Replay Engine (`tools/swarm/telemetry_replay.py`), telemetry acquisition CLI with SHA-256 lockfile (`tools/acquire_telemetry.py` & `tools/telemetry_manifest.json`), curated ~89KB in-repo EVTX/JSONL fixtures (`tests/fixtures/telemetry/`), `--replay-telemetry` CLI integration, and strategic synthesizer grounding, raising test suite to 160 tests passing in <1.8s with 89% coverage.
 
 ## Not yet
 

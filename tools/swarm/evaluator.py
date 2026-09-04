@@ -66,13 +66,23 @@ class MultiEventEvaluator:
         conn = sqlite3.connect(":memory:")
         try:
             cursor = conn.cursor()
-            cols = list(record.keys())
+            # Deduplicate columns case-insensitively to prevent SQLite duplicate column errors
+            seen_lower = set()
+            cols: List[str] = []
+            vals: List[str] = []
+            for k, v in record.items():
+                kl = k.lower()
+                if kl not in seen_lower:
+                    seen_lower.add(kl)
+                    cols.append(k)
+                    vals.append(str(v) if v is not None else "")
+
             placeholders = ", ".join("?" * len(cols))
             col_defs = ", ".join(f'"{c}" TEXT' for c in cols)
             cursor.execute(f"CREATE TABLE events ({col_defs})")
             cursor.execute(
                 f"INSERT INTO events VALUES ({placeholders})",
-                [str(v) if v is not None else "" for v in record.values()],
+                vals,
             )
             for query in queries:
                 sql = query.replace("<TABLE_NAME>", "events")

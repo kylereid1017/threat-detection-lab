@@ -113,6 +113,28 @@ def parse_args() -> argparse.Namespace:
         help="Export the dual-layer MITRE ATT&CK / D3FEND countermeasure matrix (d3fend_layer.json)",
     )
     parser.add_argument(
+        "--replay-telemetry",
+        action="store_true",
+        help="Replay real-world telemetry (EVTX/JSONL) through Sigma rules and correlation analytics",
+    )
+    parser.add_argument(
+        "--corpus-path",
+        type=Path,
+        default=None,
+        help="Path to telemetry file (.evtx or .jsonl) for --replay-telemetry (default: tests/fixtures/telemetry/mordor_lsass_dump.jsonl)",
+    )
+    parser.add_argument(
+        "--is-benign",
+        action="store_true",
+        help="Mark telemetry corpus as benign baseline to measure empirical false-positive rate",
+    )
+    parser.add_argument(
+        "--window",
+        type=int,
+        default=300,
+        help="Correlation sliding window in seconds for --replay-telemetry (default: 300)",
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=Path(__file__).resolve().parents[2] / "docs" / "swarm" / "results",
@@ -128,6 +150,23 @@ def main() -> int:
         pass
 
     args = parse_args()
+
+    if args.replay_telemetry:
+        from .telemetry_replay import TelemetryReplayEngine
+        engine = TelemetryReplayEngine()
+        root = Path(__file__).resolve().parents[2]
+        target_path = args.corpus_path or (root / "tests" / "fixtures" / "telemetry" / "mordor_lsass_dump.jsonl")
+        if not target_path.is_absolute():
+            target_path = root / target_path
+        print(f"[*] Replaying real-world telemetry corpus: {target_path.name} ...")
+        is_benign = args.is_benign or ("benign" in str(target_path).lower())
+        report = engine.replay_file(target_path, is_benign=is_benign, window_seconds=args.window)
+        print(report.to_markdown())
+        out = args.output_dir / "telemetry_replay.json"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(report.to_json(), encoding="utf-8")
+        print(f"\n[+] Wrote machine-readable ICD 203 replay report to {out}")
+        return 0
 
     if args.benchmark_snr:
         from .noise_floor import run_benchmark

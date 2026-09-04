@@ -73,6 +73,14 @@ class StrategicSynthesizer:
         cable_id = self._get_next_strategic_cable_id()
         today = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
 
+        replay_file = self.results_dir / "telemetry_replay.json"
+        replay_stats = None
+        if replay_file.exists():
+            try:
+                replay_stats = json.loads(replay_file.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+
         content = self._format_strategic_cable(
             cable_id=cable_id,
             date=today,
@@ -83,6 +91,7 @@ class StrategicSynthesizer:
             containment_rate=containment_rate,
             avg_dod=avg_dod,
             cables_count=len(cables),
+            replay_stats=replay_stats,
         )
 
         output_filename = f"{cable_id}-empirical-swarm-synthesis.md"
@@ -218,12 +227,37 @@ class StrategicSynthesizer:
         containment_rate: float,
         avg_dod: float,
         cables_count: int,
+        replay_stats: Optional[Dict[str, Any]] = None,
     ) -> str:
         """Formats the strategic cable according to Sherman Kent and ICD 203 standards."""
         cl_a = clusters.get("Cluster A: LOLBin & Process Proxying", 84)
         cl_b = clusters.get("Cluster B: Argument Masking & Parameter Aliasing", 59)
         cl_c = clusters.get("Cluster C: Parser Differentials & Offset Padding", 46)
         cl_d = clusters.get("Cluster D: Sensor Blinding & Telemetry Tampering", 31)
+
+        replay_frontmatter = ""
+        replay_fact_row = ""
+        if replay_stats:
+            cname = Path(replay_stats.get("corpus_path", "unknown")).name
+            cformat = replay_stats.get("corpus_format", "").upper()
+            tevents = replay_stats.get("total_events", 0)
+            eps = replay_stats.get("events_per_second", 0.0)
+            fp_rate = replay_stats.get("empirical_fp_rate", 0.0)
+            ci_low = replay_stats.get("wilson_ci_lower", 0.0)
+            ci_high = replay_stats.get("wilson_ci_upper", 0.0)
+            replay_frontmatter = (
+                f"  telemetry_grounding:\n"
+                f"    corpus_file: {cname}\n"
+                f"    format: {cformat}\n"
+                f"    events_evaluated: {tevents}\n"
+                f"    empirical_fp_rate: {fp_rate:.4f}\n"
+                f"    wilson_ci_95: [{ci_low:.4f}, {ci_high:.4f}]\n"
+            )
+            replay_fact_row = (
+                f"| **Observed Fact** | Real-World Telemetry Grounding | "
+                f"Replayed `{cname}` ({cformat}) across {tevents:,} events ({eps:.1f} eps) with empirical FP rate of {fp_rate * 100:.2f}% "
+                f"(95% Wilson CI [{ci_low * 100:.2f}%, {ci_high * 100:.2f}%]). |\n"
+            )
 
         return f"""---
 cable_id: {cable_id}
@@ -240,7 +274,7 @@ empirical_basis:
   gaps_discovered: {total_gaps}
   campaign_containment_rate: {containment_rate:.2f}
   average_depth_of_defense: {avg_dod:.2f}
----
+{replay_frontmatter}---
 
 # Strategic Intelligence Cable: {cable_id}
 
@@ -352,7 +386,7 @@ Adhering to the Sherman Kent doctrine and ICD 203 standards:
 | **Observed Fact** | Empirical Resilience Ceiling | Across {total_evals} autonomous cycles, baseline single-point detections plateaued at {resilience:.1%} resilience. |
 | **Observed Fact** | Multi-Stage Containment | In 100% of tested campaign simulations where Stage 2 evaded, the intrusion was intercepted at Stage 3 (`T1070.001`) or Stage 4 (`T1003.001`). |
 | **Observed Fact** | Zero Safety Spillage | {total_evals}/{total_evals} synthetic variants strictly adhered to RFC 2606 reserved domains (`.invalid`, `203.0.113.0/24`). |
-| **Analytic Judgment** | Indirection is the Primary Evasion Axis | {(cl_a/total_gaps)*100:.1f}% of gaps stem from LOLBin proxying; attackers intentionally exploit parent-child assumptions in EDR sensors. |
+{replay_fact_row}| **Analytic Judgment** | Indirection is the Primary Evasion Axis | {(cl_a/total_gaps)*100:.1f}% of gaps stem from LOLBin proxying; attackers intentionally exploit parent-child assumptions in EDR sensors. |
 | **Analytic Judgment** | Monolithic Rule Fallacy | Attempting to make a single Sigma rule 100% resilient results in query bloat and catastrophic false-positive spikes. |
 | **Hypothesis** | Turnkey Lure Toolkits | Uniformity in ClickFix lures suggests underground initial-access brokers supply standardized social engineering kits. |
 | **Unknowns** | In-the-Wild Proxy Distribution | The exact market share of `pcalua.exe` vs `wt.exe` across active enterprise breaches remains unquantified outside synthetic testing. |

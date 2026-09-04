@@ -99,16 +99,28 @@ class TelemetryEvent:
     description: str = ""
 
     def epoch(self) -> float:
-        """Parses ``utc_time`` (``YYYY-MM-DD HH:MM:SS[.fff]``) into epoch seconds."""
+        """Parses ``utc_time`` (``YYYY-MM-DD HH:MM:SS[.fff]`` or ISO 8601) into epoch seconds."""
         from datetime import datetime, timezone
 
         text = self.utc_time.strip()
+        # Fast path for standard formats
         for fmt in ("%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S"):
             try:
                 dt = datetime.strptime(text, fmt).replace(tzinfo=timezone.utc)
                 return dt.timestamp()
             except ValueError:
                 continue
+
+        # ISO 8601 formats (e.g. 2026-09-04T12:00:00.000Z or +00:00)
+        try:
+            iso_text = text.replace("Z", "+00:00")
+            dt = datetime.fromisoformat(iso_text)
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt.timestamp()
+        except Exception:
+            pass
+
         raise ValueError(f"Unparseable UtcTime: {self.utc_time!r}")
 
     def to_record(self) -> Dict[str, Any]:
