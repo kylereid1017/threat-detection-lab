@@ -13,7 +13,7 @@
       "or_expansion_terms": 5,
       "complexity_score": 66.5,
       "impact": "Moderate",
-      "empirical_ms": 0.183,
+      "empirical_ms": 0.902,
       "findings": [
         "6 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
         "7 case-insensitive operation(s) defeat case-sensitive index structures."
@@ -32,7 +32,7 @@
       "or_expansion_terms": 7,
       "complexity_score": 75.5,
       "impact": "Moderate",
-      "empirical_ms": 0.183,
+      "empirical_ms": 0.902,
       "findings": [
         "7 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
       ]
@@ -50,7 +50,7 @@
       "or_expansion_terms": 5,
       "complexity_score": 65.0,
       "impact": "Moderate",
-      "empirical_ms": 0.183,
+      "empirical_ms": 0.902,
       "findings": [
         "4 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
         "Boolean nesting depth of 3 increases clause evaluation cost per event."
@@ -69,7 +69,7 @@
       "or_expansion_terms": 45,
       "complexity_score": 502.5,
       "impact": "Costly",
-      "empirical_ms": 0.126,
+      "empirical_ms": 0.482,
       "findings": [
         "44 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
         "54 case-insensitive operation(s) defeat case-sensitive index structures.",
@@ -90,7 +90,7 @@
       "or_expansion_terms": 48,
       "complexity_score": 528.0,
       "impact": "Costly",
-      "empirical_ms": 0.126,
+      "empirical_ms": 0.482,
       "findings": [
         "58 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
         "6 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
@@ -111,7 +111,7 @@
       "or_expansion_terms": 45,
       "complexity_score": 373.5,
       "impact": "Costly",
-      "empirical_ms": 0.126,
+      "empirical_ms": 0.482,
       "findings": [
         "18 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
         "Boolean nesting depth of 6 increases clause evaluation cost per event.",
@@ -131,7 +131,7 @@
       "or_expansion_terms": 4,
       "complexity_score": 56.5,
       "impact": "Moderate",
-      "empirical_ms": 0.056,
+      "empirical_ms": 0.24,
       "findings": [
         "6 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
         "7 case-insensitive operation(s) defeat case-sensitive index structures."
@@ -150,7 +150,7 @@
       "or_expansion_terms": 6,
       "complexity_score": 63.0,
       "impact": "Moderate",
-      "empirical_ms": 0.056,
+      "empirical_ms": 0.24,
       "findings": [
         "7 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
       ]
@@ -168,7 +168,7 @@
       "or_expansion_terms": 4,
       "complexity_score": 51.5,
       "impact": "Moderate",
-      "empirical_ms": 0.056,
+      "empirical_ms": 0.24,
       "findings": [
         "3 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
       ]
@@ -186,7 +186,7 @@
       "or_expansion_terms": 13,
       "complexity_score": 159.5,
       "impact": "High",
-      "empirical_ms": 0.071,
+      "empirical_ms": 0.284,
       "findings": [
         "16 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
         "17 case-insensitive operation(s) defeat case-sensitive index structures."
@@ -205,7 +205,7 @@
       "or_expansion_terms": 15,
       "complexity_score": 154.5,
       "impact": "High",
-      "empirical_ms": 0.071,
+      "empirical_ms": 0.284,
       "findings": [
         "17 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
         "2 unanchored regex literal(s) evaluate against the full field value for every candidate event."
@@ -224,7 +224,7 @@
       "or_expansion_terms": 13,
       "complexity_score": 103.5,
       "impact": "High",
-      "empirical_ms": 0.071,
+      "empirical_ms": 0.284,
       "findings": [
         "4 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
       ]
@@ -296,7 +296,7 @@
       "or_expansion_terms": 10,
       "complexity_score": 118.5,
       "impact": "High",
-      "empirical_ms": 0.018,
+      "empirical_ms": 0.017,
       "findings": [
         "12 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
         "12 case-insensitive operation(s) defeat case-sensitive index structures."
@@ -315,7 +315,7 @@
       "or_expansion_terms": 10,
       "complexity_score": 99.5,
       "impact": "High",
-      "empirical_ms": 0.018,
+      "empirical_ms": 0.017,
       "findings": [
         "12 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
       ]
@@ -333,7 +333,7 @@
       "or_expansion_terms": 10,
       "complexity_score": 70.0,
       "impact": "Moderate",
-      "empirical_ms": 0.018,
+      "empirical_ms": 0.017,
       "findings": [
         "2 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
       ]
@@ -405,7 +405,7 @@
       "or_expansion_terms": 4,
       "complexity_score": 25.0,
       "impact": "Low",
-      "empirical_ms": 0.01,
+      "empirical_ms": 0.012,
       "findings": [
         "6 case-insensitive operation(s) defeat case-sensitive index structures."
       ]
@@ -423,7 +423,7 @@
       "or_expansion_terms": 4,
       "complexity_score": 20.0,
       "impact": "Low",
-      "empirical_ms": 0.01,
+      "empirical_ms": 0.012,
       "findings": [
         "1 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
       ]
@@ -441,7 +441,7 @@
       "or_expansion_terms": 4,
       "complexity_score": 36.0,
       "impact": "Low",
-      "empirical_ms": 0.01,
+      "empirical_ms": 0.012,
       "findings": [
         "1 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
       ]
@@ -466,7 +466,7 @@
       "or_expansion_terms": 48,
       "complexity_score": 528.0,
       "impact": "Costly",
-      "empirical_ms": 0.126,
+      "empirical_ms": 0.482,
       "findings": [
         "58 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
         "6 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
@@ -487,7 +487,7 @@
       "or_expansion_terms": 45,
       "complexity_score": 502.5,
       "impact": "Costly",
-      "empirical_ms": 0.126,
+      "empirical_ms": 0.482,
       "findings": [
         "44 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
         "54 case-insensitive operation(s) defeat case-sensitive index structures.",
@@ -508,7 +508,7 @@
       "or_expansion_terms": 45,
       "complexity_score": 373.5,
       "impact": "Costly",
-      "empirical_ms": 0.126,
+      "empirical_ms": 0.482,
       "findings": [
         "18 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
         "Boolean nesting depth of 6 increases clause evaluation cost per event.",
@@ -528,7 +528,7 @@
       "or_expansion_terms": 13,
       "complexity_score": 159.5,
       "impact": "High",
-      "empirical_ms": 0.071,
+      "empirical_ms": 0.284,
       "findings": [
         "16 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
         "17 case-insensitive operation(s) defeat case-sensitive index structures."
@@ -547,7 +547,7 @@
       "or_expansion_terms": 15,
       "complexity_score": 154.5,
       "impact": "High",
-      "empirical_ms": 0.071,
+      "empirical_ms": 0.284,
       "findings": [
         "17 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
         "2 unanchored regex literal(s) evaluate against the full field value for every candidate event."
@@ -555,10 +555,10 @@
     }
   ],
   "empirical_calibration": {
-    "corpus_size": 500,
+    "corpus_size": 2500,
     "repetitions": 3,
-    "mean_latency_ms": 0.068,
-    "pearson_correlation": 0.4334,
-    "correlation_strength": "moderate"
+    "mean_latency_ms": 0.278,
+    "pearson_correlation": 0.3134,
+    "correlation_strength": "weak"
   }
 }

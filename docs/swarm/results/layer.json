@@ -14,7 +14,7 @@
       "techniqueID": "T1003.001",
       "score": 95,
       "color": "#8ec843",
-      "comment": "Covered by: LSASS Process Memory Dump via Rundll32 Comsvcs.dll; LSASS Process Access With Memory-Read Rights",
+      "comment": "Covered by: LSASS Process Memory Dump via Rundll32 Comsvcs.dll; Correlated LSASS Memory Access and Dump File Creation; LSASS Memory Dump File Creation in User Temp; LSASS Process Access With Memory-Read Rights",
       "enabled": true,
       "metadata": [
         {
@@ -23,7 +23,7 @@
         },
         {
           "name": "analytics",
-          "value": "2"
+          "value": "4"
         }
       ],
       "showSubtechniques": false
@@ -271,7 +271,7 @@
     },
     {
       "name": "rules-evaluated",
-      "value": "7"
+      "value": "9"
     },
     {
       "name": "techniques-covered",
