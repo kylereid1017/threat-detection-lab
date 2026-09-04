@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import difflib
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 from .cable_writer import CableWriter
 from .detectors import BaseDetector, SigmaDetector, YaraDetector
@@ -136,7 +136,7 @@ class SwarmAdapter:
 
         # Apply Patch to Disk if requested
         if apply_patch:
-            rule_path.write_text(patched_content, encoding="utf-8")
+            rule_path.write_text(patched_content, encoding="utf-8", newline="\n")
 
         return True, cable_path, patch_diff
 

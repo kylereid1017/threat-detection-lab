@@ -11,7 +11,7 @@ from .analyst import SwarmAnalyst
 from .config import OperatorDirective
 from .critic import SwarmCritic
 from .detectors import BaseDetector, SigmaDetector, YaraDetector
-from .models import BoundaryFinding, CriticVerdict, DetectionResult, Variant
+from .models import DetectionResult
 from .adapter import SwarmAdapter
 from .prompt_engine import PromptEngine
 
@@ -43,7 +43,6 @@ class AutonomousOrchestrator:
         approved_count = 0
         detected_count = 0
         evaded_count = 0
-        all_findings: List[BoundaryFinding] = []
 
         target_rule_name = getattr(self.detector, "target_rule_name", self.directive.target)
 
@@ -142,4 +141,4 @@ class AutonomousOrchestrator:
         out_dir = Path(self.directive.output_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
         hist_path = out_dir / f"boundary_history_{self.directive.target}.json"
-        hist_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+        hist_path.write_text(json.dumps(summary, indent=2), encoding="utf-8", newline="\n")

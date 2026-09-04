@@ -97,11 +97,27 @@ class QueryProfile:
 
 
 @dataclass
+class UnparsableRule:
+    """A rule file that could not be parsed, and so could not be profiled.
+
+    Recorded explicitly so that a corpus-wide profile cannot appear complete
+    while silently omitting rules.
+    """
+
+    rule_path: str
+    error: str
+
+    def to_dict(self) -> Dict[str, object]:
+        return {"rule_path": self.rule_path, "error": self.error}
+
+
+@dataclass
 class ProfilerReport:
     """Aggregate multi-backend profiling result across the rule corpus."""
 
     profiles: List[QueryProfile] = field(default_factory=list)
     empirical_calibration: Dict[str, object] = field(default_factory=dict)
+    unparsable: List[UnparsableRule] = field(default_factory=list)
 
     def by_backend(self) -> Dict[str, List[QueryProfile]]:
         grouped: Dict[str, List[QueryProfile]] = {}
@@ -118,6 +134,7 @@ class ProfilerReport:
             "backends": sorted(self.by_backend()),
             "worst": [p.to_dict() for p in self.worst()],
             "empirical_calibration": self.empirical_calibration,
+            "unparsable": [u.to_dict() for u in self.unparsable],
         }
 
     def to_json(self, indent: int = 2) -> str:
@@ -166,6 +183,20 @@ class ProfilerReport:
                 f"| Pearson correlation ($r$) | {cal.get('pearson_correlation', 0.0):.3f} ({cal.get('correlation_strength', 'unmeasured')}) |",
                 "",
             ]
+
+        if self.unparsable:
+            lines += [
+                "## Rules excluded from this assessment",
+                "",
+                "These rule files failed to parse and were therefore **not** profiled. "
+                "Coverage figures above exclude them.",
+                "",
+                "| Rule file | Parse error |",
+                "|---|---|",
+            ]
+            for item in sorted(self.unparsable, key=lambda u: u.rule_path):
+                lines.append(f"| `{item.rule_path}` | {item.error} |")
+            lines.append("")
 
         lines += [
             "## Assessment",
@@ -326,6 +357,12 @@ class SiemQueryProfiler:
                 )
                 rule_name = collection.rules[0].title
             except Exception as exc:
+                # A rule that will not parse must be reported, not skipped. A
+                # silent `continue` here would drop the rule from the profile
+                # and make the coverage look complete when it is not.
+                report.unparsable.append(
+                    UnparsableRule(rule_path=rule_path.name, error=f"{type(exc).__name__}: {exc}")
+                )
                 continue
 
             for backend_name, backend in self.backends.items():

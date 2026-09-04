@@ -10,7 +10,7 @@ from __future__ import annotations
 import datetime
 import json
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -96,7 +96,7 @@ class StrategicSynthesizer:
 
         output_filename = f"{cable_id}-empirical-swarm-synthesis.md"
         output_path = self.cables_dir / output_filename
-        output_path.write_text(content, encoding="utf-8")
+        output_path.write_text(content, encoding="utf-8", newline="\n")
 
         self._update_index(cable_id, output_filename, today, total_evals, resilience)
 
@@ -214,7 +214,7 @@ class StrategicSynthesizer:
             f"`STRATEGIC ASSESSMENT` | [Read Cable]({filename}) |\n"
         )
         text = text.rstrip() + "\n" + new_row
-        index_path.write_text(text, encoding="utf-8")
+        index_path.write_text(text, encoding="utf-8", newline="\n")
 
     def _format_strategic_cable(
         self,

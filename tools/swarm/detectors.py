@@ -5,7 +5,7 @@ from __future__ import annotations
 import sqlite3
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import List
 
 import yara
 from sigma.collection import SigmaCollection
