@@ -18,10 +18,27 @@ from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 
 from .evaluator import MultiEventEvaluator
-from .models import CorrelationRule, CorrelationStage, EventSequence, TelemetryEvent
+from .models import CorrelationRule, EventSequence, TelemetryEvent
 
 logger = logging.getLogger("telemetry_replay")
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def _repo_relative(path: Path) -> str:
+    """Renders *path* relative to the repository root, using forward slashes.
+
+    Replay reports are committed artifacts. Recording an absolute path would
+    leak the operator's local filesystem layout and would differ between a
+    Windows workstation and the Linux CI runner, so the same corpus would
+    appear as two different sources.
+    """
+    resolved = Path(path).resolve()
+    try:
+        return resolved.relative_to(ROOT).as_posix()
+    except ValueError:
+        # Corpus outside the repository: fall back to the bare filename rather
+        # than embedding an absolute path.
+        return resolved.name
 
 
 def wilson_score_interval(count: int, total: int, confidence: float = 0.95) -> Tuple[float, float]:
@@ -324,7 +341,7 @@ class ReplayReport:
             "> **ANALYTIC RIGOR & SOURCE GROUNDING DIRECTIVE**",
             f"> - **Analytic Confidence Level:** {confidence_level}",
             f"> - **Source Integrity:** Cryptographically verified replay over `{Path(self.corpus_path).name}`",
-            f"> - **Statistical Bounding:** 95% Wilson Binomial Confidence Interval on Empirical FP Rate",
+            "> - **Statistical Bounding:** 95% Wilson Binomial Confidence Interval on Empirical FP Rate",
             "",
             "## Executive Summary",
             "",
@@ -579,7 +596,7 @@ class TelemetryReplayEngine:
             p95_lat = latencies[p95_idx]
 
         return ReplayReport(
-            corpus_path=str(path),
+            corpus_path=_repo_relative(path),
             corpus_format=corpus_format,
             total_events=total_events,
             processing_time_seconds=elapsed,

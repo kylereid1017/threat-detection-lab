@@ -22,12 +22,27 @@ import urllib.request
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    datefmt="%H:%M:%S",
-)
+# Repository root, derived from this file's location rather than the process
+# working directory, so fixture paths in the manifest resolve identically no
+# matter where the tool is invoked from.
+ROOT = Path(__file__).resolve().parents[1]
+
+DEFAULT_MANIFEST = ROOT / "tools" / "telemetry_manifest.json"
+
 logger = logging.getLogger("acquire_telemetry")
+
+
+def _configure_logging() -> None:
+    """Installs console logging.
+
+    Called only from ``__main__``. Importing this module must not mutate global
+    logging configuration, which would otherwise leak into the test suite.
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        datefmt="%H:%M:%S",
+    )
 
 
 def compute_sha256(filepath: Path) -> str:
@@ -113,7 +128,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     parser.add_argument(
         "--manifest",
         type=Path,
-        default=Path("tools/telemetry_manifest.json"),
+        default=DEFAULT_MANIFEST,
         help="Path to telemetry_manifest.json",
     )
     parser.add_argument(
@@ -147,7 +162,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             return 1
         datasets = {args.dataset: datasets[args.dataset]}
 
-    base_dir = Path.cwd()
+    base_dir = ROOT
     success = True
     logger.info(f"Processing {len(datasets)} dataset(s) from {args.manifest}...")
 
@@ -168,4 +183,5 @@ def main(argv: Optional[list[str]] = None) -> int:
 
 
 if __name__ == "__main__":
+    _configure_logging()
     sys.exit(main())
