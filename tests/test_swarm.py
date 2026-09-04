@@ -395,6 +395,202 @@ class SwarmAdapterTests(unittest.TestCase):
         is_verified = adapter._verify_patch(rule_path, patched, "yara", variant)
         self.assertTrue(is_verified)
 
+    def test_resolve_rule_path_all_rules(self):
+        adapter = SwarmAdapter()
+
+        # 1. ClickFix resolution (stem, title, alias)
+        f_click = BoundaryFinding(target_rule="proc_creation_win_explorer_clickfix_execution", target_type="sigma", axis="", mutation_name="", detected=False, evasion_gap_found=True, root_cause="", policy_recommendation="")
+        self.assertEqual(adapter.resolve_rule_path(f_click).name, "proc_creation_win_explorer_clickfix_execution.yml")
+
+        f_click_title = BoundaryFinding(target_rule="Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)", target_type="sigma", axis="", mutation_name="", detected=False, evasion_gap_found=True, root_cause="", policy_recommendation="")
+        self.assertEqual(adapter.resolve_rule_path(f_click_title).name, "proc_creation_win_explorer_clickfix_execution.yml")
+
+        # 2. Schtasks persistence resolution (stem, title, alias)
+        f_sch = BoundaryFinding(target_rule="proc_creation_win_schtasks_persistence", target_type="sigma", axis="", mutation_name="", detected=False, evasion_gap_found=True, root_cause="", policy_recommendation="")
+        self.assertEqual(adapter.resolve_rule_path(f_sch).name, "proc_creation_win_schtasks_persistence.yml")
+
+        f_sch_title = BoundaryFinding(target_rule="Suspicious Scheduled Task Creation Spawning Shell or Script Engine", target_type="sigma", axis="", mutation_name="", detected=False, evasion_gap_found=True, root_cause="", policy_recommendation="")
+        self.assertEqual(adapter.resolve_rule_path(f_sch_title).name, "proc_creation_win_schtasks_persistence.yml")
+
+        # 3. LSASS memory dump resolution (stem, title, alias)
+        f_lsass = BoundaryFinding(target_rule="proc_creation_win_rundll32_lsass_dump", target_type="sigma", axis="", mutation_name="", detected=False, evasion_gap_found=True, root_cause="", policy_recommendation="")
+        self.assertEqual(adapter.resolve_rule_path(f_lsass).name, "proc_creation_win_rundll32_lsass_dump.yml")
+
+        f_lsass_title = BoundaryFinding(target_rule="LSASS Process Memory Dump via Rundll32 Comsvcs.dll", target_type="sigma", axis="", mutation_name="", detected=False, evasion_gap_found=True, root_cause="", policy_recommendation="")
+        self.assertEqual(adapter.resolve_rule_path(f_lsass_title).name, "proc_creation_win_rundll32_lsass_dump.yml")
+
+        # 4. Tampering resolution (stem, title, alias)
+        f_tamp = BoundaryFinding(target_rule="proc_creation_win_defense_evasion_tampering", target_type="sigma", axis="", mutation_name="", detected=False, evasion_gap_found=True, root_cause="", policy_recommendation="")
+        self.assertEqual(adapter.resolve_rule_path(f_tamp).name, "proc_creation_win_defense_evasion_tampering.yml")
+
+        f_tamp_title = BoundaryFinding(target_rule="Suspicious Event Log Clearing or Security Software Tampering", target_type="sigma", axis="", mutation_name="", detected=False, evasion_gap_found=True, root_cause="", policy_recommendation="")
+        self.assertEqual(adapter.resolve_rule_path(f_tamp_title).name, "proc_creation_win_defense_evasion_tampering.yml")
+
+        # 5. YARA resolution
+        f_yara = BoundaryFinding(target_rule="Suspicious_Active_Content_SVG_Attachment", target_type="yara", axis="", mutation_name="", detected=False, evasion_gap_found=True, root_cause="", policy_recommendation="")
+        self.assertEqual(adapter.resolve_rule_path(f_yara).name, "suspicious_active_content_svg.yar")
+
+        # 6. Unknown rule returns None
+        f_unk = BoundaryFinding(target_rule="completely_nonexistent_analytic_xyz", target_type="sigma", axis="", mutation_name="", detected=False, evasion_gap_found=True, root_cause="", policy_recommendation="")
+        self.assertIsNone(adapter.resolve_rule_path(f_unk))
+
+    def test_heal_gap_resolves_and_patches_schtasks(self):
+        import tempfile
+        import shutil
+        tmp_dir = tempfile.mkdtemp()
+        try:
+            cw = CableWriter(cables_dir=Path(tmp_dir))
+            adapter = SwarmAdapter(cable_writer=cw)
+            finding = BoundaryFinding(
+                target_rule="Suspicious Scheduled Task Creation Spawning Shell or Script Engine",
+                target_type="sigma",
+                cycle=1,
+                variant_id="var-schtasks-daily",
+                mutation_name="schtasks_daily_trigger",
+                axis="trigger",
+                detected=False,
+                evasion_gap_found=True,
+                root_cause="Adversary created scheduled task with /sc daily trigger.",
+                policy_recommendation="REC-SIGMA-SCHTASKS-001: Add daily trigger to monitored schedules.",
+            )
+            event_payload = {
+                "EventID": 1,
+                "Image": "C:\\Windows\\System32\\schtasks.exe",
+                "CommandLine": "schtasks.exe /create /tn UpdateTask /tr powershell.exe /sc daily",
+                "User": "SYSTEM",
+            }
+            variant = Variant(
+                id="var-schtasks-daily",
+                target_type="sigma",
+                axis="trigger",
+                mutation_name="schtasks_daily_trigger",
+                description="Daily schtasks creation",
+                payload=event_payload,
+                cycle=1,
+            )
+            success, cable_path, diff = adapter.heal_gap(finding, variant, apply_patch=False)
+            self.assertTrue(success)
+            self.assertIsNotNone(cable_path)
+            self.assertIn("proc_creation_win_schtasks_persistence.yml", diff)
+            self.assertNotIn("proc_creation_win_explorer_clickfix_execution.yml", diff)
+            self.assertIn("/sc daily", diff)
+        finally:
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+
+    def test_heal_gap_resolves_and_patches_lsass(self):
+        import tempfile
+        import shutil
+        tmp_dir = tempfile.mkdtemp()
+        try:
+            cw = CableWriter(cables_dir=Path(tmp_dir))
+            adapter = SwarmAdapter(cable_writer=cw)
+            finding = BoundaryFinding(
+                target_rule="LSASS Process Memory Dump via Rundll32 Comsvcs.dll",
+                target_type="sigma",
+                cycle=1,
+                variant_id="var-lsass-ordinal",
+                mutation_name="rundll32_ordinal_variant",
+                axis="syntax",
+                detected=False,
+                evasion_gap_found=True,
+                root_cause="Adversary invoked comsvcs ordinal #0024 to dump LSASS.",
+                policy_recommendation="REC-SIGMA-LSASS-001: Expand ordinal match to include #0024.",
+            )
+            event_payload = {
+                "EventID": 1,
+                "Image": "C:\\Windows\\System32\\rundll32.exe",
+                "CommandLine": "rundll32.exe C:\\windows\\system32\\comsvcs.dll #0024 1234 C:\\temp\\lsass.dmp full",
+                "User": "NT AUTHORITY\\SYSTEM",
+            }
+            variant = Variant(
+                id="var-lsass-ordinal",
+                target_type="sigma",
+                axis="syntax",
+                mutation_name="rundll32_ordinal_variant",
+                description="Rundll32 comsvcs #0024 dump",
+                payload=event_payload,
+                cycle=1,
+            )
+            success, cable_path, diff = adapter.heal_gap(finding, variant, apply_patch=False)
+            self.assertTrue(success)
+            self.assertIsNotNone(cable_path)
+            self.assertIn("proc_creation_win_rundll32_lsass_dump.yml", diff)
+            self.assertNotIn("proc_creation_win_explorer_clickfix_execution.yml", diff)
+            self.assertIn("#0024", diff)
+        finally:
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+
+    def test_heal_gap_resolves_and_patches_tampering(self):
+        import tempfile
+        import shutil
+        tmp_dir = tempfile.mkdtemp()
+        try:
+            cw = CableWriter(cables_dir=Path(tmp_dir))
+            adapter = SwarmAdapter(cable_writer=cw)
+            finding = BoundaryFinding(
+                target_rule="Suspicious Event Log Clearing or Security Software Tampering",
+                target_type="sigma",
+                cycle=1,
+                variant_id="var-defender-remove",
+                mutation_name="defender_remove_preference",
+                axis="tamper",
+                detected=False,
+                evasion_gap_found=True,
+                root_cause="Adversary disabled protection using Remove-MpPreference.",
+                policy_recommendation="REC-SIGMA-TAMPER-001: Add Remove-MpPreference to monitored tampering cmdlets.",
+            )
+            event_payload = {
+                "EventID": 1,
+                "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+                "CommandLine": "powershell.exe Remove-MpPreference -DisableRealtimeMonitoring $true",
+                "User": "SYSTEM",
+            }
+            variant = Variant(
+                id="var-defender-remove",
+                target_type="sigma",
+                axis="tamper",
+                mutation_name="defender_remove_preference",
+                description="Remove-MpPreference tampering",
+                payload=event_payload,
+                cycle=1,
+            )
+            success, cable_path, diff = adapter.heal_gap(finding, variant, apply_patch=False)
+            self.assertTrue(success)
+            self.assertIsNotNone(cable_path)
+            self.assertIn("proc_creation_win_defense_evasion_tampering.yml", diff)
+            self.assertNotIn("proc_creation_win_explorer_clickfix_execution.yml", diff)
+            self.assertIn("Remove-MpPreference", diff)
+        finally:
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+
+    def test_heal_gap_unknown_rule_fails_cleanly(self):
+        adapter = SwarmAdapter()
+        finding = BoundaryFinding(
+            target_rule="completely_nonexistent_analytic_xyz",
+            target_type="sigma",
+            cycle=1,
+            variant_id="var-unknown",
+            mutation_name="unknown_mutation",
+            axis="unknown",
+            detected=False,
+            evasion_gap_found=True,
+            root_cause="Unknown",
+            policy_recommendation="None",
+        )
+        variant = Variant(
+            id="var-unknown",
+            target_type="sigma",
+            axis="unknown",
+            mutation_name="unknown_mutation",
+            description="unknown",
+            payload={},
+            cycle=1,
+        )
+        success, cable_path, err = adapter.heal_gap(finding, variant, apply_patch=False)
+        self.assertFalse(success)
+        self.assertIsNone(cable_path)
+        self.assertIn("could not be resolved", err)
+
 
 class CampaignOrchestratorTests(unittest.TestCase):
     """Evaluates multi-stage kill chain campaign simulation and defense-in-depth scoring."""
@@ -807,6 +1003,39 @@ class MitreLayerExporterTests(unittest.TestCase):
             self.assertTrue(path.exists())
             data = json.loads(path.read_text(encoding="utf-8"))
             self.assertIn("techniques", data)
+
+    def test_layer_scores_are_deterministic_and_reproducible(self):
+        # By default, layer scoring uses the pinned empirical baseline (0.712)
+        # ensuring identical, reproducible outputs across machines regardless of mutable history.
+        layer1 = self.exporter.build_layer()
+        layer2 = self.exporter.build_layer()
+        scored1 = {t["techniqueID"]: t["score"] for t in layer1["techniques"]}
+        scored2 = {t["techniqueID"]: t["score"] for t in layer2["techniques"]}
+        self.assertEqual(scored1, scored2)
+        # Single-event rules blend baseline 75 with pinned 71 -> 73
+        self.assertEqual(scored1.get("T1204.002"), 73)
+        self.assertEqual(scored1.get("T1053.005"), 73)
+        # Correlation-backed techniques stay at 95
+        self.assertEqual(scored1.get("T1003.001"), 95)
+
+    def test_layer_explicit_history_file_override(self):
+        import json
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            custom_hist = Path(tmp) / "custom_hist.json"
+            custom_hist.write_text(json.dumps({"final_resilience": 0.85}), encoding="utf-8")
+            custom_exporter = MitreLayerExporter(history_file=custom_hist)
+            layer = custom_exporter.build_layer()
+            scored = {t["techniqueID"]: t["score"] for t in layer["techniques"]}
+            # Blends 75 with 85 -> 80
+            self.assertEqual(scored.get("T1204.002"), 80)
+
+    def test_layer_pinned_resilience_none_uses_baseline(self):
+        unpinned_exporter = MitreLayerExporter(pinned_resilience=None)
+        layer = unpinned_exporter.build_layer()
+        scored = {t["techniqueID"]: t["score"] for t in layer["techniques"]}
+        # When unpinned and no history file, raw baseline 75 is preserved
+        self.assertEqual(scored.get("T1204.002"), 75)
 
 
 class ZeroFalsePositiveGateTests(unittest.TestCase):
