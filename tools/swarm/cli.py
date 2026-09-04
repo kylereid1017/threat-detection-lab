@@ -145,8 +145,11 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     try:
+        # Reports contain box-drawing and status glyphs that the Windows
+        # console's default cp1252 codec cannot encode. Best-effort: a stream
+        # that cannot be reconfigured (a pipe, or a stub under test) is fine.
         sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
-    except Exception:
+    except (AttributeError, OSError, ValueError):
         pass
 
     args = parse_args()

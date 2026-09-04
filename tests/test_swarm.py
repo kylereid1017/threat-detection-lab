@@ -747,6 +747,56 @@ class StrategicSynthesizerTests(unittest.TestCase):
             shutil.rmtree(temp_cables, ignore_errors=True)
             shutil.rmtree(temp_results, ignore_errors=True)
 
+    def test_unreadable_history_is_counted_not_silently_dropped(self):
+        """A corrupt history file must be reported, not quietly under-counted.
+
+        Aggregate counts feed a published strategic cable. Skipping a source in
+        silence would overstate how much evidence the assessment rests on.
+        """
+        from tools.swarm.synthesizer import StrategicSynthesizer
+
+        with tempfile.TemporaryDirectory() as cables, tempfile.TemporaryDirectory() as results:
+            results_dir = Path(results)
+            (results_dir / "boundary_history_sigma.json").write_text(
+                json.dumps({"total_generated": 40, "evaded_count": 10}),
+                encoding="utf-8",
+                newline="\n",
+            )
+            (results_dir / "boundary_history_yara.json").write_text(
+                "{ this is not valid json",
+                encoding="utf-8",
+                newline="\n",
+            )
+
+            synthesizer = StrategicSynthesizer(
+                cables_dir=Path(cables), results_dir=results_dir
+            )
+            with self.assertLogs("swarm.synthesizer", level="WARNING") as captured:
+                stats = synthesizer._load_boundary_history()
+
+            self.assertEqual(stats["total_evaluations"], 40)
+            self.assertEqual(stats["gaps_discovered"], 10)
+            self.assertEqual(stats["sources_excluded"], 1)
+            self.assertIn("boundary_history_yara.json", "\n".join(captured.output))
+
+    def test_all_readable_history_reports_no_exclusions(self):
+        from tools.swarm.synthesizer import StrategicSynthesizer
+
+        with tempfile.TemporaryDirectory() as cables, tempfile.TemporaryDirectory() as results:
+            results_dir = Path(results)
+            (results_dir / "boundary_history_sigma.json").write_text(
+                json.dumps({"total_generated": 12, "evaded_count": 3}),
+                encoding="utf-8",
+                newline="\n",
+            )
+            synthesizer = StrategicSynthesizer(
+                cables_dir=Path(cables), results_dir=results_dir
+            )
+            stats = synthesizer._load_boundary_history()
+
+        self.assertEqual(stats["sources_excluded"], 0)
+        self.assertEqual(stats["total_evaluations"], 12)
+
 
 class TelemetryGeneratorTests(unittest.TestCase):
     """EPIC 1 — Verifies schema-driven telemetry generation, mutation, and safety validation."""
