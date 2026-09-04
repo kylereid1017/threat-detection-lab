@@ -1,0 +1,61 @@
+{
+  "corpus_path": "C:\\Users\\kyler\\Projects\\threat-detection-lab\\tests\\fixtures\\telemetry\\mordor_lsass_dump.jsonl",
+  "corpus_format": "jsonl",
+  "total_events": 3,
+  "processing_time_seconds": 0.030071299988776445,
+  "events_per_second": 99.76289688572474,
+  "total_detections": 2,
+  "unique_rules_fired": 2,
+  "empirical_fp_rate": 0.0,
+  "wilson_ci_lower": 0.0,
+  "wilson_ci_upper": 0.5614970317550455,
+  "latency_p50_seconds": 6.0,
+  "latency_p95_seconds": 6.0,
+  "detections": [
+    {
+      "rule_name": "LSASS Process Memory Dump via Rundll32 Comsvcs.dll",
+      "rule_path": "C:\\Users\\kyler\\Projects\\threat-detection-lab\\rules\\sigma\\proc_creation_win_rundll32_lsass_dump.yml",
+      "event_index": 2,
+      "event_id": 1,
+      "utc_time": "2026-09-04T12:00:06.000Z",
+      "computer": "VICTIM-HOST-01.corp.example",
+      "latency_seconds": 6.0,
+      "fields": {
+        "@timestamp": "2026-09-04T12:00:06.000Z",
+        "EventID": 1,
+        "Channel": "Microsoft-Windows-Sysmon/Operational",
+        "Computer": "VICTIM-HOST-01.corp.example",
+        "Image": "C:\\Windows\\System32\\rundll32.exe",
+        "CommandLine": "rundll32.exe C:\\Windows\\System32\\comsvcs.dll, #24 644 C:\\temp\\lsass.dmp full",
+        "ParentImage": "C:\\Windows\\System32\\cmd.exe",
+        "User": "CORP\\compromised_user",
+        "ProcessGuid": "{A1B2C3D4-0001-0000-0000-000000000001}"
+      }
+    }
+  ],
+  "correlation_detections": [
+    {
+      "rule_name": "Correlated LSASS Memory Access and Dump File Creation",
+      "group": "VICTIM-HOST-01.corp.example",
+      "span_seconds": 4.2,
+      "selected_indices": [
+        0,
+        1
+      ],
+      "stage_matches": {
+        "3b5d7e2c-1a9f-4d6b-9c30-7f6e5d4c3b21": [
+          0
+        ],
+        "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d": [
+          1
+        ]
+      },
+      "details": "Correlated 2 stages within 4.2s (window 120s)."
+    }
+  ],
+  "rule_hit_counts": {
+    "LSASS Process Memory Dump via Rundll32 Comsvcs.dll": 1,
+    "Correlated LSASS Memory Access and Dump File Creation": 1
+  },
+  "is_benign": false
+}

@@ -32,6 +32,10 @@ class SwarmCliParserTests(unittest.TestCase):
             self.assertFalse(args.export_layer)
             self.assertFalse(args.graph)
             self.assertFalse(args.synthesize_trends)
+            self.assertFalse(args.replay_telemetry)
+            self.assertIsNone(args.corpus_path)
+            self.assertFalse(args.is_benign)
+            self.assertEqual(args.window, 300)
 
     def test_custom_flags(self):
         with patch.object(
@@ -64,6 +68,12 @@ class SwarmCliParserTests(unittest.TestCase):
                 "infostealer",
                 "--prompt",
                 "Test prompt directive",
+                "--replay-telemetry",
+                "--corpus-path",
+                "tests/fixtures/telemetry/sample_sysmon_process_create.evtx",
+                "--is-benign",
+                "--window",
+                "120",
             ],
         ):
             args = cli.parse_args()
@@ -84,6 +94,10 @@ class SwarmCliParserTests(unittest.TestCase):
             self.assertTrue(args.self_heal)
             self.assertEqual(args.campaign, "infostealer")
             self.assertEqual(args.prompt, "Test prompt directive")
+            self.assertTrue(args.replay_telemetry)
+            self.assertEqual(args.corpus_path, Path("tests/fixtures/telemetry/sample_sysmon_process_create.evtx"))
+            self.assertTrue(args.is_benign)
+            self.assertEqual(args.window, 120)
 
 
 class SwarmCliDispatchTests(unittest.TestCase):
@@ -262,6 +276,44 @@ class SwarmCliDispatchTests(unittest.TestCase):
                 with patch("sys.stdout", new=io.StringIO()):
                     ret = cli.main()
                     self.assertEqual(ret, 0)
+
+    def test_main_replay_telemetry_jsonl(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.object(
+                sys,
+                "argv",
+                [
+                    "tools.swarm.cli",
+                    "--replay-telemetry",
+                    "--corpus-path",
+                    "tests/fixtures/telemetry/mordor_lsass_dump.jsonl",
+                    "--output-dir",
+                    tmp,
+                ],
+            ):
+                with patch("sys.stdout", new=io.StringIO()):
+                    ret = cli.main()
+                    self.assertEqual(ret, 0)
+                    self.assertTrue((Path(tmp) / "telemetry_replay.json").exists())
+
+    def test_main_replay_telemetry_evtx(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.object(
+                sys,
+                "argv",
+                [
+                    "tools.swarm.cli",
+                    "--replay-telemetry",
+                    "--corpus-path",
+                    "tests/fixtures/telemetry/sample_sysmon_process_create.evtx",
+                    "--output-dir",
+                    tmp,
+                ],
+            ):
+                with patch("sys.stdout", new=io.StringIO()):
+                    ret = cli.main()
+                    self.assertEqual(ret, 0)
+                    self.assertTrue((Path(tmp) / "telemetry_replay.json").exists())
 
 
 if __name__ == "__main__":

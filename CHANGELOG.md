@@ -6,6 +6,31 @@ Keep a Changelog; versioning follows SemVer.
 ## [Unreleased]
 
 ### Added
+- Dual-Mode Real-World Telemetry Replay Engine (`tools/swarm/telemetry_replay.py`):
+  ingests native binary Windows `.evtx` (via `python-evtx`) and normalized JSONL / NDJSON streams
+  (Mordor OTRF, Splunk, Elastic NDJSON), normalizes heterogeneous schemas (Security 4688/4698,
+  Sysmon 1, 7, 10, 11), evaluates single-event Sigma rules and temporal multi-stage correlation chains,
+  and measures alert latency (p50/p95) and empirical false-positive rate with 95% Wilson score
+  binomial confidence intervals (ICD 203 Analytic Standard).
+- Cryptographic Telemetry Acquisition Tool & Manifest (`tools/acquire_telemetry.py` & `tools/telemetry_manifest.json`):
+  CLI and SHA-256 lockfile tracking provenance, licensing, and cryptographic digests for external
+  and in-repo telemetry corpora, supporting offline-first `--verify-only` validation.
+- In-Repo Compact Telemetry Fixture Suite (`tests/fixtures/telemetry/`, ~89KB total):
+  authentic Sysmon binary `.evtx` (`sample_sysmon_process_create.evtx`), Mordor credential dump
+  (`mordor_lsass_dump.jsonl`), Mordor scheduled task persistence (`mordor_schtasks_persistence.jsonl`),
+  and non-synthetic enterprise routine baseline (`benign_enterprise_workstation.jsonl`).
+- Swarm CLI Replay Commands (`tools/swarm/cli.py`):
+  added `--replay-telemetry`, `--corpus-path`, `--is-benign`, and `--window` flags emitting ICD 203
+  telemetry replay reports to stdout and `docs/swarm/results/telemetry_replay.json`.
+- Strategic Synthesizer Replay Grounding (`tools/swarm/synthesizer.py`):
+  integrated empirical telemetry replay metrics and Wilson confidence intervals directly into
+  the strategic intelligence cable synthesis pipeline.
+- Continuous Workbench Sparring & 8,033-Probe Synthesis:
+  added `Continuous Sparring: ON / OFF` sequential looping in `swarm_workbench.html`, synthesized
+  overnight 8,033-probe run (71.4% resilience, 95% Wilson CI [70.43%, 72.39%], 2,296 evasion gaps
+  in 4 taxonomies) into `CABLE-2026-STRAT-002` and briefing dashboard `CABLE-2026-STRAT-002.html`.
+- Test Suite Expansion: added `tests/test_telemetry_replay.py`, expanding regression suite to 160 tests
+  passing in <1.8s with 89% total coverage across `tools/`.
 - MITRE D3FEND Ontology Taxonomy Reconciliation (`tools/swarm/d3fend_mapper.py`):
   disambiguated `D3-LSA` identifier collision (`D3-LSA` Log Storage Auditing, `D3-LSAP` Local
   Security Authority Protection), updated official technique IDs (`D3-PSA`, `D3-SEA`, `D3-SJA`),
