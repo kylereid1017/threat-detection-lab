@@ -5,7 +5,7 @@ from __future__ import annotations
 import sqlite3
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import List
 
 import yara
 from sigma.collection import SigmaCollection
@@ -91,12 +91,15 @@ class SigmaDetector(BaseDetector):
 
         detected = False
         matched_queries: List[str] = []
-        for q in self.queries:
-            sql = q.replace("<TABLE_NAME>", "events")
-            rows = cursor.execute(sql).fetchall()
-            if rows:
-                detected = True
-                matched_queries.append(sql)
+        try:
+            for q in self.queries:
+                sql = q.replace("<TABLE_NAME>", "events")
+                rows = cursor.execute(sql).fetchall()
+                if rows:
+                    detected = True
+                    matched_queries.append(sql)
+        finally:
+            conn.close()
 
         return DetectionResult(
             variant_id=variant.id,

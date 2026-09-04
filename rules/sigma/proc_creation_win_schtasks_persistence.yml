@@ -13,6 +13,20 @@ tags:
 logsource:
     category: process_creation
     product: windows
+telemetry_prerequisites:
+    channel: Microsoft-Windows-Sysmon/Operational or Security
+    event_id: 1 (Sysmon) or 4688 (Security)
+    audit_policy: >-
+        Audit Process Creation (Success) with command line auditing enabled.
+    required_fields:
+        - Image
+        - CommandLine
+    sysmon_configuration: >-
+        Requires Sysmon ProcessCreate rule covering schtasks.exe.
+    degradation_mode: >-
+        If schtasks.exe CLI execution is bypassed via direct Task Scheduler COM API (ITaskService / ITaskFolder)
+        or direct XML file drop into C:\Windows\System32\Tasks, process creation telemetry is completely blind.
+        Compensating detection requires TaskScheduler Event ID 106 (Task registered) or Sysmon Event ID 11 (File creation in Tasks directory).
 detection:
     selection_img:
         Image|endswith:

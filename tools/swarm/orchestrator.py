@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 from .analyst import SwarmAnalyst
 from .config import OperatorDirective
@@ -102,12 +102,12 @@ class SwarmOrchestrator:
 
         # JSON map
         json_path = out_dir / f"boundary_map_{self.directive.target}.json"
-        json_path.write_text(boundary_map.to_json(), encoding="utf-8")
+        json_path.write_text(boundary_map.to_json(), encoding="utf-8", newline="\n")
 
         # Markdown report
         md_path = out_dir / f"campaign_report_{self.directive.target}.md"
         md_content = self._format_markdown_report(boundary_map)
-        md_path.write_text(md_content, encoding="utf-8")
+        md_path.write_text(md_content, encoding="utf-8", newline="\n")
 
     def _format_markdown_report(self, b_map: BoundaryMap) -> str:
         lines = [

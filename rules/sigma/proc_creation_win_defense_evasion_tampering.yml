@@ -14,6 +14,20 @@ tags:
 logsource:
     category: process_creation
     product: windows
+telemetry_prerequisites:
+    channel: Microsoft-Windows-Sysmon/Operational or Security
+    event_id: 1 (Sysmon) or 4688 (Security)
+    audit_policy: >-
+        Audit Process Creation (Success) under Detailed Tracking, plus command line auditing.
+    required_fields:
+        - Image
+        - CommandLine
+    sysmon_configuration: >-
+        Requires ProcessCreate coverage including wevtutil.exe and powershell.exe command-line arguments.
+    degradation_mode: >-
+        If process auditing is off, event log clearing cannot be intercepted before execution.
+        Furthermore, direct API clearing (e.g. OpenEventLog + ClearEventLog) completely bypasses
+        process-creation telemetry, requiring dedicated Event Log Service event ID 1102 / 104 monitoring.
 detection:
     selection_wevtutil_img:
         Image|endswith:

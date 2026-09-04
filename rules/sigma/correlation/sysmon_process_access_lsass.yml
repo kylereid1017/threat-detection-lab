@@ -17,6 +17,25 @@ tags:
 logsource:
     category: process_access
     product: windows
+telemetry_prerequisites:
+    channel: Microsoft-Windows-Sysmon/Operational
+    event_id: 10 (ProcessAccess)
+    audit_policy: >-
+        Sysmon configuration with ProcessAccess filter targeting lsass.exe. Windows Native Audit
+        equivalent: 'Audit Other Object Access Events' (Event ID 4656/4663), typically disabled
+        due to extreme volume.
+    required_fields:
+        - SourceImage
+        - TargetImage
+        - GrantedAccess
+    sysmon_configuration: >-
+        <ProcessAccess onmatch="include">
+            <TargetImage condition="end with">\lsass.exe</TargetImage>
+        </ProcessAccess>
+    degradation_mode: >-
+        Disabled by default in base Sysmon and Windows audit configurations due to high EPS.
+        If Sysmon Event ID 10 is absent, memory access to LSASS is undetectable via handle monitoring,
+        forcing reliance on downstream process creation (Event ID 1) or file creation (Event ID 11).
 detection:
     selection_target:
         TargetImage|endswith: '\lsass.exe'

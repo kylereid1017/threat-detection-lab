@@ -45,6 +45,31 @@ class SigmaRuleSchemaTests(unittest.TestCase):
             attack_tags = [str(t) for t in rule.tags if str(t).startswith("attack.")]
             self.assertGreater(len(attack_tags), 0, f"{rule_file.name} must have MITRE ATT&CK tags")
 
+    def test_every_rule_has_telemetry_prerequisites(self):
+        rule_files = list(SIGMA_RULES_DIR.glob("*.yml"))
+        corr_files = list((SIGMA_RULES_DIR / "correlation").glob("*.yml"))
+        all_rules = rule_files + corr_files
+        self.assertGreater(len(all_rules), 0)
+
+        for rule_file in all_rules:
+            collection = SigmaCollection.from_yaml(
+                rule_file.read_text(encoding="utf-8"), resolve_references=False
+            )
+            rule = collection.rules[0]
+            custom = getattr(rule, "custom_attributes", {})
+            self.assertIn(
+                "telemetry_prerequisites",
+                custom,
+                f"{rule_file.name} must specify telemetry_prerequisites",
+            )
+            prereqs = custom["telemetry_prerequisites"]
+            self.assertIn("channel", prereqs, f"{rule_file.name} missing telemetry channel")
+            self.assertIn("event_id", prereqs, f"{rule_file.name} missing event_id")
+            self.assertIn("audit_policy", prereqs, f"{rule_file.name} missing audit_policy")
+            self.assertIn("required_fields", prereqs, f"{rule_file.name} missing required_fields")
+            self.assertIn("degradation_mode", prereqs, f"{rule_file.name} missing degradation_mode")
+            self.assertGreater(len(prereqs["required_fields"]), 0)
+
 
 class SigmaRuleFixtureRegressionTests(unittest.TestCase):
     """Executes rule detection logic against positive and negative synthetic telemetry fixtures."""

@@ -65,7 +65,20 @@ python -m tools.swarm.cli --validate-gate
 
 # Export a MITRE ATT&CK Navigator coverage layer (docs/swarm/results/layer.json)
 python -m tools.swarm.cli --export-layer
+
+# Benchmark signal-to-noise against a high-volume benign enterprise corpus
+python -m tools.swarm.cli --benchmark-snr --events 2500
+
+# Profile query cost across CrowdStrike LogScale, Splunk SPL, and Elastic Lucene
+python -m tools.swarm.cli --profile-siem
+
+# Export the dual-layer MITRE ATT&CK / D3FEND countermeasure matrix
+python -m tools.swarm.cli --export-d3fend
 ```
+
+Open `swarm_workbench.html` in a browser for the interactive state-machine DAG canvas,
+which animates a kill-chain walk, branches to secondary telemetry paths on evasion, and
+reports live Depth-of-Defense, Mean Time-to-Detect, and Path-to-Objective metrics.
 
 ### Detection-as-Code platform (`tools/swarm/`)
 
@@ -75,6 +88,10 @@ The harness is a graph-based, continuously validated Detection-as-Code platform:
 - **`graph_engine.py`** — a directed-acyclic-graph state machine over the intrusion lifecycle (Ingress → Execution → Defense Impairment → Credential Telemetry → Persistence). On a primary-analytic miss it branches to an adjacent secondary telemetry path and scores Depth-of-Defense, Mean Time-to-Detect, and path-to-objective containment.
 - **`evaluator.py`** — a multi-event Sigma evaluator with temporal correlation windows, requiring several component detections to fire in order within a bounded timespan. Correlation component rules live in `rules/sigma/correlation/`.
 - **`validate_gate.py`** / **`export_layer.py`** — the zero-false-positive CI gate and the ATT&CK Navigator layer exporter, wired into `.github/workflows/detection-validation.yml`.
+- **`noise_floor.py`** — generates a high-volume corpus of realistic benign Windows background telemetry (Defender, Intune, SCCM, maintenance, administrative PowerShell) and computes precision, recall, F1, and false discovery rate against it. Per-analytic recall is scored only over the events each analytic owns, and corpus metrics are counted per event rather than pooled across rules. The corpus deliberately includes ambiguous administrative activity that genuinely resembles attacker tradecraft, because that is what produces real false positives.
+- **`siem_profiler.py`** — compiles every analytic to LogScale, Splunk, and Lucene, then statically scores query cost, flagging leading wildcards, unanchored regexes, and wide OR expansions.
+- **`d3fend_mapper.py`** — crosswalks covered ATT&CK techniques onto MITRE D3FEND countermeasures and emits a dual-layer matrix. Mappings carry provenance, and identifier collisions are reported rather than silently resolved.
+- **`swarm_workbench.html`** — the interactive state-machine DAG canvas. Its walk constants are regression-tested against the Python engine so the visualiser cannot silently drift from the code it depicts.
 
 ## Safety and provenance
 
