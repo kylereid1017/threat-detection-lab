@@ -13,6 +13,7 @@
       "or_expansion_terms": 5,
       "complexity_score": 66.5,
       "impact": "Moderate",
+      "empirical_ms": 0.183,
       "findings": [
         "6 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
         "7 case-insensitive operation(s) defeat case-sensitive index structures."
@@ -31,6 +32,7 @@
       "or_expansion_terms": 7,
       "complexity_score": 75.5,
       "impact": "Moderate",
+      "empirical_ms": 0.183,
       "findings": [
         "7 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
       ]
@@ -48,6 +50,7 @@
       "or_expansion_terms": 5,
       "complexity_score": 65.0,
       "impact": "Moderate",
+      "empirical_ms": 0.183,
       "findings": [
         "4 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
         "Boolean nesting depth of 3 increases clause evaluation cost per event."
@@ -66,6 +69,7 @@
       "or_expansion_terms": 45,
       "complexity_score": 502.5,
       "impact": "Costly",
+      "empirical_ms": 0.126,
       "findings": [
         "44 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
         "54 case-insensitive operation(s) defeat case-sensitive index structures.",
@@ -86,6 +90,7 @@
       "or_expansion_terms": 48,
       "complexity_score": 528.0,
       "impact": "Costly",
+      "empirical_ms": 0.126,
       "findings": [
         "58 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
         "6 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
@@ -106,6 +111,7 @@
       "or_expansion_terms": 45,
       "complexity_score": 373.5,
       "impact": "Costly",
+      "empirical_ms": 0.126,
       "findings": [
         "18 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
         "Boolean nesting depth of 6 increases clause evaluation cost per event.",
@@ -125,6 +131,7 @@
       "or_expansion_terms": 4,
       "complexity_score": 56.5,
       "impact": "Moderate",
+      "empirical_ms": 0.056,
       "findings": [
         "6 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
         "7 case-insensitive operation(s) defeat case-sensitive index structures."
@@ -143,6 +150,7 @@
       "or_expansion_terms": 6,
       "complexity_score": 63.0,
       "impact": "Moderate",
+      "empirical_ms": 0.056,
       "findings": [
         "7 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
       ]
@@ -160,6 +168,7 @@
       "or_expansion_terms": 4,
       "complexity_score": 51.5,
       "impact": "Moderate",
+      "empirical_ms": 0.056,
       "findings": [
         "3 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
       ]
@@ -177,6 +186,7 @@
       "or_expansion_terms": 13,
       "complexity_score": 159.5,
       "impact": "High",
+      "empirical_ms": 0.071,
       "findings": [
         "16 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
         "17 case-insensitive operation(s) defeat case-sensitive index structures."
@@ -195,6 +205,7 @@
       "or_expansion_terms": 15,
       "complexity_score": 154.5,
       "impact": "High",
+      "empirical_ms": 0.071,
       "findings": [
         "17 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
         "2 unanchored regex literal(s) evaluate against the full field value for every candidate event."
@@ -213,8 +224,63 @@
       "or_expansion_terms": 13,
       "complexity_score": 103.5,
       "impact": "High",
+      "empirical_ms": 0.071,
       "findings": [
         "4 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
+      ]
+    },
+    {
+      "rule_name": "Correlated LSASS Memory Access and Dump File Creation",
+      "backend": "LogScale",
+      "query_length": 0,
+      "tokens": 0,
+      "nesting_depth": 0,
+      "boolean_clauses": 0,
+      "leading_wildcards": 0,
+      "unanchored_regexes": 0,
+      "case_insensitive_ops": 0,
+      "or_expansion_terms": 0,
+      "complexity_score": 0.0,
+      "impact": "Low",
+      "empirical_ms": null,
+      "findings": [
+        "Backend could not compile this rule: Rule '3b5d7e2c-1a9f-4d6b-9c30-7f6e5d4c3b21' not found in rule collection"
+      ]
+    },
+    {
+      "rule_name": "Correlated LSASS Memory Access and Dump File Creation",
+      "backend": "Splunk",
+      "query_length": 0,
+      "tokens": 0,
+      "nesting_depth": 0,
+      "boolean_clauses": 0,
+      "leading_wildcards": 0,
+      "unanchored_regexes": 0,
+      "case_insensitive_ops": 0,
+      "or_expansion_terms": 0,
+      "complexity_score": 0.0,
+      "impact": "Low",
+      "empirical_ms": null,
+      "findings": [
+        "Backend could not compile this rule: Rule '3b5d7e2c-1a9f-4d6b-9c30-7f6e5d4c3b21' not found in rule collection"
+      ]
+    },
+    {
+      "rule_name": "Correlated LSASS Memory Access and Dump File Creation",
+      "backend": "Lucene",
+      "query_length": 0,
+      "tokens": 0,
+      "nesting_depth": 0,
+      "boolean_clauses": 0,
+      "leading_wildcards": 0,
+      "unanchored_regexes": 0,
+      "case_insensitive_ops": 0,
+      "or_expansion_terms": 0,
+      "complexity_score": 0.0,
+      "impact": "Low",
+      "empirical_ms": null,
+      "findings": [
+        "Backend could not compile this rule: Rule '3b5d7e2c-1a9f-4d6b-9c30-7f6e5d4c3b21' not found in rule collection"
       ]
     },
     {
@@ -230,6 +296,7 @@
       "or_expansion_terms": 10,
       "complexity_score": 118.5,
       "impact": "High",
+      "empirical_ms": 0.018,
       "findings": [
         "12 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
         "12 case-insensitive operation(s) defeat case-sensitive index structures."
@@ -248,6 +315,7 @@
       "or_expansion_terms": 10,
       "complexity_score": 99.5,
       "impact": "High",
+      "empirical_ms": 0.018,
       "findings": [
         "12 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
       ]
@@ -265,8 +333,63 @@
       "or_expansion_terms": 10,
       "complexity_score": 70.0,
       "impact": "Moderate",
+      "empirical_ms": 0.018,
       "findings": [
         "2 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
+      ]
+    },
+    {
+      "rule_name": "LSASS Memory Dump File Creation in User Temp",
+      "backend": "LogScale",
+      "query_length": 109,
+      "tokens": 7,
+      "nesting_depth": 0,
+      "boolean_clauses": 3,
+      "leading_wildcards": 0,
+      "unanchored_regexes": 0,
+      "case_insensitive_ops": 4,
+      "or_expansion_terms": 3,
+      "complexity_score": 18.0,
+      "impact": "Low",
+      "empirical_ms": 0.01,
+      "findings": [
+        "4 case-insensitive operation(s) defeat case-sensitive index structures."
+      ]
+    },
+    {
+      "rule_name": "LSASS Memory Dump File Creation in User Temp",
+      "backend": "Splunk",
+      "query_length": 55,
+      "tokens": 6,
+      "nesting_depth": 1,
+      "boolean_clauses": 0,
+      "leading_wildcards": 4,
+      "unanchored_regexes": 0,
+      "case_insensitive_ops": 0,
+      "or_expansion_terms": 3,
+      "complexity_score": 35.5,
+      "impact": "Low",
+      "empirical_ms": 0.01,
+      "findings": [
+        "4 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
+      ]
+    },
+    {
+      "rule_name": "LSASS Memory Dump File Creation in User Temp",
+      "backend": "Lucene",
+      "query_length": 50,
+      "tokens": 8,
+      "nesting_depth": 1,
+      "boolean_clauses": 3,
+      "leading_wildcards": 1,
+      "unanchored_regexes": 0,
+      "case_insensitive_ops": 0,
+      "or_expansion_terms": 3,
+      "complexity_score": 24.5,
+      "impact": "Low",
+      "empirical_ms": 0.01,
+      "findings": [
+        "1 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
       ]
     },
     {
@@ -282,6 +405,7 @@
       "or_expansion_terms": 4,
       "complexity_score": 25.0,
       "impact": "Low",
+      "empirical_ms": 0.01,
       "findings": [
         "6 case-insensitive operation(s) defeat case-sensitive index structures."
       ]
@@ -299,6 +423,7 @@
       "or_expansion_terms": 4,
       "complexity_score": 20.0,
       "impact": "Low",
+      "empirical_ms": 0.01,
       "findings": [
         "1 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
       ]
@@ -316,6 +441,7 @@
       "or_expansion_terms": 4,
       "complexity_score": 36.0,
       "impact": "Low",
+      "empirical_ms": 0.01,
       "findings": [
         "1 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set."
       ]
@@ -340,6 +466,7 @@
       "or_expansion_terms": 48,
       "complexity_score": 528.0,
       "impact": "Costly",
+      "empirical_ms": 0.126,
       "findings": [
         "58 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
         "6 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
@@ -360,6 +487,7 @@
       "or_expansion_terms": 45,
       "complexity_score": 502.5,
       "impact": "Costly",
+      "empirical_ms": 0.126,
       "findings": [
         "44 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
         "54 case-insensitive operation(s) defeat case-sensitive index structures.",
@@ -380,6 +508,7 @@
       "or_expansion_terms": 45,
       "complexity_score": 373.5,
       "impact": "Costly",
+      "empirical_ms": 0.126,
       "findings": [
         "18 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
         "Boolean nesting depth of 6 increases clause evaluation cost per event.",
@@ -399,6 +528,7 @@
       "or_expansion_terms": 13,
       "complexity_score": 159.5,
       "impact": "High",
+      "empirical_ms": 0.071,
       "findings": [
         "16 unanchored regex literal(s) evaluate against the full field value for every candidate event.",
         "17 case-insensitive operation(s) defeat case-sensitive index structures."
@@ -417,10 +547,18 @@
       "or_expansion_terms": 15,
       "complexity_score": 154.5,
       "impact": "High",
+      "empirical_ms": 0.071,
       "findings": [
         "17 leading-wildcard term(s) prevent term-index seeks and force a scan of the candidate set.",
         "2 unanchored regex literal(s) evaluate against the full field value for every candidate event."
       ]
     }
-  ]
+  ],
+  "empirical_calibration": {
+    "corpus_size": 500,
+    "repetitions": 3,
+    "mean_latency_ms": 0.068,
+    "pearson_correlation": 0.4334,
+    "correlation_strength": "moderate"
+  }
 }

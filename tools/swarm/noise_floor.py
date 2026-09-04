@@ -153,17 +153,42 @@ class NoiseFloorReport:
             return 0.0
         return self.corpus_metrics.false_positives / self.benign_events
 
+    def false_positive_rate_ci(self, confidence: float = 0.95) -> Tuple[float, float]:
+        """Wilson score binomial confidence interval for the false-positive rate.
+
+        Args:
+            confidence: Target confidence level (default 0.95).
+
+        Returns:
+            (lower_bound, upper_bound) as floats bounded in [0.0, 1.0].
+        """
+        import math
+
+        n = self.benign_events
+        if n == 0:
+            return (0.0, 0.0)
+        p = self.false_positive_rate()
+        z = 1.959963984540054 if abs(confidence - 0.95) < 0.01 else 1.96
+        denominator = 1.0 + (z * z) / n
+        centre = (p + (z * z) / (2.0 * n)) / denominator
+        half_width = (z / denominator) * math.sqrt((p * (1.0 - p) / n) + (z * z) / (4.0 * n * n))
+        lower = max(0.0, centre - half_width)
+        upper = min(1.0, centre + half_width)
+        return (lower, upper)
+
     def alerts_per_thousand_benign(self) -> float:
         """Analyst-facing noise rate: benign alerts raised per 1,000 benign events."""
         return self.false_positive_rate() * 1000
 
     def to_dict(self) -> Dict[str, object]:
+        ci_low, ci_high = self.false_positive_rate_ci(0.95)
         return {
             "total_events": self.total_events,
             "benign_events": self.benign_events,
             "malicious_events": self.malicious_events,
             "ambiguous_events": self.ambiguous_events,
             "false_positive_rate": round(self.false_positive_rate(), 5),
+            "false_positive_rate_ci_95": [round(ci_low, 5), round(ci_high, 5)],
             "alerts_per_1000_benign": round(self.alerts_per_thousand_benign(), 3),
             "corpus": self.corpus_metrics.to_dict(),
             "per_rule": [m.to_dict() for m in self.per_rule],
@@ -175,6 +200,7 @@ class NoiseFloorReport:
     def to_markdown(self) -> str:
         """Renders an ICD 203 formatted precision/recall assessment."""
         corpus = self.corpus_metrics
+        ci_low, ci_high = self.false_positive_rate_ci(0.95)
         lines = [
             "# Enterprise Telemetry Noise Floor Assessment",
             "",
@@ -197,7 +223,7 @@ class NoiseFloorReport:
             "",
             "| Metric | Value |",
             "|---|---|",
-            f"| Benign false-positive rate | {self.false_positive_rate():.3%} |",
+            f"| Benign false-positive rate | {self.false_positive_rate():.3%} (95% CI [{ci_low:.3%}, {ci_high:.3%}]) |",
             f"| Benign alerts per 1,000 events | {self.alerts_per_thousand_benign():.2f} |",
             f"| Corpus recall | {corpus.recall:.3f} |",
             f"| Corpus precision (base-rate conditional) | {corpus.precision:.3f} |",
@@ -305,7 +331,33 @@ class EnterpriseNoiseGenerator:
         "admin_module_import",
         "group_policy_refresh",
         "windows_update_servicing",
+        "tanium_sensor_telemetry",
+        "certutil_root_verification",
+        "developer_git_status",
+        "network_diagnostics_flushdns",
+        "software_inventory_wmic",
     )
+
+    #: Empirical volume weights reflecting real-world endpoint telemetry emission ratios.
+    #: Security agents, update services, and inventory tools account for the bulk of volume.
+    ROUTINE_PROFILE_WEIGHTS: Dict[str, float] = {
+        "defender_signature_update": 0.20,
+        "defender_scheduled_scan": 0.12,
+        "intune_management_extension": 0.10,
+        "sccm_client_operations": 0.08,
+        "tanium_sensor_telemetry": 0.10,
+        "windows_update_servicing": 0.08,
+        "certutil_root_verification": 0.06,
+        "group_policy_refresh": 0.06,
+        "software_inventory_wmic": 0.05,
+        "disk_maintenance": 0.04,
+        "service_control_query": 0.03,
+        "developer_git_status": 0.03,
+        "network_diagnostics_flushdns": 0.02,
+        "admin_activedirectory_query": 0.01,
+        "admin_exchange_management": 0.01,
+        "admin_module_import": 0.01,
+    }
 
     #: Benign profiles that legitimately resemble attacker tradecraft. These are
     #: the population that produces genuine production false positives.
@@ -313,6 +365,11 @@ class EnterpriseNoiseGenerator:
         "admin_hidden_window_script",
         "deployment_scheduled_task",
     )
+
+    AMBIGUOUS_PROFILE_WEIGHTS: Dict[str, float] = {
+        "deployment_scheduled_task": 0.55,
+        "admin_hidden_window_script": 0.45,
+    }
 
     def __init__(self, seed: int = 20260903, ambiguous_rate: float = 0.03) -> None:
         if not 0.0 <= ambiguous_rate <= 1.0:
@@ -397,6 +454,36 @@ class EnterpriseNoiseGenerator:
                 "dism.exe /Online /Cleanup-Image /RestoreHealth",
                 "NT AUTHORITY\\SYSTEM",
             ),
+            "tanium_sensor_telemetry": lambda: (
+                "C:\\Program Files (x86)\\Tanium\\Tanium Client\\TaniumClient.exe",
+                "C:\\Windows\\System32\\services.exe",
+                "\"C:\\Program Files (x86)\\Tanium\\Tanium Client\\TaniumClient.exe\" -ping",
+                "NT AUTHORITY\\SYSTEM",
+            ),
+            "certutil_root_verification": lambda: (
+                "C:\\Windows\\System32\\certutil.exe",
+                "C:\\Windows\\System32\\svchost.exe",
+                "certutil.exe -verifystore -silent Root",
+                "NT AUTHORITY\\SYSTEM",
+            ),
+            "developer_git_status": lambda: (
+                "C:\\Program Files\\Git\\cmd\\git.exe",
+                "C:\\Users\\analyst\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+                "git.exe status --porcelain=v2 --branch",
+                f"{host}\\analyst",
+            ),
+            "network_diagnostics_flushdns": lambda: (
+                "C:\\Windows\\System32\\ipconfig.exe",
+                "C:\\Windows\\System32\\cmd.exe",
+                "ipconfig.exe /flushdns",
+                f"{host}\\svc_netops",
+            ),
+            "software_inventory_wmic": lambda: (
+                "C:\\Windows\\System32\\wbem\\WMIC.exe",
+                "C:\\Windows\\System32\\svchost.exe",
+                "wmic.exe product get Name,Version /format:csv",
+                "NT AUTHORITY\\SYSTEM",
+            ),
             # -- ambiguous by design ---------------------------------------
             "admin_hidden_window_script": lambda: (
                 "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
@@ -421,10 +508,15 @@ class EnterpriseNoiseGenerator:
         builders = self._builders()
         events: List[LabelledEvent] = []
 
+        routine_weights = [self.ROUTINE_PROFILE_WEIGHTS[p] for p in self.ROUTINE_PROFILES]
+        ambiguous_weights = [self.AMBIGUOUS_PROFILE_WEIGHTS[p] for p in self.AMBIGUOUS_PROFILES]
+
         for _ in range(count):
             is_ambiguous = self.rng.random() < self.ambiguous_rate
-            pool = self.AMBIGUOUS_PROFILES if is_ambiguous else self.ROUTINE_PROFILES
-            profile = self.rng.choice(pool)
+            if is_ambiguous:
+                profile = self.rng.choices(self.AMBIGUOUS_PROFILES, weights=ambiguous_weights, k=1)[0]
+            else:
+                profile = self.rng.choices(self.ROUTINE_PROFILES, weights=routine_weights, k=1)[0]
             image, parent, cmdline, user = builders[profile]()
             event = self.telemetry.process_creation(
                 image_path=image,

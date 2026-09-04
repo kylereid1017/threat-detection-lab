@@ -20,6 +20,20 @@ tags:
 logsource:
     category: ps_script
     product: windows
+telemetry_prerequisites:
+    channel: Microsoft-Windows-PowerShell/Operational
+    event_id: 4104 (ScriptBlockLogging)
+    audit_policy: >-
+        Group Policy: Computer Configuration -> Administrative Templates -> Windows Components ->
+        Windows PowerShell -> 'Turn on PowerShell Script Block Logging' (Enabled).
+    required_fields:
+        - ScriptBlockText
+    sysmon_configuration: >-
+        Independent of Sysmon; requires Windows Event Log ingestion of Microsoft-Windows-PowerShell/Operational.
+    degradation_mode: >-
+        PowerShell Script Block Logging is disabled by default in older Windows builds and often
+        uncollected in SIEM forwarders due to payload volume. If disabled, in-memory download cradles
+        (IEX, WebClient) execute with zero visibility unless unmanaged PowerShell is blocked.
 detection:
     selection_cmdlet:
         ScriptBlockText|contains:

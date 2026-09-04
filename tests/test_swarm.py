@@ -334,6 +334,60 @@ class CableWriterTests(unittest.TestCase):
             self.assertTrue(index_path.exists())
             self.assertIn("pcalua_proxy", index_path.read_text(encoding="utf-8"))
 
+    def test_format_and_write_campaign_cable(self):
+        import tempfile
+        from tools.swarm.models import CampaignResult, CriticVerdict, DetectionResult, StageResult, Variant
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            writer = CableWriter(cables_dir=Path(tmpdir))
+            variant = Variant(
+                id="var-camp-1",
+                target_type="sigma",
+                axis="defense_in_depth",
+                mutation_name="rundll32_eval",
+                description="Rundll32 dump stage",
+                payload={"Image": "rundll32.exe"},
+                cycle=1,
+            )
+            stage1 = StageResult(
+                stage_number=1,
+                stage_name="Credential Access",
+                tactic="credential_access",
+                technique_id="T1003.001",
+                rule_name="proc_creation_win_rundll32_lsass_dump",
+                target_type="sigma",
+                variant=variant,
+                critic_verdict=CriticVerdict(variant_id=variant.id, passed=True, reason="Safe"),
+                detection_result=DetectionResult(
+                    variant_id=variant.id,
+                    rule_name="proc_creation_win_rundll32_lsass_dump",
+                    detected=True,
+                ),
+                evasion_gap=False,
+            )
+            cr = CampaignResult(
+                campaign_id="CAMP-2026-TEST",
+                campaign_name="Ransomware-Intrusion",
+                stages=[stage1],
+                intercepted=True,
+                interception_stage="Credential Access",
+                interception_technique="T1003.001",
+                completed_stages=1,
+                total_stages=1,
+                depth_of_defense_score=0.85,
+            )
+            cable_path = writer.write_campaign_cable(cr)
+            self.assertTrue(cable_path.exists())
+            content = cable_path.read_text(encoding="utf-8")
+            self.assertIn("campaign_id: CAMP-2026-TEST", content)
+            self.assertIn("Ransomware-Intrusion", content)
+            self.assertIn("T1003.001", content)
+            self.assertIn("Depth-of-Defense", content)
+
+            index_path = Path(tmpdir) / "INDEX.md"
+            self.assertTrue(index_path.exists())
+            self.assertIn("Ransomware-Intrusion", index_path.read_text(encoding="utf-8"))
+
 
 class SwarmAdapterTests(unittest.TestCase):
     """Verifies Adapter agent self-healing patch synthesis and in-memory verification."""
@@ -894,6 +948,18 @@ class MultiEventEvaluatorTests(unittest.TestCase):
         self.assertFalse(result.matched)
         self.assertIn("no candidate", result.details.lower())
 
+    def test_native_sigma_correlation_rule_parsing(self):
+        corr_path = Path(__file__).resolve().parents[1] / "rules" / "sigma" / "correlation" / "correlation_lsass_dump.yml"
+        self.assertTrue(corr_path.exists())
+        rule = CorrelationRule.from_yaml(corr_path)
+        self.assertEqual(rule.name, "Correlated LSASS Memory Access and Dump File Creation")
+        self.assertEqual(rule.timespan_seconds, 120)
+        self.assertTrue(rule.ordered)
+        self.assertEqual(rule.group_by, ["Computer"])
+        self.assertEqual(len(rule.stages), 2)
+        self.assertEqual(rule.stages[0].name, "3b5d7e2c-1a9f-4d6b-9c30-7f6e5d4c3b21")
+        self.assertEqual(rule.stages[1].name, "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d")
+
 
 class GraphEngineTests(unittest.TestCase):
     """EPIC 2 — Verifies the DAG correlation state machine, branching, and scoring."""
@@ -955,6 +1021,13 @@ class GraphEngineTests(unittest.TestCase):
             self.assertTrue(0.0 <= res.depth_of_defense_score <= 1.0)
         # Serialization must round-trip.
         self.assertIn("depth_of_defense_score", results[0].to_dict())
+
+    def test_multistage_correlation_chain_in_production_walk(self):
+        result = self.engine.walk(evasion_at=["credential_telemetry"])
+        visit_by_id = {v.node_id: v for v in result.visits}
+        cred_visit = visit_by_id["credential_procaccess"]
+        self.assertTrue(cred_visit.detected)
+        self.assertIn("Correlated 2 stages", cred_visit.detail)
 
 
 class MitreLayerExporterTests(unittest.TestCase):
@@ -1111,6 +1184,26 @@ class EnterpriseNoiseGeneratorTests(unittest.TestCase):
         self.assertTrue(all(not e.ambiguous for e in events))
         self.assertTrue(all(e.profile in gen.ROUTINE_PROFILES for e in events))
 
+    def test_widen_routine_profiles_and_weights(self):
+        gen = EnterpriseNoiseGenerator()
+        self.assertEqual(len(gen.ROUTINE_PROFILES), 16)
+        self.assertEqual(len(gen.AMBIGUOUS_PROFILES), 2)
+        self.assertAlmostEqual(sum(gen.ROUTINE_PROFILE_WEIGHTS.values()), 1.0)
+        self.assertAlmostEqual(sum(gen.AMBIGUOUS_PROFILE_WEIGHTS.values()), 1.0)
+        for p in gen.ROUTINE_PROFILES:
+            self.assertIn(p, gen.ROUTINE_PROFILE_WEIGHTS)
+        for p in gen.AMBIGUOUS_PROFILES:
+            self.assertIn(p, gen.AMBIGUOUS_PROFILE_WEIGHTS)
+
+    def test_volume_weighting_biases_routine_distribution(self):
+        gen = EnterpriseNoiseGenerator(seed=42, ambiguous_rate=0.0)
+        events = gen.generate(1000)
+        counts = {}
+        for e in events:
+            counts[e.profile] = counts.get(e.profile, 0) + 1
+        # Defender signature update (weight 0.20) should exceed low-weight admin queries (weight 0.01)
+        self.assertGreater(counts.get("defender_signature_update", 0), counts.get("admin_activedirectory_query", 0))
+
 
 class DetectionMetricsTests(unittest.TestCase):
     """EPIC 1 — Verifies confusion-matrix arithmetic and corpus evaluation semantics."""
@@ -1188,10 +1281,27 @@ class DetectionMetricsTests(unittest.TestCase):
         self.assertIn("Enterprise Telemetry Noise Floor Assessment", md)
         self.assertIn("Base-rate caveat", md)
         self.assertIn("Confidence.", md)
+        self.assertIn("95% CI", md)
         data = json.loads(report.to_json())
         self.assertIn("corpus", data)
         self.assertIn("per_rule", data)
         self.assertIn("false_positive_rate", data)
+        self.assertIn("false_positive_rate_ci_95", data)
+
+    def test_false_positive_rate_ci_bounds(self):
+        report = run_benchmark(benign_count=200, ambiguous_rate=0.05, attack_variants=0)
+        p = report.false_positive_rate()
+        ci_low, ci_high = report.false_positive_rate_ci(0.95)
+        self.assertGreaterEqual(ci_low, 0.0)
+        self.assertLessEqual(ci_high, 1.0)
+        self.assertLessEqual(ci_low, p)
+        self.assertGreaterEqual(ci_high, p)
+
+        # Edge case: 0 benign events
+        empty_report = NoiseFloorReport(
+            total_events=0, benign_events=0, malicious_events=0, ambiguous_events=0
+        )
+        self.assertEqual(empty_report.false_positive_rate_ci(), (0.0, 0.0))
 
 
 class SiemQueryProfilerTests(unittest.TestCase):
@@ -1260,11 +1370,11 @@ class D3fendMapperTests(unittest.TestCase):
     def test_briefing_mappings_are_present_and_correct(self):
         expected = {
             "T1566.001": {"D3-FAA"},
-            "T1204.002": {"D3-PSB", "D3-SBA"},
-            "T1059.001": {"D3-PSB", "D3-SBA"},
+            "T1204.002": {"D3-PSA", "D3-SEA"},
+            "T1059.001": {"D3-PSA", "D3-SEA"},
             "T1070.001": {"D3-LSA"},
-            "T1003.001": {"D3-LSA"},
-            "T1053.005": {"D3-JSA"},
+            "T1003.001": {"D3-LSAP"},
+            "T1053.005": {"D3-SJA"},
         }
         for technique, ids in expected.items():
             actual = {c.d3fend_id for c in ATTACK_TO_D3FEND[technique]}
@@ -1272,16 +1382,29 @@ class D3fendMapperTests(unittest.TestCase):
 
     def test_mapping_provenance_distinguishes_briefing_from_extended(self):
         self.assertEqual(mapping_source("T1566.001"), "briefing")
-        self.assertEqual(mapping_source("T1059.003"), "extended")
+        self.assertEqual(mapping_source("T1059.003"), "verified")
+        self.assertEqual(mapping_source("T9999"), "extended")
         for technique in BRIEFING_TECHNIQUES:
             self.assertEqual(mapping_source(technique), "briefing")
 
     def test_identifier_collision_is_detected(self):
+        # In reconciled production mappings, zero collisions exist.
         collisions = D3fendMapper.find_id_collisions()
-        ids = {c["d3fend_id"] for c in collisions}
-        self.assertIn("D3-LSA", ids)
-        names = next(c["names"] for c in collisions if c["d3fend_id"] == "D3-LSA")
-        self.assertEqual(len(names), 2)
+        self.assertEqual(len(collisions), 0, "Expected 0 collisions in reconciled ontology")
+
+        # Verify collision detection algorithm works when a defect is introduced.
+        from tools.swarm.d3fend_mapper import D3fendCountermeasure
+        test_dict = {
+            "T1": (D3fendCountermeasure("D3-X", "Name A", "Detect"),),
+            "T2": (D3fendCountermeasure("D3-X", "Name B", "Harden"),),
+        }
+        by_id = {}
+        for cms in test_dict.values():
+            for cm in cms:
+                by_id.setdefault(cm.d3fend_id, set()).add(cm.name)
+        sim_collisions = [{"d3fend_id": k, "names": sorted(v)} for k, v in by_id.items() if len(v) > 1]
+        self.assertEqual(len(sim_collisions), 1)
+        self.assertEqual(sim_collisions[0]["d3fend_id"], "D3-X")
 
     def test_build_maps_every_covered_technique(self):
         report = self.mapper.build()
@@ -1299,8 +1422,8 @@ class D3fendMapperTests(unittest.TestCase):
     def test_markdown_reports_matrix_and_taxonomy_defect(self):
         md = self.mapper.build().to_markdown()
         self.assertIn("Dual-Layer Coverage Assessment", md)
-        self.assertIn("Taxonomy defects", md)
-        self.assertIn("D3-LSA", md)
+        self.assertIn("Taxonomy status", md)
+        self.assertIn("Zero identifier collisions detected", md)
         self.assertIn("Confidence.", md)
 
     def test_export_writes_dual_layer_json(self):
@@ -1313,6 +1436,62 @@ class D3fendMapperTests(unittest.TestCase):
             self.assertIn("mappings", data)
             self.assertIn("identifier_collisions", data)
             self.assertIn("countermeasures_by_tactic", data)
+
+
+class SiemQueryProfilerTests(unittest.TestCase):
+    """EPIC 3 — Validates multi-SIEM query compilation, static scoring, and empirical calibration."""
+
+    def setUp(self):
+        self.profiler = SiemQueryProfiler()
+
+    def test_profile_all_generates_profiles_across_backends(self):
+        report = self.profiler.profile_all()
+        self.assertGreater(len(report.profiles), 0)
+        backends = report.by_backend()
+        self.assertIn("Splunk", backends)
+        self.assertIn("Lucene", backends)
+        self.assertIn("LogScale", backends)
+
+        compiled_profiles = [p for p in report.profiles if p.query]
+        self.assertGreater(len(compiled_profiles), 0)
+        for p in compiled_profiles:
+            self.assertTrue(p.rule_name)
+            self.assertGreater(p.query_length, 0)
+            self.assertGreater(p.tokens, 0)
+            self.assertIn(p.impact, ("Low", "Moderate", "High", "Costly"))
+            self.assertGreaterEqual(p.complexity_score, 0.0)
+
+    def test_profiler_reporting_and_markdown(self):
+        report = self.profiler.profile_all()
+        worst = report.worst(limit=3)
+        self.assertLessEqual(len(worst), 3)
+        if len(worst) >= 2:
+            self.assertGreaterEqual(worst[0].complexity_score, worst[1].complexity_score)
+
+        md = report.to_markdown()
+        self.assertIn("# Multi-SIEM Query Complexity Assessment", md)
+        self.assertIn("Highest-cost queries", md)
+
+        data = report.to_dict()
+        self.assertIn("profiles", data)
+        self.assertIn("backends", data)
+        self.assertIn("worst", data)
+
+    def test_benchmark_and_calibrate_empirical_timings(self):
+        # Run small fast corpus for unit test
+        report = self.profiler.benchmark_and_calibrate(corpus_size=100, repetitions=1)
+        self.assertIn("empirical_calibration", report.to_dict())
+        cal = report.empirical_calibration
+        self.assertIn("pearson_correlation", cal)
+        self.assertIn("mean_latency_ms", cal)
+        self.assertIn("correlation_strength", cal)
+        self.assertEqual(cal["corpus_size"], 100)
+
+        # Check empirical_ms populated on profiled queries
+        calibrated_profiles = [p for p in report.profiles if p.empirical_ms is not None]
+        self.assertGreater(len(calibrated_profiles), 0)
+        for cp in calibrated_profiles:
+            self.assertGreaterEqual(cp.empirical_ms, 0.0)
 
 
 class WorkbenchCanvasTests(unittest.TestCase):

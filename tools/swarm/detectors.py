@@ -91,12 +91,15 @@ class SigmaDetector(BaseDetector):
 
         detected = False
         matched_queries: List[str] = []
-        for q in self.queries:
-            sql = q.replace("<TABLE_NAME>", "events")
-            rows = cursor.execute(sql).fetchall()
-            if rows:
-                detected = True
-                matched_queries.append(sql)
+        try:
+            for q in self.queries:
+                sql = q.replace("<TABLE_NAME>", "events")
+                rows = cursor.execute(sql).fetchall()
+                if rows:
+                    detected = True
+                    matched_queries.append(sql)
+        finally:
+            conn.close()
 
         return DetectionResult(
             variant_id=variant.id,

@@ -13,6 +13,21 @@ tags:
 logsource:
     category: process_creation
     product: windows
+telemetry_prerequisites:
+    channel: Microsoft-Windows-Sysmon/Operational or Security
+    event_id: 1 (Sysmon) or 4688 (Security)
+    audit_policy: >-
+        Audit Process Creation (Success) with command line logging enabled.
+    required_fields:
+        - Image
+        - CommandLine
+    sysmon_configuration: >-
+        Requires Sysmon ProcessCreate without exclusion on rundll32.exe.
+    degradation_mode: >-
+        This rule relies exclusively on command-line string inspection of rundll32.exe invoking comsvcs.dll.
+        When adversaries utilize custom or unhooked native dumpers (e.g. mimikatz, nanodump, procdump)
+        without invoking comsvcs.dll via rundll32, this analytic suffers total evasion (recall drops to 0%).
+        Compensating detection requires Sysmon Event ID 10 (Process Access) monitoring handles to lsass.exe.
 detection:
     selection_img:
         Image|endswith:
