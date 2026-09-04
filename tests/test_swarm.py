@@ -1,11 +1,12 @@
 import json
+import tempfile
 import unittest
 from pathlib import Path
 
 from tools.swarm.adapter import SwarmAdapter
 from tools.swarm.autonomous import AutonomousOrchestrator
 from tools.swarm.cable_writer import CableWriter
-from tools.swarm.config import OperatorDirective, SafetyConstraints
+from tools.swarm.config import OperatorDirective
 from tools.swarm.craftsmen.process_craftsman import ProcessCraftsman
 from tools.swarm.craftsmen.svg_craftsman import SvgCraftsman
 from tools.swarm.critic import SwarmCritic
@@ -246,35 +247,51 @@ class PromptEngineTests(unittest.TestCase):
 
 
 class AutonomousOrchestratorTests(unittest.TestCase):
-    """Verifies continuous autonomous sparring loops and history persistence."""
+    """Verifies continuous autonomous sparring loops and history persistence.
+
+    The orchestrator persists a history artifact on every run. These tests
+    redirect that write into a temporary directory: a test run must never
+    mutate the committed artifacts under ``docs/swarm/results/``.
+    """
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.out_dir = Path(self._tmp.name)
+        self.addCleanup(self._tmp.cleanup)
+
+    def _run(self, target: str):
+        directive = OperatorDirective(
+            target=target,
+            max_cycles=1,
+            variants_per_cycle=3,
+            output_dir=self.out_dir,
+        )
+        return AutonomousOrchestrator(directive).run_autonomous(iterations=3)
+
+    def _assert_sparring_summary(self, summary):
+        self.assertEqual(summary["iterations_run"], 3)
+        self.assertGreaterEqual(summary["critic_approved"], 3)
+        self.assertGreater(summary["detected_count"], 0)
+        self.assertEqual(len(summary["history"]), 3)
 
     def test_autonomous_sparring_sigma(self):
-        directive = OperatorDirective(
-            target="sigma",
-            max_cycles=1,
-            variants_per_cycle=3,
-        )
-        auto_orch = AutonomousOrchestrator(directive)
-        summary = auto_orch.run_autonomous(iterations=3)
-
-        self.assertEqual(summary["iterations_run"], 3)
-        self.assertGreaterEqual(summary["critic_approved"], 3)
-        self.assertGreater(summary["detected_count"], 0)
-        self.assertEqual(len(summary["history"]), 3)
+        self._assert_sparring_summary(self._run("sigma"))
 
     def test_autonomous_sparring_yara(self):
-        directive = OperatorDirective(
-            target="yara",
-            max_cycles=1,
-            variants_per_cycle=3,
-        )
-        auto_orch = AutonomousOrchestrator(directive)
-        summary = auto_orch.run_autonomous(iterations=3)
+        self._assert_sparring_summary(self._run("yara"))
 
-        self.assertEqual(summary["iterations_run"], 3)
-        self.assertGreaterEqual(summary["critic_approved"], 3)
-        self.assertGreater(summary["detected_count"], 0)
-        self.assertEqual(len(summary["history"]), 3)
+    def test_history_is_persisted_to_the_directed_output_dir(self):
+        """History must land in the directive's output_dir, not the repo docs tree."""
+        self._run("sigma")
+        artifact = self.out_dir / "boundary_history_sigma.json"
+        self.assertTrue(artifact.exists(), "history artifact was not written")
+        self.assertEqual(len(json.loads(artifact.read_text(encoding="utf-8"))["history"]), 3)
+
+    def test_persisted_history_uses_lf_line_endings(self):
+        """Generated artifacts must be byte-identical on Windows and Linux."""
+        self._run("sigma")
+        artifact = self.out_dir / "boundary_history_sigma.json"
+        self.assertNotIn(b"\r\n", artifact.read_bytes())
 
 
 class CableWriterTests(unittest.TestCase):
@@ -1359,6 +1376,37 @@ class SiemQueryProfilerTests(unittest.TestCase):
         data = json.loads(report.to_json())
         self.assertIn("profiles", data)
         self.assertIn("worst", data)
+        self.assertIn("unparsable", data)
+
+    def test_committed_corpus_has_no_unparsable_rules(self):
+        """Every committed analytic must actually compile and be profiled."""
+        report = self.profiler.profile_all()
+        self.assertEqual(
+            [u.rule_path for u in report.unparsable],
+            [],
+            "committed rules failed to parse and were silently excluded",
+        )
+
+    def test_unparsable_rule_is_reported_not_skipped(self):
+        """A malformed rule must surface in the report rather than vanish.
+
+        A silent skip would let the profile claim full corpus coverage while
+        omitting a rule, which is the failure this field exists to prevent.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            broken = Path(tmp) / "proc_creation_win_broken.yml"
+            broken.write_text("title: [unterminated\n", encoding="utf-8", newline="\n")
+
+            profiler = SiemQueryProfiler()
+            profiler.rule_paths = lambda: [broken]
+            report = profiler.profile_all()
+
+            self.assertEqual(report.profiles, [])
+            self.assertEqual(len(report.unparsable), 1)
+            self.assertEqual(report.unparsable[0].rule_path, broken.name)
+            self.assertTrue(report.unparsable[0].error)
+            self.assertIn("Rules excluded from this assessment", report.to_markdown())
+            self.assertIn(broken.name, report.to_markdown())
 
 
 class D3fendMapperTests(unittest.TestCase):
@@ -1438,8 +1486,13 @@ class D3fendMapperTests(unittest.TestCase):
             self.assertIn("countermeasures_by_tactic", data)
 
 
-class SiemQueryProfilerTests(unittest.TestCase):
-    """EPIC 3 — Validates multi-SIEM query compilation, static scoring, and empirical calibration."""
+class SiemProfilerCalibrationTests(unittest.TestCase):
+    """EPIC 3 — Validates query compilation and empirical latency calibration.
+
+    Distinct from :class:`SiemQueryProfilerTests`, which covers the static
+    scoring heuristics. These two classes previously shared a name, so this
+    one shadowed the other and silently voided nine static-scoring tests.
+    """
 
     def setUp(self):
         self.profiler = SiemQueryProfiler()
