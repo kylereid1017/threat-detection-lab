@@ -146,7 +146,8 @@ def main() -> int:
     if args.profile_siem:
         from .siem_profiler import SiemQueryProfiler
         print("[*] Compiling analytics across LogScale, Splunk, and Lucene backends...")
-        report = SiemQueryProfiler().profile_all()
+        print("[*] Benchmarking query latencies against enterprise background corpus...")
+        report = SiemQueryProfiler().benchmark_and_calibrate(corpus_size=args.events)
         print(report.to_markdown())
         out = args.output_dir / "siem_profile.json"
         out.parent.mkdir(parents=True, exist_ok=True)

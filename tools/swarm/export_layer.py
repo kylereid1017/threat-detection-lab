@@ -85,7 +85,9 @@ class MitreLayerExporter:
         return coverage
 
     def _sigma_coverage(self, rule_path: Path, source: str) -> RuleCoverage:
-        collection = SigmaCollection.from_yaml(rule_path.read_text(encoding="utf-8"))
+        collection = SigmaCollection.from_yaml(
+            rule_path.read_text(encoding="utf-8"), resolve_references=False
+        )
         rule = collection.rules[0]
         techniques = self._extract_techniques([str(t) for t in rule.tags])
         level = str(rule.level.name).lower() if rule.level else "high"

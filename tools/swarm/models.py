@@ -172,6 +172,58 @@ class CorrelationRule:
     ordered: bool = True
     technique_id: str = ""
     description: str = ""
+    group_by: List[str] = field(default_factory=list)
+
+    @classmethod
+    def from_yaml(
+        cls,
+        yaml_text_or_path: Any,
+        rule_resolver: Optional[Callable[[str], Tuple[Optional[str], Optional[int]]]] = None,
+    ) -> "CorrelationRule":
+        """Constructs a CorrelationRule from a native pySigma SigmaCorrelationRule YAML string or file path."""
+        from pathlib import Path
+        from sigma.correlations import SigmaCorrelationRule, SigmaCorrelationType
+
+        if isinstance(yaml_text_or_path, Path) or (
+            isinstance(yaml_text_or_path, str)
+            and "\n" not in yaml_text_or_path
+            and Path(yaml_text_or_path).exists()
+        ):
+            text = Path(yaml_text_or_path).read_text(encoding="utf-8")
+        else:
+            text = str(yaml_text_or_path)
+
+        sc_rule = SigmaCorrelationRule.from_yaml(text)
+        is_ordered = sc_rule.type == SigmaCorrelationType.TEMPORAL_ORDERED
+        timespan = getattr(sc_rule.timespan, "seconds", 300)
+        group_by = getattr(sc_rule, "group_by", []) or []
+
+        stages: List[CorrelationStage] = []
+        rule_refs = getattr(sc_rule, "rules", []) or []
+        for ref in rule_refs:
+            ref_id = str(getattr(ref, "reference", ref))
+            rule_path = None
+            event_id = None
+            if rule_resolver:
+                resolved = rule_resolver(ref_id)
+                if resolved:
+                    rule_path, event_id = resolved
+            stages.append(
+                CorrelationStage(
+                    name=ref_id,
+                    rule_path=rule_path,
+                    event_id=event_id,
+                )
+            )
+
+        return cls(
+            name=sc_rule.title or "Native Sigma Correlation",
+            stages=stages,
+            timespan_seconds=timespan,
+            ordered=is_ordered,
+            description=sc_rule.description or "",
+            group_by=list(group_by),
+        )
 
 
 @dataclass

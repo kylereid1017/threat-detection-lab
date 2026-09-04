@@ -24,6 +24,22 @@ tags:
 logsource:
     category: process_creation
     product: windows
+telemetry_prerequisites:
+    channel: Microsoft-Windows-Sysmon/Operational or Security
+    event_id: 1 (Sysmon) or 4688 (Security)
+    audit_policy: >-
+        Audit Process Creation (Success) under Detailed Tracking. Must enable 'Include command line
+        in process creation events' via Administrative Templates -> System -> Audit Process Creation.
+    required_fields:
+        - Image
+        - CommandLine
+        - ParentImage
+    sysmon_configuration: >-
+        Requires Sysmon ProcessCreate rule without exclusion of explorer.exe parentage or interpreter binaries.
+    degradation_mode: >-
+        If command-line auditing is disabled, CommandLine is omitted or empty; all selection_*_action
+        clauses fail, reducing recall to 0%. If parent-child lineage is unmonitored, adversary execution
+        via Run prompt cannot be differentiated from automated background servicing.
 detection:
     selection_parent:
         ParentImage|endswith: '\explorer.exe'

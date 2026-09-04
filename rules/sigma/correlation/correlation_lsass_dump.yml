@@ -1,0 +1,33 @@
+title: Correlated LSASS Memory Access and Dump File Creation
+id: 5f4e3d2c-1b0a-4e9f-8c20-6d5e4c3b2a10
+status: experimental
+description: >
+    Correlates a Sysmon Event ID 10 process access event targeting lsass.exe with a subsequent
+    Sysmon Event ID 11 file creation event (.dmp, .bin, .raw) occurring within 120 seconds.
+correlation:
+    type: temporal_ordered
+    rules:
+        - 3b5d7e2c-1a9f-4d6b-9c30-7f6e5d4c3b21
+        - a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d
+    group-by:
+        - Computer
+    timespan: 120s
+tags:
+    - attack.credential_access
+    - attack.t1003.001
+level: critical
+telemetry_prerequisites:
+    channel: Microsoft-Windows-Sysmon/Operational
+    event_id: 10, 11 (Correlation)
+    audit_policy: >-
+        Requires Sysmon ProcessAccess (EID 10) on lsass.exe and FileCreate (EID 11) on dump extensions.
+    required_fields:
+        - SourceImage
+        - TargetImage
+        - GrantedAccess
+        - TargetFilename
+    sysmon_configuration: >-
+        ProcessAccess for lsass.exe and FileCreate for .dmp/.bin extensions.
+    degradation_mode: >-
+        If either EID 10 or EID 11 is missing or filtered, multi-stage correlation fails
+        to close the chain, requiring fallback to single-event process-creation heuristics.
