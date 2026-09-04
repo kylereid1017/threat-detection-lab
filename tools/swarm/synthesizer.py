@@ -9,10 +9,13 @@ from __future__ import annotations
 
 import datetime
 import json
+import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+logger = logging.getLogger("swarm.synthesizer")
 
 
 @dataclass
@@ -78,8 +81,12 @@ class StrategicSynthesizer:
         if replay_file.exists():
             try:
                 replay_stats = json.loads(replay_file.read_text(encoding="utf-8"))
-            except Exception:
-                pass
+            except (OSError, ValueError) as exc:
+                logger.warning(
+                    "Telemetry replay grounding omitted; %s is unreadable: %s",
+                    replay_file.name,
+                    exc,
+                )
 
         content = self._format_strategic_cable(
             cable_id=cable_id,
@@ -130,18 +137,31 @@ class StrategicSynthesizer:
         return cables
 
     def _load_boundary_history(self) -> Dict[str, Any]:
-        """Reads boundary history JSON files to aggregate evaluation counts."""
-        stats = {"total_evaluations": 0, "gaps_discovered": 0}
+        """Reads boundary history JSON files to aggregate evaluation counts.
+
+        ``sources_excluded`` counts history files that could not be read. A
+        non-zero value means the aggregate counts understate the evidence base.
+        """
+        stats = {"total_evaluations": 0, "gaps_discovered": 0, "sources_excluded": 0}
         if not self.results_dir.exists():
             return stats
 
         for p in self.results_dir.glob("boundary_history_*.json"):
             try:
                 data = json.loads(p.read_text(encoding="utf-8"))
-                stats["total_evaluations"] += data.get("total_generated", 0)
-                stats["gaps_discovered"] += data.get("evaded_count", 0)
-            except Exception:
-                pass
+            except (OSError, ValueError) as exc:
+                # An unreadable history file means this cable is synthesised
+                # from less evidence than it appears to be. Silently skipping
+                # would understate the published evaluation and gap counts.
+                logger.warning(
+                    "Excluded unreadable boundary history %s from synthesis: %s",
+                    p.name,
+                    exc,
+                )
+                stats["sources_excluded"] += 1
+                continue
+            stats["total_evaluations"] += data.get("total_generated", 0)
+            stats["gaps_discovered"] += data.get("evaded_count", 0)
         return stats
 
     def _cluster_evasions(self, cables: List[Dict[str, Any]], total_gaps: int) -> Dict[str, int]:
