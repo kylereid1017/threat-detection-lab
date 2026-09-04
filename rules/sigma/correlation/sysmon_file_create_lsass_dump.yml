@@ -1,0 +1,44 @@
+title: LSASS Memory Dump File Creation in User Temp
+id: a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d
+status: experimental
+description: >
+    Detects creation of process memory dump files (.dmp, .dump, .bin, .raw) or dumps
+    written into temporary user directories. Serves as the file-creation stage of a
+    correlated multi-stage credential theft analytic chained with prior LSASS process access.
+references:
+    - https://attack.mitre.org/techniques/T1003/001/
+author: Kyle Reid
+date: 2026-09-03
+tags:
+    - attack.credential_access
+    - attack.t1003.001
+logsource:
+    category: file_event
+    product: windows
+telemetry_prerequisites:
+    channel: Microsoft-Windows-Sysmon/Operational
+    event_id: 11 (FileCreate)
+    audit_policy: >-
+        Sysmon configuration with FileCreate filter on suspicious memory dump extensions (.dmp, .bin, .raw).
+    required_fields:
+        - Image
+        - TargetFilename
+    sysmon_configuration: >-
+        <FileCreate onmatch="include">
+            <TargetFilename condition="end with">.dmp</TargetFilename>
+            <TargetFilename condition="end with">.bin</TargetFilename>
+        </FileCreate>
+    degradation_mode: >-
+        If file creation auditing is disabled or filtered, memory dumps written to disk
+        cannot be verified, precluding temporal correlation with handle opening events.
+detection:
+    selection:
+        TargetFilename|endswith:
+            - '.dmp'
+            - '.dump'
+            - '.bin'
+            - '.raw'
+    condition: selection
+falsepositives:
+    - Legitimate application crash dumps or binary firmware compiler output.
+level: high

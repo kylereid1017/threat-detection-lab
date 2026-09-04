@@ -156,6 +156,12 @@ class GraphEngine:
                     rule_path=f"{corr_dir}/sysmon_process_access_lsass.yml",
                     event_id=10,
                 ),
+                CorrelationStage(
+                    name="lsass_dump_file_write",
+                    technique_id="T1003.001",
+                    rule_path=f"{corr_dir}/sysmon_file_create_lsass_dump.yml",
+                    event_id=11,
+                ),
             ],
         )
 

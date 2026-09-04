@@ -6,6 +6,52 @@ Keep a Changelog; versioning follows SemVer.
 ## [Unreleased]
 
 ### Added
+- Dual-Mode Real-World Telemetry Replay Engine (`tools/swarm/telemetry_replay.py`):
+  ingests native binary Windows `.evtx` (via `python-evtx`) and normalized JSONL / NDJSON streams
+  (Mordor OTRF, Splunk, Elastic NDJSON), normalizes heterogeneous schemas (Security 4688/4698,
+  Sysmon 1, 7, 10, 11), evaluates single-event Sigma rules and temporal multi-stage correlation chains,
+  and measures alert latency (p50/p95) and empirical false-positive rate with 95% Wilson score
+  binomial confidence intervals (ICD 203 Analytic Standard).
+- Cryptographic Telemetry Acquisition Tool & Manifest (`tools/acquire_telemetry.py` & `tools/telemetry_manifest.json`):
+  CLI and SHA-256 lockfile tracking provenance, licensing, and cryptographic digests for external
+  and in-repo telemetry corpora, supporting offline-first `--verify-only` validation.
+- In-Repo Compact Telemetry Fixture Suite (`tests/fixtures/telemetry/`, ~89KB total):
+  authentic Sysmon binary `.evtx` (`sample_sysmon_process_create.evtx`), Mordor credential dump
+  (`mordor_lsass_dump.jsonl`), Mordor scheduled task persistence (`mordor_schtasks_persistence.jsonl`),
+  and non-synthetic enterprise routine baseline (`benign_enterprise_workstation.jsonl`).
+- Swarm CLI Replay Commands (`tools/swarm/cli.py`):
+  added `--replay-telemetry`, `--corpus-path`, `--is-benign`, and `--window` flags emitting ICD 203
+  telemetry replay reports to stdout and `docs/swarm/results/telemetry_replay.json`.
+- Strategic Synthesizer Replay Grounding (`tools/swarm/synthesizer.py`):
+  integrated empirical telemetry replay metrics and Wilson confidence intervals directly into
+  the strategic intelligence cable synthesis pipeline.
+- Continuous Workbench Sparring & 8,033-Probe Synthesis:
+  added `Continuous Sparring: ON / OFF` sequential looping in `swarm_workbench.html`, synthesized
+  overnight 8,033-probe run (71.4% resilience, 95% Wilson CI [70.43%, 72.39%], 2,296 evasion gaps
+  in 4 taxonomies) into `CABLE-2026-STRAT-002` and briefing dashboard `CABLE-2026-STRAT-002.html`.
+- Test Suite Expansion: added `tests/test_telemetry_replay.py`, expanding regression suite to 160 tests
+  passing in <1.8s with 89% total coverage across `tools/`.
+- MITRE D3FEND Ontology Taxonomy Reconciliation (`tools/swarm/d3fend_mapper.py`):
+  disambiguated `D3-LSA` identifier collision (`D3-LSA` Log Storage Auditing, `D3-LSAP` Local
+  Security Authority Protection), updated official technique IDs (`D3-PSA`, `D3-SEA`, `D3-SJA`),
+  and verified all extended technique mappings against the published MITRE D3FEND ontology.
+- Grounded Enterprise Noise Floor & Wilson Confidence Intervals (`tools/swarm/noise_floor.py`):
+  widened baseline to 16 realistic endpoint profiles, integrated volume-weighting reflecting
+  real-world EDR/agent emission ratios (>60% volume), and added Wilson score 95% binomial
+  confidence intervals to false-positive rates.
+- Telemetry Prerequisites Architecture (`rules/sigma/` & `docs/telemetry/PREREQUISITES.md`):
+  added structured `telemetry_prerequisites` YAML blocks across all production Sigma rules and
+  authored architectural specification detailing Windows Advanced Audit Policies, Sysmon
+  Event IDs (1, 10, 11, 4104), and telemetry degradation modes.
+- Multi-Stage Temporal Correlation Engine (`tools/swarm/graph_engine.py` & `rules/sigma/correlation/`):
+  implemented native Sigma correlation rule (`correlation_lsass_dump.yml`) chaining Sysmon EID 10
+  ProcessAccess with Sysmon EID 11 FileCreate within 120s windows, exercised directly in production
+  `GraphEngine` walks.
+- Empirical SIEM Query Calibration (`tools/swarm/siem_profiler.py`): calibrated static complexity
+  scores against wall-clock SQLite execution times, computing empirical latencies and Pearson
+  correlation coefficient ($r$).
+- Test Suite Coverage Expansion: added `tests/test_swarm_cli.py` and `SiemQueryProfilerTests`,
+  raising total test count to 130 tests and test coverage across `tools/` to 89.1% in <1.5s.
 - Strategic Threat Intelligence Synthesizer (`tools/swarm/synthesizer.py`): automated engine
   aggregating empirical threat cables and boundary telemetry to author ICD 203 / Sherman Kent
   doctrine Strategic Intelligence Cables with Diamond Model diagrams and trend breakdowns.
@@ -56,11 +102,11 @@ Keep a Changelog; versioning follows SemVer.
 - Tuned YARA rule (`Suspicious_Active_Content_SVG_Attachment`) from Swarm recommendations:
   expanded root search window to 4,096 bytes (`REC-YARA-001`), added XML namespace prefix
   support (`REC-YARA-003`), and added bracket navigation property matching (`REC-YARA-002`).
-  Maintained 0 false positives across 2,079 benign Bootstrap icons and reached 100.0% Swarm resilience.
+  Maintained 0 false positives across 2,079 benign Bootstrap icons and resolved initial boundary gaps.
 - Tuned Sigma rule (`proc_creation_win_explorer_clickfix_execution.yml`) from Swarm recommendations:
   added numeric/short PowerShell switch aliases (`-w 1`, `-w h`), `rundll32.exe` with URL handlers
   (`REC-SIGMA-004`), and Windows Script Host (`wscript`/`cscript`) remote execution (`REC-SIGMA-005`),
-  reaching 100.0% Swarm resilience.
+  resolving initial evasion vectors and feeding long-tail continuous sparring (71.2% equilibrium, N=764).
 - Second detection: `Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)`
   Sigma rule (`rules/sigma/proc_creation_win_explorer_clickfix_execution.yml`).
 - Twelve synthetic process creation fixtures (6 positive, 6 negative) covering

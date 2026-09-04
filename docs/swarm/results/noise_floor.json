@@ -1,0 +1,81 @@
+{
+  "total_events": 2526,
+  "benign_events": 2500,
+  "malicious_events": 26,
+  "ambiguous_events": 81,
+  "false_positive_rate": 0.0324,
+  "false_positive_rate_ci_95": [
+    0.02615,
+    0.04009
+  ],
+  "alerts_per_1000_benign": 32.4,
+  "corpus": {
+    "rule_name": "CORPUS",
+    "true_positives": 21,
+    "false_positives": 81,
+    "true_negatives": 2419,
+    "false_negatives": 5,
+    "precision": 0.2059,
+    "recall": 0.8077,
+    "f1_score": 0.3281,
+    "false_discovery_rate": 0.7941,
+    "false_positive_profiles": {
+      "admin_hidden_window_script": 37,
+      "deployment_scheduled_task": 44
+    }
+  },
+  "per_rule": [
+    {
+      "rule_name": "Suspicious Event Log Clearing or Security Software Tampering",
+      "true_positives": 2,
+      "false_positives": 0,
+      "true_negatives": 2500,
+      "false_negatives": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_discovery_rate": 0.0,
+      "false_positive_profiles": {}
+    },
+    {
+      "rule_name": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "true_positives": 15,
+      "false_positives": 37,
+      "true_negatives": 2463,
+      "false_negatives": 5,
+      "precision": 0.2885,
+      "recall": 0.75,
+      "f1_score": 0.4167,
+      "false_discovery_rate": 0.7115,
+      "false_positive_profiles": {
+        "admin_hidden_window_script": 37
+      }
+    },
+    {
+      "rule_name": "LSASS Process Memory Dump via Rundll32 Comsvcs.dll",
+      "true_positives": 2,
+      "false_positives": 0,
+      "true_negatives": 2500,
+      "false_negatives": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_discovery_rate": 0.0,
+      "false_positive_profiles": {}
+    },
+    {
+      "rule_name": "Suspicious Scheduled Task Creation Spawning Shell or Script Engine",
+      "true_positives": 2,
+      "false_positives": 44,
+      "true_negatives": 2456,
+      "false_negatives": 0,
+      "precision": 0.0435,
+      "recall": 1.0,
+      "f1_score": 0.0833,
+      "false_discovery_rate": 0.9565,
+      "false_positive_profiles": {
+        "deployment_scheduled_task": 44
+      }
+    }
+  ]
+}

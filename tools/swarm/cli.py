@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from .autonomous import AutonomousOrchestrator
-from .config import OperatorDirective, SafetyConstraints
+from .config import OperatorDirective
 from .critic import SwarmCritic
 from .detectors import SigmaDetector, YaraDetector
 from .orchestrator import SwarmOrchestrator
@@ -86,6 +86,55 @@ def parse_args() -> argparse.Namespace:
         help="Run the deterministic zero-false-positive validation gate over the fixture corpus",
     )
     parser.add_argument(
+        "--benchmark-snr",
+        action="store_true",
+        help="Benchmark signal-to-noise: precision/recall against a high-volume benign corpus",
+    )
+    parser.add_argument(
+        "--events",
+        type=int,
+        default=2500,
+        help="Benign background events to generate for --benchmark-snr (default: 2500)",
+    )
+    parser.add_argument(
+        "--attack-variants",
+        type=int,
+        default=14,
+        help="Novel attack permutations to add to the --benchmark-snr corpus (default: 14)",
+    )
+    parser.add_argument(
+        "--profile-siem",
+        action="store_true",
+        help="Profile query complexity across CrowdStrike LogScale, Splunk SPL, and Elastic Lucene",
+    )
+    parser.add_argument(
+        "--export-d3fend",
+        action="store_true",
+        help="Export the dual-layer MITRE ATT&CK / D3FEND countermeasure matrix (d3fend_layer.json)",
+    )
+    parser.add_argument(
+        "--replay-telemetry",
+        action="store_true",
+        help="Replay real-world telemetry (EVTX/JSONL) through Sigma rules and correlation analytics",
+    )
+    parser.add_argument(
+        "--corpus-path",
+        type=Path,
+        default=None,
+        help="Path to telemetry file (.evtx or .jsonl) for --replay-telemetry (default: tests/fixtures/telemetry/mordor_lsass_dump.jsonl)",
+    )
+    parser.add_argument(
+        "--is-benign",
+        action="store_true",
+        help="Mark telemetry corpus as benign baseline to measure empirical false-positive rate",
+    )
+    parser.add_argument(
+        "--window",
+        type=int,
+        default=300,
+        help="Correlation sliding window in seconds for --replay-telemetry (default: 300)",
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=Path(__file__).resolve().parents[2] / "docs" / "swarm" / "results",
@@ -96,11 +145,69 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     try:
+        # Reports contain box-drawing and status glyphs that the Windows
+        # console's default cp1252 codec cannot encode. Best-effort: a stream
+        # that cannot be reconfigured (a pipe, or a stub under test) is fine.
         sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
-    except Exception:
+    except (AttributeError, OSError, ValueError):
         pass
 
     args = parse_args()
+
+    if args.replay_telemetry:
+        from .telemetry_replay import TelemetryReplayEngine
+        engine = TelemetryReplayEngine()
+        root = Path(__file__).resolve().parents[2]
+        target_path = args.corpus_path or (root / "tests" / "fixtures" / "telemetry" / "mordor_lsass_dump.jsonl")
+        if not target_path.is_absolute():
+            target_path = root / target_path
+        print(f"[*] Replaying real-world telemetry corpus: {target_path.name} ...")
+        is_benign = args.is_benign or ("benign" in str(target_path).lower())
+        report = engine.replay_file(target_path, is_benign=is_benign, window_seconds=args.window)
+        print(report.to_markdown())
+        out = args.output_dir / "telemetry_replay.json"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(report.to_json(), encoding="utf-8", newline="\n")
+        print(f"\n[+] Wrote machine-readable ICD 203 replay report to {out}")
+        return 0
+
+    if args.benchmark_snr:
+        from .noise_floor import run_benchmark
+        print(f"[*] Generating {args.events} benign enterprise background events...")
+        print(f"[*] Adding {args.attack_variants} novel attack permutations to the corpus...")
+        report = run_benchmark(
+            benign_count=args.events, attack_variants=args.attack_variants
+        )
+        print(report.to_markdown())
+        out = args.output_dir / "noise_floor.json"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(report.to_json(), encoding="utf-8", newline="\n")
+        print(f"\n[+] Wrote machine-readable metrics to {out}")
+        return 0
+
+    if args.profile_siem:
+        from .siem_profiler import SiemQueryProfiler
+        print("[*] Compiling analytics across LogScale, Splunk, and Lucene backends...")
+        print("[*] Benchmarking query latencies against enterprise background corpus...")
+        report = SiemQueryProfiler().benchmark_and_calibrate(corpus_size=args.events)
+        print(report.to_markdown())
+        out = args.output_dir / "siem_profile.json"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(report.to_json(), encoding="utf-8", newline="\n")
+        print(f"\n[+] Wrote machine-readable profile to {out}")
+        return 0
+
+    if args.export_d3fend:
+        from .d3fend_mapper import D3fendMapper
+        print("[*] Building dual-layer MITRE ATT&CK / D3FEND assessment matrix...")
+        mapper = D3fendMapper()
+        report = mapper.build()
+        print(report.to_markdown())
+        path = mapper.export(out_path=args.output_dir / "d3fend_layer.json")
+        print(f"\n[+] Wrote {path}")
+        print(f"    - Techniques mapped: {report.mapped_count}/{len(report.mappings)}")
+        print(f"    - Identifier collisions: {len(report.collisions)}")
+        return 0
 
     if args.validate_gate:
         from .validate_gate import ZeroFalsePositiveGate
@@ -160,7 +267,7 @@ def main() -> int:
         print(f"    - Discovered Evasion Gaps: {stats['gaps_discovered']}")
         print(f"    - Multi-Stage Campaign Containment: {stats['containment_rate']:.1%}")
         print(f"    - Average Depth-of-Defense (DoD): {stats['average_depth_of_defense']:.2f}")
-        print(f"    - Discovered Clusters:")
+        print("    - Discovered Clusters:")
         for k, v in stats['cluster_counts'].items():
             print(f"      * {k}: {v}")
         return 0
@@ -195,7 +302,7 @@ def main() -> int:
             intercepted_runs = sum(1 for r in results if r.intercepted)
             avg_dod = sum(r.depth_of_defense_score for r in results) / total_runs if total_runs else 0.0
 
-            print(f"\n[+] Autonomous Kill-Chain Sparring Complete!")
+            print("\n[+] Autonomous Kill-Chain Sparring Complete!")
             print(f"    - Campaigns Evaluated: {total_runs}")
             print(f"    - Intercepted by Layered Net: {intercepted_runs}/{total_runs} ({(intercepted_runs/total_runs)*100:.1f}%)")
             print(f"    - Average Depth-of-Defense (DoD) Score: {avg_dod:.2f}")
@@ -233,7 +340,7 @@ def main() -> int:
     )
 
     print(f"[*] Initializing Adversarial Swarm for target: {args.target}")
-    print(f"[*] Safety containment: RFC 2606 reserved domains only | Local sandbox execution only")
+    print("[*] Safety containment: RFC 2606 reserved domains only | Local sandbox execution only")
 
     # 1. Custom Single-Prompt Mode
     if args.prompt:

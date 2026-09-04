@@ -1,10 +1,12 @@
+import json
+import tempfile
 import unittest
 from pathlib import Path
 
 from tools.swarm.adapter import SwarmAdapter
 from tools.swarm.autonomous import AutonomousOrchestrator
 from tools.swarm.cable_writer import CableWriter
-from tools.swarm.config import OperatorDirective, SafetyConstraints
+from tools.swarm.config import OperatorDirective
 from tools.swarm.craftsmen.process_craftsman import ProcessCraftsman
 from tools.swarm.craftsmen.svg_craftsman import SvgCraftsman
 from tools.swarm.critic import SwarmCritic
@@ -28,6 +30,20 @@ from tools.swarm.telemetry_generator import (
     TelemetrySafetyError,
 )
 from tools.swarm.validate_gate import GateReport, ZeroFalsePositiveGate
+from tools.swarm.d3fend_mapper import (
+    ATTACK_TO_D3FEND,
+    BRIEFING_TECHNIQUES,
+    D3fendMapper,
+    mapping_source,
+)
+from tools.swarm.noise_floor import (
+    DetectionMetricsCalculator,
+    EnterpriseNoiseGenerator,
+    NoiseFloorReport,
+    RuleMetrics,
+    run_benchmark,
+)
+from tools.swarm.siem_profiler import SiemQueryProfiler
 
 
 class SwarmCriticTests(unittest.TestCase):
@@ -231,35 +247,51 @@ class PromptEngineTests(unittest.TestCase):
 
 
 class AutonomousOrchestratorTests(unittest.TestCase):
-    """Verifies continuous autonomous sparring loops and history persistence."""
+    """Verifies continuous autonomous sparring loops and history persistence.
+
+    The orchestrator persists a history artifact on every run. These tests
+    redirect that write into a temporary directory: a test run must never
+    mutate the committed artifacts under ``docs/swarm/results/``.
+    """
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.out_dir = Path(self._tmp.name)
+        self.addCleanup(self._tmp.cleanup)
+
+    def _run(self, target: str):
+        directive = OperatorDirective(
+            target=target,
+            max_cycles=1,
+            variants_per_cycle=3,
+            output_dir=self.out_dir,
+        )
+        return AutonomousOrchestrator(directive).run_autonomous(iterations=3)
+
+    def _assert_sparring_summary(self, summary):
+        self.assertEqual(summary["iterations_run"], 3)
+        self.assertGreaterEqual(summary["critic_approved"], 3)
+        self.assertGreater(summary["detected_count"], 0)
+        self.assertEqual(len(summary["history"]), 3)
 
     def test_autonomous_sparring_sigma(self):
-        directive = OperatorDirective(
-            target="sigma",
-            max_cycles=1,
-            variants_per_cycle=3,
-        )
-        auto_orch = AutonomousOrchestrator(directive)
-        summary = auto_orch.run_autonomous(iterations=3)
-
-        self.assertEqual(summary["iterations_run"], 3)
-        self.assertGreaterEqual(summary["critic_approved"], 3)
-        self.assertGreater(summary["detected_count"], 0)
-        self.assertEqual(len(summary["history"]), 3)
+        self._assert_sparring_summary(self._run("sigma"))
 
     def test_autonomous_sparring_yara(self):
-        directive = OperatorDirective(
-            target="yara",
-            max_cycles=1,
-            variants_per_cycle=3,
-        )
-        auto_orch = AutonomousOrchestrator(directive)
-        summary = auto_orch.run_autonomous(iterations=3)
+        self._assert_sparring_summary(self._run("yara"))
 
-        self.assertEqual(summary["iterations_run"], 3)
-        self.assertGreaterEqual(summary["critic_approved"], 3)
-        self.assertGreater(summary["detected_count"], 0)
-        self.assertEqual(len(summary["history"]), 3)
+    def test_history_is_persisted_to_the_directed_output_dir(self):
+        """History must land in the directive's output_dir, not the repo docs tree."""
+        self._run("sigma")
+        artifact = self.out_dir / "boundary_history_sigma.json"
+        self.assertTrue(artifact.exists(), "history artifact was not written")
+        self.assertEqual(len(json.loads(artifact.read_text(encoding="utf-8"))["history"]), 3)
+
+    def test_persisted_history_uses_lf_line_endings(self):
+        """Generated artifacts must be byte-identical on Windows and Linux."""
+        self._run("sigma")
+        artifact = self.out_dir / "boundary_history_sigma.json"
+        self.assertNotIn(b"\r\n", artifact.read_bytes())
 
 
 class CableWriterTests(unittest.TestCase):
@@ -318,6 +350,60 @@ class CableWriterTests(unittest.TestCase):
             index_path = Path(tmpdir) / "INDEX.md"
             self.assertTrue(index_path.exists())
             self.assertIn("pcalua_proxy", index_path.read_text(encoding="utf-8"))
+
+    def test_format_and_write_campaign_cable(self):
+        import tempfile
+        from tools.swarm.models import CampaignResult, CriticVerdict, DetectionResult, StageResult, Variant
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            writer = CableWriter(cables_dir=Path(tmpdir))
+            variant = Variant(
+                id="var-camp-1",
+                target_type="sigma",
+                axis="defense_in_depth",
+                mutation_name="rundll32_eval",
+                description="Rundll32 dump stage",
+                payload={"Image": "rundll32.exe"},
+                cycle=1,
+            )
+            stage1 = StageResult(
+                stage_number=1,
+                stage_name="Credential Access",
+                tactic="credential_access",
+                technique_id="T1003.001",
+                rule_name="proc_creation_win_rundll32_lsass_dump",
+                target_type="sigma",
+                variant=variant,
+                critic_verdict=CriticVerdict(variant_id=variant.id, passed=True, reason="Safe"),
+                detection_result=DetectionResult(
+                    variant_id=variant.id,
+                    rule_name="proc_creation_win_rundll32_lsass_dump",
+                    detected=True,
+                ),
+                evasion_gap=False,
+            )
+            cr = CampaignResult(
+                campaign_id="CAMP-2026-TEST",
+                campaign_name="Ransomware-Intrusion",
+                stages=[stage1],
+                intercepted=True,
+                interception_stage="Credential Access",
+                interception_technique="T1003.001",
+                completed_stages=1,
+                total_stages=1,
+                depth_of_defense_score=0.85,
+            )
+            cable_path = writer.write_campaign_cable(cr)
+            self.assertTrue(cable_path.exists())
+            content = cable_path.read_text(encoding="utf-8")
+            self.assertIn("campaign_id: CAMP-2026-TEST", content)
+            self.assertIn("Ransomware-Intrusion", content)
+            self.assertIn("T1003.001", content)
+            self.assertIn("Depth-of-Defense", content)
+
+            index_path = Path(tmpdir) / "INDEX.md"
+            self.assertTrue(index_path.exists())
+            self.assertIn("Ransomware-Intrusion", index_path.read_text(encoding="utf-8"))
 
 
 class SwarmAdapterTests(unittest.TestCase):
@@ -379,6 +465,202 @@ class SwarmAdapterTests(unittest.TestCase):
         # Verify candidate patch detects the variant
         is_verified = adapter._verify_patch(rule_path, patched, "yara", variant)
         self.assertTrue(is_verified)
+
+    def test_resolve_rule_path_all_rules(self):
+        adapter = SwarmAdapter()
+
+        # 1. ClickFix resolution (stem, title, alias)
+        f_click = BoundaryFinding(target_rule="proc_creation_win_explorer_clickfix_execution", target_type="sigma", axis="", mutation_name="", detected=False, evasion_gap_found=True, root_cause="", policy_recommendation="")
+        self.assertEqual(adapter.resolve_rule_path(f_click).name, "proc_creation_win_explorer_clickfix_execution.yml")
+
+        f_click_title = BoundaryFinding(target_rule="Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)", target_type="sigma", axis="", mutation_name="", detected=False, evasion_gap_found=True, root_cause="", policy_recommendation="")
+        self.assertEqual(adapter.resolve_rule_path(f_click_title).name, "proc_creation_win_explorer_clickfix_execution.yml")
+
+        # 2. Schtasks persistence resolution (stem, title, alias)
+        f_sch = BoundaryFinding(target_rule="proc_creation_win_schtasks_persistence", target_type="sigma", axis="", mutation_name="", detected=False, evasion_gap_found=True, root_cause="", policy_recommendation="")
+        self.assertEqual(adapter.resolve_rule_path(f_sch).name, "proc_creation_win_schtasks_persistence.yml")
+
+        f_sch_title = BoundaryFinding(target_rule="Suspicious Scheduled Task Creation Spawning Shell or Script Engine", target_type="sigma", axis="", mutation_name="", detected=False, evasion_gap_found=True, root_cause="", policy_recommendation="")
+        self.assertEqual(adapter.resolve_rule_path(f_sch_title).name, "proc_creation_win_schtasks_persistence.yml")
+
+        # 3. LSASS memory dump resolution (stem, title, alias)
+        f_lsass = BoundaryFinding(target_rule="proc_creation_win_rundll32_lsass_dump", target_type="sigma", axis="", mutation_name="", detected=False, evasion_gap_found=True, root_cause="", policy_recommendation="")
+        self.assertEqual(adapter.resolve_rule_path(f_lsass).name, "proc_creation_win_rundll32_lsass_dump.yml")
+
+        f_lsass_title = BoundaryFinding(target_rule="LSASS Process Memory Dump via Rundll32 Comsvcs.dll", target_type="sigma", axis="", mutation_name="", detected=False, evasion_gap_found=True, root_cause="", policy_recommendation="")
+        self.assertEqual(adapter.resolve_rule_path(f_lsass_title).name, "proc_creation_win_rundll32_lsass_dump.yml")
+
+        # 4. Tampering resolution (stem, title, alias)
+        f_tamp = BoundaryFinding(target_rule="proc_creation_win_defense_evasion_tampering", target_type="sigma", axis="", mutation_name="", detected=False, evasion_gap_found=True, root_cause="", policy_recommendation="")
+        self.assertEqual(adapter.resolve_rule_path(f_tamp).name, "proc_creation_win_defense_evasion_tampering.yml")
+
+        f_tamp_title = BoundaryFinding(target_rule="Suspicious Event Log Clearing or Security Software Tampering", target_type="sigma", axis="", mutation_name="", detected=False, evasion_gap_found=True, root_cause="", policy_recommendation="")
+        self.assertEqual(adapter.resolve_rule_path(f_tamp_title).name, "proc_creation_win_defense_evasion_tampering.yml")
+
+        # 5. YARA resolution
+        f_yara = BoundaryFinding(target_rule="Suspicious_Active_Content_SVG_Attachment", target_type="yara", axis="", mutation_name="", detected=False, evasion_gap_found=True, root_cause="", policy_recommendation="")
+        self.assertEqual(adapter.resolve_rule_path(f_yara).name, "suspicious_active_content_svg.yar")
+
+        # 6. Unknown rule returns None
+        f_unk = BoundaryFinding(target_rule="completely_nonexistent_analytic_xyz", target_type="sigma", axis="", mutation_name="", detected=False, evasion_gap_found=True, root_cause="", policy_recommendation="")
+        self.assertIsNone(adapter.resolve_rule_path(f_unk))
+
+    def test_heal_gap_resolves_and_patches_schtasks(self):
+        import tempfile
+        import shutil
+        tmp_dir = tempfile.mkdtemp()
+        try:
+            cw = CableWriter(cables_dir=Path(tmp_dir))
+            adapter = SwarmAdapter(cable_writer=cw)
+            finding = BoundaryFinding(
+                target_rule="Suspicious Scheduled Task Creation Spawning Shell or Script Engine",
+                target_type="sigma",
+                cycle=1,
+                variant_id="var-schtasks-daily",
+                mutation_name="schtasks_daily_trigger",
+                axis="trigger",
+                detected=False,
+                evasion_gap_found=True,
+                root_cause="Adversary created scheduled task with /sc daily trigger.",
+                policy_recommendation="REC-SIGMA-SCHTASKS-001: Add daily trigger to monitored schedules.",
+            )
+            event_payload = {
+                "EventID": 1,
+                "Image": "C:\\Windows\\System32\\schtasks.exe",
+                "CommandLine": "schtasks.exe /create /tn UpdateTask /tr powershell.exe /sc daily",
+                "User": "SYSTEM",
+            }
+            variant = Variant(
+                id="var-schtasks-daily",
+                target_type="sigma",
+                axis="trigger",
+                mutation_name="schtasks_daily_trigger",
+                description="Daily schtasks creation",
+                payload=event_payload,
+                cycle=1,
+            )
+            success, cable_path, diff = adapter.heal_gap(finding, variant, apply_patch=False)
+            self.assertTrue(success)
+            self.assertIsNotNone(cable_path)
+            self.assertIn("proc_creation_win_schtasks_persistence.yml", diff)
+            self.assertNotIn("proc_creation_win_explorer_clickfix_execution.yml", diff)
+            self.assertIn("/sc daily", diff)
+        finally:
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+
+    def test_heal_gap_resolves_and_patches_lsass(self):
+        import tempfile
+        import shutil
+        tmp_dir = tempfile.mkdtemp()
+        try:
+            cw = CableWriter(cables_dir=Path(tmp_dir))
+            adapter = SwarmAdapter(cable_writer=cw)
+            finding = BoundaryFinding(
+                target_rule="LSASS Process Memory Dump via Rundll32 Comsvcs.dll",
+                target_type="sigma",
+                cycle=1,
+                variant_id="var-lsass-ordinal",
+                mutation_name="rundll32_ordinal_variant",
+                axis="syntax",
+                detected=False,
+                evasion_gap_found=True,
+                root_cause="Adversary invoked comsvcs ordinal #0024 to dump LSASS.",
+                policy_recommendation="REC-SIGMA-LSASS-001: Expand ordinal match to include #0024.",
+            )
+            event_payload = {
+                "EventID": 1,
+                "Image": "C:\\Windows\\System32\\rundll32.exe",
+                "CommandLine": "rundll32.exe C:\\windows\\system32\\comsvcs.dll #0024 1234 C:\\temp\\lsass.dmp full",
+                "User": "NT AUTHORITY\\SYSTEM",
+            }
+            variant = Variant(
+                id="var-lsass-ordinal",
+                target_type="sigma",
+                axis="syntax",
+                mutation_name="rundll32_ordinal_variant",
+                description="Rundll32 comsvcs #0024 dump",
+                payload=event_payload,
+                cycle=1,
+            )
+            success, cable_path, diff = adapter.heal_gap(finding, variant, apply_patch=False)
+            self.assertTrue(success)
+            self.assertIsNotNone(cable_path)
+            self.assertIn("proc_creation_win_rundll32_lsass_dump.yml", diff)
+            self.assertNotIn("proc_creation_win_explorer_clickfix_execution.yml", diff)
+            self.assertIn("#0024", diff)
+        finally:
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+
+    def test_heal_gap_resolves_and_patches_tampering(self):
+        import tempfile
+        import shutil
+        tmp_dir = tempfile.mkdtemp()
+        try:
+            cw = CableWriter(cables_dir=Path(tmp_dir))
+            adapter = SwarmAdapter(cable_writer=cw)
+            finding = BoundaryFinding(
+                target_rule="Suspicious Event Log Clearing or Security Software Tampering",
+                target_type="sigma",
+                cycle=1,
+                variant_id="var-defender-remove",
+                mutation_name="defender_remove_preference",
+                axis="tamper",
+                detected=False,
+                evasion_gap_found=True,
+                root_cause="Adversary disabled protection using Remove-MpPreference.",
+                policy_recommendation="REC-SIGMA-TAMPER-001: Add Remove-MpPreference to monitored tampering cmdlets.",
+            )
+            event_payload = {
+                "EventID": 1,
+                "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+                "CommandLine": "powershell.exe Remove-MpPreference -DisableRealtimeMonitoring $true",
+                "User": "SYSTEM",
+            }
+            variant = Variant(
+                id="var-defender-remove",
+                target_type="sigma",
+                axis="tamper",
+                mutation_name="defender_remove_preference",
+                description="Remove-MpPreference tampering",
+                payload=event_payload,
+                cycle=1,
+            )
+            success, cable_path, diff = adapter.heal_gap(finding, variant, apply_patch=False)
+            self.assertTrue(success)
+            self.assertIsNotNone(cable_path)
+            self.assertIn("proc_creation_win_defense_evasion_tampering.yml", diff)
+            self.assertNotIn("proc_creation_win_explorer_clickfix_execution.yml", diff)
+            self.assertIn("Remove-MpPreference", diff)
+        finally:
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+
+    def test_heal_gap_unknown_rule_fails_cleanly(self):
+        adapter = SwarmAdapter()
+        finding = BoundaryFinding(
+            target_rule="completely_nonexistent_analytic_xyz",
+            target_type="sigma",
+            cycle=1,
+            variant_id="var-unknown",
+            mutation_name="unknown_mutation",
+            axis="unknown",
+            detected=False,
+            evasion_gap_found=True,
+            root_cause="Unknown",
+            policy_recommendation="None",
+        )
+        variant = Variant(
+            id="var-unknown",
+            target_type="sigma",
+            axis="unknown",
+            mutation_name="unknown_mutation",
+            description="unknown",
+            payload={},
+            cycle=1,
+        )
+        success, cable_path, err = adapter.heal_gap(finding, variant, apply_patch=False)
+        self.assertFalse(success)
+        self.assertIsNone(cable_path)
+        self.assertIn("could not be resolved", err)
 
 
 class CampaignOrchestratorTests(unittest.TestCase):
@@ -464,6 +746,56 @@ class StrategicSynthesizerTests(unittest.TestCase):
         finally:
             shutil.rmtree(temp_cables, ignore_errors=True)
             shutil.rmtree(temp_results, ignore_errors=True)
+
+    def test_unreadable_history_is_counted_not_silently_dropped(self):
+        """A corrupt history file must be reported, not quietly under-counted.
+
+        Aggregate counts feed a published strategic cable. Skipping a source in
+        silence would overstate how much evidence the assessment rests on.
+        """
+        from tools.swarm.synthesizer import StrategicSynthesizer
+
+        with tempfile.TemporaryDirectory() as cables, tempfile.TemporaryDirectory() as results:
+            results_dir = Path(results)
+            (results_dir / "boundary_history_sigma.json").write_text(
+                json.dumps({"total_generated": 40, "evaded_count": 10}),
+                encoding="utf-8",
+                newline="\n",
+            )
+            (results_dir / "boundary_history_yara.json").write_text(
+                "{ this is not valid json",
+                encoding="utf-8",
+                newline="\n",
+            )
+
+            synthesizer = StrategicSynthesizer(
+                cables_dir=Path(cables), results_dir=results_dir
+            )
+            with self.assertLogs("swarm.synthesizer", level="WARNING") as captured:
+                stats = synthesizer._load_boundary_history()
+
+            self.assertEqual(stats["total_evaluations"], 40)
+            self.assertEqual(stats["gaps_discovered"], 10)
+            self.assertEqual(stats["sources_excluded"], 1)
+            self.assertIn("boundary_history_yara.json", "\n".join(captured.output))
+
+    def test_all_readable_history_reports_no_exclusions(self):
+        from tools.swarm.synthesizer import StrategicSynthesizer
+
+        with tempfile.TemporaryDirectory() as cables, tempfile.TemporaryDirectory() as results:
+            results_dir = Path(results)
+            (results_dir / "boundary_history_sigma.json").write_text(
+                json.dumps({"total_generated": 12, "evaded_count": 3}),
+                encoding="utf-8",
+                newline="\n",
+            )
+            synthesizer = StrategicSynthesizer(
+                cables_dir=Path(cables), results_dir=results_dir
+            )
+            stats = synthesizer._load_boundary_history()
+
+        self.assertEqual(stats["sources_excluded"], 0)
+        self.assertEqual(stats["total_evaluations"], 12)
 
 
 class TelemetryGeneratorTests(unittest.TestCase):
@@ -683,6 +1015,18 @@ class MultiEventEvaluatorTests(unittest.TestCase):
         self.assertFalse(result.matched)
         self.assertIn("no candidate", result.details.lower())
 
+    def test_native_sigma_correlation_rule_parsing(self):
+        corr_path = Path(__file__).resolve().parents[1] / "rules" / "sigma" / "correlation" / "correlation_lsass_dump.yml"
+        self.assertTrue(corr_path.exists())
+        rule = CorrelationRule.from_yaml(corr_path)
+        self.assertEqual(rule.name, "Correlated LSASS Memory Access and Dump File Creation")
+        self.assertEqual(rule.timespan_seconds, 120)
+        self.assertTrue(rule.ordered)
+        self.assertEqual(rule.group_by, ["Computer"])
+        self.assertEqual(len(rule.stages), 2)
+        self.assertEqual(rule.stages[0].name, "3b5d7e2c-1a9f-4d6b-9c30-7f6e5d4c3b21")
+        self.assertEqual(rule.stages[1].name, "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d")
+
 
 class GraphEngineTests(unittest.TestCase):
     """EPIC 2 — Verifies the DAG correlation state machine, branching, and scoring."""
@@ -745,6 +1089,13 @@ class GraphEngineTests(unittest.TestCase):
         # Serialization must round-trip.
         self.assertIn("depth_of_defense_score", results[0].to_dict())
 
+    def test_multistage_correlation_chain_in_production_walk(self):
+        result = self.engine.walk(evasion_at=["credential_telemetry"])
+        visit_by_id = {v.node_id: v for v in result.visits}
+        cred_visit = visit_by_id["credential_procaccess"]
+        self.assertTrue(cred_visit.detected)
+        self.assertIn("Correlated 2 stages", cred_visit.detail)
+
 
 class MitreLayerExporterTests(unittest.TestCase):
     """EPIC 4 — Verifies ATT&CK Navigator layer compilation and scoring."""
@@ -793,6 +1144,39 @@ class MitreLayerExporterTests(unittest.TestCase):
             data = json.loads(path.read_text(encoding="utf-8"))
             self.assertIn("techniques", data)
 
+    def test_layer_scores_are_deterministic_and_reproducible(self):
+        # By default, layer scoring uses the pinned empirical baseline (0.712)
+        # ensuring identical, reproducible outputs across machines regardless of mutable history.
+        layer1 = self.exporter.build_layer()
+        layer2 = self.exporter.build_layer()
+        scored1 = {t["techniqueID"]: t["score"] for t in layer1["techniques"]}
+        scored2 = {t["techniqueID"]: t["score"] for t in layer2["techniques"]}
+        self.assertEqual(scored1, scored2)
+        # Single-event rules blend baseline 75 with pinned 71 -> 73
+        self.assertEqual(scored1.get("T1204.002"), 73)
+        self.assertEqual(scored1.get("T1053.005"), 73)
+        # Correlation-backed techniques stay at 95
+        self.assertEqual(scored1.get("T1003.001"), 95)
+
+    def test_layer_explicit_history_file_override(self):
+        import json
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            custom_hist = Path(tmp) / "custom_hist.json"
+            custom_hist.write_text(json.dumps({"final_resilience": 0.85}), encoding="utf-8")
+            custom_exporter = MitreLayerExporter(history_file=custom_hist)
+            layer = custom_exporter.build_layer()
+            scored = {t["techniqueID"]: t["score"] for t in layer["techniques"]}
+            # Blends 75 with 85 -> 80
+            self.assertEqual(scored.get("T1204.002"), 80)
+
+    def test_layer_pinned_resilience_none_uses_baseline(self):
+        unpinned_exporter = MitreLayerExporter(pinned_resilience=None)
+        layer = unpinned_exporter.build_layer()
+        scored = {t["techniqueID"]: t["score"] for t in layer["techniques"]}
+        # When unpinned and no history file, raw baseline 75 is preserved
+        self.assertEqual(scored.get("T1204.002"), 75)
+
 
 class ZeroFalsePositiveGateTests(unittest.TestCase):
     """EPIC 4 — Verifies the deterministic zero-false-positive validation gate."""
@@ -823,6 +1207,444 @@ class ZeroFalsePositiveGateTests(unittest.TestCase):
         report.false_positives.append("benign_x.json triggered rule_y.yml")
         self.assertFalse(report.passed)
         self.assertIn("FAIL", report.to_markdown())
+
+
+class EnterpriseNoiseGeneratorTests(unittest.TestCase):
+    """EPIC 1 — Verifies benign background telemetry generation and safety validation."""
+
+    def test_generates_requested_volume_all_benign(self):
+        events = EnterpriseNoiseGenerator(seed=42).generate(250)
+        self.assertEqual(len(events), 250)
+        self.assertTrue(all(e.label == 0 for e in events))
+        self.assertTrue(all(e.event.event_id == 1 for e in events))
+
+    def test_generation_is_deterministic_for_a_seed(self):
+        a = [e.event.fields["CommandLine"] for e in EnterpriseNoiseGenerator(seed=7).generate(60)]
+        b = [e.event.fields["CommandLine"] for e in EnterpriseNoiseGenerator(seed=7).generate(60)]
+        self.assertEqual(a, b)
+
+    def test_different_seeds_diverge(self):
+        a = [e.event.fields["CommandLine"] for e in EnterpriseNoiseGenerator(seed=1).generate(60)]
+        b = [e.event.fields["CommandLine"] for e in EnterpriseNoiseGenerator(seed=2).generate(60)]
+        self.assertNotEqual(a, b)
+
+    def test_every_event_carries_a_known_profile(self):
+        gen = EnterpriseNoiseGenerator(seed=11)
+        known = set(gen.ROUTINE_PROFILES) | set(gen.AMBIGUOUS_PROFILES)
+        for item in gen.generate(120):
+            self.assertIn(item.profile, known)
+            self.assertEqual(item.event.fields["NoiseProfile"], item.profile)
+
+    def test_ambiguous_rate_bounds_are_enforced(self):
+        with self.assertRaises(ValueError):
+            EnterpriseNoiseGenerator(ambiguous_rate=1.5)
+        with self.assertRaises(ValueError):
+            EnterpriseNoiseGenerator(ambiguous_rate=-0.1)
+
+    def test_negative_count_rejected(self):
+        with self.assertRaises(ValueError):
+            EnterpriseNoiseGenerator().generate(-1)
+
+    def test_zero_ambiguous_rate_yields_only_routine_profiles(self):
+        gen = EnterpriseNoiseGenerator(seed=5, ambiguous_rate=0.0)
+        events = gen.generate(150)
+        self.assertTrue(all(not e.ambiguous for e in events))
+        self.assertTrue(all(e.profile in gen.ROUTINE_PROFILES for e in events))
+
+    def test_widen_routine_profiles_and_weights(self):
+        gen = EnterpriseNoiseGenerator()
+        self.assertEqual(len(gen.ROUTINE_PROFILES), 16)
+        self.assertEqual(len(gen.AMBIGUOUS_PROFILES), 2)
+        self.assertAlmostEqual(sum(gen.ROUTINE_PROFILE_WEIGHTS.values()), 1.0)
+        self.assertAlmostEqual(sum(gen.AMBIGUOUS_PROFILE_WEIGHTS.values()), 1.0)
+        for p in gen.ROUTINE_PROFILES:
+            self.assertIn(p, gen.ROUTINE_PROFILE_WEIGHTS)
+        for p in gen.AMBIGUOUS_PROFILES:
+            self.assertIn(p, gen.AMBIGUOUS_PROFILE_WEIGHTS)
+
+    def test_volume_weighting_biases_routine_distribution(self):
+        gen = EnterpriseNoiseGenerator(seed=42, ambiguous_rate=0.0)
+        events = gen.generate(1000)
+        counts = {}
+        for e in events:
+            counts[e.profile] = counts.get(e.profile, 0) + 1
+        # Defender signature update (weight 0.20) should exceed low-weight admin queries (weight 0.01)
+        self.assertGreater(counts.get("defender_signature_update", 0), counts.get("admin_activedirectory_query", 0))
+
+
+class DetectionMetricsTests(unittest.TestCase):
+    """EPIC 1 — Verifies confusion-matrix arithmetic and corpus evaluation semantics."""
+
+    def test_metric_arithmetic(self):
+        m = RuleMetrics(rule_name="r", true_positives=8, false_positives=2,
+                        true_negatives=90, false_negatives=2)
+        self.assertAlmostEqual(m.precision, 0.8)
+        self.assertAlmostEqual(m.recall, 0.8)
+        self.assertAlmostEqual(m.f1_score, 0.8)
+        self.assertAlmostEqual(m.false_discovery_rate, 0.2)
+        self.assertEqual(m.alerts, 10)
+
+    def test_metrics_are_zero_division_safe(self):
+        m = RuleMetrics(rule_name="empty")
+        self.assertEqual(m.precision, 0.0)
+        self.assertEqual(m.recall, 0.0)
+        self.assertEqual(m.f1_score, 0.0)
+        self.assertEqual(m.false_discovery_rate, 0.0)
+
+    def test_malicious_fixtures_are_assigned_an_owning_rule(self):
+        events = DetectionMetricsCalculator().load_malicious_fixtures()
+        self.assertGreater(len(events), 0)
+        self.assertTrue(all(e.label == 1 for e in events))
+        self.assertTrue(
+            all(e.target_rule.endswith(".yml") for e in events),
+            "every positive fixture must declare the analytic it owns",
+        )
+
+    def test_routine_background_produces_no_false_positives(self):
+        # With no ambiguous activity, well-tuned analytics must stay silent.
+        report = run_benchmark(benign_count=300, ambiguous_rate=0.0, attack_variants=0)
+        self.assertEqual(report.corpus_metrics.false_positives, 0)
+        self.assertEqual(report.false_positive_rate(), 0.0)
+
+    def test_ambiguous_activity_is_the_sole_false_positive_source(self):
+        report = run_benchmark(benign_count=400, ambiguous_rate=0.25, attack_variants=0)
+        self.assertGreater(report.corpus_metrics.false_positives, 0)
+        generator = EnterpriseNoiseGenerator()
+        for profile in report.corpus_metrics.false_positive_profiles:
+            self.assertIn(profile, generator.AMBIGUOUS_PROFILES)
+
+    def test_corpus_metrics_counted_per_event_not_pooled(self):
+        report = run_benchmark(benign_count=200, ambiguous_rate=0.0, attack_variants=0)
+        corpus = report.corpus_metrics
+        # Pooling across 4 analytics would inflate TN to 4x the benign population.
+        self.assertEqual(
+            corpus.true_negatives + corpus.false_positives, report.benign_events
+        )
+        self.assertEqual(
+            corpus.true_positives + corpus.false_negatives, report.malicious_events
+        )
+
+    def test_per_rule_recall_scored_only_over_owned_events(self):
+        report = run_benchmark(benign_count=100, ambiguous_rate=0.0, attack_variants=0)
+        for metric in report.per_rule:
+            owned = metric.true_positives + metric.false_negatives
+            self.assertLess(
+                owned, report.malicious_events,
+                "a rule must not be scored against fixtures it does not own",
+            )
+            self.assertGreater(owned, 0)
+
+    def test_committed_fixtures_are_fully_recalled_by_their_owning_rule(self):
+        report = run_benchmark(benign_count=50, ambiguous_rate=0.0, attack_variants=0)
+        for metric in report.per_rule:
+            self.assertEqual(
+                metric.recall, 1.0,
+                f"{metric.rule_name} failed to recall a fixture it owns",
+            )
+
+    def test_report_serialisation(self):
+        report = run_benchmark(benign_count=80, ambiguous_rate=0.1, attack_variants=0)
+        md = report.to_markdown()
+        self.assertIn("Enterprise Telemetry Noise Floor Assessment", md)
+        self.assertIn("Base-rate caveat", md)
+        self.assertIn("Confidence.", md)
+        self.assertIn("95% CI", md)
+        data = json.loads(report.to_json())
+        self.assertIn("corpus", data)
+        self.assertIn("per_rule", data)
+        self.assertIn("false_positive_rate", data)
+        self.assertIn("false_positive_rate_ci_95", data)
+
+    def test_false_positive_rate_ci_bounds(self):
+        report = run_benchmark(benign_count=200, ambiguous_rate=0.05, attack_variants=0)
+        p = report.false_positive_rate()
+        ci_low, ci_high = report.false_positive_rate_ci(0.95)
+        self.assertGreaterEqual(ci_low, 0.0)
+        self.assertLessEqual(ci_high, 1.0)
+        self.assertLessEqual(ci_low, p)
+        self.assertGreaterEqual(ci_high, p)
+
+        # Edge case: 0 benign events
+        empty_report = NoiseFloorReport(
+            total_events=0, benign_events=0, malicious_events=0, ambiguous_events=0
+        )
+        self.assertEqual(empty_report.false_positive_rate_ci(), (0.0, 0.0))
+
+
+class SiemQueryProfilerTests(unittest.TestCase):
+    """EPIC 3 — Verifies multi-SIEM query complexity analysis."""
+
+    def setUp(self):
+        self.profiler = SiemQueryProfiler()
+
+    def test_profiles_every_rule_across_every_backend(self):
+        report = self.profiler.profile_all()
+        backends = {p.backend for p in report.profiles}
+        self.assertEqual(backends, {"LogScale", "Splunk", "Lucene"})
+        self.assertGreaterEqual(len(report.profiles), len(self.profiler.rule_paths()) * 3)
+
+    def test_nesting_depth_measurement(self):
+        self.assertEqual(SiemQueryProfiler._nesting_depth("a AND (b OR (c AND d))"), 2)
+        self.assertEqual(SiemQueryProfiler._nesting_depth("flat query"), 0)
+
+    def test_detects_leading_wildcards(self):
+        profile = self.profiler.analyze("r", "Splunk", 'Image="*\\\\rundll32.exe"')
+        self.assertGreaterEqual(profile.leading_wildcards, 1)
+        self.assertTrue(any("leading-wildcard" in f for f in profile.findings))
+
+    def test_detects_unanchored_and_case_insensitive_regex(self):
+        profile = self.profiler.analyze("r", "LogScale", "CommandLine=/comsvcs/i")
+        self.assertEqual(profile.unanchored_regexes, 1)
+        self.assertEqual(profile.case_insensitive_ops, 1)
+
+    def test_anchored_regex_is_not_flagged_unanchored(self):
+        profile = self.profiler.analyze("r", "LogScale", "Image=/rundll32\\.exe$/i")
+        self.assertEqual(profile.unanchored_regexes, 0)
+
+    def test_impact_rating_bands(self):
+        self.assertEqual(SiemQueryProfiler.rate_impact(10), "Low")
+        self.assertEqual(SiemQueryProfiler.rate_impact(60), "Moderate")
+        self.assertEqual(SiemQueryProfiler.rate_impact(120), "High")
+        self.assertEqual(SiemQueryProfiler.rate_impact(500), "Costly")
+
+    def test_clean_query_reports_no_costly_constructs(self):
+        profile = self.profiler.analyze("r", "Splunk", 'EventCode=4688')
+        self.assertEqual(profile.impact, "Low")
+        self.assertIn("No costly search constructs detected.", profile.findings)
+
+    def test_widest_rule_is_the_most_expensive(self):
+        report = self.profiler.profile_all()
+        worst = report.worst(1)[0]
+        self.assertIn("ClickFix", worst.rule_name)
+        self.assertEqual(worst.impact, "Costly")
+
+    def test_report_serialisation(self):
+        report = self.profiler.profile_all()
+        md = report.to_markdown()
+        self.assertIn("Multi-SIEM Query Complexity Assessment", md)
+        self.assertIn("Confidence.", md)
+        data = json.loads(report.to_json())
+        self.assertIn("profiles", data)
+        self.assertIn("worst", data)
+        self.assertIn("unparsable", data)
+
+    def test_committed_corpus_has_no_unparsable_rules(self):
+        """Every committed analytic must actually compile and be profiled."""
+        report = self.profiler.profile_all()
+        self.assertEqual(
+            [u.rule_path for u in report.unparsable],
+            [],
+            "committed rules failed to parse and were silently excluded",
+        )
+
+    def test_unparsable_rule_is_reported_not_skipped(self):
+        """A malformed rule must surface in the report rather than vanish.
+
+        A silent skip would let the profile claim full corpus coverage while
+        omitting a rule, which is the failure this field exists to prevent.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            broken = Path(tmp) / "proc_creation_win_broken.yml"
+            broken.write_text("title: [unterminated\n", encoding="utf-8", newline="\n")
+
+            profiler = SiemQueryProfiler()
+            profiler.rule_paths = lambda: [broken]
+            report = profiler.profile_all()
+
+            self.assertEqual(report.profiles, [])
+            self.assertEqual(len(report.unparsable), 1)
+            self.assertEqual(report.unparsable[0].rule_path, broken.name)
+            self.assertTrue(report.unparsable[0].error)
+            self.assertIn("Rules excluded from this assessment", report.to_markdown())
+            self.assertIn(broken.name, report.to_markdown())
+
+
+class D3fendMapperTests(unittest.TestCase):
+    """EPIC 4 — Verifies ATT&CK/D3FEND crosswalk, provenance, and collision detection."""
+
+    def setUp(self):
+        self.mapper = D3fendMapper()
+
+    def test_briefing_mappings_are_present_and_correct(self):
+        expected = {
+            "T1566.001": {"D3-FAA"},
+            "T1204.002": {"D3-PSA", "D3-SEA"},
+            "T1059.001": {"D3-PSA", "D3-SEA"},
+            "T1070.001": {"D3-LSA"},
+            "T1003.001": {"D3-LSAP"},
+            "T1053.005": {"D3-SJA"},
+        }
+        for technique, ids in expected.items():
+            actual = {c.d3fend_id for c in ATTACK_TO_D3FEND[technique]}
+            self.assertEqual(actual, ids, f"mapping drift for {technique}")
+
+    def test_mapping_provenance_distinguishes_briefing_from_extended(self):
+        self.assertEqual(mapping_source("T1566.001"), "briefing")
+        self.assertEqual(mapping_source("T1059.003"), "verified")
+        self.assertEqual(mapping_source("T9999"), "extended")
+        for technique in BRIEFING_TECHNIQUES:
+            self.assertEqual(mapping_source(technique), "briefing")
+
+    def test_identifier_collision_is_detected(self):
+        # In reconciled production mappings, zero collisions exist.
+        collisions = D3fendMapper.find_id_collisions()
+        self.assertEqual(len(collisions), 0, "Expected 0 collisions in reconciled ontology")
+
+        # Verify collision detection algorithm works when a defect is introduced.
+        from tools.swarm.d3fend_mapper import D3fendCountermeasure
+        test_dict = {
+            "T1": (D3fendCountermeasure("D3-X", "Name A", "Detect"),),
+            "T2": (D3fendCountermeasure("D3-X", "Name B", "Harden"),),
+        }
+        by_id = {}
+        for cms in test_dict.values():
+            for cm in cms:
+                by_id.setdefault(cm.d3fend_id, set()).add(cm.name)
+        sim_collisions = [{"d3fend_id": k, "names": sorted(v)} for k, v in by_id.items() if len(v) > 1]
+        self.assertEqual(len(sim_collisions), 1)
+        self.assertEqual(sim_collisions[0]["d3fend_id"], "D3-X")
+
+    def test_build_maps_every_covered_technique(self):
+        report = self.mapper.build()
+        self.assertGreater(len(report.mappings), 0)
+        self.assertEqual(report.unmapped, [], "every covered technique should map")
+        self.assertEqual(report.mapped_count, len(report.mappings))
+
+    def test_lsass_hardening_is_the_sole_harden_tactic(self):
+        report = self.mapper.build()
+        by_tactic = report.countermeasures_by_tactic()
+        self.assertIn("Harden", by_tactic)
+        self.assertIn("Detect", by_tactic)
+        self.assertTrue(any("Local Security Authority" in x for x in by_tactic["Harden"]))
+
+    def test_markdown_reports_matrix_and_taxonomy_defect(self):
+        md = self.mapper.build().to_markdown()
+        self.assertIn("Dual-Layer Coverage Assessment", md)
+        self.assertIn("Taxonomy status", md)
+        self.assertIn("Zero identifier collisions detected", md)
+        self.assertIn("Confidence.", md)
+
+    def test_export_writes_dual_layer_json(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "d3fend_layer.json"
+            path = self.mapper.export(out_path=out)
+            self.assertTrue(path.exists())
+            data = json.loads(path.read_text(encoding="utf-8"))
+            self.assertIn("mappings", data)
+            self.assertIn("identifier_collisions", data)
+            self.assertIn("countermeasures_by_tactic", data)
+
+
+class SiemProfilerCalibrationTests(unittest.TestCase):
+    """EPIC 3 — Validates query compilation and empirical latency calibration.
+
+    Distinct from :class:`SiemQueryProfilerTests`, which covers the static
+    scoring heuristics. These two classes previously shared a name, so this
+    one shadowed the other and silently voided nine static-scoring tests.
+    """
+
+    def setUp(self):
+        self.profiler = SiemQueryProfiler()
+
+    def test_profile_all_generates_profiles_across_backends(self):
+        report = self.profiler.profile_all()
+        self.assertGreater(len(report.profiles), 0)
+        backends = report.by_backend()
+        self.assertIn("Splunk", backends)
+        self.assertIn("Lucene", backends)
+        self.assertIn("LogScale", backends)
+
+        compiled_profiles = [p for p in report.profiles if p.query]
+        self.assertGreater(len(compiled_profiles), 0)
+        for p in compiled_profiles:
+            self.assertTrue(p.rule_name)
+            self.assertGreater(p.query_length, 0)
+            self.assertGreater(p.tokens, 0)
+            self.assertIn(p.impact, ("Low", "Moderate", "High", "Costly"))
+            self.assertGreaterEqual(p.complexity_score, 0.0)
+
+    def test_profiler_reporting_and_markdown(self):
+        report = self.profiler.profile_all()
+        worst = report.worst(limit=3)
+        self.assertLessEqual(len(worst), 3)
+        if len(worst) >= 2:
+            self.assertGreaterEqual(worst[0].complexity_score, worst[1].complexity_score)
+
+        md = report.to_markdown()
+        self.assertIn("# Multi-SIEM Query Complexity Assessment", md)
+        self.assertIn("Highest-cost queries", md)
+
+        data = report.to_dict()
+        self.assertIn("profiles", data)
+        self.assertIn("backends", data)
+        self.assertIn("worst", data)
+
+    def test_benchmark_and_calibrate_empirical_timings(self):
+        # Run small fast corpus for unit test
+        report = self.profiler.benchmark_and_calibrate(corpus_size=100, repetitions=1)
+        self.assertIn("empirical_calibration", report.to_dict())
+        cal = report.empirical_calibration
+        self.assertIn("pearson_correlation", cal)
+        self.assertIn("mean_latency_ms", cal)
+        self.assertIn("correlation_strength", cal)
+        self.assertEqual(cal["corpus_size"], 100)
+
+        # Check empirical_ms populated on profiled queries
+        calibrated_profiles = [p for p in report.profiles if p.empirical_ms is not None]
+        self.assertGreater(len(calibrated_profiles), 0)
+        for cp in calibrated_profiles:
+            self.assertGreaterEqual(cp.empirical_ms, 0.0)
+
+
+class WorkbenchCanvasTests(unittest.TestCase):
+    """EPIC 2 — Guards the visual workbench against drift from the Python engine.
+
+    The canvas re-implements the walk in JavaScript. These tests fail if the
+    engine's node set or scoring constants change without the workbench
+    following, which is the failure mode that silently makes the visualiser lie.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.path = Path(__file__).resolve().parents[1] / "swarm_workbench.html"
+        cls.html = cls.path.read_text(encoding="utf-8")
+
+    def test_workbench_exists(self):
+        self.assertTrue(self.path.exists())
+
+    def test_every_engine_node_is_rendered(self):
+        graph = GraphEngine().build_default_graph()
+        for node_id in graph.nodes:
+            self.assertIn(node_id, self.html, f"workbench is missing engine node '{node_id}'")
+
+    def test_secondary_branch_wiring_matches_engine(self):
+        graph = GraphEngine().build_default_graph()
+        self.assertIn(
+            f'execution:"{graph.secondary_of("execution")}"'.replace('"', '"'),
+            self.html.replace(" ", ""),
+        )
+        self.assertIn(graph.secondary_of("credential_telemetry"), self.html)
+
+    def test_layer_weights_match_engine_constants(self):
+        from tools.swarm.graph_engine import (
+            _LAYER_WEIGHTS,
+            _SECONDARY_DISCOUNT,
+            _STAGE_DWELL_SECONDS,
+        )
+        weights = ", ".join(str(w) for w in _LAYER_WEIGHTS)
+        self.assertIn(f"LAYER_WEIGHTS = [{weights}]", self.html)
+        self.assertIn(f"SECONDARY_DISCOUNT = {_SECONDARY_DISCOUNT}", self.html)
+        self.assertIn(f"STAGE_DWELL = {int(_STAGE_DWELL_SECONDS)}", self.html)
+
+    def test_exposes_campaign_entry_point_and_views(self):
+        self.assertIn("function runKillChainCampaign", self.html)
+        self.assertIn("State Machine DAG", self.html)
+        self.assertIn("Linear Pipeline", self.html)
+
+    def test_reports_all_three_live_metrics(self):
+        for label in ("Depth of Defense", "Mean Time to Detect", "Path to Objective"):
+            self.assertIn(label, self.html)
 
 
 if __name__ == "__main__":

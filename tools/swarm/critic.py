@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 import xml.etree.ElementTree as ET
 from urllib.parse import urlparse
-from typing import List, Tuple
+from typing import List
 
 from .config import SafetyConstraints
 from .models import CriticVerdict, Variant

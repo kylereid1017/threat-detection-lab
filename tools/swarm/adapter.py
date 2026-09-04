@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import difflib
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 from .cable_writer import CableWriter
 from .detectors import BaseDetector, SigmaDetector, YaraDetector
@@ -19,6 +19,83 @@ class SwarmAdapter:
         self.rules_dir = self.repo_root / "rules"
         self.cable_writer = cable_writer or CableWriter()
 
+    def resolve_rule_path(self, finding: BoundaryFinding) -> Optional[Path]:
+        """Resolves the target rule file path from a BoundaryFinding."""
+        # 1. YARA resolution
+        if finding.target_type == "yara" or finding.target_rule.endswith(".yar"):
+            yara_dir = self.rules_dir / "yara"
+            if finding.target_rule:
+                target = finding.target_rule.lower().strip()
+                for p in yara_dir.glob("*.yar"):
+                    if p.name.lower() == target or p.stem.lower() == target:
+                        return p
+                    try:
+                        content = p.read_text(encoding="utf-8")
+                        if f"rule {finding.target_rule.strip()}" in content:
+                            return p
+                    except OSError:
+                        continue
+            default_yara = yara_dir / "suspicious_active_content_svg.yar"
+            return default_yara if default_yara.exists() else None
+
+        # 2. Sigma resolution
+        target = finding.target_rule.strip() if finding.target_rule else ""
+        sigma_dir = self.rules_dir / "sigma"
+
+        candidates: List[Path] = sorted(list(sigma_dir.glob("*.yml")) + list((sigma_dir / "correlation").glob("*.yml")))
+        if not candidates:
+            return None
+
+        if not target:
+            # Default fallback for backward compatibility
+            default_sigma = sigma_dir / "proc_creation_win_explorer_clickfix_execution.yml"
+            return default_sigma if default_sigma.exists() else candidates[0]
+
+        target_lower = target.lower()
+
+        # Check exact filename or stem match
+        for p in candidates:
+            if p.name.lower() == target_lower or p.stem.lower() == target_lower:
+                return p
+
+        # Check rule title inside candidate files
+        for p in candidates:
+            try:
+                text = p.read_text(encoding="utf-8")
+                for line in text.splitlines()[:5]:
+                    if line.startswith("title:"):
+                        rule_title = line.split("title:", 1)[1].strip().strip('"\'').lower()
+                        if rule_title == target_lower or target_lower in rule_title or rule_title in target_lower:
+                            return p
+            except OSError:
+                continue
+
+        # Check canonical keyword alias mapping
+        alias_map = {
+            "clickfix": "proc_creation_win_explorer_clickfix_execution.yml",
+            "explorer": "proc_creation_win_explorer_clickfix_execution.yml",
+            "schtasks": "proc_creation_win_schtasks_persistence.yml",
+            "task": "proc_creation_win_schtasks_persistence.yml",
+            "persistence": "proc_creation_win_schtasks_persistence.yml",
+            "lsass": "proc_creation_win_rundll32_lsass_dump.yml",
+            "rundll32": "proc_creation_win_rundll32_lsass_dump.yml",
+            "comsvcs": "proc_creation_win_rundll32_lsass_dump.yml",
+            "tampering": "proc_creation_win_defense_evasion_tampering.yml",
+            "defense_evasion": "proc_creation_win_defense_evasion_tampering.yml",
+            "wevtutil": "proc_creation_win_defense_evasion_tampering.yml",
+            "clearlog": "proc_creation_win_defense_evasion_tampering.yml",
+            "script_block": "posh_script_block_download_cradle.yml",
+            "download_cradle": "posh_script_block_download_cradle.yml",
+            "process_access": "sysmon_process_access_lsass.yml",
+        }
+        for alias, filename in alias_map.items():
+            if alias in target_lower:
+                for p in candidates:
+                    if p.name == filename:
+                        return p
+
+        return None
+
     def heal_gap(
         self,
         finding: BoundaryFinding,
@@ -27,18 +104,23 @@ class SwarmAdapter:
         apply_patch: bool = True,
     ) -> Tuple[bool, Optional[Path], str]:
         """Diagnoses an evasion gap, synthesizes a candidate rule patch, verifies it, and authors an intelligence cable."""
-        if finding.target_type == "sigma":
-            rule_path = self.rules_dir / "sigma" / "proc_creation_win_explorer_clickfix_execution.yml"
+        rule_path = self.resolve_rule_path(finding)
+        if not rule_path or not rule_path.exists():
+            target_desc = finding.target_rule or f"{finding.target_type} default"
+            return False, None, f"Target rule could not be resolved from finding: '{target_desc}'"
+
+        target_type = "yara" if (finding.target_type == "yara" or rule_path.suffix == ".yar") else "sigma"
+
+        if target_type == "sigma":
             patched_content, rec_id, patch_diff = self._synthesize_sigma_patch(rule_path, finding, variant)
         else:
-            rule_path = self.rules_dir / "yara" / "suspicious_active_content_svg.yar"
             patched_content, rec_id, patch_diff = self._synthesize_yara_patch(rule_path, finding, variant)
 
-        if not patched_content:
-            return False, None, "No patch candidate could be synthesized for this vector."
+        if not patched_content or patched_content == rule_path.read_text(encoding="utf-8"):
+            return False, None, f"No patch candidate could be synthesized for vector '{variant.mutation_name}' on rule '{rule_path.name}'."
 
         # Verification Gate: Ensure the patch detects the variant without regressions
-        is_verified = self._verify_patch(rule_path, patched_content, finding.target_type, variant)
+        is_verified = self._verify_patch(rule_path, patched_content, target_type, variant)
         if not is_verified:
             return False, None, "Verification gate failed: candidate patch introduced regressions or failed to catch variant."
 
@@ -54,25 +136,27 @@ class SwarmAdapter:
 
         # Apply Patch to Disk if requested
         if apply_patch:
-            rule_path.write_text(patched_content, encoding="utf-8")
+            rule_path.write_text(patched_content, encoding="utf-8", newline="\n")
 
         return True, cable_path, patch_diff
 
     def _synthesize_sigma_patch(
         self, rule_path: Path, finding: BoundaryFinding, variant: Variant
     ) -> Tuple[Optional[str], str, str]:
-        """Synthesizes a rule patch for the Sigma process creation rule."""
+        """Synthesizes a rule patch for the specified Sigma rule."""
         original = rule_path.read_text(encoding="utf-8")
-        rec_id = "REC-SIGMA-006"
-        name = variant.mutation_name.lower()
-
         patched = original
+        rec_id = "REC-SIGMA-GENERIC"
+        rule_name = rule_path.name
+        mutation_name = variant.mutation_name.lower()
+        axis = finding.axis.lower()
 
-        # Case 1: Proxy LOLBins (pcalua, wt, hh)
-        if "pcalua" in name or "wt" in name or "hh" in name or "proxy" in finding.axis:
-            rec_id = "REC-SIGMA-006"
-            if "selection_proxy_img:" not in patched:
-                proxy_block = """    selection_proxy_img:
+        # Rule 1: Explorer ClickFix Execution
+        if "clickfix" in rule_name:
+            if "pcalua" in mutation_name or "wt" in mutation_name or "hh" in mutation_name or "proxy" in axis:
+                rec_id = "REC-SIGMA-006"
+                if "selection_proxy_img:" not in patched:
+                    proxy_block = """    selection_proxy_img:
         Image|endswith:
             - '\\pcalua.exe'
             - '\\wt.exe'
@@ -85,34 +169,79 @@ class SwarmAdapter:
             - 'https://'
             - '.chm'
 """
-                # Insert before condition
-                patched = patched.replace(
-                    "    condition: selection_parent and (",
-                    f"{proxy_block}    condition: selection_parent and (",
-                )
-                # Append to condition
-                patched = patched.replace(
-                    "(selection_wscript_img and selection_wscript_target))",
-                    "(selection_wscript_img and selection_wscript_target) or (selection_proxy_img and selection_proxy_target))",
-                )
-
-        # Case 2: Stdin pipe argument hiding
-        elif "stdin" in name or "pipe" in name or "argument" in finding.axis:
-            rec_id = "REC-SIGMA-007"
-            if "selection_pwsh_stdin:" not in patched:
-                stdin_block = """    selection_pwsh_stdin:
+                    patched = patched.replace(
+                        "    condition: selection_parent and (",
+                        f"{proxy_block}    condition: selection_parent and (",
+                    )
+                    patched = patched.replace(
+                        "(selection_wscript_img and selection_wscript_target))",
+                        "(selection_wscript_img and selection_wscript_target) or (selection_proxy_img and selection_proxy_target))",
+                    )
+            elif "stdin" in mutation_name or "pipe" in mutation_name or "argument" in axis:
+                rec_id = "REC-SIGMA-007"
+                if "selection_pwsh_stdin:" not in patched:
+                    stdin_block = """    selection_pwsh_stdin:
         CommandLine|endswith:
             - ' -'
             - ' - '
 """
-                patched = patched.replace(
-                    "    condition: selection_parent and (",
-                    f"{stdin_block}    condition: selection_parent and (",
-                )
-                patched = patched.replace(
-                    "(selection_wscript_img and selection_wscript_target))",
-                    "(selection_wscript_img and selection_wscript_target) or (selection_pwsh_img and selection_pwsh_stdin))",
-                )
+                    patched = patched.replace(
+                        "    condition: selection_parent and (",
+                        f"{stdin_block}    condition: selection_parent and (",
+                    )
+                    patched = patched.replace(
+                        "(selection_wscript_img and selection_wscript_target))",
+                        "(selection_wscript_img and selection_wscript_target) or (selection_pwsh_img and selection_pwsh_stdin))",
+                    )
+
+        # Rule 2: Scheduled Tasks Persistence
+        elif "schtasks" in rule_name:
+            if "daily" in mutation_name or "weekly" in mutation_name or "onidle" in mutation_name or "trigger" in axis:
+                rec_id = "REC-SIGMA-SCHTASKS-001"
+                for trig in ["/sc daily", "/sc weekly", "/sc onidle", "daily", "onidle"]:
+                    if trig not in patched:
+                        patched = patched.replace(
+                            "        CommandLine|contains:\n            - '/sc onlogon'",
+                            f"        CommandLine|contains:\n            - '{trig}'\n            - '/sc onlogon'",
+                        )
+            elif "regsvr32" in mutation_name or "pcalua" in mutation_name or "payload" in axis or "binary" in axis:
+                rec_id = "REC-SIGMA-SCHTASKS-002"
+                for bin_name in ["regsvr32", "pcalua", "certutil", "wmic"]:
+                    if bin_name not in patched:
+                        patched = patched.replace(
+                            "        CommandLine|contains:\n            - 'powershell'",
+                            f"        CommandLine|contains:\n            - '{bin_name}'\n            - 'powershell'",
+                        )
+
+        # Rule 3: Rundll32 LSASS Memory Dump
+        elif "rundll32" in rule_name or "lsass" in rule_name:
+            if "ordinal" in mutation_name or "minidump" in mutation_name or "syntax" in axis or "comma" in mutation_name:
+                rec_id = "REC-SIGMA-LSASS-001"
+                for variant_token in ["#0024", "#+24", "minidumpw", "MiniDumpW", "comsvcs.dll,#24", "comsvcs.dll, #24"]:
+                    if variant_token not in patched:
+                        patched = patched.replace(
+                            "        CommandLine|contains:\n            - 'MiniDump'",
+                            f"        CommandLine|contains:\n            - '{variant_token}'\n            - 'MiniDump'",
+                        )
+
+        # Rule 4: Defense Evasion & Software Tampering
+        elif "tampering" in rule_name or "defense_evasion" in rule_name:
+            if "defender" in mutation_name or "remove" in mutation_name or "disable" in mutation_name or "tamper" in axis:
+                rec_id = "REC-SIGMA-TAMPER-001"
+                for cmdlet in ["Remove-MpPreference", "DisableBehaviorMonitoring", "DisableScriptScanning"]:
+                    if cmdlet not in patched:
+                        patched = patched.replace(
+                            "            - 'Set-MpPreference'\n",
+                            f"            - '{cmdlet}'\n            - 'Set-MpPreference'\n",
+                        )
+            elif "wevtutil" in mutation_name or "clear" in mutation_name or "log" in axis:
+                rec_id = "REC-SIGMA-TAMPER-002"
+                for cmd_var in [" cl:", "/cl ", "clearlog", "/clear-log"]:
+                    if cmd_var not in patched:
+                        patched = patched.replace(
+                            "            - ' cl '\n",
+                            f"            - '{cmd_var}'\n            - ' cl '\n",
+                        )
 
         if patched == original:
             return None, rec_id, ""

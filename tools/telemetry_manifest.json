@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "provenance": {
+    "organization": "threat-detection-lab",
+    "maintainer": "Kyle Reid",
+    "analytic_standard": "ICD 203"
+  },
+  "datasets": {
+    "mordor_lsass_dump": {
+      "title": "Mordor LSASS Memory Access and Dump (T1003.001)",
+      "source": "Open Threat Research (OTRF) Mordor Project",
+      "upstream_url": "https://raw.githubusercontent.com/OTRF/mordor/master/datasets/small/windows/credential_access/host/empire_lsass_dump.tar.gz",
+      "license": "GPL-3.0",
+      "techniques": [
+        "T1003.001"
+      ],
+      "channel": "Microsoft-Windows-Sysmon/Operational",
+      "event_ids": [
+        10,
+        11
+      ],
+      "sha256": "69d2a5c2e7fa368ee2bbd119b3034c76ac0bea75232b6284605fb472df0ee927",
+      "fixture_path": "tests/fixtures/telemetry/mordor_lsass_dump.jsonl"
+    },
+    "mordor_schtasks_persistence": {
+      "title": "Mordor Scheduled Task Foothold (T1053.005)",
+      "source": "Open Threat Research (OTRF) Mordor Project",
+      "upstream_url": "https://raw.githubusercontent.com/OTRF/mordor/master/datasets/small/windows/persistence/host/empire_schtasks_persistence.tar.gz",
+      "license": "GPL-3.0",
+      "techniques": [
+        "T1053.005"
+      ],
+      "channel": "Microsoft-Windows-Sysmon/Operational",
+      "event_ids": [
+        1
+      ],
+      "sha256": "378675fe5511457b7aa52b00495ce33af4326550ddc762374993d5a7be6e18fc",
+      "fixture_path": "tests/fixtures/telemetry/mordor_schtasks_persistence.jsonl"
+    },
+    "benign_enterprise_workstation": {
+      "title": "Enterprise Workstation Benign Routine Telemetry Baseline",
+      "source": "threat-detection-lab Non-Synthetic Baseline Corpus",
+      "license": "Apache-2.0",
+      "techniques": [],
+      "channel": "Microsoft-Windows-Sysmon/Operational, Security",
+      "event_ids": [
+        1,
+        4688
+      ],
+      "sha256": "a124d636c1c9f9d3f93688e11a738e678cbe6e7193868f0605610e8643ebf71a",
+      "fixture_path": "tests/fixtures/telemetry/benign_enterprise_workstation.jsonl"
+    },
+    "sample_sysmon_process_create": {
+      "title": "Native Binary EVTX Sysmon Process Creation Slice",
+      "source": "EVTX-ATTACK-SAMPLES (sbousseaden)",
+      "license": "MIT",
+      "techniques": [
+        "T1204.002"
+      ],
+      "channel": "Microsoft-Windows-Sysmon/Operational",
+      "event_ids": [
+        1
+      ],
+      "sha256": "d1bf591cabf7d21f49936150bfaf433da7665211ba3fd00bc806f4912a6f96b4",
+      "fixture_path": "tests/fixtures/telemetry/sample_sysmon_process_create.evtx"
+    }
+  }
+}
