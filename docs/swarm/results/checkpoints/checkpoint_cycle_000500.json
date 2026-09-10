@@ -1,70 +1,81 @@
 {
   "status": "RUNNING",
-  "start_time": "2026-09-05T08:36:17.440917+00:00",
-  "last_heartbeat": "2026-09-05T08:39:21.450029+00:00",
-  "elapsed_seconds": 184.0,
+  "start_time": "2026-09-10T22:02:24.694716+00:00",
+  "last_heartbeat": "2026-09-10T22:05:50.681916+00:00",
+  "elapsed_seconds": 206.0,
   "total_cycles": 500,
-  "probes_evaluated": 19557,
-  "critic_approved": 19557,
+  "probes_evaluated": 19456,
+  "critic_approved": 19456,
   "critic_blocked": 0,
   "critic_approval_rate": 1.0,
-  "true_positives": 2245,
-  "evasion_gaps": 324,
-  "resilience_rate": 0.1148,
+  "true_positives": 2887,
+  "evasion_gaps": 529,
+  "resilience_rate": 0.8451,
   "campaigns_evaluated": 83,
   "campaign_containment_rate": 1.0,
-  "average_depth_of_defense": 0.952,
+  "average_depth_of_defense": 0.855,
   "graph_walks_evaluated": 84,
-  "average_mttd_seconds": 0.0,
+  "average_mttd_seconds": 25.0,
   "telemetry_replays_evaluated": 83,
   "noise_benchmarks_evaluated": 83,
+  "run_id": "endur-20260910T220224Z-be1a82",
+  "attack_variants_evaluated": 3416,
+  "attack_variants_detected": 2887,
+  "benign_events_evaluated": 17700,
+  "benign_false_positives": 83,
+  "unclassified_preserved": 0,
+  "error_records_preserved": 0,
+  "observation_records": {
+    "file": "docs\\swarm\\results\\records\\run-endur-20260910T220224Z-be1a82.jsonl",
+    "count": 1377
+  },
   "cluster_breakdown": {
-    "Cluster A: LOLBin & Process Proxying": 65,
-    "Cluster B: Argument Masking & Parameter Aliasing": 19,
-    "Cluster C: Parser Differentials & Offset Padding": 74,
+    "Cluster A: LOLBin & Process Proxying": 112,
+    "Cluster B: Argument Masking & Parameter Aliasing": 18,
+    "Cluster C: Parser Differentials & Offset Padding": 104,
     "Cluster D: Sensor Blinding & Telemetry Tampering": 0
   },
   "current_pattern_suite": "DAG State Machine Correlation Walk (Epic 2)",
   "recent_findings": [
     {
-      "variant_id": "proc-8d464f22",
+      "variant_id": "proc-6e8d4b31",
+      "target_type": "sigma",
+      "mutation_name": "endurance_switch_w1",
+      "detected": true,
+      "cluster": "Cluster B: Argument Masking & Parameter Aliasing",
+      "timestamp": "2026-09-10T22:05:45.291064+00:00"
+    },
+    {
+      "variant_id": "svg-b3292300",
+      "target_type": "yara",
+      "mutation_name": "endurance_smil_animate_href_pad_6000",
+      "detected": false,
+      "cluster": "Cluster C: Parser Differentials & Offset Padding",
+      "timestamp": "2026-09-10T22:05:46.096731+00:00"
+    },
+    {
+      "variant_id": "proc-08e1f69d",
+      "target_type": "sigma",
+      "mutation_name": "endurance_rundll32",
+      "detected": true,
+      "cluster": "Cluster A: LOLBin & Process Proxying",
+      "timestamp": "2026-09-10T22:05:47.791704+00:00"
+    },
+    {
+      "variant_id": "svg-256a0603",
+      "target_type": "yara",
+      "mutation_name": "endurance_onerror_image_redirect_pad_8192",
+      "detected": false,
+      "cluster": "Cluster B: Argument Masking & Parameter Aliasing",
+      "timestamp": "2026-09-10T22:05:48.596814+00:00"
+    },
+    {
+      "variant_id": "proc-7592826e",
       "target_type": "sigma",
       "mutation_name": "endurance_wt",
       "detected": false,
       "cluster": "Cluster A: LOLBin & Process Proxying",
-      "timestamp": "2026-09-05T08:39:16.780392+00:00"
-    },
-    {
-      "variant_id": "svg-402c1612",
-      "target_type": "yara",
-      "mutation_name": "endurance_smil_animate_href_pad_4096",
-      "detected": false,
-      "cluster": "Cluster C: Parser Differentials & Offset Padding",
-      "timestamp": "2026-09-05T08:39:17.483052+00:00"
-    },
-    {
-      "variant_id": "proc-17e0ca46",
-      "target_type": "sigma",
-      "mutation_name": "endurance_bitsadmin",
-      "detected": false,
-      "cluster": "Cluster A: LOLBin & Process Proxying",
-      "timestamp": "2026-09-05T08:39:18.961254+00:00"
-    },
-    {
-      "variant_id": "svg-69134494",
-      "target_type": "yara",
-      "mutation_name": "endurance_bracket_concat_js_pad_2048",
-      "detected": true,
-      "cluster": "Cluster B: Argument Masking & Parameter Aliasing",
-      "timestamp": "2026-09-05T08:39:19.663489+00:00"
-    },
-    {
-      "variant_id": "proc-97260666",
-      "target_type": "sigma",
-      "mutation_name": "endurance_mshta",
-      "detected": true,
-      "cluster": "Cluster A: LOLBin & Process Proxying",
-      "timestamp": "2026-09-05T08:39:21.098143+00:00"
+      "timestamp": "2026-09-10T22:05:50.277072+00:00"
     }
   ],
   "stop_signal_file": "C:\\Users\\kyler\\Projects\\threat-detection-lab\\docs\\swarm\\results\\STOP_ENDURANCE"

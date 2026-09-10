@@ -1,0 +1,482 @@
+{
+  "name": "threat-detection-lab coverage",
+  "versions": {
+    "attack": "14",
+    "navigator": "4.9.1",
+    "layer": "4.5"
+  },
+  "domain": "enterprise-attack",
+  "description": "Empirical detection coverage from the threat-detection-lab Detection-as-Code harness. Scores: ~75 = single-event analytic (bounded resilience); 95 = additionally correlation-backed (defense in depth).",
+  "sorting": 3,
+  "hideDisabled": false,
+  "techniques": [
+    {
+      "techniqueID": "T1003.001",
+      "score": 95,
+      "color": "#8ec843",
+      "comment": "Covered by: LSASS Process Memory Dump via Rundll32 Comsvcs.dll; Correlated LSASS Memory Access and Dump File Creation; LSASS Memory Dump File Creation in User Temp; LSASS Process Access With Memory-Read Rights",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "true"
+        },
+        {
+          "name": "analytics",
+          "value": "4"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1027",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1036",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Execution of Alien JS Runtime Bun from Suspicious or Site-Packages Directory",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1053.005",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Suspicious Scheduled Task Creation Spawning Shell or Script Engine",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1059.001",
+      "score": 95,
+      "color": "#8ec843",
+      "comment": "Covered by: Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern); PowerShell Script Block Download Cradle Execution",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "true"
+        },
+        {
+          "name": "analytics",
+          "value": "2"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1059.003",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1059.005",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1059.006",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Suspicious Developer Runtime Access to Sensitive Workstation Credentials",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1059.007",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Execution of Alien JS Runtime Bun from Suspicious or Site-Packages Directory; Unpinned Dynamic Tool Execution Spawned by AI Agent Runtime; Suspicious Developer Runtime Access to Sensitive Workstation Credentials; Package Manager Lifecycle Hook Spawning an Interpreter or Downloader",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "4"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1070.001",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Suspicious Event Log Clearing or Security Software Tampering",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1105",
+      "score": 95,
+      "color": "#8ec843",
+      "comment": "Covered by: Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern); PowerShell Script Block Download Cradle Execution",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "true"
+        },
+        {
+          "name": "analytics",
+          "value": "2"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1195.001",
+      "score": 95,
+      "color": "#8ec843",
+      "comment": "Covered by: Unpinned Dynamic Tool Execution Spawned by AI Agent Runtime; Suspicious Developer Runtime Access to Sensitive Workstation Credentials; Package Manager Lifecycle Hook Spawning an Interpreter or Downloader; Correlated Unpinned Agent Tool Execution and Credential Scraping; Correlated Package Hook Execution and Developer Credential Scraping",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "true"
+        },
+        {
+          "name": "analytics",
+          "value": "5"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1204.002",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1218.005",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1218.011",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1530",
+      "score": 95,
+      "color": "#8ec843",
+      "comment": "Covered by: Suspicious Cloud IMDSv2 Credential Acquisition and S3 Checkpoint Exfiltration; Correlated Node Credential Theft and Model Checkpoint Retrieval",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "true"
+        },
+        {
+          "name": "analytics",
+          "value": "2"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1539",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Suspicious Developer Runtime Access to Sensitive Workstation Credentials",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1552.001",
+      "score": 95,
+      "color": "#8ec843",
+      "comment": "Covered by: Suspicious Developer Runtime Access to Sensitive Workstation Credentials; Correlated Unpinned Agent Tool Execution and Credential Scraping; Correlated Package Hook Execution and Developer Credential Scraping",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "true"
+        },
+        {
+          "name": "analytics",
+          "value": "3"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1552.005",
+      "score": 95,
+      "color": "#8ec843",
+      "comment": "Covered by: Suspicious Cloud IMDSv2 Credential Acquisition and S3 Checkpoint Exfiltration; Correlated Node Credential Theft and Model Checkpoint Retrieval",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "true"
+        },
+        {
+          "name": "analytics",
+          "value": "2"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1562.001",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Suspicious Event Log Clearing or Security Software Tampering",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1566.001",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: suspicious_active_content_svg",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1567.002",
+      "score": 95,
+      "color": "#8ec843",
+      "comment": "Covered by: Suspicious Cloud IMDSv2 Credential Acquisition and S3 Checkpoint Exfiltration; Correlated Node Credential Theft and Model Checkpoint Retrieval",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "true"
+        },
+        {
+          "name": "analytics",
+          "value": "2"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1574.013",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Execution of Alien JS Runtime Bun from Suspicious or Site-Packages Directory",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1611",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Suspicious Cloud IMDSv2 Credential Acquisition and S3 Checkpoint Exfiltration",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    }
+  ],
+  "gradient": {
+    "colors": [
+      "#ff6666",
+      "#ffe766",
+      "#8ec843"
+    ],
+    "minValue": 0,
+    "maxValue": 100
+  },
+  "legendItems": [
+    {
+      "label": "Single-event analytic (~75)",
+      "color": "#ffe766"
+    },
+    {
+      "label": "Correlation-backed (95)",
+      "color": "#8ec843"
+    }
+  ],
+  "metadata": [
+    {
+      "name": "generator",
+      "value": "tools.swarm.export_layer"
+    },
+    {
+      "name": "rules-evaluated",
+      "value": "18"
+    },
+    {
+      "name": "techniques-covered",
+      "value": "24"
+    }
+  ],
+  "showTacticRowBackground": true,
+  "tacticRowBackground": "#dddddd",
+  "selectTechniquesAcrossTactics": true
+}

@@ -1,0 +1,10 @@
+{
+  "target_type": "yara",
+  "target_rule": "Suspicious_Active_Content_SVG_Attachment",
+  "total_generated": 0,
+  "critic_approved": 0,
+  "detected_count": 0,
+  "evaded_count": 0,
+  "final_resilience": 0.0,
+  "endurance_mode": true
+}
