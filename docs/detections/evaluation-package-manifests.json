@@ -1,0 +1,25 @@
+{
+  "measurement": "benign_false_positive_rate",
+  "rule": "developer_malicious_package_hooks.yar",
+  "scanned_manifests": 1755,
+  "unreadable_manifests": 0,
+  "manifests_by_filename": {
+    "package.json": 1744,
+    "setup.py": 11
+  },
+  "false_positives": 0,
+  "false_positive_rate": 0.0,
+  "wilson_ci_95": [
+    0.0,
+    0.002184
+  ],
+  "match_taxonomy": {},
+  "sample_matches": [],
+  "sample_limit": 25,
+  "not_measured": [
+    "recall against real malicious manifests",
+    "precision in a production ingress pipeline"
+  ],
+  "corpus_label": "local benign npm dependency tree (hermes-agent, 2026-09-05)",
+  "evaluated": "2026-09-05"
+}

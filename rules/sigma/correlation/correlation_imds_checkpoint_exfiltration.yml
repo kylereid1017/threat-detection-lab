@@ -1,0 +1,50 @@
+title: Correlated Node Credential Theft and Model Checkpoint Retrieval
+id: 8b7c6d5e-4f3a-4b2c-1d0e-9f8a7b6c5d4e
+status: experimental
+description: >
+    Correlates execution-layer metadata service credential acquisition on a training node with
+    control-plane retrieval of model checkpoint objects, within 300 seconds, grouped by the node
+    role identity. This is the only rule in the set that spans both telemetry layers, and it is the
+    one that describes the actual theft: credentials taken on the host, then used against storage.
+
+    Revision note: an earlier version declared temporal_ordered while referencing a single component
+    rule, and both stages it described lived in process-creation telemetry, where the second stage
+    is not reliably observable at all.
+author: Kyle Reid
+date: 2026-09-05
+correlation:
+    type: temporal_ordered
+    rules:
+        - cluster_imds_execution_layer
+        - cloudtrail_weight_object_retrieval
+    group-by:
+        - NodeRoleName
+    timespan: 300s
+tags:
+    - attack.credential_access
+    - attack.t1552.005
+    - attack.collection
+    - attack.t1530
+    - attack.exfiltration
+    - attack.t1567.002
+level: critical
+telemetry_prerequisites:
+    channel: >-
+        Two sources. Stage one is host or container execve auditing on the training node. Stage two
+        is AWS CloudTrail S3 data events for the checkpoint bucket.
+    event_id: execve or ES_EVENT_TYPE_NOTIFY_EXEC, then CloudTrail data-plane eventName
+    audit_policy: >-
+        Both sources must be normalized into a shared NodeRoleName field before this correlation can
+        evaluate. Nothing in either raw source carries that field: the host event knows the instance,
+        and CloudTrail knows the assumed role session. A field-mapping pipeline must join them, and
+        that pipeline is a deployment prerequisite, not an implementation detail.
+    required_fields:
+        - NodeRoleName
+        - CommandLine
+        - userIdentity.arn
+        - requestParameters.key
+    degradation_mode: >-
+        Without the shared identity mapping this correlation cannot fire at all, and its absence is
+        silent: both component rules continue to alert independently and the correlation simply
+        never produces a match. Treat a correlation that has never fired as unproven rather than as
+        evidence of a quiet environment.

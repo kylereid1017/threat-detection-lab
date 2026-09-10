@@ -1,0 +1,906 @@
+{
+  "npm": {
+    "measurement": "external_relevance_validation",
+    "measurement_class": "external",
+    "measurement_note": "The malicious corpus was published by the OpenSSF malicious-packages project and was not authored by this repository. The AI toolchain reference list was curated here, so the LABEL is internal while the POPULATION is external.",
+    "ecosystem": "npm",
+    "corpus": {
+      "dataset": "ossf/malicious-packages",
+      "retrieval_date": "2026-09-05",
+      "snapshot_sha256": "14b267d943a90156ee021d9beed54bf3ae529420415f402c435242d39b0c235c",
+      "malicious_packages": 221033
+    },
+    "base_rate_ai_toolchain_imitation": {
+      "count": 848,
+      "total": 221033,
+      "rate": 0.003837,
+      "wilson_ci_95": [
+        0.003587,
+        0.004103
+      ]
+    },
+    "recall_full_label": {
+      "count": 43,
+      "total": 848,
+      "rate": 0.050708,
+      "wilson_ci_95": [
+        0.037862,
+        0.067606
+      ]
+    },
+    "recall_held_out": {
+      "count": 0,
+      "total": 789,
+      "rate": 0.0,
+      "wilson_ci_95": [
+        0.0,
+        0.004845
+      ]
+    },
+    "held_out_reference_names": [
+      "accelerate",
+      "bitsandbytes",
+      "chromadb",
+      "cohere",
+      "comet",
+      "datasets",
+      "deepspeed",
+      "diffusers",
+      "gradio",
+      "keras",
+      "langchain",
+      "llamaindex",
+      "mistralai",
+      "mlflow",
+      "modelscope",
+      "ollama",
+      "onnxruntime",
+      "peft",
+      "pinecone",
+      "qdrant",
+      "replicate",
+      "safetensors",
+      "scikitlearn",
+      "sentencepiece",
+      "streamlit",
+      "tensorflow",
+      "tiktoken",
+      "tokenizers",
+      "transformers",
+      "trl",
+      "vllm",
+      "weaviate"
+    ],
+    "reference_names_known_to_scorer": [
+      "anthropic",
+      "databricks",
+      "huggingface",
+      "nvidia",
+      "openai",
+      "pytorch",
+      "wandb"
+    ],
+    "recall_inventory_mechanism": {
+      "count": 522,
+      "total": 848,
+      "rate": 0.615566,
+      "wilson_ci_95": [
+        0.582373,
+        0.647717
+      ]
+    },
+    "inventory_coverage_sweep": [
+      {
+        "inventory_coverage": 0.0,
+        "protected_names_indexed": 0,
+        "imitations_of_covered_names": {
+          "count": 0,
+          "total": 0,
+          "rate": 0.0,
+          "wilson_ci_95": [
+            0.0,
+            0.0
+          ]
+        },
+        "imitations_of_uncovered_names": {
+          "count": 0,
+          "total": 848,
+          "rate": 0.0,
+          "wilson_ci_95": [
+            0.0,
+            0.00451
+          ]
+        }
+      },
+      {
+        "inventory_coverage": 0.25,
+        "protected_names_indexed": 10,
+        "imitations_of_covered_names": {
+          "count": 19,
+          "total": 26,
+          "rate": 0.730769,
+          "wilson_ci_95": [
+            0.53917,
+            0.862956
+          ]
+        },
+        "imitations_of_uncovered_names": {
+          "count": 0,
+          "total": 822,
+          "rate": 0.0,
+          "wilson_ci_95": [
+            0.0,
+            0.004652
+          ]
+        }
+      },
+      {
+        "inventory_coverage": 0.5,
+        "protected_names_indexed": 18,
+        "imitations_of_covered_names": {
+          "count": 32,
+          "total": 128,
+          "rate": 0.25,
+          "wilson_ci_95": [
+            0.183013,
+            0.331556
+          ]
+        },
+        "imitations_of_uncovered_names": {
+          "count": 0,
+          "total": 720,
+          "rate": 0.0,
+          "wilson_ci_95": [
+            0.0,
+            0.005307
+          ]
+        }
+      },
+      {
+        "inventory_coverage": 0.75,
+        "protected_names_indexed": 26,
+        "imitations_of_covered_names": {
+          "count": 320,
+          "total": 573,
+          "rate": 0.558464,
+          "wilson_ci_95": [
+            0.51755,
+            0.5986
+          ]
+        },
+        "imitations_of_uncovered_names": {
+          "count": 0,
+          "total": 275,
+          "rate": 0.0,
+          "wilson_ci_95": [
+            0.0,
+            0.013776
+          ]
+        }
+      },
+      {
+        "inventory_coverage": 1.0,
+        "protected_names_indexed": 36,
+        "imitations_of_covered_names": {
+          "count": 522,
+          "total": 848,
+          "rate": 0.615566,
+          "wilson_ci_95": [
+            0.582373,
+            0.647717
+          ]
+        },
+        "imitations_of_uncovered_names": {
+          "count": 0,
+          "total": 0,
+          "rate": 0.0,
+          "wilson_ci_95": [
+            0.0,
+            0.0
+          ]
+        }
+      }
+    ],
+    "benign_control": {
+      "names_scored": 1169,
+      "count": 0,
+      "total": 1169,
+      "rate": 0.0,
+      "wilson_ci_95": [
+        0.0,
+        0.003275
+      ],
+      "inventory_branch_holdout": {
+        "note": "Half the benign set is the simulated inventory; the other half is unseen. This is the false-positive rate of the inventory branch on real published packages it was not told about.",
+        "count": 15,
+        "total": 585,
+        "rate": 0.025641,
+        "wilson_ci_95": [
+          0.015599,
+          0.041872
+        ]
+      }
+    },
+    "sample_surfaced": [
+      {
+        "package": "@openapi-platform/git-util",
+        "imitates": "openai",
+        "kind": "typosquat",
+        "score": 0.55
+      },
+      {
+        "package": "anthropic-claude-latest",
+        "imitates": "anthropic",
+        "kind": "contains",
+        "score": 0.5
+      },
+      {
+        "package": "anthropic-internal-tools",
+        "imitates": "anthropic",
+        "kind": "contains",
+        "score": 0.5
+      },
+      {
+        "package": "anthropic-sdk",
+        "imitates": "anthropic",
+        "kind": "contains",
+        "score": 0.6
+      },
+      {
+        "package": "anthropic-setup",
+        "imitates": "anthropic",
+        "kind": "contains",
+        "score": 0.5
+      },
+      {
+        "package": "anthropic-shared-logger",
+        "imitates": "anthropic",
+        "kind": "contains",
+        "score": 0.5
+      },
+      {
+        "package": "anthropic-toolkit",
+        "imitates": "anthropic",
+        "kind": "contains",
+        "score": 0.5
+      },
+      {
+        "package": "azure-open-ai-accelerator",
+        "imitates": "openai",
+        "kind": "contains",
+        "score": 0.35
+      },
+      {
+        "package": "chromestatus-openapi",
+        "imitates": "openai",
+        "kind": "typosquat",
+        "score": 0.55
+      },
+      {
+        "package": "epic-openapi-codegen",
+        "imitates": "openai",
+        "kind": "typosquat",
+        "score": 0.55
+      },
+      {
+        "package": "free-anthropic-claude",
+        "imitates": "anthropic",
+        "kind": "contains",
+        "score": 0.5
+      },
+      {
+        "package": "h1-cli-ext-root-openapi-generator",
+        "imitates": "openai",
+        "kind": "typosquat",
+        "score": 0.65
+      },
+      {
+        "package": "huggingface-js",
+        "imitates": "huggingface",
+        "kind": "contains",
+        "score": 0.5
+      },
+      {
+        "package": "huggingface-vscode",
+        "imitates": "huggingface",
+        "kind": "contains",
+        "score": 0.5
+      },
+      {
+        "package": "intercom-openapi",
+        "imitates": "openai",
+        "kind": "typosquat",
+        "score": 0.55
+      },
+      {
+        "package": "lob-openapi",
+        "imitates": "openai",
+        "kind": "typosquat",
+        "score": 0.55
+      },
+      {
+        "package": "okta-sdk-golang-openapi",
+        "imitates": "openai",
+        "kind": "typosquat",
+        "score": 0.65
+      },
+      {
+        "package": "okta-sdk-php-openapi",
+        "imitates": "openai",
+        "kind": "typosquat",
+        "score": 0.65
+      },
+      {
+        "package": "openai-agents-helpers",
+        "imitates": "openai",
+        "kind": "contains",
+        "score": 0.5
+      },
+      {
+        "package": "openai-airline-agentsdk-demo-3w",
+        "imitates": "openai",
+        "kind": "contains",
+        "score": 0.6
+      }
+    ],
+    "sample_missed_held_out": [
+      {
+        "package": "6rupsrodzhcmn17rlfxd857qk3ijrzho",
+        "imitates": "trl",
+        "kind": "contains"
+      },
+      {
+        "package": "@actbase/react-native-less-transformer",
+        "imitates": "transformers",
+        "kind": "typosquat"
+      },
+      {
+        "package": "@actbase/react-native-tiktok",
+        "imitates": "tiktoken",
+        "kind": "typosquat"
+      },
+      {
+        "package": "@confluent-cfet-medusa/dataset-designer",
+        "imitates": "datasets",
+        "kind": "typosquat"
+      },
+      {
+        "package": "@ctrl/deluge",
+        "imitates": "trl",
+        "kind": "contains"
+      },
+      {
+        "package": "@ctrl/golang-template",
+        "imitates": "trl",
+        "kind": "contains"
+      },
+      {
+        "package": "@ctrl/magnet-link",
+        "imitates": "trl",
+        "kind": "contains"
+      },
+      {
+        "package": "@ctrl/ngx-codemirror",
+        "imitates": "trl",
+        "kind": "contains"
+      },
+      {
+        "package": "@ctrl/ngx-csv",
+        "imitates": "trl",
+        "kind": "contains"
+      },
+      {
+        "package": "@ctrl/ngx-emoji-mart",
+        "imitates": "trl",
+        "kind": "contains"
+      },
+      {
+        "package": "@ctrl/ngx-rightclick",
+        "imitates": "trl",
+        "kind": "contains"
+      },
+      {
+        "package": "@ctrl/qbittorrent",
+        "imitates": "trl",
+        "kind": "contains"
+      },
+      {
+        "package": "@ctrl/react-adsense",
+        "imitates": "trl",
+        "kind": "contains"
+      },
+      {
+        "package": "@ctrl/shared-torrent",
+        "imitates": "trl",
+        "kind": "contains"
+      },
+      {
+        "package": "@ctrl/tinycolor",
+        "imitates": "trl",
+        "kind": "contains"
+      },
+      {
+        "package": "@ctrl/torrent-file",
+        "imitates": "trl",
+        "kind": "contains"
+      },
+      {
+        "package": "@ctrl/transmission",
+        "imitates": "trl",
+        "kind": "contains"
+      },
+      {
+        "package": "@ctrl/ts-base32",
+        "imitates": "trl",
+        "kind": "contains"
+      },
+      {
+        "package": "@diendh/n8n-nodes-tiktok-v2",
+        "imitates": "tiktoken",
+        "kind": "typosquat"
+      },
+      {
+        "package": "@dp-bpsc-tiktok/ogc-analytics",
+        "imitates": "tiktoken",
+        "kind": "typosquat"
+      }
+    ],
+    "not_measured": [
+      "whether the scorer catches AI-toolchain imitations absent from the reference list",
+      "recall against real malicious manifest CONTENT, which requires a payload corpus"
+    ],
+    "evaluated": "2026-09-05"
+  },
+  "pypi": {
+    "measurement": "external_relevance_validation",
+    "measurement_class": "external",
+    "measurement_note": "The malicious corpus was published by the OpenSSF malicious-packages project and was not authored by this repository. The AI toolchain reference list was curated here, so the LABEL is internal while the POPULATION is external.",
+    "ecosystem": "pypi",
+    "corpus": {
+      "dataset": "ossf/malicious-packages",
+      "retrieval_date": "2026-09-05",
+      "snapshot_sha256": "d77fc392d4e885e8b8ca8ac1e40a93618bfa1c1a38824b753942ba8b45d1e44c",
+      "malicious_packages": 11696
+    },
+    "base_rate_ai_toolchain_imitation": {
+      "count": 357,
+      "total": 11696,
+      "rate": 0.030523,
+      "wilson_ci_95": [
+        0.027557,
+        0.033798
+      ]
+    },
+    "recall_full_label": {
+      "count": 264,
+      "total": 357,
+      "rate": 0.739496,
+      "wilson_ci_95": [
+        0.691588,
+        0.782304
+      ]
+    },
+    "recall_held_out": {
+      "count": 0,
+      "total": 88,
+      "rate": 0.0,
+      "wilson_ci_95": [
+        0.0,
+        0.041827
+      ]
+    },
+    "held_out_reference_names": [
+      "accelerate",
+      "bitsandbytes",
+      "chromadb",
+      "cohere",
+      "comet",
+      "datasets",
+      "deepspeed",
+      "diffusers",
+      "gradio",
+      "keras",
+      "langchain",
+      "llamaindex",
+      "mistralai",
+      "mlflow",
+      "modelscope",
+      "ollama",
+      "onnxruntime",
+      "peft",
+      "pinecone",
+      "qdrant",
+      "replicate",
+      "safetensors",
+      "scikitlearn",
+      "sentencepiece",
+      "streamlit",
+      "tensorflow",
+      "tiktoken",
+      "tokenizers",
+      "transformers",
+      "trl",
+      "vllm",
+      "weaviate"
+    ],
+    "reference_names_known_to_scorer": [
+      "anthropic",
+      "databricks",
+      "huggingface",
+      "nvidia",
+      "openai",
+      "pytorch",
+      "wandb"
+    ],
+    "recall_inventory_mechanism": {
+      "count": 97,
+      "total": 357,
+      "rate": 0.271709,
+      "wilson_ci_95": [
+        0.228177,
+        0.320101
+      ]
+    },
+    "inventory_coverage_sweep": [
+      {
+        "inventory_coverage": 0.0,
+        "protected_names_indexed": 0,
+        "imitations_of_covered_names": {
+          "count": 0,
+          "total": 0,
+          "rate": 0.0,
+          "wilson_ci_95": [
+            0.0,
+            0.0
+          ]
+        },
+        "imitations_of_uncovered_names": {
+          "count": 0,
+          "total": 357,
+          "rate": 0.0,
+          "wilson_ci_95": [
+            0.0,
+            0.010646
+          ]
+        }
+      },
+      {
+        "inventory_coverage": 0.25,
+        "protected_names_indexed": 10,
+        "imitations_of_covered_names": {
+          "count": 54,
+          "total": 63,
+          "rate": 0.857143,
+          "wilson_ci_95": [
+            0.750254,
+            0.922981
+          ]
+        },
+        "imitations_of_uncovered_names": {
+          "count": 0,
+          "total": 294,
+          "rate": 0.0,
+          "wilson_ci_95": [
+            0.0,
+            0.012898
+          ]
+        }
+      },
+      {
+        "inventory_coverage": 0.5,
+        "protected_names_indexed": 18,
+        "imitations_of_covered_names": {
+          "count": 65,
+          "total": 84,
+          "rate": 0.77381,
+          "wilson_ci_95": [
+            0.673531,
+            0.85014
+          ]
+        },
+        "imitations_of_uncovered_names": {
+          "count": 0,
+          "total": 273,
+          "rate": 0.0,
+          "wilson_ci_95": [
+            0.0,
+            0.013876
+          ]
+        }
+      },
+      {
+        "inventory_coverage": 0.75,
+        "protected_names_indexed": 26,
+        "imitations_of_covered_names": {
+          "count": 81,
+          "total": 338,
+          "rate": 0.239645,
+          "wilson_ci_95": [
+            0.197225,
+            0.287916
+          ]
+        },
+        "imitations_of_uncovered_names": {
+          "count": 0,
+          "total": 19,
+          "rate": 0.0,
+          "wilson_ci_95": [
+            0.0,
+            0.168179
+          ]
+        }
+      },
+      {
+        "inventory_coverage": 1.0,
+        "protected_names_indexed": 36,
+        "imitations_of_covered_names": {
+          "count": 97,
+          "total": 357,
+          "rate": 0.271709,
+          "wilson_ci_95": [
+            0.228177,
+            0.320101
+          ]
+        },
+        "imitations_of_uncovered_names": {
+          "count": 0,
+          "total": 0,
+          "rate": 0.0,
+          "wilson_ci_95": [
+            0.0,
+            0.0
+          ]
+        }
+      }
+    ],
+    "benign_control": {
+      "names_scored": 1169,
+      "count": 0,
+      "total": 1169,
+      "rate": 0.0,
+      "wilson_ci_95": [
+        0.0,
+        0.003275
+      ],
+      "inventory_branch_holdout": {
+        "note": "Half the benign set is the simulated inventory; the other half is unseen. This is the false-positive rate of the inventory branch on real published packages it was not told about.",
+        "count": 15,
+        "total": 585,
+        "rate": 0.025641,
+        "wilson_ci_95": [
+          0.015599,
+          0.041872
+        ]
+      }
+    },
+    "sample_surfaced": [
+      {
+        "package": "aliababcloud-tea-openapi",
+        "imitates": "openai",
+        "kind": "typosquat",
+        "score": 0.55
+      },
+      {
+        "package": "anthropickit",
+        "imitates": "anthropic",
+        "kind": "contains",
+        "score": 0.35
+      },
+      {
+        "package": "anthropy",
+        "imitates": "anthropic",
+        "kind": "typosquat",
+        "score": 0.55
+      },
+      {
+        "package": "bmlx-openapi-client",
+        "imitates": "openai",
+        "kind": "typosquat",
+        "score": 0.65
+      },
+      {
+        "package": "cvnvidia",
+        "imitates": "nvidia",
+        "kind": "contains",
+        "score": 0.35
+      },
+      {
+        "package": "databricks-clean-room-orchestrator",
+        "imitates": "databricks",
+        "kind": "contains",
+        "score": 0.5
+      },
+      {
+        "package": "databricks-tools-core",
+        "imitates": "databricks",
+        "kind": "contains",
+        "score": 0.5
+      },
+      {
+        "package": "dataflux-pytorch",
+        "imitates": "pytorch",
+        "kind": "contains",
+        "score": 0.5
+      },
+      {
+        "package": "encodenvidia",
+        "imitates": "nvidia",
+        "kind": "contains",
+        "score": 0.35
+      },
+      {
+        "package": "esqadnvidia",
+        "imitates": "nvidia",
+        "kind": "contains",
+        "score": 0.35
+      },
+      {
+        "package": "esqcraftrandnvidia",
+        "imitates": "nvidia",
+        "kind": "contains",
+        "score": 0.35
+      },
+      {
+        "package": "esqcvnvidiapush",
+        "imitates": "nvidia",
+        "kind": "contains",
+        "score": 0.35
+      },
+      {
+        "package": "esqedstudynvidia",
+        "imitates": "nvidia",
+        "kind": "contains",
+        "score": 0.35
+      },
+      {
+        "package": "esqencodenvidiaurl",
+        "imitates": "nvidia",
+        "kind": "contains",
+        "score": 0.35
+      },
+      {
+        "package": "esqgetnvidia",
+        "imitates": "nvidia",
+        "kind": "contains",
+        "score": 0.35
+      },
+      {
+        "package": "esqgetnvidiapip",
+        "imitates": "nvidia",
+        "kind": "contains",
+        "score": 0.35
+      },
+      {
+        "package": "esqgrandnvidialib",
+        "imitates": "nvidia",
+        "kind": "contains",
+        "score": 0.35
+      },
+      {
+        "package": "esqhackednvidiamine",
+        "imitates": "nvidia",
+        "kind": "contains",
+        "score": 0.35
+      },
+      {
+        "package": "esqinfohackednvidia",
+        "imitates": "nvidia",
+        "kind": "contains",
+        "score": 0.35
+      },
+      {
+        "package": "esqinfoloadnvidia",
+        "imitates": "nvidia",
+        "kind": "contains",
+        "score": 0.35
+      }
+    ],
+    "sample_missed_held_out": [
+      {
+        "package": "auth-app-streamlit",
+        "imitates": "streamlit",
+        "kind": "contains"
+      },
+      {
+        "package": "cloud-datasets",
+        "imitates": "datasets",
+        "kind": "contains"
+      },
+      {
+        "package": "cometlogger",
+        "imitates": "comet",
+        "kind": "contains"
+      },
+      {
+        "package": "cosmos-gradio",
+        "imitates": "gradio",
+        "kind": "contains"
+      },
+      {
+        "package": "datasetsgraphviz",
+        "imitates": "datasets",
+        "kind": "contains"
+      },
+      {
+        "package": "deepseeek",
+        "imitates": "deepspeed",
+        "kind": "typosquat"
+      },
+      {
+        "package": "deepseek-api",
+        "imitates": "deepspeed",
+        "kind": "typosquat"
+      },
+      {
+        "package": "deepseek-fake",
+        "imitates": "deepspeed",
+        "kind": "typosquat"
+      },
+      {
+        "package": "ensorflow",
+        "imitates": "tensorflow",
+        "kind": "typosquat"
+      },
+      {
+        "package": "esqstrliburl",
+        "imitates": "trl",
+        "kind": "contains"
+      },
+      {
+        "package": "etnsorflow",
+        "imitates": "tensorflow",
+        "kind": "typosquat"
+      },
+      {
+        "package": "graddio",
+        "imitates": "gradio",
+        "kind": "typosquat"
+      },
+      {
+        "package": "gradio-videotimeline",
+        "imitates": "gradio",
+        "kind": "contains"
+      },
+      {
+        "package": "hllm",
+        "imitates": "vllm",
+        "kind": "typosquat"
+      },
+      {
+        "package": "kera-preprocess",
+        "imitates": "keras",
+        "kind": "typosquat"
+      },
+      {
+        "package": "kera-preprocessing",
+        "imitates": "keras",
+        "kind": "typosquat"
+      },
+      {
+        "package": "keras-arg",
+        "imitates": "keras",
+        "kind": "contains"
+      },
+      {
+        "package": "keras-beautifulsoup",
+        "imitates": "keras",
+        "kind": "contains"
+      },
+      {
+        "package": "keras-preprocess",
+        "imitates": "keras",
+        "kind": "contains"
+      },
+      {
+        "package": "kersa",
+        "imitates": "keras",
+        "kind": "typosquat"
+      }
+    ],
+    "not_measured": [
+      "whether the scorer catches AI-toolchain imitations absent from the reference list",
+      "recall against real malicious manifest CONTENT, which requires a payload corpus"
+    ],
+    "evaluated": "2026-09-05"
+  }
+}

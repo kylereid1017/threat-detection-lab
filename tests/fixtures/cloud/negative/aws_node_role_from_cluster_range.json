@@ -1,0 +1,9 @@
+{
+  "eventSource": "sts.amazonaws.com",
+  "eventName": "GetCallerIdentity",
+  "sourceIPAddress": "10.0.4.21",
+  "userAgent": "aws-sdk-go/1.44",
+  "userIdentity.type": "AssumedRole",
+  "userIdentity.arn": "arn:aws:sts::111122223333:assumed-role/gpu-node-role/i-0abcd1234",
+  "userIdentity.sessionContext.sessionIssuer.userName": "gpu-node-role"
+}

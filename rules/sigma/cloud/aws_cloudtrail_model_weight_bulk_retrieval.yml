@@ -1,0 +1,71 @@
+title: Suspicious Retrieval of Model Checkpoint Objects From Storage (Tripwire)
+name: cloudtrail_weight_object_retrieval
+id: d4f8c2a1-6b53-4e07-8c19-3a5d7e2b9f41
+status: experimental
+description: >
+    Detects read or copy operations against model weight and checkpoint objects in S3 by a principal
+    that is not the training pipeline role. This is the control-plane view of model weight theft.
+    A training job reads checkpoints constantly, so the object pattern alone is not the signal; the
+    identity performing the read is. Data events must be enabled for the bucket or this rule has no
+    input whatsoever.
+references:
+    - https://attack.mitre.org/techniques/T1530/
+    - https://attack.mitre.org/techniques/T1567/002/
+author: Kyle Reid
+date: 2026-09-05
+tags:
+    - attack.collection
+    - attack.t1530
+    - attack.exfiltration
+    - attack.t1567.002
+logsource:
+    product: aws
+    service: cloudtrail
+telemetry_prerequisites:
+    channel: AWS CloudTrail S3 data events for the weight and checkpoint buckets
+    event_id: CloudTrail eventName (data plane)
+    audit_policy: >-
+        S3 data event logging enabled with read and write event selectors scoped to the checkpoint
+        bucket prefixes. Data events are off by default and billed per event, which is the usual
+        reason they are absent when they are needed.
+    required_fields:
+        - eventSource
+        - eventName
+        - requestParameters.key
+        - requestParameters.bucketName
+        - userIdentity.arn
+        - sourceIPAddress
+    degradation_mode: >-
+        Without data events the entire read path is invisible and only bucket configuration changes
+        appear in the trail. The allowlist of pipeline roles must be populated per environment;
+        empty, this rule alerts on the training job itself.
+detection:
+    selection_source:
+        eventSource: 's3.amazonaws.com'
+        eventName:
+            - 'GetObject'
+            - 'CopyObject'
+            - 'CreateMultipartUpload'
+            - 'UploadPartCopy'
+    selection_weight_objects:
+        requestParameters.key|contains:
+            - '.safetensors'
+            - '.ckpt'
+            - 'consolidated.'
+            - 'pytorch_model'
+            - '/checkpoints/'
+    filter_pipeline_roles:
+        userIdentity.arn|contains:
+            - ':assumed-role/training-pipeline/'
+            - ':assumed-role/checkpoint-sync/'
+    condition: selection_source and selection_weight_objects and not filter_pipeline_roles
+fields:
+    - userIdentity.arn
+    - requestParameters.bucketName
+    - requestParameters.key
+    - sourceIPAddress
+    - userAgent
+falsepositives:
+    - Evaluation and inference roles not present in the pipeline allowlist
+    - Researchers pulling checkpoints for local analysis, which is common and must be enumerated
+level: high

@@ -1,0 +1,194 @@
+{
+  "title": "AI Agent Execution Layer Security Audit",
+  "date": "2026-09-06",
+  "config_source": "<synthetic sample configuration>",
+  "summary": {
+    "total_servers": 6,
+    "total_findings": 13,
+    "critical_count": 3,
+    "high_count": 6,
+    "medium_count": 4,
+    "low_count": 0
+  },
+  "findings": [
+    {
+      "server_name": "unpinned-postgres",
+      "severity": "HIGH",
+      "category": "dynamic_execution",
+      "title": "Unpinned Dynamic Execution Flag (-y/--yes)",
+      "description": "Server 'unpinned-postgres' invokes 'npx' with '-y', bypassing interactive confirmation and package verification.",
+      "remediation": "Install the tool package locally with a lockfile, or remove dynamic flags and pin an exact cryptographic integrity hash.",
+      "metadata": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-postgres",
+          "postgresql://admin:superSecret123@localhost/prod_db"
+        ]
+      }
+    },
+    {
+      "server_name": "unpinned-postgres",
+      "severity": "CRITICAL",
+      "category": "supply_chain_unpinned",
+      "title": "Floating Package Version Target",
+      "description": "Server 'unpinned-postgres' executes '@modelcontextprotocol/server-postgres' without an exact version pin. A newly published upstream version or compromised release will execute automatically.",
+      "remediation": "Pin package to an exact tested version, e.g. '@modelcontextprotocol/server-postgres@<version>' or '@modelcontextprotocol/server-postgres==<version>'.",
+      "metadata": {
+        "target_package": "@modelcontextprotocol/server-postgres"
+      }
+    },
+    {
+      "server_name": "unpinned-postgres",
+      "severity": "MEDIUM",
+      "category": "passive_lifecycle_hooks",
+      "title": "Install Scripts Allowed (--ignore-scripts Missing)",
+      "description": "Server 'unpinned-postgres' resolves packages via npm without '--ignore-scripts'. Our population study established that 26.0% of agent packages declare install hooks, enabling arbitrary code execution during package setup.",
+      "remediation": "Add '--ignore-scripts' to the args array in configuration.",
+      "metadata": {
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-postgres",
+          "postgresql://admin:superSecret123@localhost/prod_db"
+        ]
+      }
+    },
+    {
+      "server_name": "sqlite-unpinned-hookable",
+      "severity": "HIGH",
+      "category": "dynamic_execution",
+      "title": "Unpinned Dynamic Execution Flag (-y/--yes)",
+      "description": "Server 'sqlite-unpinned-hookable' invokes 'npx' with '-y', bypassing interactive confirmation and package verification.",
+      "remediation": "Install the tool package locally with a lockfile, or remove dynamic flags and pin an exact cryptographic integrity hash.",
+      "metadata": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "mcp-server-sqlite",
+          "test.db"
+        ]
+      }
+    },
+    {
+      "server_name": "sqlite-unpinned-hookable",
+      "severity": "CRITICAL",
+      "category": "supply_chain_unpinned",
+      "title": "Floating Package Version Target",
+      "description": "Server 'sqlite-unpinned-hookable' executes 'mcp-server-sqlite' without an exact version pin. A newly published upstream version or compromised release will execute automatically.",
+      "remediation": "Pin package to an exact tested version, e.g. 'mcp-server-sqlite@<version>' or 'mcp-server-sqlite==<version>'.",
+      "metadata": {
+        "target_package": "mcp-server-sqlite"
+      }
+    },
+    {
+      "server_name": "sqlite-unpinned-hookable",
+      "severity": "MEDIUM",
+      "category": "passive_lifecycle_hooks",
+      "title": "Install Scripts Allowed (--ignore-scripts Missing)",
+      "description": "Server 'sqlite-unpinned-hookable' resolves packages via npm without '--ignore-scripts'. Our population study established that 26.0% of agent packages declare install hooks, enabling arbitrary code execution during package setup.",
+      "remediation": "Add '--ignore-scripts' to the args array in configuration.",
+      "metadata": {
+        "args": [
+          "-y",
+          "mcp-server-sqlite",
+          "test.db"
+        ]
+      }
+    },
+    {
+      "server_name": "compound-lure-server",
+      "severity": "HIGH",
+      "category": "dynamic_execution",
+      "title": "Unpinned Dynamic Execution Flag (-y/--yes)",
+      "description": "Server 'compound-lure-server' invokes 'npx' with '-y', bypassing interactive confirmation and package verification.",
+      "remediation": "Install the tool package locally with a lockfile, or remove dynamic flags and pin an exact cryptographic integrity hash.",
+      "metadata": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@untrusted-scope/modelcontextprotocol-sdk"
+        ]
+      }
+    },
+    {
+      "server_name": "compound-lure-server",
+      "severity": "CRITICAL",
+      "category": "supply_chain_unpinned",
+      "title": "Floating Package Version Target",
+      "description": "Server 'compound-lure-server' executes '@untrusted-scope/modelcontextprotocol-sdk' without an exact version pin. A newly published upstream version or compromised release will execute automatically.",
+      "remediation": "Pin package to an exact tested version, e.g. '@untrusted-scope/modelcontextprotocol-sdk@<version>' or '@untrusted-scope/modelcontextprotocol-sdk==<version>'.",
+      "metadata": {
+        "target_package": "@untrusted-scope/modelcontextprotocol-sdk"
+      }
+    },
+    {
+      "server_name": "compound-lure-server",
+      "severity": "MEDIUM",
+      "category": "passive_lifecycle_hooks",
+      "title": "Install Scripts Allowed (--ignore-scripts Missing)",
+      "description": "Server 'compound-lure-server' resolves packages via npm without '--ignore-scripts'. Our population study established that 26.0% of agent packages declare install hooks, enabling arbitrary code execution during package setup.",
+      "remediation": "Add '--ignore-scripts' to the args array in configuration.",
+      "metadata": {
+        "args": [
+          "-y",
+          "@untrusted-scope/modelcontextprotocol-sdk"
+        ]
+      }
+    },
+    {
+      "server_name": "compound-lure-server",
+      "severity": "HIGH",
+      "category": "imitation_lure",
+      "title": "Potential Typosquat or Compound Lure (compound)",
+      "description": "Package '@untrusted-scope/modelcontextprotocol-sdk' closely imitates authoritative package 'modelcontextprotocol' (kind: compound, edit distance: 0). 95.2% of agent ecosystem imitations are compound lures exploiting modular names.",
+      "remediation": "Verify if the intention was to use official 'modelcontextprotocol' instead of '@untrusted-scope/modelcontextprotocol-sdk'.",
+      "metadata": {
+        "imitated": "modelcontextprotocol",
+        "kind": "compound",
+        "distance": 0
+      }
+    },
+    {
+      "server_name": "broad-fs-server",
+      "severity": "HIGH",
+      "category": "dynamic_execution",
+      "title": "Unpinned Dynamic Execution Flag (-y/--yes)",
+      "description": "Server 'broad-fs-server' invokes 'npx' with '-y', bypassing interactive confirmation and package verification.",
+      "remediation": "Install the tool package locally with a lockfile, or remove dynamic flags and pin an exact cryptographic integrity hash.",
+      "metadata": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-filesystem@0.6.2",
+          "/"
+        ]
+      }
+    },
+    {
+      "server_name": "broad-fs-server",
+      "severity": "MEDIUM",
+      "category": "passive_lifecycle_hooks",
+      "title": "Install Scripts Allowed (--ignore-scripts Missing)",
+      "description": "Server 'broad-fs-server' resolves packages via npm without '--ignore-scripts'. Our population study established that 26.0% of agent packages declare install hooks, enabling arbitrary code execution during package setup.",
+      "remediation": "Add '--ignore-scripts' to the args array in configuration.",
+      "metadata": {
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-filesystem@0.6.2",
+          "/"
+        ]
+      }
+    },
+    {
+      "server_name": "broad-fs-server",
+      "severity": "HIGH",
+      "category": "overprivileged_filesystem",
+      "title": "Overly Broad Root Filesystem Scope",
+      "description": "Server 'broad-fs-server' is granted ambient access to '/'. This exposes entire system directories and developer profiles to agent tools.",
+      "remediation": "Scope filesystem access strictly to specific project workspace subdirectories.",
+      "metadata": {
+        "path_arg": "/"
+      }
+    }
+  ]
+}

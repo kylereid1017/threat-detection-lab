@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-05 14:59:41.000",
+  "ParentImage": "/usr/local/bin/pip3",
+  "Image": "/bin/sh",
+  "CommandLine": "sh -c \"python3 setup_helper.py\"",
+  "User": "researcher"
+}

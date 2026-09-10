@@ -1,0 +1,54 @@
+title: Suspicious Cloud IMDSv2 Credential Acquisition and S3 Checkpoint Exfiltration
+name: cluster_imds_execution_layer
+id: 9f4e2a15-8b39-4d26-a641-5e6273b9d812
+status: experimental
+description: Detects command-line execution associated with frontier AI training cluster exploitation, including container breakout primitives (nsenter, docker.sock mount), EC2 Instance Metadata Service (IMDSv2) role credential acquisition, and high-bandwidth S3 model checkpoint exfiltration targeting model weight tensors (*.safetensors).
+references:
+    - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html
+    - https://attack.mitre.org/techniques/T1552/005/
+author: Kyle Reid
+date: 2026-09-05
+tags:
+    - attack.credential_access
+    - attack.t1552.005
+    - attack.privilege_escalation
+    - attack.t1611
+    - attack.exfiltration
+    - attack.t1567.002
+    - attack.collection
+    - attack.t1530
+logsource:
+    category: process_creation
+    product: linux
+telemetry_prerequisites:
+    channel: Linux Auditd / eBPF (Tetragon / Falco) / CloudTrail Process Monitoring
+    event_id: 1 (ProcessExec) or SYSCALL execve
+    audit_policy: System call execution tracking enabled across container and host namespaces.
+    required_fields:
+        - Image
+        - CommandLine
+        - ParentImage
+    degradation_mode: Without container-level execve auditing, breakouts and in-container IMDS queries are blind to host sensors.
+detection:
+    selection_imds:
+        CommandLine|contains:
+            - '169.254.169.254/latest/api/token'
+            - '169.254.169.254/latest/meta-data/iam/security-credentials'
+            - 'X-aws-ec2-metadata-token'
+    selection_exfil_target:
+        CommandLine|contains:
+            - 'safetensors'
+            - 'model-000'
+    selection_exfil_action:
+        CommandLine|contains:
+            - 's3 cp'
+            - 's3 sync'
+            - 's3://'
+            - 'upload'
+    selection_escape:
+        CommandLine|contains:
+            - 'nsenter -t 1'
+            - 'unix:///var/run/docker.sock'
+            - 'cgroup/release_agent'
+    condition: selection_imds or (selection_exfil_target and selection_exfil_action) or selection_escape
+level: critical

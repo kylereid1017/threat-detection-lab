@@ -1,0 +1,451 @@
+{
+  "labelled_packages": 23,
+  "scored_packages": 23,
+  "unresolved_labels": [],
+  "by_tier": [
+    {
+      "tier": 3,
+      "tier_name": "DECLARED_DEPENDENCY",
+      "true_positives": 20,
+      "false_positives": 12,
+      "false_negatives": 42,
+      "precision": 0.625,
+      "recall": 0.3226,
+      "f1": 0.4255
+    },
+    {
+      "tier": 2,
+      "tier_name": "MANIFEST_STRUCTURE",
+      "true_positives": 20,
+      "false_positives": 12,
+      "false_negatives": 42,
+      "precision": 0.625,
+      "recall": 0.3226,
+      "f1": 0.4255
+    },
+    {
+      "tier": 1,
+      "tier_name": "DECLARED_TEXT",
+      "true_positives": 33,
+      "false_positives": 12,
+      "false_negatives": 29,
+      "precision": 0.7333,
+      "recall": 0.5323,
+      "f1": 0.6168
+    }
+  ],
+  "by_capability": {
+    "browser_automation": {
+      "tp": 2,
+      "fp": 0,
+      "fn": 1,
+      "precision": 1.0,
+      "recall": 0.6667
+    },
+    "cloud_read": {
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "comms_read": {
+      "tp": 1,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.5,
+      "recall": 1.0
+    },
+    "credential_read": {
+      "tp": 0,
+      "fp": 3,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0
+    },
+    "database_read": {
+      "tp": 3,
+      "fp": 0,
+      "fn": 1,
+      "precision": 1.0,
+      "recall": 0.75
+    },
+    "document_parse": {
+      "tp": 1,
+      "fp": 0,
+      "fn": 3,
+      "precision": 1.0,
+      "recall": 0.25
+    },
+    "fs_read": {
+      "tp": 1,
+      "fp": 0,
+      "fn": 2,
+      "precision": 1.0,
+      "recall": 0.3333
+    },
+    "fs_write": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": null,
+      "recall": 0.0
+    },
+    "inbound_messages": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "precision": null,
+      "recall": 0.0
+    },
+    "issue_tracker": {
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "message_send": {
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "net_egress": {
+      "tp": 8,
+      "fp": 1,
+      "fn": 7,
+      "precision": 0.8889,
+      "recall": 0.5333
+    },
+    "remote_write": {
+      "tp": 0,
+      "fp": 2,
+      "fn": 4,
+      "precision": 0.0,
+      "recall": 0.0
+    },
+    "repo_read": {
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "repo_write": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": null,
+      "recall": 0.0
+    },
+    "search_results": {
+      "tp": 5,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "web_fetch": {
+      "tp": 5,
+      "fp": 5,
+      "fn": 4,
+      "precision": 0.5,
+      "recall": 0.5556
+    }
+  },
+  "dependency_only_beats_all_evidence": false,
+  "tier_justification_note": "The original design assumed dependency evidence was strongest and defaulted to it. This flag is true only if restricting to dependency evidence beats admitting everything. Measured on this label set it is false: admitting the package description improved precision and recall together, because agent servers are thin wrappers whose dependency sets say nothing about what they are for. Re-measure whenever rules change, and move the default rather than defend it.",
+  "false_negatives": [
+    {
+      "package": "@modelcontextprotocol/server-filesystem",
+      "capability": "fs_write"
+    },
+    {
+      "package": "@modelcontextprotocol/server-github",
+      "capability": "repo_write"
+    },
+    {
+      "package": "@modelcontextprotocol/server-gitlab",
+      "capability": "repo_write"
+    },
+    {
+      "package": "@modelcontextprotocol/server-slack",
+      "capability": "inbound_messages"
+    },
+    {
+      "package": "@modelcontextprotocol/server-slack",
+      "capability": "net_egress"
+    },
+    {
+      "package": "@modelcontextprotocol/server-brave-search",
+      "capability": "net_egress"
+    },
+    {
+      "package": "@modelcontextprotocol/server-brave-search",
+      "capability": "web_fetch"
+    },
+    {
+      "package": "@modelcontextprotocol/server-memory",
+      "capability": "fs_read"
+    },
+    {
+      "package": "@modelcontextprotocol/server-memory",
+      "capability": "fs_write"
+    },
+    {
+      "package": "firecrawl-mcp",
+      "capability": "net_egress"
+    },
+    {
+      "package": "@modelcontextprotocol/server-gdrive",
+      "capability": "document_parse"
+    },
+    {
+      "package": "@modelcontextprotocol/server-redis",
+      "capability": "remote_write"
+    },
+    {
+      "package": "@modelcontextprotocol/server-aws-kb-retrieval",
+      "capability": "document_parse"
+    },
+    {
+      "package": "@brave/brave-search-mcp-server",
+      "capability": "net_egress"
+    },
+    {
+      "package": "@brave/brave-search-mcp-server",
+      "capability": "web_fetch"
+    },
+    {
+      "package": "@playwright/mcp",
+      "capability": "credential_read"
+    },
+    {
+      "package": "@playwright/mcp",
+      "capability": "fs_read"
+    },
+    {
+      "package": "chrome-devtools-mcp",
+      "capability": "browser_automation"
+    },
+    {
+      "package": "chrome-devtools-mcp",
+      "capability": "net_egress"
+    },
+    {
+      "package": "chrome-devtools-mcp",
+      "capability": "web_fetch"
+    },
+    {
+      "package": "@notionhq/notion-mcp-server",
+      "capability": "document_parse"
+    },
+    {
+      "package": "@notionhq/notion-mcp-server",
+      "capability": "remote_write"
+    },
+    {
+      "package": "@supabase/mcp-server-supabase",
+      "capability": "credential_read"
+    },
+    {
+      "package": "@supabase/mcp-server-supabase",
+      "capability": "database_read"
+    },
+    {
+      "package": "@supabase/mcp-server-supabase",
+      "capability": "net_egress"
+    },
+    {
+      "package": "@supabase/mcp-server-supabase",
+      "capability": "remote_write"
+    },
+    {
+      "package": "exa-mcp-server",
+      "capability": "net_egress"
+    },
+    {
+      "package": "exa-mcp-server",
+      "capability": "web_fetch"
+    },
+    {
+      "package": "mongodb-mcp-server",
+      "capability": "remote_write"
+    }
+  ],
+  "false_positives": [
+    {
+      "package": "@modelcontextprotocol/server-github",
+      "capability": "web_fetch",
+      "evidence": [
+        {
+          "capability": "web_fetch",
+          "tier": 3,
+          "tier_name": "DECLARED_DEPENDENCY",
+          "source": "dependency",
+          "detail": "node-fetch"
+        }
+      ]
+    },
+    {
+      "package": "@modelcontextprotocol/server-gitlab",
+      "capability": "web_fetch",
+      "evidence": [
+        {
+          "capability": "web_fetch",
+          "tier": 3,
+          "tier_name": "DECLARED_DEPENDENCY",
+          "source": "dependency",
+          "detail": "node-fetch"
+        }
+      ]
+    },
+    {
+      "package": "@modelcontextprotocol/server-google-maps",
+      "capability": "web_fetch",
+      "evidence": [
+        {
+          "capability": "web_fetch",
+          "tier": 3,
+          "tier_name": "DECLARED_DEPENDENCY",
+          "source": "dependency",
+          "detail": "node-fetch"
+        }
+      ]
+    },
+    {
+      "package": "firecrawl-mcp",
+      "capability": "credential_read",
+      "evidence": [
+        {
+          "capability": "credential_read",
+          "tier": 3,
+          "tier_name": "DECLARED_DEPENDENCY",
+          "source": "dependency",
+          "detail": "dotenv"
+        }
+      ]
+    },
+    {
+      "package": "@modelcontextprotocol/server-gdrive",
+      "capability": "comms_read",
+      "evidence": [
+        {
+          "capability": "comms_read",
+          "tier": 3,
+          "tier_name": "DECLARED_DEPENDENCY",
+          "source": "dependency",
+          "detail": "googleapis"
+        }
+      ]
+    },
+    {
+      "package": "@modelcontextprotocol/server-gdrive",
+      "capability": "remote_write",
+      "evidence": [
+        {
+          "capability": "remote_write",
+          "tier": 3,
+          "tier_name": "DECLARED_DEPENDENCY",
+          "source": "dependency",
+          "detail": "googleapis"
+        },
+        {
+          "capability": "remote_write",
+          "tier": 3,
+          "tier_name": "DECLARED_DEPENDENCY",
+          "source": "dependency_scope",
+          "detail": "@google-cloud/local-auth"
+        }
+      ]
+    },
+    {
+      "package": "@modelcontextprotocol/server-aws-kb-retrieval",
+      "capability": "remote_write",
+      "evidence": [
+        {
+          "capability": "remote_write",
+          "tier": 3,
+          "tier_name": "DECLARED_DEPENDENCY",
+          "source": "dependency_scope",
+          "detail": "@aws-sdk/client-bedrock-agent-runtime"
+        }
+      ]
+    },
+    {
+      "package": "@brave/brave-search-mcp-server",
+      "capability": "credential_read",
+      "evidence": [
+        {
+          "capability": "credential_read",
+          "tier": 3,
+          "tier_name": "DECLARED_DEPENDENCY",
+          "source": "dependency",
+          "detail": "dotenv"
+        }
+      ]
+    },
+    {
+      "package": "@notionhq/notion-mcp-server",
+      "capability": "web_fetch",
+      "evidence": [
+        {
+          "capability": "web_fetch",
+          "tier": 3,
+          "tier_name": "DECLARED_DEPENDENCY",
+          "source": "dependency",
+          "detail": "axios"
+        },
+        {
+          "capability": "web_fetch",
+          "tier": 3,
+          "tier_name": "DECLARED_DEPENDENCY",
+          "source": "dependency",
+          "detail": "node-fetch"
+        }
+      ]
+    },
+    {
+      "package": "tavily-mcp",
+      "capability": "credential_read",
+      "evidence": [
+        {
+          "capability": "credential_read",
+          "tier": 3,
+          "tier_name": "DECLARED_DEPENDENCY",
+          "source": "dependency",
+          "detail": "dotenv"
+        }
+      ]
+    },
+    {
+      "package": "mongodb-mcp-server",
+      "capability": "net_egress",
+      "evidence": [
+        {
+          "capability": "net_egress",
+          "tier": 3,
+          "tier_name": "DECLARED_DEPENDENCY",
+          "source": "dependency",
+          "detail": "node-fetch"
+        }
+      ]
+    },
+    {
+      "package": "mongodb-mcp-server",
+      "capability": "web_fetch",
+      "evidence": [
+        {
+          "capability": "web_fetch",
+          "tier": 3,
+          "tier_name": "DECLARED_DEPENDENCY",
+          "source": "dependency",
+          "detail": "node-fetch"
+        }
+      ]
+    }
+  ],
+  "direction_note": "Missed capabilities bias composition rates downward and are reported as a lower bound. Invented capabilities bias them upward and would make the headline finding wrong, so precision is the figure to watch."
+}

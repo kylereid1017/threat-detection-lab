@@ -1,0 +1,742 @@
+{
+  "title": "Agent Execution Layer Population Study",
+  "date": "2026-09-06",
+  "measurement_type": "external",
+  "methodology": {
+    "description": "Empirical population study of AI agent execution layer tooling and Model Context Protocol packages across npm and PyPI. Evaluates registry metadata and manifests without downloading package payloads.",
+    "npm_snapshot": "npm_agent_packages.jsonl",
+    "pypi_snapshot": "pypi_agent_packages.jsonl",
+    "open_ssf_corpus": "ossf/malicious-packages (hash-pinned)"
+  },
+  "research_questions": {
+    "1_ecosystem_scope_and_growth": {
+      "npm_packages_analyzed": 2000,
+      "pypi_packages_analyzed": 500,
+      "total_packages_analyzed": 2500,
+      "external_registry_totals": {
+        "npm_keywords_mcp_count": 70552,
+        "npm_modelcontextprotocol_count": 6285,
+        "pypi_mcp_project_count": 20374,
+        "github_mcp_server_repo_count": 51595
+      },
+      "era_distribution": {
+        "npm": {
+          "pre_mcp_launch": {
+            "count": 0,
+            "total": 2000,
+            "rate_pct": 0.0,
+            "ci_lower_pct": 0.0,
+            "ci_upper_pct": 0.192
+          },
+          "post_mcp_launch": {
+            "count": 2000,
+            "total": 2000,
+            "rate_pct": 100.0,
+            "ci_lower_pct": 99.808,
+            "ci_upper_pct": 100.0
+          }
+        },
+        "pypi": {
+          "pre_mcp_launch": {
+            "count": 31,
+            "total": 500,
+            "rate_pct": 6.2,
+            "ci_lower_pct": 4.402,
+            "ci_upper_pct": 8.666
+          },
+          "post_mcp_launch": {
+            "count": 461,
+            "total": 500,
+            "rate_pct": 92.2,
+            "ci_lower_pct": 89.515,
+            "ci_upper_pct": 94.242
+          }
+        }
+      },
+      "monthly_growth_curve": [
+        {
+          "month": "2012-10",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2016-01",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2016-02",
+          "npm_packages": 0,
+          "pypi_packages": 2,
+          "total": 2
+        },
+        {
+          "month": "2016-04",
+          "npm_packages": 0,
+          "pypi_packages": 2,
+          "total": 2
+        },
+        {
+          "month": "2016-07",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2018-03",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2018-08",
+          "npm_packages": 0,
+          "pypi_packages": 3,
+          "total": 3
+        },
+        {
+          "month": "2018-09",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2018-10",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2018-12",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2019-04",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2019-10",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2019-12",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2020-04",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2020-10",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2021-03",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2021-04",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2021-05",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2022-04",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2022-06",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2022-07",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2023-05",
+          "npm_packages": 0,
+          "pypi_packages": 2,
+          "total": 2
+        },
+        {
+          "month": "2023-12",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2024-01",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2024-05",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2024-06",
+          "npm_packages": 0,
+          "pypi_packages": 1,
+          "total": 1
+        },
+        {
+          "month": "2024-11",
+          "npm_packages": 6,
+          "pypi_packages": 0,
+          "total": 6
+        },
+        {
+          "month": "2024-12",
+          "npm_packages": 15,
+          "pypi_packages": 0,
+          "total": 15
+        },
+        {
+          "month": "2025-01",
+          "npm_packages": 11,
+          "pypi_packages": 1,
+          "total": 12
+        },
+        {
+          "month": "2025-02",
+          "npm_packages": 19,
+          "pypi_packages": 1,
+          "total": 20
+        },
+        {
+          "month": "2025-03",
+          "npm_packages": 50,
+          "pypi_packages": 9,
+          "total": 59
+        },
+        {
+          "month": "2025-04",
+          "npm_packages": 91,
+          "pypi_packages": 12,
+          "total": 103
+        },
+        {
+          "month": "2025-05",
+          "npm_packages": 64,
+          "pypi_packages": 15,
+          "total": 79
+        },
+        {
+          "month": "2025-06",
+          "npm_packages": 62,
+          "pypi_packages": 13,
+          "total": 75
+        },
+        {
+          "month": "2025-07",
+          "npm_packages": 42,
+          "pypi_packages": 15,
+          "total": 57
+        },
+        {
+          "month": "2025-08",
+          "npm_packages": 48,
+          "pypi_packages": 8,
+          "total": 56
+        },
+        {
+          "month": "2025-09",
+          "npm_packages": 50,
+          "pypi_packages": 4,
+          "total": 54
+        },
+        {
+          "month": "2025-10",
+          "npm_packages": 52,
+          "pypi_packages": 11,
+          "total": 63
+        },
+        {
+          "month": "2025-11",
+          "npm_packages": 60,
+          "pypi_packages": 12,
+          "total": 72
+        },
+        {
+          "month": "2025-12",
+          "npm_packages": 45,
+          "pypi_packages": 8,
+          "total": 53
+        },
+        {
+          "month": "2026-01",
+          "npm_packages": 48,
+          "pypi_packages": 11,
+          "total": 59
+        },
+        {
+          "month": "2026-02",
+          "npm_packages": 88,
+          "pypi_packages": 28,
+          "total": 116
+        },
+        {
+          "month": "2026-03",
+          "npm_packages": 88,
+          "pypi_packages": 62,
+          "total": 150
+        },
+        {
+          "month": "2026-04",
+          "npm_packages": 78,
+          "pypi_packages": 53,
+          "total": 131
+        },
+        {
+          "month": "2026-05",
+          "npm_packages": 101,
+          "pypi_packages": 64,
+          "total": 165
+        },
+        {
+          "month": "2026-06",
+          "npm_packages": 112,
+          "pypi_packages": 35,
+          "total": 147
+        },
+        {
+          "month": "2026-07",
+          "npm_packages": 250,
+          "pypi_packages": 43,
+          "total": 293
+        },
+        {
+          "month": "2026-08",
+          "npm_packages": 458,
+          "pypi_packages": 51,
+          "total": 509
+        },
+        {
+          "month": "2026-09",
+          "npm_packages": 162,
+          "pypi_packages": 5,
+          "total": 167
+        }
+      ]
+    },
+    "2_manifest_privileges_and_hooks": {
+      "manifests_evaluated": 300,
+      "cli_binary_privilege": {
+        "count": 176,
+        "total": 300,
+        "rate_pct": 58.667,
+        "ci_lower_pct": 53.019,
+        "ci_upper_pct": 64.095
+      },
+      "lifecycle_hooks_declared": {
+        "count": 78,
+        "total": 300,
+        "rate_pct": 26.0,
+        "ci_lower_pct": 21.362,
+        "ci_upper_pct": 31.245
+      },
+      "hook_breakdown": {
+        "prepare": 40,
+        "prepack": 31,
+        "preinstall": 5,
+        "postinstall": 4,
+        "prepublish": 1,
+        "postpack": 1
+      },
+      "yara_suspicious_hook_detections": {
+        "count": 0,
+        "total": 300,
+        "rate_pct": 0.0,
+        "ci_lower_pct": 0.0,
+        "ci_upper_pct": 1.264
+      },
+      "yara_match_samples": [],
+      "network_egress_dependencies": {
+        "count": 34,
+        "total": 300,
+        "rate_pct": 11.333,
+        "ci_lower_pct": 8.224,
+        "ci_upper_pct": 15.42
+      },
+      "execution_egress_dependencies": {
+        "count": 16,
+        "total": 300,
+        "rate_pct": 5.333,
+        "ci_lower_pct": 3.309,
+        "ci_upper_pct": 8.487
+      },
+      "sensitive_credential_references": {
+        "count": 15,
+        "total": 300,
+        "rate_pct": 5.0,
+        "ci_lower_pct": 3.053,
+        "ci_upper_pct": 8.085
+      }
+    },
+    "3_protected_registry_imitations": {
+      "protected_registry_size": 25,
+      "packages_evaluated": 2500,
+      "total_imitations_flagged": {
+        "count": 84,
+        "total": 2500,
+        "rate_pct": 3.36,
+        "ci_lower_pct": 2.722,
+        "ci_upper_pct": 4.141
+      },
+      "imitation_taxonomy": {
+        "compound": {
+          "count": 80,
+          "total": 2500,
+          "rate_pct": 3.2,
+          "ci_lower_pct": 2.579,
+          "ci_upper_pct": 3.965
+        },
+        "misspelling": {
+          "count": 4,
+          "total": 2500,
+          "rate_pct": 0.16,
+          "ci_lower_pct": 0.062,
+          "ci_upper_pct": 0.411
+        },
+        "substitution": {
+          "count": 0,
+          "total": 2500,
+          "rate_pct": 0.0,
+          "ci_lower_pct": 0.0,
+          "ci_upper_pct": 0.153
+        }
+      },
+      "most_targeted_protected_tools": {
+        "modelcontextprotocol": 68,
+        "fastmcp": 6,
+        "openai": 5,
+        "anthropic": 2,
+        "@modelcontextprotocol/sdk": 1,
+        "langchain": 1,
+        "@modelcontextprotocol/server-postgres": 1
+      },
+      "sample_imitations": [
+        {
+          "ecosystem": "npm",
+          "candidate": "@alcyone-labs/modelcontextprotocol-sdk",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@aml-modelcontextprotocol/aml-watcher-mcp",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@amltemp-modelcontextprotocol/aml_watcher_mcp",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@ampersend_ai/modelcontextprotocol-sdk",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@atomicmail/agent-skill-modelcontextprotocol",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@atomicmail/mcp-modelcontextprotocol",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@auggy/anthropic",
+          "imitates": "anthropic",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@auggy/openai",
+          "imitates": "openai",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@beautyfree/modelcontextprotocol-server-github",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@bennapp/modelcontextprotocol-sdk",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@big-whale-labs/modelcontextprotocol-sdk",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@borodutch/modelcontextprotocol-sdk",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@dankelleher/modelcontextprotocol-sdk",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@depup/modelcontextprotocol__sdk",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@fastmcp-me/lightning-mcp",
+          "imitates": "fastmcp",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@iflow-mcp/modelcontextprotocol-servers-whois-mcp",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@iflow-mcp/openai-gpt-image-mcp",
+          "imitates": "openai",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@jobot/modelcontextprotocol-typescript-sdk",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@kentcdodds/modelcontextprotocol_inspector",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@kentcdodds/tmp-modelcontextprotocol_inspector",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@kentcdodds/tmp-modelcontextprotocol_sdk",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@kkaminsk/modelcontextprotocol",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@mcp-use/modelcontextprotocol-sdk",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@modelcontextprotocol/client",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        },
+        {
+          "ecosystem": "npm",
+          "candidate": "@modelcontextprotocol/codemod",
+          "imitates": "modelcontextprotocol",
+          "distance": 0,
+          "kind": "compound"
+        }
+      ]
+    },
+    "4_malicious_corpus_cross_reference": {
+      "openssf_total_corpus": {
+        "npm_malicious_count": 221033,
+        "pypi_malicious_count": 11696
+      },
+      "mcp_substring_leads": {
+        "npm_mcp_leads_count": 138,
+        "pypi_mcp_leads_count": 72,
+        "total_mcp_leads": 210
+      },
+      "forensic_triage_breakdown": {
+        "unverified_lead": 146,
+        "historical_pre_mcp_collision": 35,
+        "targeted_agent_imitation": 12,
+        "compromised_legitimate_tooling": 9,
+        "research_canary_test": 8
+      },
+      "curated_case_studies": [
+        {
+          "package": "groq-mcp",
+          "ecosystem": "pypi",
+          "advisory": "MAL-2026-5321",
+          "category": "targeted_agent_imitation",
+          "mechanism": "Impersonates Groq MCP server; drops .pth files into site-packages executing an obfuscated infostealer on Python invocation."
+        },
+        {
+          "package": "@browserbasehq/mcp",
+          "ecosystem": "npm",
+          "advisory": "MAL-2025-191195",
+          "category": "compromised_legitimate_tooling",
+          "mechanism": "Legitimate vendor MCP server compromised via maintainer token theft by the Sha1-Hulud NPM worm."
+        },
+        {
+          "package": "@postman/postman-mcp-server",
+          "ecosystem": "npm",
+          "advisory": "MAL-2025-190909",
+          "category": "compromised_legitimate_tooling",
+          "mechanism": "Legitimate API testing vendor MCP server infected by Sha1-Hulud worm."
+        },
+        {
+          "package": "esqmcpaypallgtb",
+          "ecosystem": "pypi",
+          "advisory": "MAL-2023-3106",
+          "category": "historical_pre_mcp_collision",
+          "mechanism": "2023 PayPal phishing typosquat package containing 'mcp' as random letters prior to MCP protocol existence."
+        }
+      ]
+    },
+    "5_maintainer_demographics_and_hygiene": {
+      "npm_maintainer_count": 2000,
+      "single_maintainer_concentration": {
+        "count": 1659,
+        "total": 2000,
+        "rate_pct": 82.95,
+        "ci_lower_pct": 81.239,
+        "ci_upper_pct": 84.535
+      },
+      "trusted_publisher_oidc_rate": {
+        "count": 331,
+        "total": 2000,
+        "rate_pct": 16.55,
+        "ci_lower_pct": 14.986,
+        "ci_upper_pct": 18.243
+      },
+      "publication_recency_distribution": {
+        "91_to_180_days": {
+          "count": 277,
+          "total": 2000,
+          "rate_pct": 13.85,
+          "ci_lower_pct": 12.405,
+          "ci_upper_pct": 15.433
+        },
+        "181_to_365_days": {
+          "count": 354,
+          "total": 2000,
+          "rate_pct": 17.7,
+          "ci_lower_pct": 16.09,
+          "ci_upper_pct": 19.434
+        },
+        "under_30_days": {
+          "count": 541,
+          "total": 2000,
+          "rate_pct": 27.05,
+          "ci_lower_pct": 25.149,
+          "ci_upper_pct": 29.039
+        },
+        "over_365_days": {
+          "count": 421,
+          "total": 2000,
+          "rate_pct": 21.05,
+          "ci_lower_pct": 19.32,
+          "ci_upper_pct": 22.891
+        },
+        "31_to_90_days": {
+          "count": 407,
+          "total": 2000,
+          "rate_pct": 20.35,
+          "ci_lower_pct": 18.643,
+          "ci_upper_pct": 22.171
+        }
+      },
+      "download_skew_power_law": {
+        "total_weekly_downloads": 79300268,
+        "top_1_percent_package_count": 20,
+        "top_1_percent_download_share_pct": 98.05,
+        "packages_under_100_weekly_downloads": {
+          "count": 1423,
+          "total": 2000,
+          "rate_pct": 71.15,
+          "ci_lower_pct": 69.125,
+          "ci_upper_pct": 73.094
+        }
+      }
+    }
+  }
+}
