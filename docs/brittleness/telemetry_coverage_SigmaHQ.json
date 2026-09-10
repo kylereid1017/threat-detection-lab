@@ -1,0 +1,439 @@
+{
+  "rules_analyzed": 3144,
+  "rules_with_attack_technique": 2798,
+  "techniques_covered": 390,
+  "layer_totals": {
+    "endpoint_process": 1602,
+    "endpoint_other": 1009,
+    "cloud_control_plane": 272,
+    "network": 128,
+    "application": 112,
+    "identity": 21
+  },
+  "layer_share": {
+    "application": 0.0356,
+    "cloud_control_plane": 0.0865,
+    "endpoint_other": 0.3209,
+    "endpoint_process": 0.5095,
+    "identity": 0.0067,
+    "network": 0.0407
+  },
+  "single_layer_techniques": [
+    {
+      "technique": "t1059.012",
+      "layer": "endpoint_process",
+      "rule_count": 9
+    },
+    {
+      "technique": "t1007",
+      "layer": "endpoint_process",
+      "rule_count": 8
+    },
+    {
+      "technique": "t1518.001",
+      "layer": "endpoint_process",
+      "rule_count": 8
+    },
+    {
+      "technique": "t1137",
+      "layer": "endpoint_other",
+      "rule_count": 8
+    },
+    {
+      "technique": "t1564.003",
+      "layer": "endpoint_process",
+      "rule_count": 8
+    },
+    {
+      "technique": "t1218.008",
+      "layer": "endpoint_process",
+      "rule_count": 8
+    },
+    {
+      "technique": "t1059.002",
+      "layer": "endpoint_process",
+      "rule_count": 7
+    },
+    {
+      "technique": "t1537",
+      "layer": "cloud_control_plane",
+      "rule_count": 6
+    },
+    {
+      "technique": "t1213.003",
+      "layer": "cloud_control_plane",
+      "rule_count": 5
+    },
+    {
+      "technique": "t1686.001",
+      "layer": "cloud_control_plane",
+      "rule_count": 5
+    },
+    {
+      "technique": "t1550.002",
+      "layer": "endpoint_other",
+      "rule_count": 5
+    },
+    {
+      "technique": "t1615",
+      "layer": "endpoint_process",
+      "rule_count": 5
+    },
+    {
+      "technique": "t1218.001",
+      "layer": "endpoint_process",
+      "rule_count": 5
+    },
+    {
+      "technique": "t1552.007",
+      "layer": "cloud_control_plane",
+      "rule_count": 4
+    },
+    {
+      "technique": "t1550.001",
+      "layer": "cloud_control_plane",
+      "rule_count": 4
+    },
+    {
+      "technique": "t1102.001",
+      "layer": "network",
+      "rule_count": 4
+    },
+    {
+      "technique": "t1547.009",
+      "layer": "endpoint_other",
+      "rule_count": 4
+    },
+    {
+      "technique": "t1008",
+      "layer": "endpoint_other",
+      "rule_count": 4
+    },
+    {
+      "technique": "t1119",
+      "layer": "endpoint_process",
+      "rule_count": 4
+    },
+    {
+      "technique": "t1132.001",
+      "layer": "endpoint_process",
+      "rule_count": 4
+    },
+    {
+      "technique": "t1518",
+      "layer": "endpoint_process",
+      "rule_count": 4
+    },
+    {
+      "technique": "t1135",
+      "layer": "endpoint_process",
+      "rule_count": 4
+    },
+    {
+      "technique": "t1136.003",
+      "layer": "cloud_control_plane",
+      "rule_count": 3
+    },
+    {
+      "technique": "t1609",
+      "layer": "cloud_control_plane",
+      "rule_count": 3
+    },
+    {
+      "technique": "t1087.004",
+      "layer": "cloud_control_plane",
+      "rule_count": 3
+    },
+    {
+      "technique": "t1685.002",
+      "layer": "cloud_control_plane",
+      "rule_count": 3
+    },
+    {
+      "technique": "t1059.009",
+      "layer": "cloud_control_plane",
+      "rule_count": 3
+    },
+    {
+      "technique": "t1592.004",
+      "layer": "endpoint_process",
+      "rule_count": 3
+    },
+    {
+      "technique": "t1497.001",
+      "layer": "endpoint_process",
+      "rule_count": 3
+    },
+    {
+      "technique": "t1200",
+      "layer": "endpoint_other",
+      "rule_count": 3
+    },
+    {
+      "technique": "t1069",
+      "layer": "endpoint_process",
+      "rule_count": 3
+    },
+    {
+      "technique": "t1556.002",
+      "layer": "endpoint_process",
+      "rule_count": 3
+    },
+    {
+      "technique": "t1620",
+      "layer": "endpoint_process",
+      "rule_count": 3
+    },
+    {
+      "technique": "t1586",
+      "layer": "cloud_control_plane",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1591.004",
+      "layer": "cloud_control_plane",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1611",
+      "layer": "cloud_control_plane",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1114.003",
+      "layer": "cloud_control_plane",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1621",
+      "layer": "cloud_control_plane",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1543.002",
+      "layer": "endpoint_other",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1574.006",
+      "layer": "endpoint_other",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1568.002",
+      "layer": "network",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1593.003",
+      "layer": "endpoint_process",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1543.001",
+      "layer": "endpoint_process",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1543.004",
+      "layer": "endpoint_process",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1553",
+      "layer": "endpoint_process",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1686.002",
+      "layer": "application",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1590",
+      "layer": "network",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1102.003",
+      "layer": "network",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1056",
+      "layer": "network",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1207",
+      "layer": "endpoint_other",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1001.003",
+      "layer": "endpoint_other",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1222",
+      "layer": "endpoint_process",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1564.006",
+      "layer": "endpoint_process",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1120",
+      "layer": "endpoint_process",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1185",
+      "layer": "endpoint_process",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1176.001",
+      "layer": "endpoint_process",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1614.001",
+      "layer": "endpoint_process",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1574.005",
+      "layer": "endpoint_process",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1216.001",
+      "layer": "endpoint_process",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1218.013",
+      "layer": "endpoint_process",
+      "rule_count": 2
+    }
+  ],
+  "single_layer_technique_count": 149,
+  "control_plane_assessment": [
+    {
+      "technique": "t1078.004",
+      "name": "Valid Accounts: Cloud Accounts",
+      "rule_count": 37,
+      "status": "control-plane covered",
+      "layers": {
+        "cloud_control_plane": 36,
+        "identity": 1
+      }
+    },
+    {
+      "technique": "t1567.002",
+      "name": "Exfiltration to Cloud Storage",
+      "rule_count": 13,
+      "status": "no control-plane coverage",
+      "layers": {
+        "endpoint_other": 4,
+        "endpoint_process": 3,
+        "network": 6
+      }
+    },
+    {
+      "technique": "t1526",
+      "name": "Cloud Service Discovery",
+      "rule_count": 3,
+      "status": "control-plane covered",
+      "layers": {
+        "cloud_control_plane": 2,
+        "endpoint_process": 1
+      }
+    },
+    {
+      "technique": "t1609",
+      "name": "Container Administration Command",
+      "rule_count": 3,
+      "status": "control-plane covered",
+      "layers": {
+        "cloud_control_plane": 3
+      }
+    },
+    {
+      "technique": "t1611",
+      "name": "Escape to Host",
+      "rule_count": 2,
+      "status": "control-plane covered",
+      "layers": {
+        "cloud_control_plane": 2
+      }
+    },
+    {
+      "technique": "t1580",
+      "name": "Cloud Infrastructure Discovery",
+      "rule_count": 1,
+      "status": "control-plane covered",
+      "layers": {
+        "cloud_control_plane": 1
+      }
+    },
+    {
+      "technique": "t1619",
+      "name": "Cloud Storage Object Discovery",
+      "rule_count": 1,
+      "status": "control-plane covered",
+      "layers": {
+        "cloud_control_plane": 1
+      }
+    },
+    {
+      "technique": "t1530",
+      "name": "Data from Cloud Storage",
+      "rule_count": 0,
+      "status": "no rules in corpus",
+      "layers": {}
+    },
+    {
+      "technique": "t1552.005",
+      "name": "Unsecured Credentials: Cloud Instance Metadata API",
+      "rule_count": 0,
+      "status": "no rules in corpus",
+      "layers": {}
+    },
+    {
+      "technique": "t1538",
+      "name": "Cloud Service Dashboard",
+      "rule_count": 0,
+      "status": "no rules in corpus",
+      "layers": {}
+    },
+    {
+      "technique": "t1651",
+      "name": "Cloud Administration Command",
+      "rule_count": 0,
+      "status": "no rules in corpus",
+      "layers": {}
+    },
+    {
+      "technique": "t1610",
+      "name": "Deploy Container",
+      "rule_count": 0,
+      "status": "no rules in corpus",
+      "layers": {}
+    }
+  ],
+  "interpretation": "A technique covered by rules on a single layer is covered for one execution path. For cloud and container techniques the authoritative record is a control-plane audit log, so process-creation-only coverage detects the subset of adversaries who use a command-line client rather than an SDK.",
+  "corpus": "SigmaHQ",
+  "generated": "2026-09-05",
+  "acquisition": {
+    "source": "https://github.com/SigmaHQ/sigma",
+    "revision": "272daf82bf77fb0bb97f1f0c4d82bc61154772e1",
+    "files_listed": 3144,
+    "files_read": 3144,
+    "files_unreadable": 0,
+    "read_note": "Contents were streamed from git object storage. No rule text was written to the filesystem."
+  }
+}

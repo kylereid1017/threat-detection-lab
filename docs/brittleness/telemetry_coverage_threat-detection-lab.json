@@ -1,0 +1,213 @@
+{
+  "rules_analyzed": 15,
+  "rules_with_attack_technique": 15,
+  "techniques_covered": 23,
+  "layer_totals": {
+    "endpoint_process": 9,
+    "cloud_control_plane": 5,
+    "endpoint_other": 1
+  },
+  "layer_share": {
+    "cloud_control_plane": 0.3333,
+    "endpoint_other": 0.0667,
+    "endpoint_process": 0.6
+  },
+  "single_layer_techniques": [
+    {
+      "technique": "t1078.004",
+      "layer": "cloud_control_plane",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1059.001",
+      "layer": "endpoint_process",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1105",
+      "layer": "endpoint_process",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1059.007",
+      "layer": "endpoint_process",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1195.001",
+      "layer": "endpoint_process",
+      "rule_count": 2
+    },
+    {
+      "technique": "t1609",
+      "layer": "cloud_control_plane",
+      "rule_count": 1
+    },
+    {
+      "technique": "t1552.001",
+      "layer": "endpoint_process",
+      "rule_count": 1
+    },
+    {
+      "technique": "t1539",
+      "layer": "endpoint_process",
+      "rule_count": 1
+    },
+    {
+      "technique": "t1059.006",
+      "layer": "endpoint_process",
+      "rule_count": 1
+    },
+    {
+      "technique": "t1070.001",
+      "layer": "endpoint_process",
+      "rule_count": 1
+    },
+    {
+      "technique": "t1562.001",
+      "layer": "endpoint_process",
+      "rule_count": 1
+    },
+    {
+      "technique": "t1204.002",
+      "layer": "endpoint_process",
+      "rule_count": 1
+    },
+    {
+      "technique": "t1059.003",
+      "layer": "endpoint_process",
+      "rule_count": 1
+    },
+    {
+      "technique": "t1027",
+      "layer": "endpoint_process",
+      "rule_count": 1
+    },
+    {
+      "technique": "t1218.005",
+      "layer": "endpoint_process",
+      "rule_count": 1
+    },
+    {
+      "technique": "t1218.011",
+      "layer": "endpoint_process",
+      "rule_count": 1
+    },
+    {
+      "technique": "t1059.005",
+      "layer": "endpoint_process",
+      "rule_count": 1
+    },
+    {
+      "technique": "t1053.005",
+      "layer": "endpoint_process",
+      "rule_count": 1
+    }
+  ],
+  "single_layer_technique_count": 18,
+  "control_plane_assessment": [
+    {
+      "technique": "t1078.004",
+      "name": "Valid Accounts: Cloud Accounts",
+      "rule_count": 2,
+      "status": "control-plane covered",
+      "layers": {
+        "cloud_control_plane": 2
+      }
+    },
+    {
+      "technique": "t1530",
+      "name": "Data from Cloud Storage",
+      "rule_count": 2,
+      "status": "control-plane covered",
+      "layers": {
+        "cloud_control_plane": 1,
+        "endpoint_process": 1
+      }
+    },
+    {
+      "technique": "t1552.005",
+      "name": "Unsecured Credentials: Cloud Instance Metadata API",
+      "rule_count": 2,
+      "status": "control-plane covered",
+      "layers": {
+        "cloud_control_plane": 1,
+        "endpoint_process": 1
+      }
+    },
+    {
+      "technique": "t1567.002",
+      "name": "Exfiltration to Cloud Storage",
+      "rule_count": 2,
+      "status": "control-plane covered",
+      "layers": {
+        "cloud_control_plane": 1,
+        "endpoint_process": 1
+      }
+    },
+    {
+      "technique": "t1611",
+      "name": "Escape to Host",
+      "rule_count": 2,
+      "status": "control-plane covered",
+      "layers": {
+        "cloud_control_plane": 1,
+        "endpoint_process": 1
+      }
+    },
+    {
+      "technique": "t1609",
+      "name": "Container Administration Command",
+      "rule_count": 1,
+      "status": "control-plane covered",
+      "layers": {
+        "cloud_control_plane": 1
+      }
+    },
+    {
+      "technique": "t1580",
+      "name": "Cloud Infrastructure Discovery",
+      "rule_count": 0,
+      "status": "no rules in corpus",
+      "layers": {}
+    },
+    {
+      "technique": "t1526",
+      "name": "Cloud Service Discovery",
+      "rule_count": 0,
+      "status": "no rules in corpus",
+      "layers": {}
+    },
+    {
+      "technique": "t1538",
+      "name": "Cloud Service Dashboard",
+      "rule_count": 0,
+      "status": "no rules in corpus",
+      "layers": {}
+    },
+    {
+      "technique": "t1619",
+      "name": "Cloud Storage Object Discovery",
+      "rule_count": 0,
+      "status": "no rules in corpus",
+      "layers": {}
+    },
+    {
+      "technique": "t1651",
+      "name": "Cloud Administration Command",
+      "rule_count": 0,
+      "status": "no rules in corpus",
+      "layers": {}
+    },
+    {
+      "technique": "t1610",
+      "name": "Deploy Container",
+      "rule_count": 0,
+      "status": "no rules in corpus",
+      "layers": {}
+    }
+  ],
+  "interpretation": "A technique covered by rules on a single layer is covered for one execution path. For cloud and container techniques the authoritative record is a control-plane audit log, so process-creation-only coverage detects the subset of adversaries who use a command-line client rather than an SDK.",
+  "corpus": "threat-detection-lab",
+  "generated": "2026-09-05"
+}
