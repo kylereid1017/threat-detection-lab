@@ -1,54 +1,10 @@
 {
   "target_type": "sigma",
   "target_rule": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
-  "iterations_run": 3,
-  "total_generated": 3,
-  "critic_approved": 3,
-  "detected_count": 1,
-  "evaded_count": 2,
-  "final_resilience": 0.333,
-  "history": [
-    {
-      "iteration": 1,
-      "timestamp": "2026-09-03T22:43:54.164786+00:00",
-      "prompt": "Simulate Explorer launching pcalua.exe to proxy powershell download",
-      "variant_id": "prompt-831d3aab",
-      "mutation_name": "prompt_pcalua_lolbin_proxy",
-      "axis": "lolbin_proxy",
-      "critic_passed": true,
-      "critic_reason": "Passed all pre-flight syntax and safety checks",
-      "detected": false,
-      "evasion_gap": true,
-      "healing": null,
-      "cumulative_resilience": 0.0
-    },
-    {
-      "iteration": 2,
-      "timestamp": "2026-09-03T22:43:54.165084+00:00",
-      "prompt": "Simulate PowerShell execution with abbreviated -w h switch",
-      "variant_id": "prompt-c7e15802",
-      "mutation_name": "prompt_powershell_syntax",
-      "axis": "syntax",
-      "critic_passed": true,
-      "critic_reason": "Passed all pre-flight syntax and safety checks",
-      "detected": true,
-      "evasion_gap": false,
-      "healing": null,
-      "cumulative_resilience": 0.5
-    },
-    {
-      "iteration": 3,
-      "timestamp": "2026-09-03T22:43:54.165276+00:00",
-      "prompt": "Simulate CMD streaming download payload via stdin pipe into powershell",
-      "variant_id": "prompt-c254a433",
-      "mutation_name": "prompt_powershell_argument_hiding",
-      "axis": "argument_hiding",
-      "critic_passed": true,
-      "critic_reason": "Passed all pre-flight syntax and safety checks",
-      "detected": false,
-      "evasion_gap": true,
-      "healing": null,
-      "cumulative_resilience": 0.333
-    }
-  ]
+  "total_generated": 0,
+  "critic_approved": 0,
+  "detected_count": 0,
+  "evaded_count": 0,
+  "final_resilience": 0.0,
+  "endurance_mode": true
 }

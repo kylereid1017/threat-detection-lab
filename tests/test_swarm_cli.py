@@ -36,6 +36,8 @@ class SwarmCliParserTests(unittest.TestCase):
             self.assertIsNone(args.corpus_path)
             self.assertFalse(args.is_benign)
             self.assertEqual(args.window, 300)
+            self.assertFalse(args.endurance)
+            self.assertEqual(args.pace, 0.4)
 
     def test_custom_flags(self):
         with patch.object(
@@ -74,6 +76,9 @@ class SwarmCliParserTests(unittest.TestCase):
                 "--is-benign",
                 "--window",
                 "120",
+                "--endurance",
+                "--pace",
+                "0.2",
             ],
         ):
             args = cli.parse_args()
@@ -98,6 +103,8 @@ class SwarmCliParserTests(unittest.TestCase):
             self.assertEqual(args.corpus_path, Path("tests/fixtures/telemetry/sample_sysmon_process_create.evtx"))
             self.assertTrue(args.is_benign)
             self.assertEqual(args.window, 120)
+            self.assertTrue(args.endurance)
+            self.assertEqual(args.pace, 0.2)
 
 
 class SwarmCliDispatchTests(unittest.TestCase):
@@ -314,6 +321,17 @@ class SwarmCliDispatchTests(unittest.TestCase):
                     ret = cli.main()
                     self.assertEqual(ret, 0)
                     self.assertTrue((Path(tmp) / "telemetry_replay.json").exists())
+
+    def test_main_endurance_runner(self):
+        with patch.object(
+            sys,
+            "argv",
+            ["tools.swarm.cli", "--endurance", "--pace", "0.01"],
+        ):
+            with patch("tools.swarm.endurance_runner.EnduranceRunner.run") as mock_run:
+                ret = cli.main()
+                self.assertEqual(ret, 0)
+                mock_run.assert_called_once()
 
 
 if __name__ == "__main__":

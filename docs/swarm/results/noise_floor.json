@@ -1,35 +1,94 @@
 {
-  "total_events": 2526,
-  "benign_events": 2500,
+  "total_events": 226,
+  "benign_events": 200,
   "malicious_events": 26,
-  "ambiguous_events": 81,
-  "false_positive_rate": 0.0324,
+  "ambiguous_events": 1,
+  "false_positive_rate": 0.005,
   "false_positive_rate_ci_95": [
-    0.02615,
-    0.04009
+    0.00088,
+    0.02777
   ],
-  "alerts_per_1000_benign": 32.4,
+  "alerts_per_1000_benign": 5.0,
   "corpus": {
     "rule_name": "CORPUS",
-    "true_positives": 21,
-    "false_positives": 81,
-    "true_negatives": 2419,
-    "false_negatives": 5,
-    "precision": 0.2059,
-    "recall": 0.8077,
-    "f1_score": 0.3281,
-    "false_discovery_rate": 0.7941,
+    "true_positives": 24,
+    "false_positives": 1,
+    "true_negatives": 199,
+    "false_negatives": 2,
+    "precision": 0.96,
+    "recall": 0.9231,
+    "f1_score": 0.9412,
+    "false_discovery_rate": 0.04,
     "false_positive_profiles": {
-      "admin_hidden_window_script": 37,
-      "deployment_scheduled_task": 44
+      "admin_hidden_window_script": 1
     }
   },
   "per_rule": [
     {
+      "rule_name": "Execution of Alien JS Runtime Bun from Suspicious or Site-Packages Directory",
+      "true_positives": 1,
+      "false_positives": 0,
+      "true_negatives": 200,
+      "false_negatives": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_discovery_rate": 0.0,
+      "false_positive_profiles": {}
+    },
+    {
+      "rule_name": "Unpinned Dynamic Tool Execution Spawned by AI Agent Runtime",
+      "true_positives": 1,
+      "false_positives": 0,
+      "true_negatives": 200,
+      "false_negatives": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_discovery_rate": 0.0,
+      "false_positive_profiles": {}
+    },
+    {
+      "rule_name": "Suspicious Cloud IMDSv2 Credential Acquisition and S3 Checkpoint Exfiltration",
+      "true_positives": 2,
+      "false_positives": 0,
+      "true_negatives": 200,
+      "false_negatives": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_discovery_rate": 0.0,
+      "false_positive_profiles": {}
+    },
+    {
+      "rule_name": "Suspicious Developer Runtime Access to Sensitive Workstation Credentials",
+      "true_positives": 2,
+      "false_positives": 0,
+      "true_negatives": 200,
+      "false_negatives": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_discovery_rate": 0.0,
+      "false_positive_profiles": {}
+    },
+    {
+      "rule_name": "Package Manager Lifecycle Hook Spawning an Interpreter or Downloader",
+      "true_positives": 2,
+      "false_positives": 0,
+      "true_negatives": 200,
+      "false_negatives": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_discovery_rate": 0.0,
+      "false_positive_profiles": {}
+    },
+    {
       "rule_name": "Suspicious Event Log Clearing or Security Software Tampering",
       "true_positives": 2,
       "false_positives": 0,
-      "true_negatives": 2500,
+      "true_negatives": 200,
       "false_negatives": 0,
       "precision": 1.0,
       "recall": 1.0,
@@ -39,23 +98,23 @@
     },
     {
       "rule_name": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
-      "true_positives": 15,
-      "false_positives": 37,
-      "true_negatives": 2463,
-      "false_negatives": 5,
-      "precision": 0.2885,
-      "recall": 0.75,
-      "f1_score": 0.4167,
-      "false_discovery_rate": 0.7115,
+      "true_positives": 10,
+      "false_positives": 1,
+      "true_negatives": 199,
+      "false_negatives": 2,
+      "precision": 0.9091,
+      "recall": 0.8333,
+      "f1_score": 0.8696,
+      "false_discovery_rate": 0.0909,
       "false_positive_profiles": {
-        "admin_hidden_window_script": 37
+        "admin_hidden_window_script": 1
       }
     },
     {
       "rule_name": "LSASS Process Memory Dump via Rundll32 Comsvcs.dll",
       "true_positives": 2,
       "false_positives": 0,
-      "true_negatives": 2500,
+      "true_negatives": 200,
       "false_negatives": 0,
       "precision": 1.0,
       "recall": 1.0,
@@ -66,16 +125,14 @@
     {
       "rule_name": "Suspicious Scheduled Task Creation Spawning Shell or Script Engine",
       "true_positives": 2,
-      "false_positives": 44,
-      "true_negatives": 2456,
+      "false_positives": 0,
+      "true_negatives": 200,
       "false_negatives": 0,
-      "precision": 0.0435,
+      "precision": 1.0,
       "recall": 1.0,
-      "f1_score": 0.0833,
-      "false_discovery_rate": 0.9565,
-      "false_positive_profiles": {
-        "deployment_scheduled_task": 44
-      }
+      "f1_score": 1.0,
+      "false_discovery_rate": 0.0,
+      "false_positive_profiles": {}
     }
   ]
 }

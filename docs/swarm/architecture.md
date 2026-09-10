@@ -52,7 +52,7 @@ flowchart TD
 
 ## The 5 Agent Roles
 
-Rather than prompting a single LLM to generate generic variants, the swarm decouples the testing process into specialized functional roles:
+Rather than prompting a single LLM to generate generic variants, the swarm decouples the testing process into specialized functional roles. The roles are **deterministic Python modules, not language models**: every role is a pure function of its inputs, there is no network or LLM call anywhere in the evaluation path, and a run is byte-reproducible from its directive. Determinism is a feature — it is what makes results CI-gateable and independently re-runnable:
 
 ```mermaid
 flowchart LR
@@ -82,27 +82,43 @@ flowchart LR
 
 ## Measured Boundary Discoveries
 
-In empirical tests against the repository's rules, the swarm mapped the following detection boundaries:
+The swarm's purpose is to map detection boundaries *before* adversaries find them, then feed rule tuning. The numbers below are **internal measurements** under the repository's measurement policy: mutations written by this repository, evaluated against rules written by this repository. They are regression signals that track whether rule changes widen or narrow known boundaries — not estimates of evasion resistance in the field.
 
-### 1. File Inspection: `Suspicious_Active_Content_SVG_Attachment` (YARA)
-* **Resilience Score**: 66.7% (6/9 detected, 3 gaps identified)
-* **Discovered Boundaries**:
-  1. `structural/svg_comment_padding_exceeding_1kb`: The rule enforces `$svg at 0 or $svg in (0..1024)`. Prepending >1,024 bytes of XML comments pushes the `<svg` root outside the scan window.  
-     *Recommendation (`REC-YARA-001`)*: Expand the root search window to 4,096 bytes or pair with a structural XML pre-parser.
-  2. `obfuscation/svg_string_concatenation_location`: Literal string matching for `location` and `href` is bypassed when JavaScript constructs properties dynamically (`window['loc'+'ation']['hr'+'ef']`).  
-     *Recommendation (`REC-YARA-002`)*: Pair static string matching with AST JavaScript tokenization or dynamic sandbox inspection.
-  3. `structural/svg_namespace_prefix_aliasing`: Custom namespace prefixes (`<svg:svg>`) alter the byte representation from literal `<svg`.  
-     *Recommendation (`REC-YARA-003`)*: Update regex to accept optional namespace qualifiers: `<([a-zA-Z0-9_-]+:)?svg`.
+### Cycle 1 (2026-09-03): initial mapping
 
-### 2. Process Telemetry: `proc_creation_win_explorer_clickfix_execution` (Sigma)
-* **Resilience Score**: 72.7% (8/11 detected, 3 gaps identified)
-* **Discovered Boundaries**:
-  1. `obfuscation/proc_powershell_split_invoke_restmethod`: Cmdlet invocation splitting `&('Inv'+'oke-RestMethod')` evades literal `CommandLine|contains` matches.  
-     *Recommendation (`REC-SIGMA-002`)*: Layer with PowerShell Script Block Logging (Event ID 4104) to capture deobfuscated tokens.
-  2. `lolbin/proc_rundll32_url_protocol_handler`: Explorer spawning `rundll32.exe url.dll,FileProtocolHandler` to trigger remote URLs is not covered by shell-specific filters.  
-     *Recommendation (`REC-SIGMA-004`)*: Add `rundll32.exe` executing `url.dll` or `mshtml` to monitored child LOLBins.
-  3. `lolbin/proc_wscript_remote_script_fetch`: Explorer spawning `wscript.exe` / `cscript.exe` with remote HTTP(S) destinations.  
-     *Recommendation (`REC-SIGMA-005`)*: Add Windows Script Host utilities with remote URIs to monitored child images.
+Against the original rule set, the swarm identified boundary gaps on both targets:
+
+| Target | Initial resilience | Gaps identified |
+|---|---|---|
+| YARA — `Suspicious_Active_Content_SVG_Attachment` | 66.7% (6/9) | 3 |
+| Sigma — `proc_creation_win_explorer_clickfix_execution` | 72.7% (8/11) | 3 |
+
+Discovered boundaries included: SVG comment padding pushing the root element past the scan window (`REC-YARA-001`), JavaScript bracket/concatenation access to `location` (`REC-YARA-002`), namespace-prefixed `<svg:svg>` roots (`REC-YARA-003`), PowerShell switch aliases (`-w 1`, `-w h`, `-windowstyle 1`; `REC-SIGMA-001`), and Explorer spawning `rundll32 url.dll` / `wscript` with remote destinations (`REC-SIGMA-004/005`).
+
+### Cycle 2 (2026-09-03 → 2026-09-04): rule tuning
+
+The discovered gaps were converted into rule changes (commit `3f94da5`):
+
+| Recommendation | Status | Evidence in current rules |
+|---|---|---|
+| REC-YARA-001 — expand SVG root window to 4,096 B | **Implemented** | `$svg_root in (0..4096)` |
+| REC-YARA-002 — bracket/concat JS navigation | **Implemented (regex level)** | `$navigation_bracket` literal alternation; AST/sandbox inspection remains open |
+| REC-YARA-003 — namespace-prefixed `<svg:svg>` | **Implemented** | `/<([a-zA-Z0-9_-]+:)?svg[...]/` |
+| REC-SIGMA-001 — `-w 1`, `-w h`, `-windowstyle 1` aliases | **Implemented** | `selection_pwsh_action` contains-list |
+| REC-SIGMA-002 — Script Block Logging (EID 4104) | **Telemetry-layer, documented** | declared in `telemetry_prerequisites`; script-block correlation nodes in `graph_engine.py` |
+| REC-SIGMA-004 — `rundll32 url.dll` | **Implemented** | `selection_rundll32_img` / `selection_rundll32_target` |
+| REC-SIGMA-005 — `wscript` / `cscript` remote fetch | **Implemented** | `selection_wscript_img` / `selection_wscript_target` |
+
+### Cycle 3 (current): re-measurement
+
+Against the tuned rules, the swarm currently measures **7/7 variants detected (100%)** for both targets. Fresh, deterministic results (byte-identical across runs) are in `docs/swarm/results/boundary_map_yara.json`, `boundary_map_sigma.json` and the Markdown campaign reports:
+
+```powershell
+python -m tools.swarm.cli --target yara --max-cycles 2
+python -m tools.swarm.cli --target sigma --max-cycles 2
+```
+
+> [!IMPORTANT] The 100% figure is a property of the current mutation vocabulary *and* the tuned rules — the same closed loop that found the original gaps now confirms they are closed. A gap the harness cannot generate is a gap it cannot count, and resilience measured against this repository's own rules is not field performance. Earlier strategic cables carried inflated aggregate numbers; see [`../cables/ERRATA-2026-09-10.md`](../cables/ERRATA-2026-09-10.md) for the corrected reading.
 
 ---
 

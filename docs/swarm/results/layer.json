@@ -47,6 +47,24 @@
       "showSubtechniques": false
     },
     {
+      "techniqueID": "T1036",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Execution of Alien JS Runtime Bun from Suspicious or Site-Packages Directory",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
       "techniqueID": "T1053.005",
       "score": 73,
       "color": "#b7d84b",
@@ -119,6 +137,42 @@
       "showSubtechniques": false
     },
     {
+      "techniqueID": "T1059.006",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Suspicious Developer Runtime Access to Sensitive Workstation Credentials",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1059.007",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Execution of Alien JS Runtime Bun from Suspicious or Site-Packages Directory; Unpinned Dynamic Tool Execution Spawned by AI Agent Runtime; Suspicious Developer Runtime Access to Sensitive Workstation Credentials; Package Manager Lifecycle Hook Spawning an Interpreter or Downloader",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "4"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
       "techniqueID": "T1070.001",
       "score": 73,
       "color": "#b7d84b",
@@ -150,6 +204,24 @@
         {
           "name": "analytics",
           "value": "2"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1195.001",
+      "score": 95,
+      "color": "#8ec843",
+      "comment": "Covered by: Unpinned Dynamic Tool Execution Spawned by AI Agent Runtime; Suspicious Developer Runtime Access to Sensitive Workstation Credentials; Package Manager Lifecycle Hook Spawning an Interpreter or Downloader; Correlated Unpinned Agent Tool Execution and Credential Scraping; Correlated Package Hook Execution and Developer Credential Scraping",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "true"
+        },
+        {
+          "name": "analytics",
+          "value": "5"
         }
       ],
       "showSubtechniques": false
@@ -209,6 +281,78 @@
       "showSubtechniques": false
     },
     {
+      "techniqueID": "T1530",
+      "score": 95,
+      "color": "#8ec843",
+      "comment": "Covered by: Suspicious Cloud IMDSv2 Credential Acquisition and S3 Checkpoint Exfiltration; Correlated Node Credential Theft and Model Checkpoint Retrieval",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "true"
+        },
+        {
+          "name": "analytics",
+          "value": "2"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1539",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Suspicious Developer Runtime Access to Sensitive Workstation Credentials",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1552.001",
+      "score": 95,
+      "color": "#8ec843",
+      "comment": "Covered by: Suspicious Developer Runtime Access to Sensitive Workstation Credentials; Correlated Unpinned Agent Tool Execution and Credential Scraping; Correlated Package Hook Execution and Developer Credential Scraping",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "true"
+        },
+        {
+          "name": "analytics",
+          "value": "3"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1552.005",
+      "score": 95,
+      "color": "#8ec843",
+      "comment": "Covered by: Suspicious Cloud IMDSv2 Credential Acquisition and S3 Checkpoint Exfiltration; Correlated Node Credential Theft and Model Checkpoint Retrieval",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "true"
+        },
+        {
+          "name": "analytics",
+          "value": "2"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
       "techniqueID": "T1562.001",
       "score": 73,
       "color": "#b7d84b",
@@ -231,6 +375,60 @@
       "score": 73,
       "color": "#b7d84b",
       "comment": "Covered by: suspicious_active_content_svg",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1567.002",
+      "score": 95,
+      "color": "#8ec843",
+      "comment": "Covered by: Suspicious Cloud IMDSv2 Credential Acquisition and S3 Checkpoint Exfiltration; Correlated Node Credential Theft and Model Checkpoint Retrieval",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "true"
+        },
+        {
+          "name": "analytics",
+          "value": "2"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1574.013",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Execution of Alien JS Runtime Bun from Suspicious or Site-Packages Directory",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "correlation-backed",
+          "value": "false"
+        },
+        {
+          "name": "analytics",
+          "value": "1"
+        }
+      ],
+      "showSubtechniques": false
+    },
+    {
+      "techniqueID": "T1611",
+      "score": 73,
+      "color": "#b7d84b",
+      "comment": "Covered by: Suspicious Cloud IMDSv2 Credential Acquisition and S3 Checkpoint Exfiltration",
       "enabled": true,
       "metadata": [
         {
@@ -271,11 +469,11 @@
     },
     {
       "name": "rules-evaluated",
-      "value": "9"
+      "value": "18"
     },
     {
       "name": "techniques-covered",
-      "value": "13"
+      "value": "24"
     }
   ],
   "showTacticRowBackground": true,

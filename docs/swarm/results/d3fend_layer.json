@@ -6,8 +6,8 @@
     "d3fend": "0.10",
     "schema": "1.0"
   },
-  "techniques_total": 13,
-  "techniques_mapped": 13,
+  "techniques_total": 24,
+  "techniques_mapped": 24,
   "techniques_unmapped": [],
   "identifier_collisions": [],
   "countermeasures_by_tactic": {
@@ -62,6 +62,31 @@
           "tactic": "Detect",
           "description": "Executes suspected obfuscated content in an instrumented environment to recover intent.",
           "source": "verified"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1036",
+      "attack_score": 73,
+      "correlation_backed": false,
+      "mapping_source": "verified",
+      "analytics": [
+        "Execution of Alien JS Runtime Bun from Suspicious or Site-Packages Directory"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-PA",
+          "name": "Process Analysis",
+          "tactic": "Detect",
+          "description": "Analyses process behaviour for defensive tooling impairment.",
+          "source": "verified"
+        },
+        {
+          "d3fend_id": "D3-PSA",
+          "name": "Process Spawn Analysis",
+          "tactic": "Detect",
+          "description": "Verifies the parent/child process lineage and binary provenance of spawned executables.",
+          "source": "briefing"
         }
       ]
     },
@@ -146,6 +171,45 @@
       ]
     },
     {
+      "technique_id": "T1059.006",
+      "attack_score": 73,
+      "correlation_backed": false,
+      "mapping_source": "verified",
+      "analytics": [
+        "Suspicious Developer Runtime Access to Sensitive Workstation Credentials"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-SEA",
+          "name": "Script Execution Analysis",
+          "tactic": "Detect",
+          "description": "Analyses interpreted script content and invocation for download-and-execute behaviour.",
+          "source": "briefing"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1059.007",
+      "attack_score": 73,
+      "correlation_backed": false,
+      "mapping_source": "verified",
+      "analytics": [
+        "Execution of Alien JS Runtime Bun from Suspicious or Site-Packages Directory",
+        "Unpinned Dynamic Tool Execution Spawned by AI Agent Runtime",
+        "Suspicious Developer Runtime Access to Sensitive Workstation Credentials",
+        "Package Manager Lifecycle Hook Spawning an Interpreter or Downloader"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-SEA",
+          "name": "Script Execution Analysis",
+          "tactic": "Detect",
+          "description": "Analyses interpreted script content and invocation for download-and-execute behaviour.",
+          "source": "briefing"
+        }
+      ]
+    },
+    {
       "technique_id": "T1070.001",
       "attack_score": 73,
       "correlation_backed": false,
@@ -178,6 +242,35 @@
           "name": "Network Traffic Analysis",
           "tactic": "Detect",
           "description": "Analyses egress traffic for tool transfer and staging behaviour.",
+          "source": "verified"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1195.001",
+      "attack_score": 95,
+      "correlation_backed": true,
+      "mapping_source": "verified",
+      "analytics": [
+        "Unpinned Dynamic Tool Execution Spawned by AI Agent Runtime",
+        "Suspicious Developer Runtime Access to Sensitive Workstation Credentials",
+        "Package Manager Lifecycle Hook Spawning an Interpreter or Downloader",
+        "Correlated Unpinned Agent Tool Execution and Credential Scraping",
+        "Correlated Package Hook Execution and Developer Credential Scraping"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-FAA",
+          "name": "File Attachment Analysis",
+          "tactic": "Detect",
+          "description": "Inspects message attachments for active content and structural anomalies prior to delivery.",
+          "source": "briefing"
+        },
+        {
+          "d3fend_id": "D3-DA",
+          "name": "Dynamic Analysis",
+          "tactic": "Detect",
+          "description": "Executes suspected obfuscated content in an instrumented environment to recover intent.",
           "source": "verified"
         }
       ]
@@ -244,6 +337,82 @@
       ]
     },
     {
+      "technique_id": "T1530",
+      "attack_score": 95,
+      "correlation_backed": true,
+      "mapping_source": "verified",
+      "analytics": [
+        "Suspicious Cloud IMDSv2 Credential Acquisition and S3 Checkpoint Exfiltration",
+        "Correlated Node Credential Theft and Model Checkpoint Retrieval"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-NTA",
+          "name": "Network Traffic Analysis",
+          "tactic": "Detect",
+          "description": "Analyses egress traffic for tool transfer and staging behaviour.",
+          "source": "verified"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1539",
+      "attack_score": 73,
+      "correlation_backed": false,
+      "mapping_source": "verified",
+      "analytics": [
+        "Suspicious Developer Runtime Access to Sensitive Workstation Credentials"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-DA",
+          "name": "Dynamic Analysis",
+          "tactic": "Detect",
+          "description": "Executes suspected obfuscated content in an instrumented environment to recover intent.",
+          "source": "verified"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1552.001",
+      "attack_score": 95,
+      "correlation_backed": true,
+      "mapping_source": "verified",
+      "analytics": [
+        "Suspicious Developer Runtime Access to Sensitive Workstation Credentials",
+        "Correlated Unpinned Agent Tool Execution and Credential Scraping",
+        "Correlated Package Hook Execution and Developer Credential Scraping"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-DA",
+          "name": "Dynamic Analysis",
+          "tactic": "Detect",
+          "description": "Executes suspected obfuscated content in an instrumented environment to recover intent.",
+          "source": "verified"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1552.005",
+      "attack_score": 95,
+      "correlation_backed": true,
+      "mapping_source": "verified",
+      "analytics": [
+        "Suspicious Cloud IMDSv2 Credential Acquisition and S3 Checkpoint Exfiltration",
+        "Correlated Node Credential Theft and Model Checkpoint Retrieval"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-NTA",
+          "name": "Network Traffic Analysis",
+          "tactic": "Detect",
+          "description": "Analyses egress traffic for tool transfer and staging behaviour.",
+          "source": "verified"
+        }
+      ]
+    },
+    {
       "technique_id": "T1562.001",
       "attack_score": 73,
       "correlation_backed": false,
@@ -275,6 +444,75 @@
           "name": "File Attachment Analysis",
           "tactic": "Detect",
           "description": "Inspects message attachments for active content and structural anomalies prior to delivery.",
+          "source": "briefing"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1567.002",
+      "attack_score": 95,
+      "correlation_backed": true,
+      "mapping_source": "verified",
+      "analytics": [
+        "Suspicious Cloud IMDSv2 Credential Acquisition and S3 Checkpoint Exfiltration",
+        "Correlated Node Credential Theft and Model Checkpoint Retrieval"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-NTA",
+          "name": "Network Traffic Analysis",
+          "tactic": "Detect",
+          "description": "Analyses egress traffic for tool transfer and staging behaviour.",
+          "source": "verified"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1574.013",
+      "attack_score": 73,
+      "correlation_backed": false,
+      "mapping_source": "verified",
+      "analytics": [
+        "Execution of Alien JS Runtime Bun from Suspicious or Site-Packages Directory"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-DA",
+          "name": "Dynamic Analysis",
+          "tactic": "Detect",
+          "description": "Executes suspected obfuscated content in an instrumented environment to recover intent.",
+          "source": "verified"
+        },
+        {
+          "d3fend_id": "D3-SEA",
+          "name": "Script Execution Analysis",
+          "tactic": "Detect",
+          "description": "Analyses interpreted script content and invocation for download-and-execute behaviour.",
+          "source": "briefing"
+        }
+      ]
+    },
+    {
+      "technique_id": "T1611",
+      "attack_score": 73,
+      "correlation_backed": false,
+      "mapping_source": "verified",
+      "analytics": [
+        "Suspicious Cloud IMDSv2 Credential Acquisition and S3 Checkpoint Exfiltration"
+      ],
+      "countermeasures": [
+        {
+          "d3fend_id": "D3-PA",
+          "name": "Process Analysis",
+          "tactic": "Detect",
+          "description": "Analyses process behaviour for defensive tooling impairment.",
+          "source": "verified"
+        },
+        {
+          "d3fend_id": "D3-PSA",
+          "name": "Process Spawn Analysis",
+          "tactic": "Detect",
+          "description": "Verifies the parent/child process lineage and binary provenance of spawned executables.",
           "source": "briefing"
         }
       ]

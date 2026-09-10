@@ -208,53 +208,91 @@ class MultiEventEvaluator:
         """Selects one *distinct* event per stage inside the correlation window.
 
         Each stage consumes a different event (an N-stage correlation requires N
-        events). For ordered rules the selected events must be non-decreasing in
+        events). All events in a chain must share the same entity values for every
+        key declared in ``rule.group_by``.
+        For ordered rules the selected events must be non-decreasing in
         time; for either mode the full chain must span no more than the window.
 
         Returns ``(selected_indices, span_seconds)`` or ``None`` if no valid chain exists.
         """
         times = [event.epoch() for event in sequence.events]
+        group_fields = rule.group_by or []
 
-        if not rule.ordered:
-            # Unordered: assign each stage its earliest still-unused candidate.
-            used: set[int] = set()
-            chosen: List[int] = []
-            for indices in per_stage_indices:
-                available = sorted((i for i in indices if i not in used), key=lambda i: times[i])
-                if not available:
+        def event_group_key(idx: int) -> Optional[tuple]:
+            if not group_fields:
+                return ()
+            fields = sequence.events[idx].fields
+            vals = []
+            for f in group_fields:
+                if f not in fields or fields[f] is None:
                     return None
-                pick = available[0]
-                used.add(pick)
-                chosen.append(pick)
-            span = max(times[i] for i in chosen) - min(times[i] for i in chosen)
-            return (chosen, span) if span <= rule.timespan_seconds else None
+                vals.append(fields[f])
+            return tuple(vals)
 
-        # Ordered: anchor on each candidate of the first stage (time-sorted), then
-        # pick for each later stage the earliest distinct candidate at or after the
-        # previously selected event's timestamp; verify the total span fits.
-        for anchor in sorted(per_stage_indices[0], key=lambda i: times[i]):
-            used = {anchor}
-            selected = [anchor]
-            prev_time = times[anchor]
-            ok = True
-            for indices in per_stage_indices[1:]:
-                forward = sorted(
-                    (i for i in indices if i not in used and times[i] >= prev_time),
-                    key=lambda i: times[i],
-                )
-                if not forward:
-                    ok = False
-                    break
-                pick = forward[0]
-                used.add(pick)
-                selected.append(pick)
-                prev_time = times[pick]
-            if not ok:
+        all_group_keys = set()
+        for stage in per_stage_indices:
+            for idx in stage:
+                k = event_group_key(idx)
+                if k is not None:
+                    all_group_keys.add(k)
+
+        best_selection: Optional[Tuple[List[int], float]] = None
+
+        for gk in all_group_keys:
+            filtered_stages = [
+                [i for i in stage if event_group_key(i) == gk]
+                for stage in per_stage_indices
+            ]
+            if any(len(s) == 0 for s in filtered_stages):
                 continue
-            span = times[selected[-1]] - times[selected[0]]
-            if span <= rule.timespan_seconds:
-                return selected, span
-        return None
+
+            if rule.ordered:
+                def search_ordered(stage_idx: int, current_chain: List[int], prev_time: float) -> None:
+                    nonlocal best_selection
+                    if stage_idx == len(filtered_stages):
+                        span = times[current_chain[-1]] - times[current_chain[0]]
+                        if span <= rule.timespan_seconds:
+                            if best_selection is None or span < best_selection[1]:
+                                best_selection = (list(current_chain), span)
+                        return
+
+                    t_start = times[current_chain[0]] if current_chain else None
+                    for cand in filtered_stages[stage_idx]:
+                        if cand in current_chain:
+                            continue
+                        t = times[cand]
+                        if t < prev_time:
+                            continue
+                        if t_start is not None and (t - t_start) > rule.timespan_seconds:
+                            continue
+                        current_chain.append(cand)
+                        search_ordered(stage_idx + 1, current_chain, t)
+                        current_chain.pop()
+
+                search_ordered(0, [], float("-inf"))
+            else:
+                def search_unordered(stage_idx: int, current_chain: List[int]) -> None:
+                    nonlocal best_selection
+                    if stage_idx == len(filtered_stages):
+                        chain_times = [times[i] for i in current_chain]
+                        span = max(chain_times) - min(chain_times)
+                        if span <= rule.timespan_seconds:
+                            if best_selection is None or span < best_selection[1]:
+                                best_selection = (list(current_chain), span)
+                        return
+
+                    for cand in filtered_stages[stage_idx]:
+                        if cand in current_chain:
+                            continue
+                        current_chain.append(cand)
+                        chain_times = [times[i] for i in current_chain]
+                        if max(chain_times) - min(chain_times) <= rule.timespan_seconds:
+                            search_unordered(stage_idx + 1, current_chain)
+                        current_chain.pop()
+
+                search_unordered(0, [])
+
+        return best_selection
 
 
 def build_correlation_rule(

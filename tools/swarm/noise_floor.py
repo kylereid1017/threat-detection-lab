@@ -69,6 +69,24 @@ RULE_EXPECTED_FIXTURES: Dict[str, Tuple[str, ...]] = {
         "clickfix_powershell_irm_iex",
         "clickfix_powershell_webclient_hidden",
     ),
+    "proc_creation_macos_dev_credential_theft.yml": (
+        "contagious_interview_node_aws_creds",
+        "contagious_interview_python_ssh_keys",
+    ),
+    "proc_creation_macos_package_manager_hook_execution.yml": (
+        "contagious_interview_npm_hook_node",
+        "contagious_interview_pip_hook_shell",
+    ),
+    "proc_creation_cloud_imds_checkpoint_exfiltration.yml": (
+        "frontier_ai_imds_token_harvest",
+        "frontier_ai_s3_weight_multipart_exfil",
+    ),
+    "proc_creation_agent_runtime_unpinned_tool_execution.yml": (
+        "agent_claude_npx_unpinned",
+    ),
+    "proc_creation_agent_alien_runtime_bun_infostealer.yml": (
+        "agent_alien_bun_temp_exec",
+    ),
 }
 
 

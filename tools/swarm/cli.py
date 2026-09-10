@@ -135,6 +135,17 @@ def parse_args() -> argparse.Namespace:
         help="Correlation sliding window in seconds for --replay-telemetry (default: 300)",
     )
     parser.add_argument(
+        "--endurance",
+        action="store_true",
+        help="Run continuous overnight adversarial endurance harness across all pattern suites",
+    )
+    parser.add_argument(
+        "--pace",
+        type=float,
+        default=0.4,
+        help="Delay in seconds between pattern iterations for --endurance (default: 0.4s)",
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=Path(__file__).resolve().parents[2] / "docs" / "swarm" / "results",
@@ -153,6 +164,12 @@ def main() -> int:
         pass
 
     args = parse_args()
+
+    if args.endurance:
+        from .endurance_runner import EnduranceRunner
+        runner = EnduranceRunner(pace_seconds=args.pace)
+        runner.run()
+        return 0
 
     if args.replay_telemetry:
         from .telemetry_replay import TelemetryReplayEngine
@@ -258,7 +275,11 @@ def main() -> int:
         from .synthesizer import StrategicSynthesizer
         print("[*] Initiating Automated Strategic Threat Intelligence Synthesis...")
         synthesizer = StrategicSynthesizer()
-        cable_path, stats = synthesizer.synthesize()
+        try:
+            cable_path, stats = synthesizer.synthesize()
+        except ValueError as exc:
+            print(f"[!] Synthesis refused: {exc}")
+            return 1
         print(f"\n[+] Successfully Synthesized Strategic Cable: {cable_path}")
         print(f"    - Cable Identifier: {stats['cable_id']}")
         print(f"    - Cables Ingested: {stats['cables_ingested']}")

