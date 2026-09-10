@@ -23,6 +23,27 @@ env:
   COVERAGE_FLOOR: "85"
 
 jobs:
+  commit-hygiene:
+    name: Commit Metadata Hygiene
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Full history: trailers can live in any reachable commit, not just the tip.
+          fetch-depth: 0
+
+      - name: Reject AI co-author trailers in commit metadata
+        run: |
+          set -euo pipefail
+          matches=$(git log --format='%H%x09%B' | grep -icE 'co-authored-by:.*(claude|copilot|cursor|codex|openai|anthropic|gpt)' || true)
+          if [ "${matches}" -gt 0 ]; then
+            echo "::error::AI co-author trailers found in reachable commit metadata (${matches})"
+            git log --format='%h %s' -i --grep='co-authored-by' | head -20
+            exit 1
+          fi
+          echo "No AI co-author trailers in reachable history."
+
   regression-tests:
     name: Regression Suite
     runs-on: ubuntu-latest
