@@ -35,7 +35,6 @@ class SwarmCliParserTests(unittest.TestCase):
             self.assertFalse(args.replay_telemetry)
             self.assertIsNone(args.corpus_path)
             self.assertFalse(args.is_benign)
-            self.assertEqual(args.window, 300)
             self.assertFalse(args.endurance)
             self.assertEqual(args.pace, 0.4)
 
@@ -74,8 +73,6 @@ class SwarmCliParserTests(unittest.TestCase):
                 "--corpus-path",
                 "tests/fixtures/telemetry/sample_sysmon_process_create.evtx",
                 "--is-benign",
-                "--window",
-                "120",
                 "--endurance",
                 "--pace",
                 "0.2",
@@ -102,7 +99,6 @@ class SwarmCliParserTests(unittest.TestCase):
             self.assertTrue(args.replay_telemetry)
             self.assertEqual(args.corpus_path, Path("tests/fixtures/telemetry/sample_sysmon_process_create.evtx"))
             self.assertTrue(args.is_benign)
-            self.assertEqual(args.window, 120)
             self.assertTrue(args.endurance)
             self.assertEqual(args.pace, 0.2)
 

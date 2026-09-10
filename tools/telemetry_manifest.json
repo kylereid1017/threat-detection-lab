@@ -8,8 +8,8 @@
   },
   "datasets": {
     "mordor_lsass_dump": {
-      "title": "Mordor LSASS Memory Access and Dump (T1003.001)",
-      "source": "Open Threat Research (OTRF) Mordor Project",
+      "title": "Synthetic LSASS Memory Access and Dump Telemetry (T1003.001; modelled on the OTRF Mordor dataset)",
+      "source": "Hand-styled synthetic fixture authored for this repository, modelled on the OTRF Mordor empire_lsass_dump dataset",
       "upstream_url": "https://raw.githubusercontent.com/OTRF/mordor/master/datasets/small/windows/credential_access/host/empire_lsass_dump.tar.gz",
       "license": "GPL-3.0",
       "techniques": [
@@ -21,11 +21,14 @@
         11
       ],
       "sha256": "69d2a5c2e7fa368ee2bbd119b3034c76ac0bea75232b6284605fb472df0ee927",
-      "fixture_path": "tests/fixtures/telemetry/mordor_lsass_dump.jsonl"
+      "fixture_path": "tests/fixtures/telemetry/mordor_lsass_dump.jsonl",
+      "provenance": "synthetic",
+      "derivation": "Authored for this repository from the documented telemetry shape of the technique. It is NOT an upstream slice, and upstream_url is a reference to the dataset it is modelled on.",
+      "sha256_note": "Pins the local fixture as committed, not the upstream artifact."
     },
     "mordor_schtasks_persistence": {
-      "title": "Mordor Scheduled Task Foothold (T1053.005)",
-      "source": "Open Threat Research (OTRF) Mordor Project",
+      "title": "Synthetic Scheduled Task Foothold Telemetry (T1053.005; modelled on the OTRF Mordor dataset)",
+      "source": "Hand-styled synthetic fixture authored for this repository, modelled on the OTRF Mordor empire_schtasks_persistence dataset",
       "upstream_url": "https://raw.githubusercontent.com/OTRF/mordor/master/datasets/small/windows/persistence/host/empire_schtasks_persistence.tar.gz",
       "license": "GPL-3.0",
       "techniques": [
@@ -36,11 +39,14 @@
         1
       ],
       "sha256": "378675fe5511457b7aa52b00495ce33af4326550ddc762374993d5a7be6e18fc",
-      "fixture_path": "tests/fixtures/telemetry/mordor_schtasks_persistence.jsonl"
+      "fixture_path": "tests/fixtures/telemetry/mordor_schtasks_persistence.jsonl",
+      "provenance": "synthetic",
+      "derivation": "Authored for this repository from the documented telemetry shape of the technique. It is NOT an upstream slice, and upstream_url is a reference to the dataset it is modelled on.",
+      "sha256_note": "Pins the local fixture as committed, not the upstream artifact."
     },
     "benign_enterprise_workstation": {
-      "title": "Enterprise Workstation Benign Routine Telemetry Baseline",
-      "source": "threat-detection-lab Non-Synthetic Baseline Corpus",
+      "title": "Synthetic Benign Enterprise Workstation Baseline",
+      "source": "Hand-styled synthetic benign baseline authored for this repository",
       "license": "Apache-2.0",
       "techniques": [],
       "channel": "Microsoft-Windows-Sysmon/Operational, Security",
@@ -49,7 +55,10 @@
         4688
       ],
       "sha256": "a124d636c1c9f9d3f93688e11a738e678cbe6e7193868f0605610e8643ebf71a",
-      "fixture_path": "tests/fixtures/telemetry/benign_enterprise_workstation.jsonl"
+      "fixture_path": "tests/fixtures/telemetry/benign_enterprise_workstation.jsonl",
+      "provenance": "synthetic",
+      "derivation": "Authored in the repository's synthetic enterprise namespace (*.corp.example). It models routine workstation activity; it is not captured enterprise traffic.",
+      "sha256_note": "Pins the local fixture as committed, not the upstream artifact."
     },
     "sample_sysmon_process_create": {
       "title": "Native Binary EVTX Sysmon Process Creation Slice",
@@ -63,7 +72,10 @@
         1
       ],
       "sha256": "d1bf591cabf7d21f49936150bfaf433da7665211ba3fd00bc806f4912a6f96b4",
-      "fixture_path": "tests/fixtures/telemetry/sample_sysmon_process_create.evtx"
+      "fixture_path": "tests/fixtures/telemetry/sample_sysmon_process_create.evtx",
+      "provenance": "upstream",
+      "derivation": "Upstream binary artifact. The local copy is hash-pinned by this manifest; byte-identity with the upstream source has not been verified offline, so treat it as a hash-pinned copy.",
+      "sha256_note": "Pins the local fixture as committed, not the upstream artifact."
     }
   }
 }

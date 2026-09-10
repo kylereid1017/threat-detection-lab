@@ -179,7 +179,7 @@ class SlidingWindowEventStoreTests(unittest.TestCase):
 
 
 class TelemetryReplayEngineTests(unittest.TestCase):
-    """Verifies end-to-end replay across authentic Mordor, EVTX, and Benign datasets."""
+    """Verifies end-to-end replay across the hash-pinned fixtures (synthetic JSONL + native EVTX)."""
 
     def setUp(self):
         self.engine = TelemetryReplayEngine()

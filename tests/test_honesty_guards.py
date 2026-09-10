@@ -10,6 +10,7 @@ from __future__ import annotations
 import ast
 import base64
 import ipaddress
+import json
 
 import re
 import tempfile
@@ -441,6 +442,132 @@ class FileSuffixDenylistTests(unittest.TestCase):
         self.assertEqual([], critic._check_safety_boundaries(
             "ParentImage C:\\Program Files\\nodejs\\npx.cmd"
         ))
+
+
+class ReplayFalsePositiveNumeratorTests(unittest.TestCase):
+    """A benign corpus that only trips a correlation chain still produced a false positive."""
+
+    def test_correlation_chain_events_enter_the_false_positive_numerator(self):
+        from tools.swarm.telemetry_replay import TelemetryReplayEngine
+
+        corpus = (Path(__file__).resolve().parents[1] / "tests" / "fixtures" / "telemetry"
+                  / "mordor_lsass_dump.jsonl")
+        report = TelemetryReplayEngine().replay_file(corpus, is_benign=True)
+
+        singles = {d["event_index"] for d in report.detections}
+        correlation = {i for cd in report.correlation_detections for i in cd.get("selected_indices", [])}
+        self.assertTrue(
+            correlation - singles,
+            "fixture must exercise the regression: events reached only by a correlation chain",
+        )
+        self.assertEqual(
+            report.empirical_fp_rate,
+            len(singles | correlation) / report.total_events,
+            "the false-positive numerator must include correlation-selected events",
+        )
+
+
+class SiemCalibrationIndependenceTests(unittest.TestCase):
+    """Correlation pairs must be independent: one observation per rule, one backend."""
+
+    def test_calibration_pairs_one_observation_per_rule(self):
+        from tools.swarm.siem_profiler import SiemQueryProfiler
+
+        report = SiemQueryProfiler().benchmark_and_calibrate(corpus_size=50, repetitions=1)
+        cal = report.empirical_calibration
+        self.assertEqual(cal.get("backend_timed"), "sqlite")
+        distinct_rules = len({p.rule_name for p in report.profiles})
+        self.assertGreaterEqual(cal.get("observations", 0), 2, "too few pairs for a correlation")
+        self.assertLessEqual(
+            cal["observations"], distinct_rules,
+            "more pairs than rules means a rule entered the correlation more than once",
+        )
+        self.assertLess(cal["observations"], len(report.profiles), "one pair per profile is the old defect")
+
+    def test_empirical_latency_is_not_attached_to_other_backends(self):
+        from tools.swarm.siem_profiler import SiemQueryProfiler
+
+        report = SiemQueryProfiler().benchmark_and_calibrate(corpus_size=50, repetitions=1)
+        for profile in report.profiles:
+            if profile.empirical_ms is not None:
+                self.assertEqual(profile.backend.lower(), "sqlite", profile.backend)
+
+
+class SiemDriverAttributionTests(unittest.TestCase):
+    """The driver claim must be counted from the elevated-cost profiles, not asserted."""
+
+    @staticmethod
+    def _report(**shared):
+        from tools.swarm.siem_profiler import COSTLY, ProfilerReport, QueryProfile
+        fields = dict(query="q", impact=COSTLY, complexity_score=90.0)
+        fields.update(shared)
+        report = ProfilerReport()
+        report.profiles = [
+            QueryProfile(rule_name=f"rule-{i}", backend="Splunk", **fields) for i in range(4)
+        ]
+        return report
+
+    def test_no_dominant_driver_when_contributors_are_mixed(self):
+        report = self._report(leading_wildcards=1, unanchored_regexes=0, nesting_depth=0, or_expansion_terms=0)
+        # Only half the costly queries carry a leading wildcard.
+        report.profiles[1].leading_wildcards = 0
+        report.profiles[1].unanchored_regexes = 2
+        report.profiles[3].leading_wildcards = 0
+        report.profiles[3].unanchored_regexes = 2
+        text = report._judgement()
+        self.assertIn("No single contributor explains all of them", text)
+        self.assertNotIn("present in all", text)
+
+    def test_dominant_driver_is_named_when_it_covers_every_costly_query(self):
+        report = self._report(leading_wildcards=1, unanchored_regexes=0, nesting_depth=0, or_expansion_terms=0)
+        text = report._judgement()
+        self.assertIn("present in all", text)
+        self.assertIn("leading-wildcard matching", text)
+
+
+class FixtureProvenanceTests(unittest.TestCase):
+    """No fixture may be presented as upstream data without a reproducible derivation."""
+
+    @property
+    def datasets(self):
+        manifest = json.loads(
+            (Path(__file__).resolve().parents[1] / "tools" / "telemetry_manifest.json").read_text(encoding="utf-8")
+        )
+        return manifest["datasets"]
+
+    def test_every_dataset_declares_provenance_and_derivation(self):
+        for name, meta in self.datasets.items():
+            self.assertIn(meta.get("provenance"), ("synthetic", "upstream"), f"{name}: provenance")
+            self.assertTrue(meta.get("derivation"), f"{name}: derivation required")
+            self.assertTrue(meta.get("sha256_note"), f"{name}: must say what its hash pins")
+
+    def test_synthetic_fixtures_are_not_presented_as_captured_or_upstream(self):
+        for name, meta in self.datasets.items():
+            if meta.get("provenance") != "synthetic":
+                continue
+            text = f"{meta.get('title', '')} {meta.get('source', '')} {meta.get('derivation', '')}".lower()
+            self.assertIn("synthetic", text, f"{name}: a synthetic fixture must say so")
+            for claim in ("non-synthetic", "authentic"):
+                self.assertNotIn(claim, text, f"{name}: synthetic fixture claims {claim!r}")
+
+    def test_benign_baseline_disclaims_capture(self):
+        """The benign fixture is authored here; it must say so rather than imply capture."""
+        benign = self.datasets["benign_enterprise_workstation"]
+        self.assertIn("not captured enterprise traffic", benign["derivation"])
+
+    def test_no_document_calls_a_fixture_authentic(self):
+        repo = Path(__file__).resolve().parents[1]
+        offenders = []
+        for rel in ("README.md", "docs/swarm/architecture.md", "tests/test_telemetry_replay.py",
+                    "tools/acquire_telemetry.py"):
+            path = repo / rel
+            if not path.exists():
+                continue
+            for number, line in enumerate(path.read_text(encoding="utf-8", errors="ignore").splitlines(), 1):
+                low = line.lower()
+                if "authentic" in low and ("mordor" in low or "fixture" in low or "dataset" in low):
+                    offenders.append(f"{rel}:{number}")
+        self.assertEqual([], offenders, "fixture described as authentic: " + ", ".join(offenders))
 
 
 if __name__ == "__main__":  # pragma: no cover

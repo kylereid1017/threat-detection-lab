@@ -17,6 +17,7 @@ import argparse
 import hashlib
 import json
 import logging
+import os
 import sys
 import urllib.request
 from pathlib import Path
@@ -108,16 +109,34 @@ def download_dataset(
 
     target_path.parent.mkdir(parents=True, exist_ok=True)
     logger.info(f"[*] {name}: Downloading from {url} ...")
+    # Download to a staging path and verify BEFORE the fixture is touched. Writing straight to
+    # target_path and verifying afterwards meant a bad download (or --force) destroyed a good
+    # fixture before the hash check could reject it.
+    staged = target_path.with_name(target_path.name + ".download")
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "ThreatDetectionLab-Telemetry/1.0"})
         with urllib.request.urlopen(req, timeout=30) as resp:
             data = resp.read()
-        target_path.write_bytes(data)
-        logger.info(f"[+] {name}: Downloaded {len(data)} bytes to {target_path}")
+        staged.write_bytes(data)
     except Exception as exc:
         logger.error(f"[!] {name}: Failed to download from {url}: {exc}")
+        staged.unlink(missing_ok=True)
         return False
 
+    actual = compute_sha256(staged)
+    expected = str(meta.get("sha256", "")).lower()
+    if actual.lower() != expected:
+        staged.unlink(missing_ok=True)
+        logger.error(
+            f"[!] {name}: downloaded artifact does NOT match the pinned hash, so {target_path.name} "
+            f"was left untouched.\n    Expected: {expected}\n    Actual:   {actual}\n"
+            f"    (A local fixture that differs from upstream is expected here: the committed "
+            f"'mordor_*.jsonl' fixtures are hand-styled synthetic, per the manifest's provenance field.)"
+        )
+        return False
+
+    logger.info(f"[+] {name}: Downloaded {len(data)} bytes, hash verified")
+    os.replace(staged, target_path)
     return verify_dataset(name, meta, base_dir)
 
 

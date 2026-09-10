@@ -661,7 +661,7 @@ class EnduranceRunner:
         is_benign = "benign" in corpus.name.lower()
 
         try:
-            report = self.replay_engine.replay_file(corpus, is_benign=is_benign, window_seconds=window)
+            report = self.replay_engine.replay_file(corpus, is_benign=is_benign)
         except Exception as exc:
             self.error_records += 1
             self._emit(
@@ -670,7 +670,7 @@ class EnduranceRunner:
                 probe_id=corpus.name,
                 fixture_hash=f"sha256:{sha256_file(corpus)}",
                 outcome=OUTCOME_ERROR,
-                detail={"error": str(exc), "window_seconds": window},
+                detail={"error": str(exc)},
             )
             raise
         self.replay_evals_count += 1
@@ -697,7 +697,7 @@ class EnduranceRunner:
                 "detections": report.total_detections,
                 "benign": bool(is_benign),
             },
-            detail={"window_seconds": window},
+            detail={},
         )
 
         out_path = self.results_dir / "telemetry_replay.json"

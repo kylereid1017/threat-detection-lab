@@ -129,12 +129,6 @@ def parse_args() -> argparse.Namespace:
         help="Mark telemetry corpus as benign baseline to measure empirical false-positive rate",
     )
     parser.add_argument(
-        "--window",
-        type=int,
-        default=300,
-        help="Correlation sliding window in seconds for --replay-telemetry (default: 300)",
-    )
-    parser.add_argument(
         "--endurance",
         action="store_true",
         help="Run continuous overnight adversarial endurance harness across all pattern suites",
@@ -180,7 +174,7 @@ def main() -> int:
             target_path = root / target_path
         print(f"[*] Replaying real-world telemetry corpus: {target_path.name} ...")
         is_benign = args.is_benign or ("benign" in str(target_path).lower())
-        report = engine.replay_file(target_path, is_benign=is_benign, window_seconds=args.window)
+        report = engine.replay_file(target_path, is_benign=is_benign)
         print(report.to_markdown())
         out = args.output_dir / "telemetry_replay.json"
         out.parent.mkdir(parents=True, exist_ok=True)

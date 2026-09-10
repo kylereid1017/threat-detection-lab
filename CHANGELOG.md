@@ -15,6 +15,12 @@ Keep a Changelog; versioning follows SemVer.
   `run_sparring`, `run_autonomous_campaigns` → `run_campaigns`.
 - **CLI flags renamed (breaking for scripts):** `--autonomous` → `--continuous`,
   `--self-heal` → `--propose-patches`.
+- **Fixture provenance corrected.** The `mordor_*.jsonl` telemetry fixtures are hand-styled
+  synthetic telemetry authored for this repository, modelled on the named OTRF Mordor datasets —
+  they are not upstream slices, and earlier descriptions calling them authentic were wrong. The
+  manifest now records a `provenance` and `derivation` per dataset, and
+  `tools/acquire_telemetry.py` verifies a download's hash in a staging file before replacing a
+  fixture (previously it wrote over the fixture first and checked after).
 - **Metric names now state their basis.** `resilience_score` / `final_resilience` become
   `detection_rate_on_approved`; an empty denominator reports `n/a (not measured)` rather than a
   figure. Finding confidence is derived from attribution specificity instead of stamped `HIGH`.

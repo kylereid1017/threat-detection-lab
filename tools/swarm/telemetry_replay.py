@@ -506,7 +506,6 @@ class TelemetryReplayEngine:
         self,
         filepath: Union[str, Path],
         is_benign: bool = False,
-        window_seconds: int = 300,
     ) -> ReplayReport:
         """Replays a file (EVTX or JSONL) against loaded Sigma and Correlation rules."""
         path = Path(filepath)
@@ -605,7 +604,12 @@ class TelemetryReplayEngine:
         events_per_sec = total_events / elapsed
 
         # False positive & confidence interval calculations
-        unique_firing_events = len({d["event_index"] for d in detections})
+        # A benign corpus that only trips a temporal correlation chain still produced a false
+        # positive. Counting single-event detections alone reported 0.00% over exactly that case.
+        unique_firing_events = len(
+            {d["event_index"] for d in detections}
+            | {index for cd in correlation_detections for index in cd.get("selected_indices", [])}
+        )
         # A false-positive rate is defined only over a benign corpus. Reporting 0.0 for an
         # attack corpus fabricates a measurement (it drove a "PASS" verdict and a Wilson
         # interval computed from a count of zero). Unmeasured stays None end to end.

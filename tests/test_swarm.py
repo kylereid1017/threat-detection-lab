@@ -1808,11 +1808,15 @@ class SiemProfilerCalibrationTests(unittest.TestCase):
         self.assertIn("correlation_strength", cal)
         self.assertEqual(cal["corpus_size"], 100)
 
-        # Check empirical_ms populated on profiled queries
-        calibrated_profiles = [p for p in report.profiles if p.empirical_ms is not None]
-        self.assertGreater(len(calibrated_profiles), 0)
-        for cp in calibrated_profiles:
-            self.assertGreaterEqual(cp.empirical_ms, 0.0)
+        # Empirical latency belongs only to the backend that was actually timed (sqlite). The
+        # profiled backends are LogScale/Splunk/Lucene, so the timing lives in the calibration
+        # block rather than being stamped onto profiles measured on other backends.
+        self.assertEqual(cal["backend_timed"], "sqlite")
+        self.assertGreater(cal["observations"], 0)
+        self.assertGreaterEqual(cal["mean_latency_ms"], 0.0)
+        for profile in report.profiles:
+            if profile.empirical_ms is not None:
+                self.assertEqual(profile.backend.lower(), "sqlite")
 
 
 class WorkbenchCanvasTests(unittest.TestCase):
