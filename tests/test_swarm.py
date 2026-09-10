@@ -841,6 +841,148 @@ class StrategicSynthesizerTests(unittest.TestCase):
         self.assertEqual(stats["sources_excluded"], 0)
         self.assertEqual(stats["total_evaluations"], 12)
 
+    # -- record-ledger fixture helpers (record-backed synthesizer tests) --
+
+    @staticmethod
+    def _ledger_row(seq, kind, outcome, cluster=None, detail=None, counts=None):
+        return {
+            "run_id": "testfx-0001",
+            "seq": seq,
+            "timestamp": f"2026-09-10T00:00:{seq:02d}+00:00",
+            "suite": "endurance.test",
+            "kind": kind,
+            "probe_id": f"proc-{seq:04d}",
+            "target": "sigma",
+            "axis": None,
+            "cluster": cluster,
+            "rule_hash": None,
+            "fixture_hash": None,
+            "outcome": outcome,
+            "counts": counts,
+            "detail": detail or {},
+        }
+
+    @staticmethod
+    def _write_ledger(results_dir, rows):
+        rec_dir = Path(results_dir) / "records"
+        rec_dir.mkdir(parents=True, exist_ok=True)
+        (rec_dir / "run-testfx-0001.jsonl").write_text(
+            "\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8"
+        )
+
+    def test_campaign_stage_intercepts_render_from_records(self):
+        """The diagram's stage intercepts derive from campaign-stage ledger records."""
+        from tools.swarm.synthesizer import StrategicSynthesizer
+
+        with tempfile.TemporaryDirectory() as cables, tempfile.TemporaryDirectory() as results:
+            results_dir = Path(results)
+            rows = [
+                self._ledger_row(1, "campaign_stage", "detected", detail={"stage_number": 1}),
+                self._ledger_row(2, "campaign_stage", "detected", detail={"stage_number": 1}),
+                self._ledger_row(3, "campaign_stage", "detected", detail={"stage_number": 1}),
+                self._ledger_row(4, "campaign_stage", "evaded", detail={"stage_number": 1}),
+                self._ledger_row(5, "campaign_stage", "detected", detail={"stage_number": 2}),
+                self._ledger_row(6, "campaign_stage", "detected", detail={"stage_number": 2}),
+                self._ledger_row(7, "campaign_stage", "evaded", detail={"stage_number": 2}),
+                self._ledger_row(8, "campaign_stage", "evaded", detail={"stage_number": 2}),
+                self._ledger_row(9, "attack_variant", "detected"),
+            ]
+            self._write_ledger(results_dir, rows)
+            synthesizer = StrategicSynthesizer(cables_dir=Path(cables), results_dir=results_dir)
+            output_path, _stats = synthesizer.synthesize()
+            content = output_path.read_text(encoding="utf-8")
+
+            stage1 = [l for l in content.splitlines() if "Stage 1: SVG Ingress" in l][0]
+            stage2 = [l for l in content.splitlines() if "Stage 2: ClickFix Exec" in l][0]
+            evade = [l for l in content.splitlines() if "evaded)" in l][0]
+            self.assertIn("75.0%", stage1)   # 3 of 4 stage-1 campaign visits intercepted
+            self.assertIn("50.0%", stage2)   # 2 of 4 stage-2 campaign visits intercepted
+            self.assertIn("25.0%", evade)    # 1 of 4 stage-1 visits evaded the layer
+
+    def test_stage_rates_absent_render_not_measured(self):
+        """Without campaign-stage records the diagram must render n/a, not a fallback."""
+        from tools.swarm.synthesizer import StrategicSynthesizer
+
+        with tempfile.TemporaryDirectory() as cables, tempfile.TemporaryDirectory() as results:
+            results_dir = Path(results)
+            self._write_ledger(
+                results_dir,
+                [self._ledger_row(i, "attack_variant", "detected") for i in range(1, 4)],
+            )
+            synthesizer = StrategicSynthesizer(cables_dir=Path(cables), results_dir=results_dir)
+            output_path, _stats = synthesizer.synthesize()
+            content = output_path.read_text(encoding="utf-8")
+
+            stage_lines = [
+                l
+                for l in content.splitlines()
+                if "Stage 1: SVG Ingress" in l or "Stage 2: ClickFix Exec" in l
+            ]
+            self.assertEqual(len(stage_lines), 2)
+            for line in stage_lines:
+                self.assertIn("n/a (not measured)", line)
+            self.assertNotIn("n/a Intercept", content)
+            self.assertNotIn("n/a evaded", content)
+
+    def test_cluster_percentages_divide_by_recorded_evasions(self):
+        """Cluster shares divide by recorded evasions, not the weighted gap counter."""
+        from tools.swarm.synthesizer import StrategicSynthesizer
+
+        with tempfile.TemporaryDirectory() as cables, tempfile.TemporaryDirectory() as results:
+            results_dir = Path(results)
+            cluster_a = "Cluster A: LOLBin & Process Proxying"
+            cluster_b = "Cluster B: Argument Masking & Parameter Aliasing"
+            cluster_c = "Cluster C: Parser Differentials & Offset Padding"
+            rows = [
+                self._ledger_row(1, "attack_variant", "detected"),
+                self._ledger_row(2, "attack_variant", "evaded", cluster=cluster_a),
+                self._ledger_row(3, "attack_variant", "evaded", cluster=cluster_a),
+                self._ledger_row(4, "attack_variant", "evaded", cluster=cluster_b),
+                self._ledger_row(5, "attack_variant", "evaded", cluster=cluster_c),
+                self._ledger_row(
+                    6,
+                    "noise_benchmark",
+                    None,
+                    counts={
+                        "generated_events": 10,
+                        "generated_attack_variants": 2,
+                        "benign_events": 8,
+                        "benign_false_positives": 0,
+                        "attack_events": 2,
+                        "attack_true_positives": 1,
+                        "attack_missed": 1,
+                    },
+                ),
+            ]
+            self._write_ledger(results_dir, rows)
+            synthesizer = StrategicSynthesizer(cables_dir=Path(cables), results_dir=results_dir)
+            output_path, _stats = synthesizer.synthesize()
+            content = output_path.read_text(encoding="utf-8")
+
+            # 4 of the 5 weighted gaps are record-classified; shares divide by 4.
+            self.assertIn("(2 of 4 recorded evasions — 50.0%)", content)
+            self.assertIn("(1 of 4 recorded evasions — 25.0%)", content)
+            self.assertIn("includes 1 benchmark and replay misses", content)
+            self.assertNotIn("of 5 recorded evasions", content)
+
+    def test_empty_evasion_basis_renders_not_measured(self):
+        """Zero recorded evasions must render n/a, never a 0.0% cluster share."""
+        from tools.swarm.synthesizer import StrategicSynthesizer
+
+        with tempfile.TemporaryDirectory() as cables, tempfile.TemporaryDirectory() as results:
+            results_dir = Path(results)
+            self._write_ledger(
+                results_dir,
+                [self._ledger_row(i, "attack_variant", "detected") for i in range(1, 4)],
+            )
+            synthesizer = StrategicSynthesizer(cables_dir=Path(cables), results_dir=results_dir)
+            output_path, _stats = synthesizer.synthesize()
+            content = output_path.read_text(encoding="utf-8")
+
+            self.assertIn("n/a — no recorded evasion observations in window", content)
+            self.assertNotIn("0 of 0 recorded evasions", content)
+            self.assertIn("the indirection share is not measured", content)
+
     def test_empty_basis_refuses_synthesis(self):
         """Zero observations must refuse synthesis instead of fabricating a figure."""
         from tools.swarm.synthesizer import StrategicSynthesizer
