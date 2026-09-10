@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
+<title>Agent Capability Composition | Lethal Trifecta Analyzer</title>
+<style>
+  :root {
+    --bg: #050507;
+    --panel: #0b0b0f;
+    --panel-sub: #111117;
+    --border: #23232e;
+    --border-subtle: #191922;
+    --border-hover: #3b3b4a;
+    --fg: #f4f4f7;
+    --muted: #a3a3af;
+    --subtle: #787888;
+
+    --stroke-ok: #10b981;
+    --stroke-warn: #f59e0b;
+    --stroke-bad: #ef4444;
+    --stroke-info: #38bdf8;
+    --stroke-accent: #a855f7;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.018) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.018) 1px, transparent 1px);
+    background-size: 32px 32px;
+    color: var(--fg);
+    font-family: var(--font-mono);
+  }
+
+  .mono { font-family: var(--font-mono); }
+  .panel { background: var(--panel); border: 1px solid var(--border); }
+  .panel-sub { background: var(--panel-sub); border: 1px solid var(--border); }
+  .hair { border-color: var(--border-subtle); }
+
+  .node rect, .node circle { fill: #0d0d12; stroke: var(--border); stroke-width: 1.5px;
+    transition: stroke .25s ease, filter .25s ease; }
+  .node text { fill: var(--fg); font-family: var(--font-mono); }
+  .node:hover rect { stroke: #fff; filter: drop-shadow(0 0 8px rgba(255,255,255,.25)); }
+
+  .node.leg-private rect { stroke: var(--stroke-info); filter: drop-shadow(0 0 10px rgba(56,189,248,.35)); }
+  .node.leg-ingress rect { stroke: var(--stroke-warn); filter: drop-shadow(0 0 10px rgba(245,158,11,.35)); }
+  .node.leg-exfil   rect { stroke: var(--stroke-bad);  filter: drop-shadow(0 0 10px rgba(239,68,68,.35)); }
+  .node.dim rect { stroke: var(--border-subtle); opacity: .45; }
+  .node.critical rect { stroke: var(--stroke-accent); stroke-width: 2px;
+    filter: drop-shadow(0 0 12px rgba(168,85,247,.5)); }
+
+  .edge { fill: none; stroke: #262633; stroke-width: 1.4px; transition: stroke .3s ease, opacity .3s ease; }
+  .edge.lit-private { stroke: var(--stroke-info); opacity: .95; }
+  .edge.lit-ingress { stroke: var(--stroke-warn); opacity: .95; }
+  .edge.lit-exfil   { stroke: var(--stroke-bad);  opacity: .95; }
+  .edge.dim { opacity: .18; }
+
+  .chip { border: 1px solid var(--border); padding: 2px 7px; font-size: 10px;
+    letter-spacing: .04em; color: var(--muted); }
+  .chip.on-private { border-color: var(--stroke-info); color: var(--stroke-info); }
+  .chip.on-ingress { border-color: var(--stroke-warn); color: var(--stroke-warn); }
+  .chip.on-exfil   { border-color: var(--stroke-bad);  color: var(--stroke-bad); }
+
+  .verdict-closed { border-color: var(--stroke-bad); }
+  .verdict-open   { border-color: var(--stroke-ok); }
+
+  textarea { background: #08080c; border: 1px solid var(--border); color: var(--fg);
+    font-family: var(--font-mono); font-size: 11px; }
+  textarea:focus { outline: none; border-color: var(--border-hover); }
+  input { background: #08080c; border: 1px solid var(--border); color: var(--fg);
+    font-family: var(--font-mono); font-size: 11px; }
+  input:focus { outline: none; border-color: var(--border-hover); }
+  button { border: 1px solid var(--border); background: #0b0b0f; color: var(--fg);
+    transition: border-color .2s ease, color .2s ease; cursor: pointer; }
+  button:hover { border-color: var(--border-hover); color: #fff; }
+  button.primary { border-color: var(--stroke-info); color: var(--stroke-info); }
+  .scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+  .scroll::-webkit-scrollbar-thumb { background: #1c1c24; }
+  .scroll::-webkit-scrollbar-track { background: transparent; }
+  .row { cursor: pointer; }
+  .row:hover { background: var(--panel-sub); }
+  .row.sel { background: var(--panel-sub); border-left: 2px solid var(--stroke-info); }
+
+  /* Utility classes replacing external framework */
+  .min-h-screen { min-height: 100vh; }
+  .max-w-\[1600px\] { max-width: 1600px; }
+  .max-w-md { max-width: 28rem; }
+  .mx-auto { margin-left: auto; margin-right: auto; }
+  .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .px-4 { padding-left: 1rem; padding-right: 1rem; }
+  .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+  .px-2\.5 { padding-left: 0.625rem; padding-right: 0.625rem; }
+  .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+  .px-1\.5 { padding-left: 0.375rem; padding-right: 0.375rem; }
+  .px-1 { padding-left: 0.25rem; padding-right: 0.25rem; }
+  .py-5 { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+  .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+  .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+  .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+  .py-1\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+  .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+  .py-0\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+  .py-0 { padding-top: 0; padding-bottom: 0; }
+  .p-5 { padding: 1.25rem; }
+  .p-4 { padding: 1rem; }
+  .p-3 { padding: 0.75rem; }
+  .p-2\.5 { padding: 0.625rem; }
+  .p-2 { padding: 0.5rem; }
+  .p-1\.5 { padding: 0.375rem; }
+  .p-1 { padding: 0.25rem; }
+  .pl-1 { padding-left: 0.25rem; }
+  .pl-3 { padding-left: 0.75rem; }
+  .pr-3 { padding-right: 0.75rem; }
+  .pt-3 { padding-top: 0.75rem; }
+  .mb-5 { margin-bottom: 1.25rem; }
+  .mb-4 { margin-bottom: 1rem; }
+  .mb-3 { margin-bottom: 0.75rem; }
+  .mb-2 { margin-bottom: 0.5rem; }
+  .mb-1\.5 { margin-bottom: 0.375rem; }
+  .mb-1 { margin-bottom: 0.25rem; }
+  .mt-6 { margin-top: 1.5rem; }
+  .mt-5 { margin-top: 1.25rem; }
+  .mt-4 { margin-top: 1rem; }
+  .mt-3 { margin-top: 0.75rem; }
+  .mt-2 { margin-top: 0.5rem; }
+  .mt-1 { margin-top: 0.25rem; }
+  .mt-0\.5 { margin-top: 0.125rem; }
+  .mr-1 { margin-right: 0.25rem; }
+  .ml-1 { margin-left: 0.25rem; }
+  .flex { display: flex; }
+  .flex-1 { flex: 1 1 0%; }
+  .flex-wrap { flex-wrap: wrap; }
+  .items-baseline { align-items: baseline; }
+  .items-center { align-items: center; }
+  .justify-between { justify-content: space-between; }
+  .gap-1 { gap: 0.25rem; }
+  .gap-1\.5 { gap: 0.375rem; }
+  .gap-2 { gap: 0.5rem; }
+  .gap-2\.5 { gap: 0.625rem; }
+  .gap-3 { gap: 0.75rem; }
+  .gap-4 { gap: 1rem; }
+  .gap-5 { gap: 1.25rem; }
+  .grid { display: grid; }
+  .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+  .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .col-span-12 { grid-column: span 12 / span 12; }
+  @media (min-width: 768px) {
+    .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (min-width: 1024px) {
+    .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .lg\:grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .lg\:col-span-3 { grid-column: span 3 / span 3; }
+    .lg\:col-span-6 { grid-column: span 6 / span 6; }
+  }
+  .border { border: 1px solid var(--border); }
+  .border-b { border-bottom: 1px solid var(--border); }
+  .border-t { border-top: 1px solid var(--border); }
+  .border-collapse { border-collapse: collapse; }
+  .rounded { border-radius: 4px; }
+  .w-full { width: 100%; }
+  .h-2 { height: 0.5rem; }
+  .h-full { height: 100%; }
+  .overflow-hidden { overflow: hidden; }
+  .overflow-y-auto { overflow-y: auto; }
+  .overflow-x-auto { overflow-x: auto; }
+  .cursor-pointer { cursor: pointer; }
+  .font-semibold { font-weight: 600; }
+  .font-medium { font-weight: 500; }
+  .font-bold { font-weight: 700; }
+  .text-white { color: #ffffff; }
+  .text-right { text-align: right; }
+  .text-left { text-align: left; }
+  .whitespace-nowrap { white-space: nowrap; }
+  .uppercase { text-transform: uppercase; }
+  .space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.25rem; }
+  .space-y-1\.5 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.375rem; }
+  .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
+  .hidden { display: none !important; }
+  .text-xs { font-size: 0.75rem; line-height: 1rem; }
+  .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+  .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+  .text-\[11px\] { font-size: 11px; }
+  .text-\[10px\] { font-size: 10px; }
+  .text-\[9px\] { font-size: 9px; }
+  .text-\[8px\] { font-size: 8px; }
+  .tracking-\[0\.2em\] { letter-spacing: 0.2em; }
+  .tracking-\[0\.18em\] { letter-spacing: 0.18em; }
+  .tracking-\[0\.15em\] { letter-spacing: 0.15em; }
+  .tracking-wider { letter-spacing: 0.05em; }
+  .bg-black { background-color: #000000; }
+  .text-emerald-400 { color: #34d399; }
+  .text-purple-400 { color: #c084fc; }
+  .text-amber-400 { color: #fbbf24; }
+  .text-red-400 { color: #f87171; }
+  .text-sky-400 { color: #38bdf8; }
+  .border-emerald-500 { border-color: #10b981; }
+  .border-amber-500 { border-color: #f59e0b; }
+  .border-red-500 { border-color: #ef4444; }
+  .border-sky-500 { border-color: #0284c7; }
+  .bg-emerald-950\/40 { background-color: rgba(6, 78, 59, 0.4); }
+  .bg-amber-950\/40 { background-color: rgba(120, 53, 15, 0.4); }
+  .bg-red-950\/40 { background-color: rgba(127, 29, 29, 0.4); }
+  .bg-sky-950\/40 { background-color: rgba(12, 74, 110, 0.4); }
+</style>
+</head>
+<body class="min-h-screen">
+
+<header class="border-b" style="border-color: var(--border)">
+  <div class="max-w-[1600px] mx-auto px-6 py-4 flex items-baseline justify-between flex-wrap gap-3">
+    <div>
+      <h1 class="text-sm tracking-[0.2em] uppercase">Agent Capability Composition</h1>
+      <p class="text-[11px] mt-1" style="color: var(--muted)">
+        Which combinations of installed agent tools close an exfiltration chain that no single tool closes
+      </p>
+    </div>
+    <div class="flex gap-5 text-[10px]" style="color: var(--muted)">
+      <div><span style="color: var(--stroke-info)">&#9632;</span> private data</div>
+      <div><span style="color: var(--stroke-warn)">&#9632;</span> untrusted ingress</div>
+      <div><span style="color: var(--stroke-bad)">&#9632;</span> exfiltration</div>
+      <div><span style="color: var(--stroke-accent)">&#9632;</span> critical package</div>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-[1600px] mx-auto px-6 py-5">
+
+  <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-5" id="corpusStats"></section>
+
+  <div class="grid grid-cols-12 gap-4">
+
+    <section class="col-span-12 lg:col-span-3 panel p-4">
+      <h2 class="text-[11px] tracking-[0.18em] uppercase mb-3" style="color: var(--muted)">Analyze a configuration</h2>
+      <textarea id="configInput" rows="9" class="w-full p-2" spellcheck="false"
+        placeholder='Paste an mcpServers JSON block' aria-label="Agent Configuration JSON"></textarea>
+      <div class="flex gap-2 mt-2">
+        <button id="analyzeBtn" class="primary px-3 py-1.5 text-[11px]">Analyze</button>
+        <button id="exampleBtn" class="px-3 py-1.5 text-[11px]">Example</button>
+      </div>
+      <p class="text-[10px] mt-2 leading-relaxed" style="color: var(--subtle)">
+        Runs entirely in this page. Nothing is uploaded, stored, or sent anywhere.
+      </p>
+
+      <h2 class="text-[11px] tracking-[0.18em] uppercase mt-6 mb-2" style="color: var(--muted)">Measured corpus</h2>
+      <div id="configList" class="scroll overflow-y-auto text-[11px]" style="max-height: 340px"></div>
+    </section>
+
+    <section class="col-span-12 lg:col-span-6 panel p-4">
+      <div class="flex items-baseline justify-between mb-2">
+        <h2 class="text-[11px] tracking-[0.18em] uppercase" style="color: var(--muted)">Capability graph</h2>
+        <div class="flex items-center gap-2">
+          <button id="toggleGraphViewBtn" class="px-2 py-0.5 text-[10px]" style="border-color: var(--border); color: var(--muted)">View Table Mode</button>
+          <span id="graphSubject" class="text-[10px]" style="color: var(--subtle)"></span>
+        </div>
+      </div>
+      <svg id="graph" viewBox="0 0 760 520" class="w-full" style="height: 520px" role="img" aria-label="Capability flow graph"></svg>
+      <div id="graphTableView" class="hidden scroll overflow-y-auto" style="height: 520px"></div>
+    </section>
+
+    <section class="col-span-12 lg:col-span-3 panel p-4">
+      <h2 class="text-[11px] tracking-[0.18em] uppercase mb-3" style="color: var(--muted)">Analysis</h2>
+      <div id="verdict" class="panel-sub p-3 mb-3 text-[11px] leading-relaxed"></div>
+      <div id="analysis" class="scroll overflow-y-auto text-[11px]" style="max-height: 420px"></div>
+    </section>
+  </div>
+
+  <!-- Interactive Working-Set Sandbox & Marginal Risk Simulator -->
+  <section class="panel p-5 mt-5">
+    <div class="flex items-baseline justify-between flex-wrap gap-2 mb-3">
+      <div>
+        <h2 class="text-xs tracking-[0.2em] uppercase font-bold text-white">Interactive Working-Set Sandbox & Marginal Risk Simulator</h2>
+        <p class="text-[11px] mt-1" style="color: var(--muted)">
+          Simulate toolchain modifications in real-time. Measure how adding or removing tools moves the agent across the distance-to-closure boundary.
+        </p>
+      </div>
+      <div id="distanceBadge" class="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider rounded border"></div>
+    </div>
+
+    <!-- Presets -->
+    <div class="flex flex-wrap items-center gap-2 mb-4 text-[11px]" id="presetButtonsGroup">
+      <span style="color: var(--subtle)" class="uppercase tracking-wider">Presets:</span>
+      <button class="px-2.5 py-1 text-[11px]" data-preset="d1_missing_private">Precipice: Missing Private Data (d=1)</button>
+      <button class="px-2.5 py-1 text-[11px]" data-preset="d1_missing_ingress">Precipice: Missing Ingress (d=1)</button>
+      <button class="px-2.5 py-1 text-[11px]" data-preset="d1_missing_egress">Precipice: Missing Exfiltration (d=1)</button>
+      <button class="px-2.5 py-1 text-[11px]" data-preset="d2_single">Distance 2 (Filesystem Only)</button>
+      <button class="px-2.5 py-1 text-[11px]" data-preset="composed_closed">Composed Closure (3 Benign Tools)</button>
+      <button class="px-2.5 py-1 text-[11px]" id="clearWorkingSetBtn" style="border-color: #ef4444; color: #ef4444">Clear All</button>
+    </div>
+
+    <!-- Tool adder and active set chips -->
+    <div class="panel-sub p-3 mb-4">
+      <div class="flex flex-wrap items-center gap-2 mb-3">
+        <label for="pkgSearchInput" class="text-[11px] uppercase tracking-wider" style="color: var(--muted)">Add tool to working set:</label>
+        <input id="pkgSearchInput" list="pkgListOptions" placeholder="Type or select package (e.g. @upstash/context7-mcp)" class="flex-1 max-w-md p-1.5 text-[11px] bg-black border" style="border-color: var(--border); color: var(--fg)" aria-label="Type or select tool package to add">
+        <datalist id="pkgListOptions"></datalist>
+        <button id="addToolBtn" class="primary px-3 py-1.5 text-[11px]">+ Add Tool</button>
+      </div>
+      <div class="flex flex-wrap items-center gap-2" id="workingSetChips"></div>
+    </div>
+
+    <!-- Trifecta Legs Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4" id="legsCards"></div>
+
+    <!-- Marginal Simulator / Cut-set Recommendations Table -->
+    <div class="panel-sub p-3">
+      <div class="flex items-baseline justify-between mb-2">
+        <h3 id="marginalTableTitle" class="text-[11px] tracking-[0.18em] uppercase font-semibold" style="color: var(--muted)">
+          Marginal Closure Recommendations
+        </h3>
+        <span id="marginalTableSubtitle" class="text-[10px]" style="color: var(--subtle)"></span>
+      </div>
+      <div id="marginalTableContainer" class="scroll overflow-x-auto text-[11px]"></div>
+    </div>
+  </section>
+
+  <!-- Ecosystem Population Findings: Distance Distribution & Co-Installation Network -->
+  <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-5">
+    <div class="panel p-4">
+      <h2 class="text-[11px] tracking-[0.18em] uppercase mb-2 font-semibold" style="color: var(--muted)">Distance-to-Closure Distribution</h2>
+      <p class="text-[10px] mb-3" style="color: var(--subtle)">Empirical distance (missing legs to lethal trifecta) across 336 deduplicated configurations.</p>
+      <div id="distanceDistBars" class="space-y-2 text-[11px]"></div>
+      <div class="mt-4 pt-3 border-t hair" id="distance1Breakdown"></div>
+      <div class="mt-4 pt-3 border-t hair" id="sensitivityBandSection"></div>
+    </div>
+
+    <div class="panel p-4">
+      <h2 class="text-[11px] tracking-[0.18em] uppercase mb-2 font-semibold" style="color: var(--muted)">Top Composed Closers (Unweighted vs Grounded)</h2>
+      <p class="text-[10px] mb-3" style="color: var(--subtle)">Ranked by composed flips across open configurations without closing alone.</p>
+      <div id="topClosersList" class="scroll overflow-y-auto text-[11px] space-y-2" style="max-height: 480px"></div>
+    </div>
+
+    <div class="panel p-4">
+      <h2 class="text-[11px] tracking-[0.18em] uppercase mb-2 font-semibold" style="color: var(--muted)">Co-Installation Network & Template Prevalence</h2>
+      <p class="text-[10px] mb-3" style="color: var(--subtle)">Functional clusters (min_support &ge; 3) and template propagation across 336 deduplicated sets.</p>
+      <div id="templatePrevalenceCard" class="panel-sub p-2.5 border rounded mb-3 text-[10px]" style="border-color: var(--border)"></div>
+      <div id="communitiesList" class="scroll overflow-y-auto text-[11px] space-y-2" style="max-height: 380px"></div>
+    </div>
+  </section>
+
+  <section class="panel p-4 mt-4">
+    <h2 class="text-[11px] tracking-[0.18em] uppercase mb-2" style="color: var(--muted)">Method, limits, and credit</h2>
+    <div id="method" class="text-[11px] leading-relaxed" style="color: var(--muted)"></div>
+  </section>
+</main>
+
+<script id="payload" type="application/json">__PAYLOAD__</script>
+<script>
+const DATA = JSON.parse(document.getElementById('payload').textContent);
+const TAX = DATA.taxonomy;
+const LEG_CLASS = { private_data: 'private', untrusted_ingress: 'ingress', exfiltration: 'exfil' };
+const LEG_LABEL = { private_data: 'PRIVATE DATA', untrusted_ingress: 'UNTRUSTED INGRESS', exfiltration: 'EXFILTRATION' };
+const LEGS = ['private_data', 'untrusted_ingress', 'exfiltration'];
+
+/* ---------- capability derivation, mirroring tools/agent_graph/capabilities.py ---------- */
+function normKey(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '_'); }
+
+function deriveCapabilities(pkgName, envKeys) {
+  const found = new Map();
+  const add = (cap, source, detail) => {
+    if (!(cap in TAX.capability_legs)) return;
+    if (!found.has(cap)) found.set(cap, []);
+    found.get(cap).push({ source, detail });
+  };
+  const meta = TAX.packages[pkgName];
+  const blob = ((meta && meta.text) || pkgName).toLowerCase();
+  for (const [term, caps] of Object.entries(TAX.text_rules)) {
+    if (blob.includes(term)) caps.forEach(c => add(c, 'declared purpose', term));
+  }
+  if (meta && meta.dependencies) {
+    for (const dep of meta.dependencies) {
+      const caps = TAX.dependency_rules[dep];
+      if (caps) {
+        caps.forEach(c => add(c, 'dependency', dep));
+      } else if (TAX.scope_rules) {
+        for (const [scope, scaps] of Object.entries(TAX.scope_rules)) {
+          if (dep.startsWith(scope)) {
+            scaps.forEach(c => add(c, 'dependency scope', dep));
+            break;
+          }
+        }
+      }
+    }
+  }
+  for (const raw of (envKeys || [])) {
+    const key = normKey(raw);
+    for (const [term, caps] of Object.entries(TAX.wiring_rules)) {
+      if (key.split('_').includes(term) || key.includes(term)) {
+        caps.forEach(c => add(c, 'configured credential', raw));
+      }
+    }
+  }
+  return found;
+}
+
+function legsOf(caps) {
+  const legs = new Set();
+  for (const c of caps.keys()) legs.add(TAX.capability_legs[c]);
+  return legs;
+}
+
+function analyzeInstallation(servers) {
+  const pkgs = servers.map(s => {
+    const caps = deriveCapabilities(s.package, s.env_keys);
+    return { name: s.package, label: s.label, caps, legs: legsOf(caps), envKeys: s.env_keys || [] };
+  }).filter(p => p.name);
+
+  const legSuppliers = {};
+  LEGS.forEach(l => legSuppliers[l] = []);
+  pkgs.forEach(p => p.legs.forEach(l => legSuppliers[l].push(p.name)));
+
+  const present = LEGS.filter(l => legSuppliers[l].length > 0);
+  const soloClosers = pkgs.filter(p => p.legs.size === 3).map(p => p.name);
+  const closes = present.length === 3;
+
+  let minimal = [];
+  if (closes) {
+    const withLegs = pkgs.filter(p => p.legs.size > 0);
+    const closures = [];
+    const combos = (arr, k, start = 0, cur = []) => {
+      if (cur.length === k) {
+        const u = new Set();
+        cur.forEach(p => p.legs.forEach(l => u.add(l)));
+        if (LEGS.every(l => u.has(l))) {
+          closures.push(cur.map(p => p.name));
+        }
+        return;
+      }
+      for (let i = start; i < arr.length; i++) {
+        cur.push(arr[i]);
+        combos(arr, k, i + 1, cur);
+        cur.pop();
+      }
+    };
+    for (let size = 1; size <= Math.min(withLegs.length, 3); size++) {
+      combos(withLegs, size);
+    }
+    // Filter to inclusion-minimal closures (no proper subset is also a closure)
+    minimal = closures.filter(c => {
+      const s = new Set(c);
+      return !closures.some(other => other.length < c.length && other.every(x => s.has(x)));
+    });
+  }
+
+  let critical = [];
+  if (minimal.length) {
+    // Leave-one-out reachability: package P is critical iff removing P leaves zero closures
+    const pkgNames = [...new Set(pkgs.map(p => p.name))];
+    for (const pName of pkgNames) {
+      const remaining = pkgs.filter(p => p.name !== pName);
+      const remLegs = new Set();
+      remaining.forEach(p => p.legs.forEach(l => remLegs.add(l)));
+      if (!LEGS.every(l => remLegs.has(l))) {
+        critical.push(pName);
+      }
+    }
+  }
+  const sole = {};
+  LEGS.forEach(l => { if (legSuppliers[l].length === 1) sole[l] = legSuppliers[l][0]; });
+
+  return {
+    packages: pkgs, legSuppliers, present, closes,
+    closureType: !closes ? 'none' : (soloClosers.length ? 'single_package' : 'composed'),
+    minimal, critical, sole, soloClosers
+  };
+}
+
+/* ---------- rendering ---------- */
+function el(tag, attrs = {}, text) {
+  const n = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+  if (text !== undefined) n.textContent = text;
+  return n;
+}
+function trunc(s, n) { return s.length > n ? s.slice(0, n - 1) + '…' : s; }
+
+function renderGraph(res) {
+  const svg = document.getElementById('graph');
+  svg.innerHTML = '';
+  const pkgs = res.packages;
+  if (!pkgs.length) {
+    svg.appendChild(el('text', { x: 380, y: 250, 'text-anchor': 'middle', 'font-size': 11,
+      fill: 'var(--subtle)' }, 'No resolvable packages in this configuration'));
+    return;
+  }
+
+  const capsUsed = [...new Set(pkgs.flatMap(p => [...p.caps.keys()]))];
+  const colP = 150, colC = 420, colL = 660;
+  const rowH = Math.min(46, 460 / Math.max(pkgs.length, 1));
+  const capH = Math.min(30, 440 / Math.max(capsUsed.length, 1));
+
+  const pkgY = {}, capY = {}, legY = {};
+  pkgs.forEach((p, i) => pkgY[p.name] = 60 + i * rowH);
+  capsUsed.forEach((c, i) => capY[c] = 50 + i * capH);
+  LEGS.forEach((l, i) => legY[l] = 130 + i * 130);
+
+  const edges = el('g');
+  const nodes = el('g');
+
+  const curve = (x1, y1, x2, y2) => {
+    const mx = (x1 + x2) / 2;
+    return `M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`;
+  };
+
+  pkgs.forEach(p => {
+    for (const cap of p.caps.keys()) {
+      const leg = TAX.capability_legs[cap];
+      edges.appendChild(el('path', {
+        d: curve(colP + 66, pkgY[p.name], colC - 62, capY[cap]),
+        class: 'edge lit-' + LEG_CLASS[leg]
+      }));
+    }
+  });
+  capsUsed.forEach(cap => {
+    const leg = TAX.capability_legs[cap];
+    edges.appendChild(el('path', {
+      d: curve(colC + 62, capY[cap], colL - 56, legY[leg]),
+      class: 'edge lit-' + LEG_CLASS[leg]
+    }));
+  });
+
+  pkgs.forEach(p => {
+    const g = el('g', { class: 'node' + (res.critical.includes(p.name) ? ' critical' : '') });
+    g.appendChild(el('rect', { x: colP - 66, y: pkgY[p.name] - 12, width: 132, height: 24, rx: 2 }));
+    g.appendChild(el('text', { x: colP, y: pkgY[p.name] + 4, 'text-anchor': 'middle', 'font-size': 9 },
+      trunc(p.name.replace('@modelcontextprotocol/', 'mcp/'), 20)));
+    g.appendChild(el('title', {}, p.name + '\n' + [...p.caps.keys()].join(', ')));
+    nodes.appendChild(g);
+  });
+
+  capsUsed.forEach(cap => {
+    const leg = TAX.capability_legs[cap];
+    const g = el('g', { class: 'node leg-' + LEG_CLASS[leg] });
+    g.appendChild(el('rect', { x: colC - 62, y: capY[cap] - 10, width: 124, height: 20, rx: 2 }));
+    g.appendChild(el('text', { x: colC, y: capY[cap] + 4, 'text-anchor': 'middle', 'font-size': 8.5 },
+      trunc(cap, 18)));
+    nodes.appendChild(g);
+  });
+
+  LEGS.forEach(l => {
+    const on = res.legSuppliers[l].length > 0;
+    const g = el('g', { class: 'node leg-' + LEG_CLASS[l] + (on ? '' : ' dim') });
+    g.appendChild(el('rect', { x: colL - 56, y: legY[l] - 20, width: 112, height: 40, rx: 2 }));
+    g.appendChild(el('text', { x: colL, y: legY[l] - 2, 'text-anchor': 'middle', 'font-size': 8 },
+      LEG_LABEL[l].split(' ')[0]));
+    g.appendChild(el('text', { x: colL, y: legY[l] + 10, 'text-anchor': 'middle', 'font-size': 8 },
+      LEG_LABEL[l].split(' ')[1] || ''));
+    nodes.appendChild(g);
+  });
+
+  svg.appendChild(edges);
+  svg.appendChild(nodes);
+}
+
+function renderVerdict(res) {
+  const v = document.getElementById('verdict');
+  const closed = res.closes;
+  v.className = 'panel-sub p-3 mb-3 text-[11px] leading-relaxed ' + (closed ? 'verdict-closed' : 'verdict-open');
+  if (!closed) {
+    const missing = LEGS.filter(l => !res.present.includes(l)).map(l => LEG_LABEL[l].toLowerCase());
+    v.innerHTML = `<div class="uppercase tracking-[0.15em] mb-1" style="color: var(--stroke-ok)">chain open</div>
+      <div style="color: var(--muted)">No exfiltration chain closes here. Missing: ${missing.join(', ')}.</div>`;
+    return;
+  }
+  const kind = res.closureType === 'composed'
+    ? 'The chain exists only because these tools are installed together. No single tool closes it, so per-package review cannot see this.'
+    : 'At least one tool closes the chain by itself: ' + res.soloClosers.join(', ') + '.';
+  v.innerHTML = `<div class="uppercase tracking-[0.15em] mb-1" style="color: var(--stroke-bad)">
+      chain closed &middot; ${res.closureType.replace('_', ' ')}</div>
+    <div style="color: var(--muted)">${kind}</div>`;
+}
+
+function renderAnalysis(res) {
+  const a = document.getElementById('analysis');
+  const parts = [];
+
+  if (res.minimal.length) {
+    parts.push(`<div class="uppercase tracking-[0.15em] mb-1 mt-1" style="color: var(--muted)">Minimal closures</div>`);
+    res.minimal.slice(0, 6).forEach(c => {
+      parts.push(`<div class="panel-sub p-2 mb-1">${c.map(n => `<div>${n}</div>`).join('')}</div>`);
+    });
+  }
+  if (res.critical.length) {
+    parts.push(`<div class="uppercase tracking-[0.15em] mb-1 mt-3" style="color: var(--stroke-accent)">Remove to break every chain</div>`);
+    parts.push(`<div class="panel-sub p-2 mb-1">${res.critical.map(n => `<div>${n}</div>`).join('')}</div>`);
+  }
+
+  parts.push(`<div class="uppercase tracking-[0.15em] mb-1 mt-3" style="color: var(--muted)">Leg suppliers</div>`);
+  LEGS.forEach(l => {
+    const s = res.legSuppliers[l];
+    parts.push(`<div class="mb-2"><span class="chip on-${LEG_CLASS[l]}">${LEG_LABEL[l]}</span>
+      <div class="mt-1" style="color: var(--muted)">${s.length ? s.map(n => `<div>${n}</div>`).join('') : '<div style="color:var(--subtle)">none</div>'}</div></div>`);
+  });
+
+  parts.push(`<div class="uppercase tracking-[0.15em] mb-1 mt-3" style="color: var(--muted)">Evidence</div>`);
+  res.packages.forEach(p => {
+    const rows = [...p.caps.entries()].map(([cap, ev]) =>
+      `<div style="color: var(--muted)">${cap} <span style="color: var(--subtle)">&larr; ${ev[0].source}: ${ev[0].detail}</span></div>`).join('');
+    parts.push(`<div class="panel-sub p-2 mb-1"><div>${p.name}</div>${rows || '<div style="color:var(--subtle)">no capability evidence</div>'}</div>`);
+  });
+
+  a.innerHTML = parts.join('');
+}
+
+let workingServers = [];
+
+function show(res, subject) {
+  document.getElementById('graphSubject').textContent = subject || '';
+  renderGraph(res);
+  renderGraphTable(res);
+  renderVerdict(res);
+  renderAnalysis(res);
+  renderWorkingSetChips();
+  renderLegCards(res);
+  renderDistanceBadge(res);
+  renderMarginalSimulator(res);
+}
+
+let isTableView = false;
+function toggleGraphTableView() {
+  isTableView = !isTableView;
+  const svg = document.getElementById('graph');
+  const tbl = document.getElementById('graphTableView');
+  const btn = document.getElementById('toggleGraphViewBtn');
+  if (isTableView) {
+    svg.classList.add('hidden');
+    tbl.classList.remove('hidden');
+    btn.textContent = 'View SVG Graph';
+  } else {
+    tbl.classList.add('hidden');
+    svg.classList.remove('hidden');
+    btn.textContent = 'View Table Mode';
+  }
+}
+
+function renderGraphTable(res) {
+  const tbl = document.getElementById('graphTableView');
+  if (!tbl) return;
+  if (!res.packages.length) {
+    tbl.innerHTML = '<div class="p-3 text-[11px]" style="color: var(--subtle)">No resolvable packages in this configuration.</div>';
+    return;
+  }
+  tbl.innerHTML = `
+    <table class="w-full text-left border-collapse text-[11px]">
+      <thead>
+        <tr class="border-b hair text-[10px] uppercase" style="color: var(--muted)">
+          <th class="py-2 pr-2">Tool Package</th>
+          <th class="py-2 px-2">Legs Satisfied</th>
+          <th class="py-2 px-2">Capabilities</th>
+          <th class="py-2 pl-2">Critical Cut?</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${res.packages.map(p => `
+          <tr class="border-b hair">
+            <td class="py-2 pr-2 font-medium text-white">${p.name}</td>
+            <td class="py-2 px-2">
+              <div class="flex flex-wrap gap-1">
+                ${[...p.legs].map(l => `<span class="chip on-${LEG_CLASS[l]} text-[9px] px-1 py-0">${l.replace('_', ' ')}</span>`).join('') || '<span style="color: var(--subtle)">none</span>'}
+              </div>
+            </td>
+            <td class="py-2 px-2 font-mono text-[10px]" style="color: var(--muted)">
+              ${[...p.caps.keys()].join(', ') || 'none'}
+            </td>
+            <td class="py-2 pl-2">
+              ${res.critical.includes(p.name) ? '<span class="text-purple-400 font-bold">YES (Breaks Trifecta)</span>' : '<span style="color: var(--subtle)">no</span>'}
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function loadWorkingServers(servers, subject) {
+  workingServers = [...servers];
+  const obj = { mcpServers: {} };
+  workingServers.forEach(s => {
+    const key = s.label || (s.package ? s.package.split('/').pop().replace(/^server-/, '') : 'server');
+    const spec = { command: 'npx', args: ['-y', s.package] };
+    if (s.env_keys && s.env_keys.length) {
+      spec.env = {};
+      s.env_keys.forEach(k => { spec.env[k] = '...'; });
+    }
+    obj.mcpServers[key] = spec;
+  });
+  document.getElementById('configInput').value = JSON.stringify(obj, null, 2);
+  const res = analyzeInstallation(workingServers);
+  show(res, subject);
+}
+
+function addWorkingServer(pkgName) {
+  if (!pkgName) return;
+  pkgName = pkgName.trim();
+  if (workingServers.some(s => s.package === pkgName)) return;
+  const label = pkgName.split('/').pop().replace(/^server-/, '');
+  const env_keys = [];
+  if (pkgName.includes('github')) env_keys.push('GITHUB_PERSONAL_ACCESS_TOKEN');
+  else if (pkgName.includes('slack')) env_keys.push('SLACK_BOT_TOKEN');
+  else if (pkgName.includes('jira')) env_keys.push('JIRA_API_TOKEN');
+  workingServers.push({ label, package: pkgName, env_keys });
+  loadWorkingServers(workingServers, 'working set simulation');
+}
+
+function removeWorkingServer(pkgName) {
+  workingServers = workingServers.filter(s => s.package !== pkgName);
+  loadWorkingServers(workingServers, 'working set simulation');
+}
+
+function addToolFromInput() {
+  const inp = document.getElementById('pkgSearchInput');
+  const val = (inp.value || '').trim();
+  if (!val) return;
+  addWorkingServer(val);
+  inp.value = '';
+}
+
+function clearWorkingSet() {
+  loadWorkingServers([], 'empty working set');
+}
+
+function loadPreset(key) {
+  let servers = [];
+  if (key === 'd1_missing_private') {
+    servers = [
+      { label: 'context7', package: '@upstash/context7-mcp', env_keys: [] },
+      { label: 'slack', package: '@modelcontextprotocol/server-slack', env_keys: ['SLACK_BOT_TOKEN'] }
+    ];
+  } else if (key === 'd1_missing_ingress') {
+    servers = [
+      { label: 'filesystem', package: '@modelcontextprotocol/server-filesystem', env_keys: [] },
+      { label: 'gdrive', package: '@modelcontextprotocol/server-gdrive', env_keys: [] }
+    ];
+  } else if (key === 'd1_missing_egress') {
+    servers = [
+      { label: 'filesystem', package: '@modelcontextprotocol/server-filesystem', env_keys: [] },
+      { label: 'brave-search', package: '@brave/search', env_keys: [] }
+    ];
+  } else if (key === 'd2_single') {
+    servers = [
+      { label: 'filesystem', package: '@modelcontextprotocol/server-filesystem', env_keys: [] }
+    ];
+  } else if (key === 'composed_closed') {
+    servers = [
+      { label: 'filesystem', package: '@modelcontextprotocol/server-filesystem', env_keys: [] },
+      { label: 'context7', package: '@upstash/context7-mcp', env_keys: [] },
+      { label: 'slack', package: '@modelcontextprotocol/server-slack', env_keys: ['SLACK_BOT_TOKEN'] }
+    ];
+  }
+  loadWorkingServers(servers, 'preset: ' + key);
+}
+
+function renderWorkingSetChips() {
+  const container = document.getElementById('workingSetChips');
+  if (!container) return;
+  if (!workingServers.length) {
+    container.innerHTML = '<span class="text-[11px]" style="color: var(--subtle)">Working set is empty. Select a configuration, choose a preset, or add a package.</span>';
+    return;
+  }
+  container.innerHTML = workingServers.map(s => {
+    const caps = deriveCapabilities(s.package, s.env_keys);
+    const legs = legsOf(caps);
+    const legChips = [...legs].map(l => `<span class="chip on-${LEG_CLASS[l]} text-[9px] px-1 py-0 mr-1">${l.replace('_', ' ')}</span>`).join('');
+    return `<div class="panel-sub px-2.5 py-1.5 flex items-center gap-2 text-[11px] border rounded" style="border-color: var(--border)">
+      <span class="font-medium text-white">${s.package}</span>
+      <div class="flex items-center">${legChips || '<span class="text-[9px]" style="color:var(--subtle)">no legs</span>'}</div>
+      <button class="text-[10px] px-1.5 py-0.5 rounded hover:bg-red-900/40 text-red-400 ml-1" title="Remove from working set" data-remove-pkg="${s.package}">&#x2715;</button>
+    </div>`;
+  }).join('');
+}
+
+function renderDistanceBadge(res) {
+  const d = 3 - res.present.length;
+  const badge = document.getElementById('distanceBadge');
+  if (!badge) return;
+  if (d === 0) {
+    badge.className = 'px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded border border-red-500 text-red-400 bg-red-950/40';
+    badge.innerHTML = '&#9679; Distance 0 &middot; Lethal Trifecta Closed';
+  } else if (d === 1) {
+    badge.className = 'px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded border border-amber-500 text-amber-400 bg-amber-950/40';
+    badge.innerHTML = '&#9650; Distance 1 &middot; At Marginal Precipice (1 leg away)';
+  } else if (d === 2) {
+    badge.className = 'px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded border border-sky-500 text-sky-400 bg-sky-950/40';
+    badge.innerHTML = '&#9632; Distance 2 &middot; 2 Legs Away from Closure';
+  } else {
+    badge.className = 'px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded border border-emerald-500 text-emerald-400 bg-emerald-950/40';
+    badge.innerHTML = '&#10003; Distance 3 &middot; 0 Legs Present (Chain Open)';
+  }
+}
+
+function renderLegCards(res) {
+  const container = document.getElementById('legsCards');
+  if (!container) return;
+  const html = LEGS.map(l => {
+    const on = res.legSuppliers[l].length > 0;
+    const suppliers = res.legSuppliers[l];
+    const statusText = on ? 'ACTIVE' : 'MISSING';
+    const statusClass = on ? `chip on-${LEG_CLASS[l]}` : 'chip';
+    return `<div class="panel p-3 border" style="${on ? 'border-color: var(--stroke-' + LEG_CLASS[l] + '); background: rgba(11,11,15,0.9); box-shadow: 0 0 12px rgba(0,0,0,0.4);' : 'border-color: var(--border); opacity: 0.65;'}">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[11px] font-bold tracking-wider uppercase" style="color: var(--stroke-${LEG_CLASS[l]})">${LEG_LABEL[l]}</span>
+        <span class="${statusClass}">${statusText}</span>
+      </div>
+      <div class="text-[10px] space-y-1">
+        <div style="color: var(--muted)">Supplied by (${suppliers.length}):</div>
+        <div class="font-mono text-[10px]" style="color: var(--fg)">
+          ${suppliers.length ? suppliers.map(s => `<div>&bull; ${s}</div>`).join('') : '<div style="color: var(--subtle)">none in working set</div>'}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  container.innerHTML = html;
+}
+
+function renderMarginalSimulator(res) {
+  const title = document.getElementById('marginalTableTitle');
+  const subtitle = document.getElementById('marginalTableSubtitle');
+  const container = document.getElementById('marginalTableContainer');
+  if (!container) return;
+
+  const missing = LEGS.filter(l => !res.present.includes(l));
+  const dist = missing.length;
+
+  if (dist === 0) {
+    title.textContent = 'Defense & Cut-Set Analysis (Chain Closed)';
+    subtitle.textContent = `${res.critical.length ? res.critical.length + ' critical cut-package(s) break every chain' : 'Multiple overlapping closures'}`;
+
+    let cutHtml = '';
+    if (res.critical.length) {
+      cutHtml = `<div class="p-3 mb-3 panel-sub border rounded" style="border-color: var(--stroke-accent)">
+        <div class="text-[11px] font-semibold uppercase tracking-wider mb-1" style="color: var(--stroke-accent)">
+          &#9888; Critical Cut Set (Single-Tool Removal Breaks Exfiltration Chain)
+        </div>
+        <p class="text-[10px] mb-2" style="color: var(--muted)">
+          Removing any ONE of these packages reduces capabilities below the lethal trifecta threshold:
+        </p>
+        <div class="flex flex-wrap gap-2">
+          ${res.critical.map(pkg => `
+            <button class="px-2.5 py-1 text-[11px] rounded flex items-center gap-1.5 border" style="border-color: var(--stroke-accent); color: var(--stroke-accent)" data-cut-pkg="${pkg}">
+              <span>&#x2715; Remove <b>${pkg}</b></span>
+            </button>
+          `).join('')}
+        </div>
+      </div>`;
+    }
+
+    const minClosuresHtml = res.minimal.length ? `
+      <div class="mt-2 text-[10px]" style="color: var(--muted)">
+        <span class="uppercase tracking-wider">Minimal Exfiltration Subsets (${res.minimal.length}):</span>
+        <div class="mt-1 space-y-1">
+          ${res.minimal.slice(0, 5).map(c => `<div class="panel-sub p-1.5 font-mono">${c.join(' + ')}</div>`).join('')}
+        </div>
+      </div>
+    ` : '';
+
+    container.innerHTML = cutHtml + minClosuresHtml;
+    return;
+  }
+
+  // Distance > 0: Recommend packages that close or advance this set
+  title.textContent = `Marginal Closure Recommendations (${dist} leg${dist > 1 ? 's' : ''} missing)`;
+  subtitle.textContent = `Missing: ${missing.map(l => LEG_LABEL[l]).join(', ')}`;
+
+  const candidates = [];
+  const currentPkgNames = new Set(workingServers.map(s => s.package));
+  const marginalMap = new Map();
+  (DATA.marginal_closers || []).forEach(m => marginalMap.set(m.package_name, m));
+  const candidateNames = DATA.available_packages || Object.keys(TAX.packages);
+
+  candidateNames.forEach(name => {
+    if (currentPkgNames.has(name)) return;
+    const caps = deriveCapabilities(name, []);
+    const pLegs = legsOf(caps);
+    if (!pLegs.size) return;
+
+    const completes = [...pLegs].filter(l => missing.includes(l));
+    if (!completes.length) return;
+
+    const unionLegs = new Set([...res.present, ...pLegs]);
+    const newDist = 3 - unionLegs.size;
+    const flipsToClosed = newDist === 0;
+
+    const margRecord = marginalMap.get(name);
+    const totalFlips = margRecord ? margRecord.flips_total : 0;
+    const composedFlips = margRecord ? margRecord.flips_composed : 0;
+    const groundedFlips = margRecord ? margRecord.flips_composed_grounded : 0;
+    const weightedFlips = margRecord ? margRecord.flips_composed_weighted : 0.0;
+    const closesAlone = margRecord ? margRecord.closes_alone : (pLegs.size === 3);
+
+    candidates.push({
+      name,
+      legs: [...pLegs],
+      completes,
+      newDist,
+      flipsToClosed,
+      totalFlips,
+      composedFlips,
+      groundedFlips,
+      weightedFlips,
+      closesAlone
+    });
+  });
+
+  candidates.sort((a, b) => {
+    if (a.flipsToClosed !== b.flipsToClosed) return a.flipsToClosed ? -1 : 1;
+    if (a.closesAlone !== b.closesAlone) return a.closesAlone ? 1 : -1;
+    if (a.composedFlips !== b.composedFlips) return b.composedFlips - a.composedFlips;
+    if (a.groundedFlips !== b.groundedFlips) return b.groundedFlips - a.groundedFlips;
+    return b.totalFlips - a.totalFlips;
+  });
+
+  const top = candidates.slice(0, 14);
+
+  if (!top.length) {
+    container.innerHTML = '<div class="p-3 text-[11px]" style="color: var(--subtle)">No candidate packages in taxonomy supply the missing legs.</div>';
+    return;
+  }
+
+  container.innerHTML = `
+    <table class="w-full text-left border-collapse">
+      <thead>
+        <tr class="border-b hair text-[10px] uppercase" style="color: var(--muted)">
+          <th class="py-2 pr-3">Tool Package</th>
+          <th class="py-2 px-3">Legs Supplied</th>
+          <th class="py-2 px-3">Marginal Effect</th>
+          <th class="py-2 px-3">Unweighted Flips (Upper Bound)</th>
+          <th class="py-2 px-3">Grounded Flips (Realistic)</th>
+          <th class="py-2 pl-3 text-right">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${top.map(c => `
+          <tr class="border-b hair row hover:bg-white/[0.02]">
+            <td class="py-2 pr-3 font-medium text-white">
+              <div>${c.name}</div>
+              ${c.closesAlone ? '<span class="text-[9px] text-amber-400">(closes alone, trivial)</span>' : '<span class="text-[9px] text-purple-400 font-semibold">(composed closer)</span>'}
+            </td>
+            <td class="py-2 px-3">
+              <div class="flex flex-wrap gap-1">
+                ${c.legs.map(l => `<span class="chip on-${LEG_CLASS[l]} text-[9px] px-1 py-0">${l.replace('_', ' ')}</span>`).join('')}
+              </div>
+            </td>
+            <td class="py-2 px-3">
+              ${c.flipsToClosed
+                ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold" style="background: rgba(239,68,68,0.2); color: var(--stroke-bad); border: 1px solid var(--stroke-bad)">&#9889; FLIPS TO CLOSED (d=0)</span>'
+                : `<span class="px-2 py-0.5 rounded text-[10px]" style="background: rgba(56,189,248,0.2); color: var(--stroke-info); border: 1px solid var(--stroke-info)">Reduces to d=${c.newDist}</span>`
+              }
+            </td>
+            <td class="py-2 px-3 font-mono text-[10px]" style="color: var(--fg)">
+              ${c.composedFlips
+                ? `<div>${c.composedFlips} configs</div><div class="text-[9px]" style="color:var(--muted)">${(c.composedFlips / 256 * 100).toFixed(1)}% open, ${(c.composedFlips / 336 * 100).toFixed(1)}% total</div>`
+                : (c.totalFlips ? `<div>${c.totalFlips} configs</div><div class="text-[9px]" style="color:var(--muted)">${(c.totalFlips / 256 * 100).toFixed(1)}% open</div>` : '&mdash;')}
+            </td>
+            <td class="py-2 px-3 font-mono text-[10px]">
+              ${c.groundedFlips > 0
+                ? `<div class="text-emerald-400 font-bold">${c.groundedFlips} configs</div><div class="text-[9px]" style="color:var(--muted)">${(c.groundedFlips / 256 * 100).toFixed(1)}% open (Jaccard: ${c.weightedFlips.toFixed(2)})</div>`
+                : '<span class="text-[10px]" style="color:var(--subtle)">0 observed in pairs</span>'
+              }
+            </td>
+            <td class="py-2 pl-3 text-right">
+              <button class="primary px-2.5 py-1 text-[10px] whitespace-nowrap" data-add-pkg="${c.name}">
+                + Simulate Adding
+              </button>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+/* ---------- corpus ---------- */
+function renderCorpus() {
+  const s = DATA.summary;
+  const cards = [
+    ['configurations', s.installations],
+    ['chain closed', s.closing_trifecta],
+    ['composed closures', s.composed_closures],
+    ['composed rate', (s.composed_rate * 100).toFixed(1) + '%'],
+    ['single-package closures', s.single_package_closures],
+    ['distance 1 (precipice)', (DATA.distance_summary ? DATA.distance_summary.distance_distribution['1'].count : 68)],
+  ];
+  document.getElementById('corpusStats').innerHTML = cards.map(([k, v]) =>
+    `<div class="panel p-3"><div class="text-lg font-semibold">${v}</div>
+     <div class="text-[10px] mt-1" style="color: var(--muted)">${k}</div></div>`).join('');
+
+  const list = document.getElementById('configList');
+  list.innerHTML = DATA.installations.map((inst, i) =>
+    `<div class="row px-2 py-1.5 cursor-pointer border-b hair" data-i="${i}">
+       <div class="flex justify-between gap-2">
+         <span>${trunc(inst.identifier, 26)}</span>
+         <span class="chip ${inst.closure_type === 'composed' ? 'on-exfil' : inst.closure_type === 'single_package' ? 'on-ingress' : ''}">${inst.closure_type === 'none' ? 'open' : inst.closure_type.replace('_', ' ')}</span>
+       </div>
+       <div class="text-[10px]" style="color: var(--subtle)">${inst.packages.length} tools</div>
+     </div>`).join('');
+
+  // Populate datalist for tool search
+  const dl = document.getElementById('pkgListOptions');
+  if (dl && DATA.available_packages) {
+    dl.innerHTML = DATA.available_packages.map(p => `<option value="${p}">`).join('');
+  }
+
+  // Distance distribution bars
+  if (DATA.distance_summary && document.getElementById('distanceDistBars')) {
+    const dist = DATA.distance_summary.distance_distribution;
+    const closedCount = DATA.distance_summary.closed_count;
+    const openCount = DATA.distance_summary.open_count || (336 - closedCount);
+    const total = DATA.distance_summary.total_installations || 336;
+
+    const bars = [
+      { d: '0 (Closed)', count: closedCount, pct: (closedCount / total * 100).toFixed(1), denom: `${closedCount} (${(closedCount / total * 100).toFixed(1)}% total)`, color: 'var(--stroke-bad)' },
+      { d: '1 (Precipice)', count: dist['1'].count, pct: (dist['1'].count / total * 100).toFixed(1), denom: `${dist['1'].count} (${(dist['1'].count / openCount * 100).toFixed(1)}% open, ${(dist['1'].count / total * 100).toFixed(1)}% total)`, color: 'var(--stroke-warn)' },
+      { d: '2 (Intermediate)', count: dist['2'].count, pct: (dist['2'].count / total * 100).toFixed(1), denom: `${dist['2'].count} (${(dist['2'].count / openCount * 100).toFixed(1)}% open, ${(dist['2'].count / total * 100).toFixed(1)}% total)`, color: 'var(--stroke-info)' },
+      { d: '3 (Baseline)', count: dist['3'].count, pct: (dist['3'].count / total * 100).toFixed(1), denom: `${dist['3'].count} (${(dist['3'].count / openCount * 100).toFixed(1)}% open, ${(dist['3'].count / total * 100).toFixed(1)}% total)`, color: 'var(--stroke-ok)' },
+    ];
+
+    document.getElementById('distanceDistBars').innerHTML = bars.map(b => `
+      <div class="space-y-1">
+        <div class="flex justify-between text-[10px]">
+          <span style="color: ${b.color}">Distance ${b.d}</span>
+          <span class="font-mono">${b.denom}</span>
+        </div>
+        <div class="w-full h-2 bg-gray-900 rounded overflow-hidden">
+          <div class="h-full rounded" style="width: ${b.pct}%; background: ${b.color}"></div>
+        </div>
+      </div>
+    `).join('');
+
+    const m1 = DATA.distance_summary.missing_leg_breakdown_distance_1;
+    if (m1 && document.getElementById('distance1Breakdown')) {
+      document.getElementById('distance1Breakdown').innerHTML = `
+        <div class="text-[10px] uppercase tracking-wider mb-2 font-semibold" style="color: var(--muted)">Missing Leg in Distance 1 (n=${dist['1'].count})</div>
+        <div class="space-y-1.5 text-[10px]">
+          <div class="flex justify-between items-center">
+            <span style="color: var(--stroke-info)">&bull; Missing Private Data</span>
+            <span class="font-mono font-bold text-white">${m1.private_data.count} (${(m1.private_data.share_of_distance_1 * 100).toFixed(1)}%)</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span style="color: var(--stroke-bad)">&bull; Missing Exfiltration</span>
+            <span class="font-mono">${m1.exfiltration.count} (${(m1.exfiltration.share_of_distance_1 * 100).toFixed(1)}%)</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span style="color: var(--stroke-warn)">&bull; Missing Untrusted Ingress</span>
+            <span class="font-mono">${m1.untrusted_ingress.count} (${(m1.untrusted_ingress.share_of_distance_1 * 100).toFixed(1)}%)</span>
+          </div>
+        </div>
+      `;
+    }
+
+    const sBand = DATA.sensitivity_band;
+    if (sBand && document.getElementById('sensitivityBandSection')) {
+      document.getElementById('sensitivityBandSection').innerHTML = `
+        <div class="text-[10px] uppercase tracking-wider mb-2 font-semibold" style="color: var(--muted)">Evidence Sensitivity Band (d=1 Distance)</div>
+        <table class="w-full text-left text-[10px] border-collapse mb-2">
+          <thead>
+            <tr class="border-b hair text-[9px] uppercase" style="color: var(--muted)">
+              <th class="py-1">Evidence Tier</th>
+              <th class="py-1 px-1">Closed</th>
+              <th class="py-1 px-1">d=1 (Precipice)</th>
+              <th class="py-1 px-1">d=2</th>
+              <th class="py-1 pl-1">d=3</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b hair">
+              <td class="py-1 text-white font-medium">Tier 1 (All Evidence)</td>
+              <td class="py-1 px-1 font-mono">${sBand.declared_text.closed_count} (${(sBand.declared_text.closed_rate*100).toFixed(1)}%)</td>
+              <td class="py-1 px-1 font-mono text-amber-400 font-bold">${sBand.declared_text.distance_distribution['1'].count} (${(sBand.declared_text.distance_distribution['1'].share_of_open*100).toFixed(1)}%)</td>
+              <td class="py-1 px-1 font-mono">${sBand.declared_text.distance_distribution['2'].count}</td>
+              <td class="py-1 pl-1 font-mono">${sBand.declared_text.distance_distribution['3'].count}</td>
+            </tr>
+            <tr class="border-b hair">
+              <td class="py-1 text-white font-medium">Tier 2 (Manifest Structure)</td>
+              <td class="py-1 px-1 font-mono">${sBand.manifest_structure.closed_count} (${(sBand.manifest_structure.closed_rate*100).toFixed(1)}%)</td>
+              <td class="py-1 px-1 font-mono text-amber-400 font-bold">${sBand.manifest_structure.distance_distribution['1'].count} (${(sBand.manifest_structure.distance_distribution['1'].share_of_open*100).toFixed(1)}%)</td>
+              <td class="py-1 px-1 font-mono">${sBand.manifest_structure.distance_distribution['2'].count}</td>
+              <td class="py-1 pl-1 font-mono">${sBand.manifest_structure.distance_distribution['3'].count}</td>
+            </tr>
+            <tr class="border-b hair">
+              <td class="py-1 text-white font-medium">Tier 3 (Declared Deps)</td>
+              <td class="py-1 px-1 font-mono">${sBand.declared_dependency.closed_count} (${(sBand.declared_dependency.closed_rate*100).toFixed(1)}%)</td>
+              <td class="py-1 px-1 font-mono text-amber-400 font-bold">${sBand.declared_dependency.distance_distribution['1'].count} (${(sBand.declared_dependency.distance_distribution['1'].share_of_open*100).toFixed(1)}%)</td>
+              <td class="py-1 px-1 font-mono">${sBand.declared_dependency.distance_distribution['2'].count}</td>
+              <td class="py-1 pl-1 font-mono">${sBand.declared_dependency.distance_distribution['3'].count}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="text-[9px] leading-relaxed" style="color: var(--subtle)">
+          *Recall caveat: Taxonomy recall (0.53) systematically biases distance toward openness. Across tiers, 20.6%–26.6% of open configurations sit one capability leg short of closure.
+        </div>
+      `;
+    }
+  }
+
+  // Top composed closers
+  if (DATA.top_composed_closers && document.getElementById('topClosersList')) {
+    document.getElementById('topClosersList').innerHTML = DATA.top_composed_closers.slice(0, 10).map(c => `
+      <div class="panel-sub p-2 border rounded flex items-center justify-between gap-2" style="border-color: var(--border)">
+        <div>
+          <div class="font-medium text-white">${trunc(c.package_name, 28)}</div>
+          <div class="flex gap-1 mt-0.5">
+            ${c.legs_provided.map(l => `<span class="chip on-${LEG_CLASS[l]} text-[8px] px-1 py-0">${l.replace('_', ' ')}</span>`).join('')}
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="font-mono font-bold text-purple-400 text-xs">${c.flips_composed} flips <span class="text-[9px] font-normal" style="color:var(--muted)">(${(c.flip_rate_composed * 100).toFixed(1)}% open, ${(c.flips_composed / 336 * 100).toFixed(1)}% total)</span></div>
+          <div class="text-[9px]">
+            ${c.flips_composed_grounded > 0
+              ? `<span class="text-emerald-400 font-semibold">${c.flips_composed_grounded} grounded</span> <span style="color:var(--subtle)">(${(c.flip_rate_composed_grounded * 100).toFixed(1)}% open)</span>`
+              : '<span style="color:var(--subtle)">0 co-installed pairs</span>'
+            }
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Template Prevalence & Communities
+  if (DATA.template_prevalence && document.getElementById('templatePrevalenceCard')) {
+    const tp = DATA.template_prevalence;
+    document.getElementById('templatePrevalenceCard').innerHTML = `
+      <div class="flex justify-between items-center mb-1.5">
+        <span class="font-semibold uppercase tracking-wider text-white text-[10px]">Template Propagation Signal</span>
+        <span class="chip font-mono text-[9px]">${(tp.duplicate_rate * 100).toFixed(1)}% duplicate</span>
+      </div>
+      <div class="space-y-1 text-[10px]" style="color: var(--muted)">
+        <div class="flex justify-between"><span>Retrieved files:</span><span class="text-white font-mono">${tp.total_files_retrieved}</span></div>
+        <div class="flex justify-between"><span>Valid server configs:</span><span class="text-white font-mono">${tp.valid_server_configs}</span></div>
+        <div class="flex justify-between"><span>Unique deduplicated baseline:</span><span class="text-white font-mono">${tp.unique_configurations}</span></div>
+        <div class="flex justify-between"><span>Duplicate template sets collapsed:</span><span class="text-amber-400 font-mono font-bold">${tp.duplicates_collapsed} sets</span></div>
+      </div>
+      <p class="text-[9px] mt-2 leading-relaxed" style="color: var(--subtle)">
+        Deduplicating to the 336 baseline prevents copied template forks from inflating co-installation weights.
+      </p>
+    `;
+  }
+
+  if (DATA.coinstallation && document.getElementById('communitiesList')) {
+    const co = DATA.coinstallation;
+    const commsHtml = (co.communities || []).map(comm => `
+      <div class="panel-sub p-2 border rounded mb-2" style="border-color: var(--border)">
+        <div class="flex justify-between text-[10px] mb-1">
+          <span class="font-semibold text-white uppercase tracking-wider">${comm.id} (${comm.size} packages)</span>
+          <span style="color: var(--stroke-info)">support &ge; ${co.min_support || 3}</span>
+        </div>
+        <div class="text-[9px] font-mono leading-relaxed" style="color: var(--muted)">
+          ${comm.packages.join(', ')}
+        </div>
+      </div>
+    `).join('');
+
+    const metaHtml = `
+      <div class="panel-sub p-2 border rounded text-[10px] space-y-1" style="border-color: var(--border); color: var(--muted)">
+        <div class="flex justify-between"><span>Network Edges (support &ge; ${co.min_support || 3}):</span><span class="text-white font-mono">${co.total_edges}</span></div>
+        <div class="flex justify-between"><span>Component Sizes:</span><span class="text-purple-400 font-mono">[${(co.component_size_distribution || []).join(', ')}]</span></div>
+        <div class="flex justify-between"><span>Singletons (isolated tools):</span><span class="text-white font-mono">${co.singletons_count || 0}</span></div>
+      </div>
+    `;
+    document.getElementById('communitiesList').innerHTML = commsHtml + metaHtml;
+  }
+
+  document.getElementById('method').innerHTML = DATA.method_html;
+}
+
+function selectConfig(i) {
+  document.querySelectorAll('#configList .row').forEach(r => r.classList.remove('sel'));
+  const row = document.querySelector(`#configList .row[data-i="${i}"]`);
+  if (row) row.classList.add('sel');
+  const inst = DATA.installations[i];
+  loadWorkingServers(inst.servers, inst.identifier);
+}
+
+function parseServers(text) {
+  const data = JSON.parse(text);
+  const servers = data.mcpServers || data.mcp_servers || data;
+  const out = [];
+  for (const [label, spec] of Object.entries(servers)) {
+    if (typeof spec !== 'object' || spec === null) continue;
+    let cmd = spec.command; if (Array.isArray(cmd)) cmd = cmd[0];
+    const args = Array.isArray(spec.args) ? spec.args : [];
+    const runners = ['npx', 'bunx', 'uvx', 'pnpm', 'yarn', 'uv', 'pipx'];
+    const base = String(cmd || '').split(/[\\/]/).pop().replace(/\.(exe|cmd)$/, '').toLowerCase();
+    let pkg = null;
+    if (runners.includes(base)) {
+      for (const a of args) {
+        const t = String(a).trim();
+        if (!t || t.startsWith('-') || ['dlx', 'run', 'tool'].includes(t)) continue;
+        pkg = t.startsWith('@') ? '@' + t.split('@')[1] : t.split('@')[0];
+        break;
+      }
+    }
+    out.push({ label, package: pkg, env_keys: Object.keys(spec.env || {}) });
+  }
+  return out;
+}
+
+function analyzePasted() {
+  const text = document.getElementById('configInput').value.trim();
+  if (!text) return;
+  try {
+    const servers = parseServers(text);
+    loadWorkingServers(servers, 'pasted configuration');
+  } catch (err) {
+    document.getElementById('verdict').innerHTML =
+      `<div style="color: var(--stroke-warn)">Could not parse that as JSON.</div>`;
+  }
+}
+
+function loadExample() {
+  const servers = parseServers(JSON.stringify(DATA.example));
+  loadWorkingServers(servers, 'example configuration');
+}
+
+document.getElementById('analyzeBtn').addEventListener('click', analyzePasted);
+document.getElementById('exampleBtn').addEventListener('click', loadExample);
+document.getElementById('addToolBtn').addEventListener('click', addToolFromInput);
+document.getElementById('clearWorkingSetBtn').addEventListener('click', clearWorkingSet);
+document.getElementById('presetButtonsGroup').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-preset]');
+  if (b) loadPreset(b.dataset.preset);
+});
+document.getElementById('workingSetChips').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-remove-pkg]');
+  if (b) removeWorkingServer(b.dataset.removePkg);
+});
+document.getElementById('marginalTableContainer').addEventListener('click', (e) => {
+  const a = e.target.closest('[data-add-pkg]');
+  if (a) addWorkingServer(a.dataset.addPkg);
+  const c = e.target.closest('[data-cut-pkg]');
+  if (c) removeWorkingServer(c.dataset.cutPkg);
+});
+document.getElementById('configList').addEventListener('click', (e) => {
+  const r = e.target.closest('[data-i]');
+  if (r) selectConfig(parseInt(r.dataset.i, 10));
+});
+document.getElementById('toggleGraphViewBtn').addEventListener('click', toggleGraphTableView);
+
+renderCorpus();
+if (DATA.installations.length) selectConfig(0); else loadExample();
+</script>
+</body>
+</html>
