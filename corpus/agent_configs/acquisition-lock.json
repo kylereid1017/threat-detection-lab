@@ -1,0 +1,26 @@
+{
+  "source": "GitHub code search over public repositories",
+  "retrieval_date": "2026-09-06",
+  "queries": [
+    "mcpServers in:file language:json filename:mcp.json",
+    "mcpServers in:file language:json filename:claude_desktop_config.json",
+    "mcpServers in:file language:json filename:.mcp.json",
+    "mcpServers in:file language:json filename:mcp_config.json",
+    "mcpServers in:file language:json filename:cline_mcp_settings.json"
+  ],
+  "configs_retained": 336,
+  "packages_resolved": 205,
+  "acquisition_stats": {
+    "fetched": 1387,
+    "unreadable": 0,
+    "unparseable": 0,
+    "no_servers": 112,
+    "duplicates_collapsed": 178,
+    "packages_referenced": 380,
+    "packages_unresolved": 175
+  },
+  "configs_sha256": "6acab141ba2c722f6718774dc4069f4bca1c277de228dad9ab34a8cffdc6fa24",
+  "packages_sha256": "89c14b9cd319119c98264a152f598969307dfa91a5420d29f5ffea6c4dcce64f",
+  "sampling_note": "Configurations published to public repositories are not a random sample of configurations in use. They skew toward example configs in server repositories and template projects, which typically list a single server. That biases the corpus against finding composed closures, so a measured composed rate is conservative.",
+  "content_note": "Configuration files and registry manifest metadata only. No package payloads were downloaded and nothing was executed."
+}
