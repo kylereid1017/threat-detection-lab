@@ -237,6 +237,11 @@ class TestAgentPopulationEvaluation(unittest.TestCase):
         # e.g. langchain-mcp-impersonator, openai-mcp, openai-mcp-proxy
         self.assertTrue(any("langchain" in name or "openai" in name for name in imitated_names))
 
+    @unittest.skipUnless(
+        MALICIOUS_NPM_PATH.exists() and MALICIOUS_PYPI_PATH.exists(),
+        "OpenSSF malicious-package corpus not acquired locally "
+        "(payload is gitignored by design; acquisition locks are tracked)",
+    )
     def test_malicious_cross_reference_triage(self):
         res = evaluate_malicious_cross_reference(
             MALICIOUS_NPM_PATH,
