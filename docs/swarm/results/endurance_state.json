@@ -1,0 +1,30 @@
+{
+  "status": "STOPPED",
+  "start_time": "2026-09-06T16:39:07.089088+00:00",
+  "last_heartbeat": "2026-09-06T16:39:07.091630+00:00",
+  "elapsed_seconds": 0.0,
+  "total_cycles": 0,
+  "probes_evaluated": 0,
+  "critic_approved": 0,
+  "critic_blocked": 0,
+  "critic_approval_rate": 0.0,
+  "true_positives": 0,
+  "evasion_gaps": 0,
+  "resilience_rate": 0.714,
+  "campaigns_evaluated": 0,
+  "campaign_containment_rate": 1.0,
+  "average_depth_of_defense": 0.91,
+  "graph_walks_evaluated": 0,
+  "average_mttd_seconds": 25.0,
+  "telemetry_replays_evaluated": 0,
+  "noise_benchmarks_evaluated": 0,
+  "cluster_breakdown": {
+    "Cluster A: LOLBin & Process Proxying": 0,
+    "Cluster B: Argument Masking & Parameter Aliasing": 0,
+    "Cluster C: Parser Differentials & Offset Padding": 0,
+    "Cluster D: Sensor Blinding & Telemetry Tampering": 0
+  },
+  "current_pattern_suite": "Initializing",
+  "recent_findings": [],
+  "stop_signal_file": "C:\\Users\\kyler\\Projects\\threat-detection-lab\\docs\\swarm\\results\\STOP_ENDURANCE"
+}

@@ -1,0 +1,71 @@
+{
+  "status": "RUNNING",
+  "start_time": "2026-09-05T08:36:17.440917+00:00",
+  "last_heartbeat": "2026-09-05T10:00:14.871640+00:00",
+  "elapsed_seconds": 5037.4,
+  "total_cycles": 14000,
+  "probes_evaluated": 544355,
+  "critic_approved": 544355,
+  "critic_blocked": 0,
+  "critic_approval_rate": 1.0,
+  "true_positives": 63086,
+  "evasion_gaps": 9216,
+  "resilience_rate": 0.1159,
+  "campaigns_evaluated": 2333,
+  "campaign_containment_rate": 1.0,
+  "average_depth_of_defense": 0.947,
+  "graph_walks_evaluated": 2334,
+  "average_mttd_seconds": 0.0,
+  "telemetry_replays_evaluated": 2333,
+  "noise_benchmarks_evaluated": 2333,
+  "cluster_breakdown": {
+    "Cluster A: LOLBin & Process Proxying": 2113,
+    "Cluster B: Argument Masking & Parameter Aliasing": 519,
+    "Cluster C: Parser Differentials & Offset Padding": 1918,
+    "Cluster D: Sensor Blinding & Telemetry Tampering": 0
+  },
+  "current_pattern_suite": "DAG State Machine Correlation Walk (Epic 2)",
+  "recent_findings": [
+    {
+      "variant_id": "proc-3c1a8566",
+      "target_type": "sigma",
+      "mutation_name": "endurance_cmdlet_split",
+      "detected": true,
+      "cluster": "Cluster B: Argument Masking & Parameter Aliasing",
+      "timestamp": "2026-09-05T10:00:10.195684+00:00"
+    },
+    {
+      "variant_id": "svg-0a106dca",
+      "target_type": "yara",
+      "mutation_name": "endurance_bracket_concat_js_pad_1024",
+      "detected": true,
+      "cluster": "Cluster B: Argument Masking & Parameter Aliasing",
+      "timestamp": "2026-09-05T10:00:10.898063+00:00"
+    },
+    {
+      "variant_id": "proc-032bad73",
+      "target_type": "sigma",
+      "mutation_name": "endurance_switch_wh",
+      "detected": true,
+      "cluster": "Cluster B: Argument Masking & Parameter Aliasing",
+      "timestamp": "2026-09-05T10:00:12.384252+00:00"
+    },
+    {
+      "variant_id": "svg-78d5071f",
+      "target_type": "yara",
+      "mutation_name": "endurance_cdata_enclosed_script_pad_1500",
+      "detected": true,
+      "cluster": "Cluster C: Parser Differentials & Offset Padding",
+      "timestamp": "2026-09-05T10:00:13.086595+00:00"
+    },
+    {
+      "variant_id": "proc-493c06d1",
+      "target_type": "sigma",
+      "mutation_name": "endurance_stdin_pipe",
+      "detected": false,
+      "cluster": "Cluster B: Argument Masking & Parameter Aliasing",
+      "timestamp": "2026-09-05T10:00:14.519239+00:00"
+    }
+  ],
+  "stop_signal_file": "C:\\Users\\kyler\\Projects\\threat-detection-lab\\docs\\swarm\\results\\STOP_ENDURANCE"
+}

@@ -1,0 +1,71 @@
+{
+  "status": "RUNNING",
+  "start_time": "2026-09-05T08:36:17.440917+00:00",
+  "last_heartbeat": "2026-09-05T09:51:16.040743+00:00",
+  "elapsed_seconds": 4498.6,
+  "total_cycles": 12500,
+  "probes_evaluated": 486338,
+  "critic_approved": 486338,
+  "critic_blocked": 0,
+  "critic_approval_rate": 1.0,
+  "true_positives": 56312,
+  "evasion_gaps": 8232,
+  "resilience_rate": 0.1158,
+  "campaigns_evaluated": 2083,
+  "campaign_containment_rate": 1.0,
+  "average_depth_of_defense": 0.946,
+  "graph_walks_evaluated": 2084,
+  "average_mttd_seconds": 0.0,
+  "telemetry_replays_evaluated": 2083,
+  "noise_benchmarks_evaluated": 2083,
+  "cluster_breakdown": {
+    "Cluster A: LOLBin & Process Proxying": 1887,
+    "Cluster B: Argument Masking & Parameter Aliasing": 462,
+    "Cluster C: Parser Differentials & Offset Padding": 1717,
+    "Cluster D: Sensor Blinding & Telemetry Tampering": 0
+  },
+  "current_pattern_suite": "DAG State Machine Correlation Walk (Epic 2)",
+  "recent_findings": [
+    {
+      "variant_id": "proc-2fcfc3bd",
+      "target_type": "sigma",
+      "mutation_name": "endurance_switch_w1",
+      "detected": true,
+      "cluster": "Cluster B: Argument Masking & Parameter Aliasing",
+      "timestamp": "2026-09-05T09:51:11.354982+00:00"
+    },
+    {
+      "variant_id": "svg-3628e255",
+      "target_type": "yara",
+      "mutation_name": "endurance_foreignObject_meta_refresh_pad_8192",
+      "detected": false,
+      "cluster": "Cluster C: Parser Differentials & Offset Padding",
+      "timestamp": "2026-09-05T09:51:12.057382+00:00"
+    },
+    {
+      "variant_id": "proc-137cdc08",
+      "target_type": "sigma",
+      "mutation_name": "endurance_stdin_pipe",
+      "detected": false,
+      "cluster": "Cluster B: Argument Masking & Parameter Aliasing",
+      "timestamp": "2026-09-05T09:51:13.515833+00:00"
+    },
+    {
+      "variant_id": "svg-f6227677",
+      "target_type": "yara",
+      "mutation_name": "endurance_onerror_image_redirect_pad_1024",
+      "detected": true,
+      "cluster": "Cluster B: Argument Masking & Parameter Aliasing",
+      "timestamp": "2026-09-05T09:51:14.218698+00:00"
+    },
+    {
+      "variant_id": "proc-9b25480e",
+      "target_type": "sigma",
+      "mutation_name": "endurance_pcalua",
+      "detected": false,
+      "cluster": "Cluster A: LOLBin & Process Proxying",
+      "timestamp": "2026-09-05T09:51:15.689126+00:00"
+    }
+  ],
+  "stop_signal_file": "C:\\Users\\kyler\\Projects\\threat-detection-lab\\docs\\swarm\\results\\STOP_ENDURANCE"
+}

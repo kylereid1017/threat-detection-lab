@@ -1,0 +1,71 @@
+{
+  "status": "RUNNING",
+  "start_time": "2026-09-05T08:36:17.440917+00:00",
+  "last_heartbeat": "2026-09-05T10:48:10.954442+00:00",
+  "elapsed_seconds": 7913.5,
+  "total_cycles": 22000,
+  "probes_evaluated": 854916,
+  "critic_approved": 854916,
+  "critic_blocked": 0,
+  "critic_approval_rate": 1.0,
+  "true_positives": 99186,
+  "evasion_gaps": 14469,
+  "resilience_rate": 0.116,
+  "campaigns_evaluated": 3666,
+  "campaign_containment_rate": 1.0,
+  "average_depth_of_defense": 0.945,
+  "graph_walks_evaluated": 3667,
+  "average_mttd_seconds": 0.0,
+  "telemetry_replays_evaluated": 3667,
+  "noise_benchmarks_evaluated": 3666,
+  "cluster_breakdown": {
+    "Cluster A: LOLBin & Process Proxying": 3311,
+    "Cluster B: Argument Masking & Parameter Aliasing": 840,
+    "Cluster C: Parser Differentials & Offset Padding": 2986,
+    "Cluster D: Sensor Blinding & Telemetry Tampering": 0
+  },
+  "current_pattern_suite": "Real-World Telemetry Replay Sweep (EVTX & JSONL)",
+  "recent_findings": [
+    {
+      "variant_id": "svg-dd826715",
+      "target_type": "yara",
+      "mutation_name": "endurance_namespace_svg_prefix_pad_6000",
+      "detected": false,
+      "cluster": "Cluster C: Parser Differentials & Offset Padding",
+      "timestamp": "2026-09-05T10:48:06.246160+00:00"
+    },
+    {
+      "variant_id": "proc-d718646c",
+      "target_type": "sigma",
+      "mutation_name": "endurance_cmdlet_split",
+      "detected": true,
+      "cluster": "Cluster B: Argument Masking & Parameter Aliasing",
+      "timestamp": "2026-09-05T10:48:07.712228+00:00"
+    },
+    {
+      "variant_id": "svg-8d8ec905",
+      "target_type": "yara",
+      "mutation_name": "endurance_bracket_concat_js_pad_8192",
+      "detected": false,
+      "cluster": "Cluster B: Argument Masking & Parameter Aliasing",
+      "timestamp": "2026-09-05T10:48:08.414411+00:00"
+    },
+    {
+      "variant_id": "proc-70b69ce0",
+      "target_type": "sigma",
+      "mutation_name": "endurance_pcalua",
+      "detected": false,
+      "cluster": "Cluster A: LOLBin & Process Proxying",
+      "timestamp": "2026-09-05T10:48:09.856859+00:00"
+    },
+    {
+      "variant_id": "svg-447b15cd",
+      "target_type": "yara",
+      "mutation_name": "endurance_onerror_image_redirect_pad_6000",
+      "detected": false,
+      "cluster": "Cluster B: Argument Masking & Parameter Aliasing",
+      "timestamp": "2026-09-05T10:48:10.559732+00:00"
+    }
+  ],
+  "stop_signal_file": "C:\\Users\\kyler\\Projects\\threat-detection-lab\\docs\\swarm\\results\\STOP_ENDURANCE"
+}
