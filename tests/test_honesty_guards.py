@@ -570,5 +570,63 @@ class FixtureProvenanceTests(unittest.TestCase):
         self.assertEqual([], offenders, "fixture described as authentic: " + ", ".join(offenders))
 
 
+class PatchEngineDriftTests(unittest.TestCase):
+    """A rule that no longer matches the synthesizer's template must produce no patch, loudly."""
+
+    @staticmethod
+    def _finding(rule_name, axis="lolbin_proxy", mutation="pcalua_proxy"):
+        from tools.swarm.models import BoundaryFinding, Variant
+        variant = Variant(id="var-drift", target_type="sigma", axis=axis, mutation_name=mutation,
+                          description="drift test", payload={"ParentImage": "explorer.exe"}, cycle=1)
+        finding = BoundaryFinding(
+            target_rule=rule_name, target_type="sigma", mutation_name=mutation, axis=axis,
+            detected=False, evasion_gap_found=True, root_cause="proxy execution",
+            policy_recommendation="add pcalua.exe", cycle=1, variant_id=variant.id, confidence="HIGH",
+        )
+        return finding, variant
+
+    def test_drifted_rule_produces_no_patch_and_logs_an_error(self):
+        from tools.swarm.adapter import SwarmAdapter
+        adapter = SwarmAdapter()
+        source = adapter.rules_dir / "sigma" / "proc_creation_win_explorer_clickfix_execution.yml"
+        finding, variant = self._finding(source.name)
+        with tempfile.TemporaryDirectory() as tmp:
+            drifted = Path(tmp) / source.name
+            drifted.write_text(
+                source.read_text(encoding="utf-8").replace(
+                    "    condition: selection_parent and (", "    condition: some_other_shape and ("
+                ),
+                encoding="utf-8", newline="\n",
+            )
+            with self.assertLogs("tools.swarm.adapter", level="ERROR") as logs:
+                patched, rec_id, diff = adapter._synthesize_sigma_patch(drifted, finding, variant)
+        self.assertIsNone(patched, "a drifted rule must not produce a patch")
+        self.assertEqual("REC-SIGMA-006", rec_id)
+        self.assertEqual("", diff)
+        self.assertTrue(any("drift" in line.lower() for line in logs.output), logs.output)
+
+    def test_intact_rule_logs_the_resolution_it_took(self):
+        from tools.swarm.adapter import SwarmAdapter
+        adapter = SwarmAdapter()
+        source = adapter.rules_dir / "sigma" / "proc_creation_win_explorer_clickfix_execution.yml"
+        finding, variant = self._finding(source.name)
+        with self.assertLogs("tools.swarm.adapter", level="INFO") as logs:
+            patched, rec_id, diff = adapter._synthesize_sigma_patch(source, finding, variant)
+        self.assertIsNotNone(patched)
+        self.assertEqual("REC-SIGMA-006", rec_id)
+        self.assertTrue(any("Synthesized" in line for line in logs.output), logs.output)
+
+    def test_unmapped_finding_reports_that_no_path_matched(self):
+        from tools.swarm.adapter import SwarmAdapter
+        adapter = SwarmAdapter()
+        source = adapter.rules_dir / "sigma" / "proc_creation_win_explorer_clickfix_execution.yml"
+        finding, variant = self._finding(source.name, axis="unmapped_axis", mutation="nothing_matches_this")
+        with self.assertLogs("tools.swarm.adapter", level="WARNING") as logs:
+            patched, rec_id, diff = adapter._synthesize_sigma_patch(source, finding, variant)
+        self.assertIsNone(patched)
+        self.assertEqual("REC-SIGMA-GENERIC", rec_id)
+        self.assertTrue(any("No synthesis path matched" in line for line in logs.output), logs.output)
+
+
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
