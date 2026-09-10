@@ -23,4 +23,4 @@ corpus/ct/*.jsonl
 corpus/agent/*.jsonl
 
 # Raw endurance run log (9.7 MB) — retained locally, not versioned
-docs/swarm/results/endurance_run.log
+docs/swarm/results/**/endurance_run.log

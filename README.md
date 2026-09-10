@@ -122,12 +122,28 @@ signals. A confidence interval over them describes sampling error inside a close
 not evasion resistance in the field, and it is not evidence that a rule survives real
 adversaries.
 
-## Adversarial Swarm Intelligence Engine
+The endurance harness keeps an append-only observation ledger
+(`docs/swarm/results/records/`: one JSONL record per evaluated probe, campaign stage,
+DAG visit, replay sweep, and noise benchmark, each with run id, rule hash, fixture
+hash, outcome, axis, and timestamp). Every published aggregate is derived from that
+ledger and reconciles back to it:
 
-A sandboxed multi-agent testing harness (`tools/swarm/`) implementing a closed feedback loop across 5 specialized roles (Strategist, Craftsmen, Critic, Detectors, Analyst, Adapter) to systematically probe detection boundaries across structural, syntactic, and LOLBin evasion axes.
+- **Resilience denominator:** attack variants that passed the safety gate and were
+  evaluated (detections + evasions). Benign observations are counted separately and
+  never enter the denominator.
+- **Benign events** (enterprise noise floor, benign telemetry replay) are reported
+  separately as false-positive counts; they are not probes and do not inflate N.
+- **Blocked proposals** (safety-gate rejections) and evaluation errors are preserved
+  in the ledger but excluded from every rate.
+- **An empty denominator produces no figure.** A rate with nothing to divide by is
+  reported as not measured, never as 0 or 1.
+
+## Adversarial Swarm Harness
+
+A sandboxed, deterministic testing harness (`tools/swarm/`) implementing a closed feedback loop across specialized roles (Strategist, Craftsmen, Critic, Detectors, Analyst, Adapter) that systematically probes detection boundaries across structural, syntactic, and LOLBin evasion axes. Every mutation, safety gate, and verdict is deterministic code; no language model runs in the loop.
 
 ### Multi-Campaign Intrusion Archetypes
-The engine models three canonical adversary campaigns:
+The harness models three canonical adversary campaigns:
 1. **ClickFix Stealer Lure:** Windows endpoint intrusion via Explorer Run prompt, PowerShell cradles, and LSASS dumping.
 2. **DPRK Contagious Interview:** AI developer supply chain compromise (`package.json` hooks), macOS workstation credential harvesting, and AWS STS operationalization.
 3. **Frontier AI Cluster Breach:** GPU compute cluster compromise via container breakout (`nsenter`), IMDSv2 worker role theft, and S3 model weight exfiltration.
@@ -166,7 +182,7 @@ python -m unittest discover -s tests -v
 python -m tools.swarm.cli --target yara --max-cycles 3
 python -m tools.swarm.cli --target sigma --max-cycles 3
 
-# Run autonomous continuous sparring with automated self-healing & cable generation
+# Run closed-loop sparring with automated self-healing & cable generation
 python -m tools.swarm.cli --target sigma --autonomous --iterations 10 --self-heal
 
 # Run simulated multi-stage intrusion campaign across 5 MITRE ATT&CK stages

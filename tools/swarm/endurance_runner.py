@@ -40,6 +40,31 @@ from .graph_engine import GraphEngine
 from .models import Variant
 from .noise_floor import run_benchmark
 from .prompt_engine import PromptEngine
+from .records import (
+    KIND_ATTACK_VARIANT,
+    KIND_CAMPAIGN_STAGE,
+    KIND_CAMPAIGN_SUMMARY,
+    KIND_DAG_VISIT,
+    KIND_NOISE_BENCHMARK,
+    KIND_TELEMETRY_SWEEP,
+    KIND_WALK_SUMMARY,
+    OUTCOME_CONTAINED,
+    OUTCOME_DETECTED,
+    OUTCOME_ERROR,
+    OUTCOME_EVADED,
+    OUTCOME_UNCLASSIFIED,
+    OUTCOME_UNCONTAINED,
+    Observation,
+    RecordWriter,
+    aggregate as aggregate_records,
+    canonical_payload_hash,
+    existing_record_count,
+    latest_run_id,
+    load_records,
+    records_path_for,
+    sha256_file,
+    to_runner_counters,
+)
 from .synthesizer import StrategicSynthesizer
 from .telemetry_replay import TelemetryReplayEngine
 
@@ -75,6 +100,12 @@ class EnduranceRunner:
         self.state_file = self.results_dir / "endurance_state.json"
         self.log_file = self.results_dir / "endurance_run.log"
         self.stop_file = Path(stop_file) if stop_file else (self.results_dir / "STOP_ENDURANCE")
+
+        # Observation-record layer: append-only JSONL; aggregates derive from it
+        stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        self.run_id = f"endur-{stamp}-{uuid.uuid4().hex[:6]}"
+        self._record_start_seq = 0
+        self.record_writer: Optional[RecordWriter] = None
 
         # Core engines
         self.critic = SwarmCritic()
@@ -133,6 +164,12 @@ class EnduranceRunner:
             "Cluster D: Sensor Blinding & Telemetry Tampering": 0,
         }
 
+        # Record-layer mirrors (reconcile against records/run-*.jsonl)
+        self.benign_events = 0
+        self.benign_false_positives = 0
+        self.gated_approved = 0
+        self.error_records = 0
+
         self.recent_findings: List[Dict[str, Any]] = []
         self.current_pattern_suite = "Initializing"
 
@@ -155,11 +192,71 @@ class EnduranceRunner:
             self.load_prior_state()
 
     def load_prior_state(self) -> bool:
-        """Restores cumulative statistics from endurance_state.json if present."""
+        """Restores cumulative statistics from endurance_state.json if present.
+
+        When the prior run's observation records are on disk, every counter is
+        rebuilt exactly from the raw records — they are the source of truth and
+        no value is reconstructed from a rounded aggregate rate.  States
+        without records (pre-record-layer) fall back to a coarser float-summary
+        restore and say so in the log.
+        """
         if not self.state_file.exists():
             return False
         try:
             data = json.loads(self.state_file.read_text(encoding="utf-8"))
+        except Exception as exc:
+            logger.warning("Could not restore prior state: %s", exc)
+            return False
+
+        prior_run = data.get("run_id")
+        if prior_run is None:
+            prior_run = latest_run_id(self.results_dir)
+        if prior_run and existing_record_count(self.results_dir, prior_run) > 0:
+            agg = aggregate_records(load_records(self.results_dir, prior_run))
+            counters = to_runner_counters(agg)
+            self.run_id = prior_run
+            self._record_start_seq = agg.n_records
+            self.total_cycles = data.get("total_cycles", 0)
+            self.total_probes = counters["total_probes"]
+            self.critic_approved = counters["critic_approved"]
+            self.critic_blocked = counters["gated_blocked"]
+            self.true_positives = counters["true_positives"]
+            self.evasion_gaps = counters["evasion_gaps"]
+            for target_type, bucket in counters["target_probes"].items():
+                merged = self._target_bucket(target_type)
+                for key in ("probes", "approved", "detected", "gaps"):
+                    merged[key] = int(bucket.get(key, 0))
+            for cluster, count in counters["cluster_counts"].items():
+                self.cluster_counts[cluster] = int(count)
+            self.campaigns_count = counters["campaigns_count"]
+            self.campaigns_contained = counters["campaigns_contained"]
+            self.campaign_dod_sum = counters["campaign_dod_sum"]
+            self.graph_walks_count = counters["graph_walks_count"]
+            self.graph_walks_contained = counters["graph_walks_contained"]
+            self.graph_dod_sum = counters["graph_dod_sum"]
+            self.graph_mttd_sum = counters["graph_mttd_sum"]
+            self.graph_detected_count = counters["graph_detected_count"]
+            self.replay_evals_count = counters["replay_evals_count"]
+            self.noise_benchmarks_count = counters["noise_benchmarks_count"]
+            self.benign_events = counters["benign_events"]
+            self.benign_false_positives = counters["benign_false_positives"]
+            self.gated_approved = counters["gated_approved"]
+            self.error_records = counters["error_records"]
+            if "start_time" in data:
+                try:
+                    self.start_time = datetime.datetime.fromisoformat(data["start_time"])
+                except Exception:
+                    pass
+            logger.info(
+                "Resumed run %s: %d cycles rebuilt exactly from %d observation records",
+                prior_run,
+                self.total_cycles,
+                agg.n_records,
+            )
+            return True
+
+        # Legacy fallback: no raw records on disk (pre-record-layer state).
+        try:
             self.total_cycles = data.get("total_cycles", 0)
             self.total_probes = data.get("probes_evaluated", 0)
             self.critic_approved = data.get("critic_approved", 0)
@@ -182,7 +279,9 @@ class EnduranceRunner:
                     self.start_time = datetime.datetime.fromisoformat(data["start_time"])
                 except Exception:
                     pass
-            logger.info("Resumed prior endurance state: %d cycles, %d probes", self.total_cycles, self.total_probes)
+            logger.warning(
+                "Restored approximate counters from state summary (no observation records found)"
+            )
             return True
         except Exception as exc:
             logger.warning("Could not restore prior state: %s", exc)
@@ -261,6 +360,10 @@ class EnduranceRunner:
         logger.info("=" * 72)
 
         self.start_http_server()
+
+        # Observation-record ledger for this run
+        writer = self._ensure_writer()
+        logger.info("Observation records: %s", writer.path)
 
         # Handle termination signals
         def _sig_handler(signum: int, frame: Any) -> None:
@@ -408,16 +511,38 @@ class EnduranceRunner:
         for st in result.stages:
             self.total_probes += 1
             self.critic_approved += 1
-            if st.detection_result.detected:
+            detected = st.detection_result.detected
+            cluster = "Cluster A: LOLBin & Process Proxying" if st.stage_number == 2 else (
+                "Cluster C: Parser Differentials & Offset Padding" if st.stage_number == 1 else (
+                    "Cluster D: Sensor Blinding & Telemetry Tampering" if st.stage_number == 3 else "Cluster B: Argument Masking & Parameter Aliasing"
+                )
+            )
+            if detected:
                 self.true_positives += 1
             else:
                 self.evasion_gaps += 1
-                cluster = "Cluster A: LOLBin & Process Proxying" if st.stage_number == 2 else (
-                    "Cluster C: Parser Differentials & Offset Padding" if st.stage_number == 1 else (
-                        "Cluster D: Sensor Blinding & Telemetry Tampering" if st.stage_number == 3 else "Cluster B: Argument Masking & Parameter Aliasing"
-                    )
-                )
                 self.cluster_counts[cluster] += 1
+            self._emit(
+                suite="endurance.campaign",
+                kind=KIND_CAMPAIGN_STAGE,
+                probe_id=f"CAMP-ENDUR-{camp_num:04d}-stage{st.stage_number}",
+                cluster=cluster,
+                outcome=OUTCOME_DETECTED if detected else OUTCOME_EVADED,
+                detail={"stage_number": st.stage_number, "campaign": f"CAMP-ENDUR-{camp_num:04d}"},
+            )
+
+        self._emit(
+            suite="endurance.campaign",
+            kind=KIND_CAMPAIGN_SUMMARY,
+            probe_id=f"CAMP-ENDUR-{camp_num:04d}",
+            outcome=OUTCOME_CONTAINED if result.intercepted else OUTCOME_UNCONTAINED,
+            detail={
+                "depth_of_defense": result.depth_of_defense_score,
+                "interception_stage": result.interception_stage,
+                "interception_technique": result.interception_technique,
+                "evasions": list(evasions),
+            },
+        )
 
         status_str = f"INTERCEPTED at {result.interception_stage} ({result.interception_technique})" if result.intercepted else "UNCONTAINED"
         logger.info(
@@ -450,12 +575,35 @@ class EnduranceRunner:
             for visit in res.visits:
                 self.total_probes += 1
                 self.critic_approved += 1
-                if visit.detected:
+                detected = visit.detected
+                cluster = "Cluster A: LOLBin & Process Proxying" if "execution" in visit.node_id else "Cluster C: Parser Differentials & Offset Padding"
+                if detected:
                     self.true_positives += 1
                 else:
                     self.evasion_gaps += 1
-                    cluster = "Cluster A: LOLBin & Process Proxying" if "execution" in visit.node_id else "Cluster C: Parser Differentials & Offset Padding"
                     self.cluster_counts[cluster] += 1
+                self._emit(
+                    suite="endurance.dag",
+                    kind=KIND_DAG_VISIT,
+                    probe_id=f"walk{self.graph_walks_count}-{visit.node_id}",
+                    cluster=cluster,
+                    outcome=OUTCOME_DETECTED if detected else OUTCOME_EVADED,
+                    detail={"node_id": visit.node_id, "walk": self.graph_walks_count},
+                )
+
+            self._emit(
+                suite="endurance.dag",
+                kind=KIND_WALK_SUMMARY,
+                probe_id=f"walk{self.graph_walks_count}",
+                outcome=OUTCOME_CONTAINED if res.contained else OUTCOME_UNCONTAINED,
+                detail={
+                    "depth_of_defense": res.depth_of_defense_score,
+                    "mttd_seconds": res.mttd_seconds,
+                    "intercepted": res.intercepted,
+                    "interception_node": res.interception_node,
+                    "visits": len(res.visits),
+                },
+            )
 
             mttd_str = f"{res.mttd_seconds:.0f}s" if res.mttd_seconds is not None else "n/a"
             inter_str = f"Intercepted at {res.interception_node}" if res.intercepted else "UNCONTAINED"
@@ -512,16 +660,45 @@ class EnduranceRunner:
         window = random.choice([30, 60, 120, 300])
         is_benign = "benign" in corpus.name.lower()
 
-        report = self.replay_engine.replay_file(corpus, is_benign=is_benign, window_seconds=window)
+        try:
+            report = self.replay_engine.replay_file(corpus, is_benign=is_benign, window_seconds=window)
+        except Exception as exc:
+            self.error_records += 1
+            self._emit(
+                suite="endurance.replay",
+                kind=KIND_TELEMETRY_SWEEP,
+                probe_id=corpus.name,
+                fixture_hash=f"sha256:{sha256_file(corpus)}",
+                outcome=OUTCOME_ERROR,
+                detail={"error": str(exc), "window_seconds": window},
+            )
+            raise
         self.replay_evals_count += 1
         self.total_probes += report.total_events
         self.critic_approved += report.total_events
 
-        # Check hits
-        if report.total_detections > 0 and not is_benign:
+        # Attack corpora: missed events are evasion gaps.  Benign sweeps: alerts
+        # are false positives, reported separately from the attack resilience
+        # basis — they are not enemy action and never enter the denominator.
+        if is_benign:
+            self.benign_events += report.total_events
+            self.benign_false_positives += report.total_detections
+        else:
             self.true_positives += report.total_detections
-        elif is_benign and report.total_detections > 0:
-            self.evasion_gaps += report.total_detections
+            self.evasion_gaps += max(0, report.total_events - report.total_detections)
+
+        self._emit(
+            suite="endurance.replay",
+            kind=KIND_TELEMETRY_SWEEP,
+            probe_id=corpus.name,
+            fixture_hash=f"sha256:{sha256_file(corpus)}",
+            counts={
+                "events": report.total_events,
+                "detections": report.total_detections,
+                "benign": bool(is_benign),
+            },
+            detail={"window_seconds": window},
+        )
 
         out_path = self.results_dir / "telemetry_replay.json"
         out_path.write_text(report.to_json(), encoding="utf-8", newline="\n")
@@ -547,6 +724,28 @@ class EnduranceRunner:
         self.critic_approved += benign_count + attack_variants
         self.true_positives += report.corpus_metrics.true_positives
         self.evasion_gaps += report.corpus_metrics.false_negatives
+        benign_fp = int(getattr(report.corpus_metrics, "false_positives", 0))
+        self.benign_events += benign_count
+        self.benign_false_positives += benign_fp
+
+        self._emit(
+            suite="endurance.noise_floor",
+            kind=KIND_NOISE_BENCHMARK,
+            probe_id=f"noise-{self.noise_benchmarks_count:03d}",
+            counts={
+                "generated_events": benign_count + attack_variants,
+                "generated_attack_variants": attack_variants,
+                "benign_events": benign_count,
+                "benign_false_positives": benign_fp,
+                "attack_events": report.corpus_metrics.true_positives + report.corpus_metrics.false_negatives,
+                "attack_true_positives": report.corpus_metrics.true_positives,
+                "attack_missed": report.corpus_metrics.false_negatives,
+            },
+            detail={
+                "recall": report.corpus_metrics.recall,
+                "precision": report.corpus_metrics.precision,
+            },
+        )
 
         ci_low, ci_high = report.false_positive_rate_ci()
         out_path = self.results_dir / "noise_floor.json"
@@ -571,24 +770,97 @@ class EnduranceRunner:
             target_type, {"probes": 0, "approved": 0, "detected": 0, "gaps": 0}
         )
 
+    def _ensure_writer(self) -> RecordWriter:
+        """Lazily initializes the append-only observation-record writer."""
+        if self.record_writer is None:
+            self.record_writer = RecordWriter(
+                self.results_dir, self.run_id, start_seq=self._record_start_seq
+            )
+        return self.record_writer
+
+    def _emit(self, **fields: Any) -> None:
+        """Appends one raw observation record to the run ledger."""
+        try:
+            self._ensure_writer().append(Observation(run_id=self.run_id, **fields))
+        except OSError as exc:
+            logger.warning("Could not append observation record: %s", exc)
+
+    def _records_relpath(self) -> str:
+        """Repo-relative path of this run's record ledger (for state embedding)."""
+        path = records_path_for(self.results_dir, self.run_id)
+        try:
+            return str(path.relative_to(ROOT))
+        except ValueError:
+            return str(path)
+
+    def _record_writer_count(self) -> int:
+        if self.record_writer is not None:
+            return self.record_writer.count
+        return self._record_start_seq
+
+    _RULE_HASH_PATHS = {
+        "sigma": ROOT / "rules" / "sigma" / "proc_creation_win_explorer_clickfix_execution.yml",
+        "yara": ROOT / "rules" / "yara" / "suspicious_active_content_svg.yar",
+    }
+
+    def _rule_hash_for(self, target_type: str) -> Optional[str]:
+        """Sha256 of the detection rule a sparring probe was evaluated against."""
+        path = self._RULE_HASH_PATHS.get(target_type)
+        if path is None:
+            return None
+        digest = sha256_file(path)
+        return f"sha256:{digest}" if digest else None
+
     def _evaluate_probe(self, variant: Variant, cluster: str) -> None:
         self.total_probes += 1
         self._target_bucket(variant.target_type)["probes"] += 1
         verdict = self.critic.evaluate(variant)
 
+        fixture_hash = f"sha256:{canonical_payload_hash(variant.payload)}"
+        rule_hash = self._rule_hash_for(variant.target_type)
+
         if not verdict.passed:
             self.critic_blocked += 1
+            self._emit(
+                suite="endurance.sparring",
+                kind=KIND_ATTACK_VARIANT,
+                probe_id=variant.id,
+                target=variant.target_type,
+                axis=variant.axis,
+                cluster=cluster,
+                rule_hash=rule_hash,
+                fixture_hash=fixture_hash,
+                outcome=OUTCOME_UNCLASSIFIED,
+                detail={"mutation": variant.mutation_name, "critic_reason": verdict.reason},
+            )
             logger.warning("    [Critic Blocked] %s: %s", variant.mutation_name, verdict.reason)
             return
 
         self.critic_approved += 1
+        self.gated_approved += 1
         target_counts = self._target_bucket(variant.target_type)
         target_counts["approved"] += 1
 
-        if variant.target_type == "yara":
-            detection = self.yara_detector.evaluate(variant)
-        else:
-            detection = self.sigma_detector.evaluate(variant)
+        try:
+            if variant.target_type == "yara":
+                detection = self.yara_detector.evaluate(variant)
+            else:
+                detection = self.sigma_detector.evaluate(variant)
+        except Exception as exc:
+            self.error_records += 1
+            self._emit(
+                suite="endurance.sparring",
+                kind=KIND_ATTACK_VARIANT,
+                probe_id=variant.id,
+                target=variant.target_type,
+                axis=variant.axis,
+                cluster=cluster,
+                rule_hash=rule_hash,
+                fixture_hash=fixture_hash,
+                outcome=OUTCOME_ERROR,
+                detail={"mutation": variant.mutation_name, "error": str(exc)},
+            )
+            raise
 
         if detection.detected:
             self.true_positives += 1
@@ -599,6 +871,19 @@ class EnduranceRunner:
             target_counts["gaps"] += 1
             self.cluster_counts[cluster] += 1
             status_glyph = "[!] EVASION GAP"
+
+        self._emit(
+            suite="endurance.sparring",
+            kind=KIND_ATTACK_VARIANT,
+            probe_id=variant.id,
+            target=variant.target_type,
+            axis=variant.axis,
+            cluster=cluster,
+            rule_hash=rule_hash,
+            fixture_hash=fixture_hash,
+            outcome=OUTCOME_DETECTED if detection.detected else OUTCOME_EVADED,
+            detail={"mutation": variant.mutation_name},
+        )
 
         finding_entry = {
             "variant_id": variant.id,
@@ -625,7 +910,16 @@ class EnduranceRunner:
     # -------------------------------------------------------------------------
     @property
     def current_resilience(self) -> Optional[float]:
-        return (self.true_positives / self.critic_approved) if self.critic_approved > 0 else None
+        """Attack-variant resilience: detected / evaluated attack variants.
+
+        The denominator is attack variants that passed the gate and were
+        evaluated (``true_positives + evasion_gaps``); benign observations are
+        reported separately and never enter this rate.
+        """
+        evaluated = self.true_positives + self.evasion_gaps
+        if evaluated == 0:
+            return None
+        return self.true_positives / evaluated
 
     @property
     def average_dod(self) -> Optional[float]:
@@ -683,7 +977,11 @@ class EnduranceRunner:
             "probes_evaluated": self.total_probes,
             "critic_approved": self.critic_approved,
             "critic_blocked": self.critic_blocked,
-            "critic_approval_rate": round(self.critic_approved / max(1, self.total_probes), 4),
+            "critic_approval_rate": (
+                round(self.gated_approved / (self.gated_approved + self.critic_blocked), 4)
+                if (self.gated_approved + self.critic_blocked) > 0
+                else None
+            ),
             "true_positives": self.true_positives,
             "evasion_gaps": self.evasion_gaps,
             "resilience_rate": round(self.current_resilience, 4) if self.current_resilience is not None else None,
@@ -694,6 +992,14 @@ class EnduranceRunner:
             "average_mttd_seconds": round(self.average_mttd, 1) if self.average_mttd is not None else None,
             "telemetry_replays_evaluated": self.replay_evals_count,
             "noise_benchmarks_evaluated": self.noise_benchmarks_count,
+            "run_id": self.run_id,
+            "attack_variants_evaluated": self.true_positives + self.evasion_gaps,
+            "attack_variants_detected": self.true_positives,
+            "benign_events_evaluated": self.benign_events,
+            "benign_false_positives": self.benign_false_positives,
+            "unclassified_preserved": self.critic_blocked,
+            "error_records_preserved": self.error_records,
+            "observation_records": {"file": self._records_relpath(), "count": self._record_writer_count()},
             "cluster_breakdown": self.cluster_counts,
             "current_pattern_suite": self.current_pattern_suite,
             "recent_findings": self.recent_findings[-5:],

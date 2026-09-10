@@ -786,7 +786,7 @@ class StrategicSynthesizerTests(unittest.TestCase):
             content = output_path.read_text(encoding="utf-8")
             self.assertIn("Strategic Intelligence Cable", content)
             self.assertIn("Cluster A: LOLBin & Process Proxying", content)
-            self.assertIn("Empirical Analysis of 100 Autonomous Adversarial Swarm Probes", content)
+            self.assertIn("Empirical Analysis of 100 Adversarial Swarm Probes", content)
         finally:
             shutil.rmtree(temp_cables, ignore_errors=True)
             shutil.rmtree(temp_results, ignore_errors=True)
