@@ -1,0 +1,21 @@
+{
+  "source": "crt.sh (public Certificate Transparency logs)",
+  "source_url": "https://crt.sh/",
+  "retrieval_date": "2026-09-05",
+  "query_terms": [
+    "anthropic",
+    "openai",
+    "huggingface",
+    "deepmind",
+    "pytorch",
+    "nvidia",
+    "databricks",
+    "weightsandbiases",
+    "wandb"
+  ],
+  "window_days": 90,
+  "record_count": 137,
+  "snapshot_file": "certificate_transparency.jsonl",
+  "snapshot_sha256": "0b20e31c6850ab524b5eb6a4c637fe7a4422b1bb657434ff7d77f26b841e2d6d",
+  "content_note": "Certificate metadata only. Every row is a certificate that exists. Nothing in this snapshot establishes that any domain is malicious; most matches for a brand term are the brand's own infrastructure or unrelated software. Scored output is a queue for human verification, not an accusation."
+}

@@ -1,0 +1,10 @@
+{"name": "anthropic-sdk-helper", "ecosystem": "npm", "version": "0.0.1", "published": "2026-09-03", "maintainer": "kx91", "has_install_hook": true, "homepage": "https://anthropic-careers.invalid/sdk"}
+{"name": "huggingfaec-hub", "ecosystem": "pypi", "version": "0.1.0", "published": "2026-09-03", "maintainer": "mm22", "has_install_hook": true}
+{"name": "pytorch-lightning-utils", "ecosystem": "pypi", "version": "2.0.9", "published": "2026-09-04", "maintainer": "zz01", "has_install_hook": true}
+{"name": "safetensors-fast", "ecosystem": "pypi", "version": "0.0.3", "published": "2026-09-04", "maintainer": "kx91", "has_install_hook": true}
+{"name": "left-pad-again", "ecosystem": "npm", "version": "1.0.0", "published": "2026-09-02", "maintainer": "aa10", "has_install_hook": false}
+{"name": "color-convert-x", "ecosystem": "npm", "version": "2.1.0", "published": "2026-09-02", "maintainer": "bb11", "has_install_hook": false}
+{"name": "csv-stream-lite", "ecosystem": "npm", "version": "0.4.2", "published": "2026-09-03", "maintainer": "cc12", "has_install_hook": false}
+{"name": "yaml-tools", "ecosystem": "pypi", "version": "1.2.0", "published": "2026-09-03", "maintainer": "dd13", "has_install_hook": false}
+{"name": "date-fmt", "ecosystem": "npm", "version": "3.0.1", "published": "2026-09-04", "maintainer": "ee14", "has_install_hook": false}
+{"name": "http-retry", "ecosystem": "npm", "version": "1.1.1", "published": "2026-09-04", "maintainer": "ff15", "has_install_hook": false}

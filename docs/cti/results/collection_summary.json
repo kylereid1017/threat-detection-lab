@@ -1,0 +1,166 @@
+{
+  "produced": "2026-09-05",
+  "sources": [
+    {
+      "source": "certificate_transparency",
+      "records_seen": 28,
+      "indicators_produced": 57,
+      "records_skipped": 0,
+      "skip_reasons": {},
+      "error": null
+    },
+    {
+      "source": "malicious_url_feed",
+      "records_seen": 7,
+      "indicators_produced": 18,
+      "records_skipped": 1,
+      "skip_reasons": {
+        "not_a_url": 1
+      },
+      "error": null
+    },
+    {
+      "source": "package_registry",
+      "records_seen": 10,
+      "indicators_produced": 11,
+      "records_skipped": 0,
+      "skip_reasons": {},
+      "error": null
+    }
+  ],
+  "records_read": 45,
+  "raw_indicators": 86,
+  "unique_indicators": 74,
+  "priority_indicators": 10,
+  "triage_indicators": 15,
+  "below_threshold": 59,
+  "thresholds": {
+    "triage": 0.35,
+    "priority": 0.6
+  },
+  "reduction_ratio": 0.7973,
+  "graph": {
+    "node_count": 74,
+    "edge_count": 10,
+    "cluster_count": 5,
+    "clusters": [
+      {
+        "cluster_id": "asn:as64500",
+        "members": [
+          "ipv4:198.51.100.10",
+          "ipv4:198.51.100.7",
+          "ipv4:198.51.100.8",
+          "ipv4:198.51.100.9"
+        ],
+        "shared_attribute": "asn",
+        "shared_value": "as64500"
+      },
+      {
+        "cluster_id": "cert_sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "members": [
+          "domain:anthropic-careers.invalid",
+          "domain:anthropic-recruiting.invalid",
+          "domain:careers-anthropic.invalid",
+          "domain:www.anthropic-careers.invalid"
+        ],
+        "shared_attribute": "cert_sha256",
+        "shared_value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "cluster_id": "cert_sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "members": [
+          "domain:0penai-interview.invalid",
+          "domain:anthr0pic.invalid",
+          "domain:huggingfaec.invalid"
+        ],
+        "shared_attribute": "cert_sha256",
+        "shared_value": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      {
+        "cluster_id": "asn:as64496",
+        "members": [
+          "ipv4:203.0.113.10",
+          "ipv4:203.0.113.11"
+        ],
+        "shared_attribute": "asn",
+        "shared_value": "as64496"
+      },
+      {
+        "cluster_id": "cert_sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "members": [
+          "domain:checkpoint-sync.invalid",
+          "domain:safetensors-mirror.invalid"
+        ],
+        "shared_attribute": "cert_sha256",
+        "shared_value": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    ],
+    "edges": [
+      {
+        "source_key": "domain:anthropic-careers.invalid",
+        "target_key": "domain:anthropic-recruiting.invalid",
+        "relationship": "shares_cert_sha256",
+        "evidence": "cert_sha256=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "source_key": "domain:anthropic-careers.invalid",
+        "target_key": "domain:careers-anthropic.invalid",
+        "relationship": "shares_cert_sha256",
+        "evidence": "cert_sha256=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "source_key": "domain:anthropic-careers.invalid",
+        "target_key": "domain:www.anthropic-careers.invalid",
+        "relationship": "shares_cert_sha256",
+        "evidence": "cert_sha256=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "source_key": "domain:0penai-interview.invalid",
+        "target_key": "domain:anthr0pic.invalid",
+        "relationship": "shares_cert_sha256",
+        "evidence": "cert_sha256=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      {
+        "source_key": "domain:0penai-interview.invalid",
+        "target_key": "domain:huggingfaec.invalid",
+        "relationship": "shares_cert_sha256",
+        "evidence": "cert_sha256=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      {
+        "source_key": "domain:checkpoint-sync.invalid",
+        "target_key": "domain:safetensors-mirror.invalid",
+        "relationship": "shares_cert_sha256",
+        "evidence": "cert_sha256=cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      {
+        "source_key": "ipv4:203.0.113.10",
+        "target_key": "ipv4:203.0.113.11",
+        "relationship": "shares_asn",
+        "evidence": "asn=as64496"
+      },
+      {
+        "source_key": "ipv4:198.51.100.10",
+        "target_key": "ipv4:198.51.100.7",
+        "relationship": "shares_asn",
+        "evidence": "asn=as64500"
+      },
+      {
+        "source_key": "ipv4:198.51.100.10",
+        "target_key": "ipv4:198.51.100.8",
+        "relationship": "shares_asn",
+        "evidence": "asn=as64500"
+      },
+      {
+        "source_key": "ipv4:198.51.100.10",
+        "target_key": "ipv4:198.51.100.9",
+        "relationship": "shares_asn",
+        "evidence": "asn=as64500"
+      }
+    ],
+    "rejected_pivots": {
+      "issuer=lets encrypt r3": 29
+    },
+    "rejected_pivot_note": "Attribute values shared by more than 25 indicators are treated as common infrastructure and are not used to link indicators."
+  },
+  "interpretation": "reduction_ratio is the share of unique indicators the relevance model removed from the analyst queue. It is a workload figure, not an accuracy figure: it says nothing about whether the removed indicators were irrelevant, only that the model scored them below the triage threshold."
+}
