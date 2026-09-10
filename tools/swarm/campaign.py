@@ -1,4 +1,4 @@
-"""Campaign Orchestrator: Autonomous Multi-Stage Kill Chain Simulator & Defense-in-Depth Engine."""
+"""Campaign runner: staged kill-chain simulation and defence-in-depth evaluation."""
 
 from __future__ import annotations
 
@@ -109,7 +109,7 @@ class CampaignOrchestrator:
         campaign_name: str = "Stealer-Lure-Intrusion",
         campaign_id: str = "CAMP-2026-001",
         evasion_at_stages: Optional[List[int]] = None,
-        self_heal: bool = False,
+        propose_patches: bool = False,
         callback: Optional[Callable[[StageResult], None]] = None,
     ) -> CampaignResult:
         """Executes a 5-stage intrusion campaign evaluating defense-in-depth coverage."""
@@ -164,7 +164,7 @@ class CampaignOrchestrator:
                 completed_stages += 1
 
             # Rule-patch proposal loop (opt-in via propose_patches)
-            if is_gap and self_heal:
+            if is_gap and propose_patches:
                 from .models import BoundaryFinding
                 finding = BoundaryFinding(
                     target_rule=cfg["rule_name"],
@@ -198,11 +198,11 @@ class CampaignOrchestrator:
             depth_of_defense_score=dod_score,
         )
 
-    def run_autonomous_campaigns(
+    def run_campaigns(
         self,
         iterations: int = 5,
-        campaign_name: str = "Autonomous-Kill-Chain-Sparring",
-        self_heal: bool = False,
+        campaign_name: str = "Kill-Chain-Sparring",
+        propose_patches: bool = False,
         stage_callback: Optional[Callable[[int, StageResult], None]] = None,
         campaign_callback: Optional[Callable[[int, CampaignResult], None]] = None,
     ) -> List[CampaignResult]:
@@ -232,7 +232,7 @@ class CampaignOrchestrator:
                 campaign_name=f"{campaign_name}-Run{i}",
                 campaign_id=camp_id,
                 evasion_at_stages=profile,
-                self_heal=self_heal,
+                propose_patches=propose_patches,
                 callback=wrapped_stage_cb,
             )
             results.append(res)

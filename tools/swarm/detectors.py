@@ -1,4 +1,4 @@
-"""Agent 4 — The Detector: Local sandbox evaluation harness for YARA and Sigma rules."""
+"""Detector role: local in-memory evaluation harness for YARA and Sigma rules."""
 
 from __future__ import annotations
 

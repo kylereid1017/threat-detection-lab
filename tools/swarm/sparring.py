@@ -1,4 +1,4 @@
-"""Autonomous Orchestrator: Continuous closed-loop sparring against detection rules."""
+"""Sparring runner: continuous closed-loop probing of detection rules."""
 
 from __future__ import annotations
 
@@ -16,8 +16,8 @@ from .adapter import SwarmAdapter
 from .prompt_engine import PromptEngine
 
 
-class AutonomousOrchestrator:
-    """Runs autonomous continuous sparring sessions modeling an endless wave of attack permutations."""
+class SparringRunner:
+    """Runs continuous sparring sessions over a bounded wave of mutation permutations."""
 
     def __init__(self, directive: OperatorDirective, prompt_engine: Optional[PromptEngine] = None, adapter: Optional[SwarmAdapter] = None) -> None:
         directive.validate()
@@ -32,11 +32,11 @@ class AutonomousOrchestrator:
         else:
             self.detector = SigmaDetector()
 
-    def run_autonomous(
+    def run_sparring(
         self,
         iterations: int = 10,
         on_iteration: Optional[Callable[[Dict[str, Any]], None]] = None,
-        self_heal: bool = False,
+        propose_patches: bool = False,
     ) -> Dict[str, Any]:
         """Executes N iterations of continuous threat hypothesis generation and evaluation."""
         history: List[Dict[str, Any]] = []
@@ -77,9 +77,9 @@ class AutonomousOrchestrator:
                 target_rule=target_rule_name,
                 target_type=self.directive.target,
             )
-            # 4. Adapter self-healing loop (if enabled and gap detected)
+            # 4. Adapter patch-proposal loop (if enabled and a gap was detected)
             healing_info: Optional[Dict[str, Any]] = None
-            if self_heal and findings and findings[0].evasion_gap_found:
+            if propose_patches and findings and findings[0].evasion_gap_found:
                 healed, cable_path, patch_diff = self.adapter.heal_gap(
                     finding=findings[0],
                     variant=variant,

@@ -1,4 +1,4 @@
-"""Craftsman Agent 2b: Command-line and argument mutator for process creation telemetry."""
+"""Mutation craftsman (process): command-line and argument mutator for process creation telemetry."""
 
 from __future__ import annotations
 

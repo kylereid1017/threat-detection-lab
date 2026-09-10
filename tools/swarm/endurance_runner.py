@@ -1,4 +1,4 @@
-"""Endurance Runner: Continuous Overnight Adversarial Swarm Execution Harness.
+"""Endurance runner: bounded long-run continuous boundary mapping.
 
 Executes continuous multi-vector testing across all evasion axes:
 1. Polymorphic LOLBin proxying & argument masking (Sigma).
@@ -343,7 +343,7 @@ class EnduranceRunner:
                 self.httpd = http.server.HTTPServer(("127.0.0.1", port), WorkbenchHandler)
                 t = threading.Thread(target=self.httpd.serve_forever, daemon=True)
                 t.start()
-                logger.info("Adversarial Swarm Workbench server active at http://localhost:%d/swarm_workbench.html", port)
+                logger.info("Boundary workbench server active at http://localhost:%d/swarm_workbench.html", port)
                 break
             except OSError:
                 continue
@@ -353,7 +353,7 @@ class EnduranceRunner:
         self.running = True
         logger.info("=" * 72)
         logger.info("ADVERSARIAL WORKBENCH ENDURANCE ENGINE DEPLOYED")
-        logger.info("Target: Continuous autonomous detection boundary mapping")
+        logger.info("Target: continuous detection boundary mapping")
         logger.info("Safety: RFC 2606 reserved domains | Local memory execution only")
         logger.info("Pace: %.2fs delay between pattern suites", self.pace)
         logger.info("Results Directory: %s", self.results_dir)
@@ -500,7 +500,7 @@ class EnduranceRunner:
             campaign_name=f"Endurance-Campaign-Run{camp_num}",
             campaign_id=f"CAMP-ENDUR-{camp_num:04d}",
             evasion_at_stages=evasions,
-            self_heal=False,
+            propose_patches=False,
         )
 
         self.campaigns_count += 1
@@ -1120,7 +1120,7 @@ class EnduranceRunner:
 def main() -> int:
     parser = argparse.ArgumentParser(
         prog="python -m tools.swarm.endurance_runner",
-        description="Continuous Overnight Adversarial Swarm Endurance Harness",
+        description="Continuous detection boundary endurance harness",
     )
     parser.add_argument(
         "--pace",

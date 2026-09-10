@@ -1,4 +1,4 @@
-# Adversarial Swarm Intelligence Engine
+# Detection Boundary Harness
 
 ## Overview
 
@@ -9,15 +9,17 @@ Traditional detection engineering is fundamentally reactive:
 4. Adversaries introduce minor mutations, evading the new rule.
 5. The cycle repeats.
 
-The **Adversarial Swarm Intelligence Engine** is a controlled, sandboxed multi-agent testing harness designed to break this reactive treadmill. By organizing specialized adversarial agents along structural, syntactic, and behavioral evasion axes, the swarm autonomously maps the detection boundaries of detection rules before adversaries discover them in production.
+The **detection boundary harness** is a controlled, sandboxed, LLM-free testing harness built to interrupt this reactive treadmill. It organizes deterministic mutation craftsmen along structural, syntactic, and behavioural evasion axes and maps the detection boundary of this repository's own rules, so a rule's brittle spots surface in CI rather than in production. It does not model adversary behaviour, and nothing it measures is an estimate of evasion resistance in the field.
 
-This architecture is an open-source, test-driven implementation of the multi-agent red team paradigm originally formulated by Kyle Reid in February 2026 (*"Adversarial Swarm Intelligence: Controlled Multi-Agent Red Team for Continuous Detection Boundary Testing"*).
+> [!NOTE] **Terminology (corrected 2026-09-10).** Earlier revisions of this document, the generated cables, and the CLI described this system as an "Adversarial Swarm Intelligence Engine" and as multi-agent. That was inaccurate advertising: no language model and no autonomous agent takes part in mutation, evaluation, gating, or measurement. The system is a deterministic closed loop over a bounded mutation vocabulary, and it is now named accordingly. Dated artifacts that still carry the old name are historical records, not live claims.
+
+Related work: this harness applies the well-established mutation-testing and red-team-the-rule-set ideas to detection content. It is not a novel paradigm, and it does not claim to model real adversary behaviour.
 
 ---
 
 ## The 4-Layer Safety Architecture
 
-Adversarial testing must never introduce uncontained risks. The swarm enforces safety at four distinct architectural boundaries:
+Mutation testing must never introduce uncontained risk. The harness enforces safety at four architectural boundaries:
 
 ```mermaid
 flowchart TD
@@ -50,39 +52,40 @@ flowchart TD
 
 ---
 
-## The 5 Agent Roles
+## The Implemented Roles
 
-Rather than prompting a single LLM to generate generic variants, the swarm decouples the testing process into specialized functional roles. The roles are **deterministic Python modules, not language models**: every role is a pure function of its inputs, there is no network or LLM call anywhere in the evaluation path, and a run is byte-reproducible from its directive. Determinism is a feature — it is what makes results CI-gateable and independently re-runnable:
+Rather than generating generic variants from one prompt, the harness decouples the process into specialised functional roles. The roles are **deterministic Python modules, not language models**: every role is a pure function of its inputs, there is no network or LLM call anywhere in the evaluation path, and a run is byte-reproducible from its directive. Determinism is a feature — it is what makes results CI-gateable and independently re-runnable:
 
 ```mermaid
 flowchart LR
-    S["1. The Strategist"] --> CRF["2. The Craftsmen"]
-    CRF --> CRT["3. The Critic"]
-    CRT -->|Approved| DET["4. The Detector"]
+    D["Objective input<br/>(operator directive)"] --> CRF["1. The Craftsmen"]
+    CRF --> CRT["2. The Critic"]
+    CRT -->|Approved| DET["3. The Detector"]
     CRT -->|Rejected| CRF
-    DET --> AN["5. The Analyst"]
-    AN --> AD["6. The Adapter"]
-    AD -->|Targeted Directives| CRF
+    DET --> AN["4. The Analyst"]
+    AN --> AD["5. The Adapter"]
+    AD -->|Candidate patches| CRF
 ```
 
-1. **The Strategist**: Receives operator directives (`OperatorDirective`), establishes testing hypotheses, and decomposes testing objectives across targeted evasion axes (structural, syntactic, LOLBin substitution, obfuscation).
-2. **The Craftsmen**: Specialized generation modules that produce concrete test variants along specific technical dimensions:
+Objectives are not a role: they arrive as an `OperatorDirective` (target family, cycle budget, explicit prompt). There is no strategist component, and none of the following roles contains a language model.
+
+1. **The Craftsmen**: Specialized generation modules that produce concrete test variants along specific technical dimensions:
    - `SvgCraftsman`: Explores XML structural variations, namespace prefixing (`<svg:svg>`), comment padding, CDATA encapsulation, event handlers (`onload`, `onerror`), and JavaScript navigation primitives.
    - `ProcessCraftsman`: Explores Windows process creation variations, switch aliasing (`-w 1`, `-w h`), base64 encoding (`-enc`), background staging (`start /b`), LOLBin substitutions (`rundll32`, `wscript`, `curl`), and cmdlet splitting.
-3. **The Critic**: The mandatory pre-flight gate. Before any variant reaches the detector, the Critic verifies:
+2. **The Critic**: The mandatory pre-flight gate. Before any variant reaches the detector, the Critic verifies:
    - Syntax validity: parses XML/SVG via `ElementTree` and verifies required telemetry fields for process events.
    - Safety boundary compliance: scans all URLs to guarantee adherence to RFC 2606 reserved TLDs (`.invalid`, `.example`) and blocks routable IP addresses.
-4. **The Detector**: Executes local detection evaluation against compiled rules in memory:
+3. **The Detector**: Executes local detection evaluation against compiled rules in memory:
    - `YaraDetector`: Evaluates byte-level payloads against compiled YARA rules (`rules/yara/`).
    - `SigmaDetector`: Evaluates event dictionaries against Sigma rules converted to SQL queries via `pySigma-backend-sqlite` on in-memory SQLite tables.
-5. **The Analyst**: Evaluates detection outcomes, isolates features responsible for rule triggering, and performs root-cause attribution when an evasion succeeds.
-6. **The Adapter**: Closes the feedback loop. Synthesizes findings from the current cycle and instructs the Craftsmen on which boundary dimensions to probe in the subsequent cycle.
+4. **The Analyst**: Evaluates detection outcomes, isolates features responsible for rule triggering, and performs root-cause attribution when an evasion succeeds. Attribution is deterministic pattern matching over the variant structure, not inference.
+5. **The Adapter**: Proposes a candidate rule patch for a confirmed gap and verifies it in memory before anything is published. It does not steer the craftsmen (see Known Limitations).
 
 ---
 
 ## Measured Boundary Discoveries
 
-The swarm's purpose is to map detection boundaries *before* adversaries find them, then feed rule tuning. The numbers below are **internal measurements** under the repository's measurement policy: mutations written by this repository, evaluated against rules written by this repository. They are regression signals that track whether rule changes widen or narrow known boundaries — not estimates of evasion resistance in the field.
+The harness's purpose is to map this repository's detection boundaries and feed rule tuning. The numbers below are **internal measurements** under the repository's measurement policy: mutations written by this repository, evaluated against rules written by this repository. They are regression signals that track whether rule changes widen or narrow known boundaries — not estimates of evasion resistance in the field.
 
 ### Cycle 1 (2026-09-03): initial mapping
 
@@ -146,3 +149,12 @@ To add a new evasion axis or target rule:
 1. **New Target Rule**: Add a runner under `tools/swarm/detectors.py` implementing `BaseDetector`.
 2. **New Craftsman Mutators**: Subclass `BaseCraftsman` under `tools/swarm/craftsmen/` and implement `generate_variants(cycle, feedback)`.
 3. **New Attributions**: Add root-cause heuristics under `tools/swarm/analyst.py`.
+
+---
+
+## Known Limitations
+
+* **Bounded vocabulary.** Detection boundaries are mapped only across the mutation classes the craftsmen implement. A gap the harness cannot generate is a gap it cannot count.
+* **Craft-level feedback is not consumed.** The craftsman signatures accept a `feedback` argument for interface stability, but no craftsman reads it (verified by AST inspection in `tests/test_honesty_guards.py`). The loop closes through the deterministic mutation rotation, not through adapter feedback, so "closed-loop adaptation" means re-running the rotation against tuned rules, not per-craft steering.
+* **Keyword-routed objectives.** The prompt interface routes on known keywords. A prompt that names no recognised technique falls through to a generic variant, so the probe is not targeted at what the operator described.
+* **No field claim.** Every figure describes this repository's rules under this repository's mutations. It is not prevalence, precision, or evasion resistance in production.

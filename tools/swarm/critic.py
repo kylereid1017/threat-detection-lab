@@ -1,4 +1,4 @@
-"""Agent 3 — The Critic: Pre-flight realism, syntax, and safety validation gate."""
+"""Critic role: pre-flight realism, syntax, and safety validation gate."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Data models for Adversarial Swarm Intelligence Engine."""
+"""Data models for the detection boundary harness."""
 
 from __future__ import annotations
 

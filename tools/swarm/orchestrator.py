@@ -1,4 +1,4 @@
-"""Swarm Orchestrator: Multi-agent closed-loop coordination engine."""
+"""Orchestrator: closed-loop coordination of mutation, gating, detection, and attribution."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from .models import BoundaryFinding, BoundaryMap, CriticVerdict, DetectionResult
 
 
 class SwarmOrchestrator:
-    """Coordinates the 5-agent closed loop: Strategist -> Craftsman -> Critic -> Detector -> Analyst -> Adapter."""
+    """Coordinates the closed loop: Craftsmen -> Critic -> Detector -> Analyst -> Adapter."""
 
     def __init__(self, directive: OperatorDirective) -> None:
         directive.validate()
@@ -41,7 +41,7 @@ class SwarmOrchestrator:
         target_rule_name = getattr(self.detector, "target_rule_name", self.directive.target)
 
         for cycle in range(1, self.directive.max_cycles + 1):
-            # 1 & 2. Strategist / Craftsman generation
+            # Craftsman generation (objective axes come from the directive)
             variants = self.craftsman.generate_variants(cycle=cycle, feedback=adapter_feedback)
 
             # Cap variants per cycle according to directive

@@ -1,4 +1,4 @@
-"""Adapter Agent: Self-healing detection patch generator and verification harness."""
+"""Adapter: rule patch proposal and in-memory verification."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from .models import BoundaryFinding, Variant
 
 
 class SwarmAdapter:
-    """Agent 6 (The Adapter): Autonomous self-healing loop for detection engineering."""
+    """Adapter role: proposes candidate rule patches for confirmed gaps and verifies them in memory."""
 
     def __init__(self, repo_root: Optional[Path] = None, cable_writer: Optional[CableWriter] = None) -> None:
         self.repo_root = repo_root or Path(__file__).resolve().parents[2]

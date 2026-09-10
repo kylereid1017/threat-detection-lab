@@ -5,6 +5,24 @@ Keep a Changelog; versioning follows SemVer.
 
 ## [Unreleased]
 
+### Changed
+- **Identity and claim vocabulary de-claimed.** The package, CLI, architecture note, and README no
+  longer describe this system as an "Adversarial Swarm Intelligence Engine", "multi-agent", or
+  "self-healing". No language model or autonomous agent participates in mutation, gating,
+  evaluation, or measurement; the harness is a deterministic closed loop and is now named as one.
+- **Renames (breaking for scripts importing the internals):** `tools/swarm/autonomous.py` →
+  `tools/swarm/sparring.py`, `AutonomousOrchestrator` → `SparringRunner`, `run_autonomous` →
+  `run_sparring`, `run_autonomous_campaigns` → `run_campaigns`.
+- **CLI flags renamed (breaking for scripts):** `--autonomous` → `--continuous`,
+  `--self-heal` → `--propose-patches`.
+- **Metric names now state their basis.** `resilience_score` / `final_resilience` become
+  `detection_rate_on_approved`; an empty denominator reports `n/a (not measured)` rather than a
+  figure. Finding confidence is derived from attribution specificity instead of stamped `HIGH`.
+- **Self-healing cables retracted and re-templated.** `CABLE-2026-002` and `CABLE-2026-003`
+  published a `60.0% → 100.0%` resilience improvement that was a code constant, not a measurement;
+  both carry correction notices, and the template now publishes only measured patch-verification
+  evidence. See `docs/cables/ERRATA-2026-09-10.md`.
+
 ### Added
 - Dual-Mode Real-World Telemetry Replay Engine (`tools/swarm/telemetry_replay.py`):
   ingests native binary Windows `.evtx` (via `python-evtx`) and normalized JSONL / NDJSON streams

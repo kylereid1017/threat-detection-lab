@@ -1,4 +1,4 @@
-"""Configuration and safety controls for the Adversarial Swarm."""
+"""Configuration and safety controls for the detection boundary harness."""
 
 from __future__ import annotations
 

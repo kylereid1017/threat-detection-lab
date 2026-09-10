@@ -1,4 +1,4 @@
-"""Agent 4 — The Analyst: Attribution, boundary discovery, and policy recommendations."""
+"""Analyst role: deterministic evasion attribution, boundary discovery, and policy recommendations."""
 
 from __future__ import annotations
 

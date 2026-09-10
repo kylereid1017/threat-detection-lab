@@ -7,6 +7,8 @@ retraction text that a routine regeneration could silently delete.
 
 from __future__ import annotations
 
+import ast
+
 import re
 import tempfile
 import unittest
@@ -256,6 +258,85 @@ class PatchVerificationHonestyTests(unittest.TestCase):
             self.assertNotIn("Self-Healing", text)
             # Confidence is carried through from the finding rather than hardcoded.
             self.assertIn("confidence_level: HIGH", text)
+
+
+# Vocabulary that advertises capabilities the harness does not implement. The word
+# "autonomous" is legitimate when describing the studied agent-ecosystem threat, so it is
+# banned in harness code only, not in the research notes about AI agents.
+BANNED_CLAIM_VOCABULARY = (
+    "adversarial swarm",
+    "multi-agent",
+    "self-healing",
+    "self-evolving",
+    "immune system",
+    "ai-powered",
+    "intelligence engine",
+    "autonomousorchestrator",
+)
+BANNED_IN_HARNESS_CODE = ("autonomous",)
+
+# Paragraphs that retract a claim are allowed to quote it, so long as they say so.
+HISTORICAL_MARKERS = ("corrected 2026-09-10", "earlier revisions", "no longer used", "retracted")
+
+
+class ClaimVocabularyTests(unittest.TestCase):
+    """The harness must not advertise capabilities it does not implement."""
+
+    def test_harness_does_not_advertise_unimplemented_capabilities(self):
+        repo = Path(__file__).resolve().parents[1]
+        harness = repo / "tools" / "swarm"
+        files = [f for f in sorted(harness.rglob("*.py")) if "__pycache__" not in str(f)]
+        files += [repo / "docs" / "swarm" / "architecture.md", repo / "README.md"]
+
+        offenders = []
+        for f in files:
+            if not f.exists():
+                continue
+            low = f.read_text(encoding="utf-8", errors="ignore").lower()
+            rel = f.relative_to(repo)
+            for paragraph in re.split(r"\n\s*\n", low):
+                # Retraction prose has to name what it retracts; only that paragraph is exempt.
+                if any(m in paragraph for m in HISTORICAL_MARKERS):
+                    continue
+                for phrase in BANNED_CLAIM_VOCABULARY:
+                    if phrase in paragraph:
+                        offenders.append(f"{rel}: '{phrase}'")
+                if f.suffix == ".py":
+                    for phrase in BANNED_IN_HARNESS_CODE:
+                        if phrase in paragraph:
+                            offenders.append(f"{rel}: '{phrase}' (harness code)")
+
+        self.assertEqual([], offenders, "banned claim vocabulary in: " + "; ".join(offenders))
+
+    def test_no_role_is_documented_without_an_implementation(self):
+        """A named role with no class behind it is a docstring fiction."""
+        repo = Path(__file__).resolve().parents[1]
+        note = (repo / "docs" / "swarm" / "architecture.md").read_text(encoding="utf-8")
+        self.assertNotIn("Strategist", note)
+        for module in ("craftsmen", "critic.py", "detectors.py", "analyst.py", "adapter.py"):
+            self.assertTrue((repo / "tools" / "swarm" / module).exists(), module)
+
+    def test_feedback_edges_are_either_read_or_documented_as_nominal(self):
+        """If no craftsman consumes `feedback`, the architecture note must say so."""
+        repo = Path(__file__).resolve().parents[1]
+        craftsmen = repo / "tools" / "swarm" / "craftsmen"
+
+        reads_feedback = False
+        for f in sorted(craftsmen.glob("*.py")):
+            tree = ast.parse(f.read_text(encoding="utf-8"))
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.FunctionDef):
+                    continue
+                if "feedback" not in {a.arg for a in node.args.args}:
+                    continue
+                loads = {n.id for n in ast.walk(node) if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Load)}
+                if "feedback" in loads:
+                    reads_feedback = True
+
+        note = (repo / "docs" / "swarm" / "architecture.md").read_text(encoding="utf-8")
+        if reads_feedback:
+            self.fail("craftsmen now read `feedback`; the nominal-feedback limitation must be removed")
+        self.assertIn("Craft-level feedback is not consumed", note)
 
 
 if __name__ == "__main__":  # pragma: no cover

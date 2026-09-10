@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 from tools.swarm.adapter import SwarmAdapter
-from tools.swarm.autonomous import AutonomousOrchestrator
+from tools.swarm.sparring import SparringRunner
 from tools.swarm.cable_writer import CableWriter
 from tools.swarm.config import OperatorDirective
 from tools.swarm.craftsmen.process_craftsman import ProcessCraftsman
@@ -290,7 +290,7 @@ class PromptEngineTests(unittest.TestCase):
                 self.assertTrue(verdict.passed, f"Generated hypothesis rejected by critic: {verdict.reason}")
 
 
-class AutonomousOrchestratorTests(unittest.TestCase):
+class SparringRunnerTests(unittest.TestCase):
     """Verifies continuous autonomous sparring loops and history persistence.
 
     The orchestrator persists a history artifact on every run. These tests
@@ -310,7 +310,7 @@ class AutonomousOrchestratorTests(unittest.TestCase):
             variants_per_cycle=3,
             output_dir=self.out_dir,
         )
-        return AutonomousOrchestrator(directive).run_autonomous(iterations=3)
+        return SparringRunner(directive).run_sparring(iterations=3)
 
     def _assert_sparring_summary(self, summary):
         self.assertEqual(summary["iterations_run"], 3)
@@ -455,7 +455,7 @@ class CableWriterTests(unittest.TestCase):
 
 
 class SwarmAdapterTests(unittest.TestCase):
-    """Verifies Adapter agent self-healing patch synthesis and in-memory verification."""
+    """Verifies Adapter patch synthesis and in-memory verification."""
 
     def test_heal_sigma_gap_candidate(self):
         adapter = SwarmAdapter()
@@ -742,10 +742,10 @@ class CampaignOrchestratorTests(unittest.TestCase):
         st4 = [s for s in result.stages if s.stage_number == 4][0]
         self.assertFalse(st4.evasion_gap)
 
-    def test_run_autonomous_campaigns_multi_iterations(self):
+    def test_run_campaigns_multi_iterations(self):
         from tools.swarm.campaign import CampaignOrchestrator
         orchestrator = CampaignOrchestrator()
-        results = orchestrator.run_autonomous_campaigns(iterations=3)
+        results = orchestrator.run_campaigns(iterations=3)
 
         self.assertEqual(len(results), 3)
         for r in results:
@@ -793,7 +793,7 @@ class StrategicSynthesizerTests(unittest.TestCase):
             content = output_path.read_text(encoding="utf-8")
             self.assertIn("Strategic Intelligence Cable", content)
             self.assertIn("Cluster A: LOLBin & Process Proxying", content)
-            self.assertIn("Empirical Analysis of 100 Adversarial Swarm Probes", content)
+            self.assertIn("Empirical Analysis of 100 Boundary Probes", content)
         finally:
             shutil.rmtree(temp_cables, ignore_errors=True)
             shutil.rmtree(temp_results, ignore_errors=True)

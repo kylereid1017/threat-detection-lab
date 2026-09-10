@@ -75,7 +75,7 @@ A local configuration auditing scanner that validates agent configs against stat
 
 ## Measured Results & Swarm Integration
 
-The analytics were integrated into the lab's autonomous sparring swarm and evaluated against:
+The analytics were integrated into the lab's deterministic sparring harness and evaluated against:
 1. **Committed Positive Fixtures**:
    - `tests/fixtures/sigma/positive/agent_claude_npx_unpinned.json`
    - `tests/fixtures/sigma/positive/agent_alien_bun_temp_exec.json`

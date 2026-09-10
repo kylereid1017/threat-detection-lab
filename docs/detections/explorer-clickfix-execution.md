@@ -108,7 +108,7 @@ redistributable here.
 
 ## Known limitations
 
-Discovered by the adversarial swarm and retained deliberately as documented gaps:
+Discovered by the boundary harness and retained deliberately as documented gaps:
 
 - **Argument-form coverage is enumerated, not parsed.** The rule matches switch spellings
   as literal substrings. It was expanded once already to cover truncated forms of the
