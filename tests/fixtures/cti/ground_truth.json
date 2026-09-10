@@ -1,0 +1,30 @@
+{
+  "note": "Analyst labels for indicators in these snapshots, used to measure the relevance scorer. Authored in this repository: this is an internal measurement of the scorer against its design intent, not a measurement against real feed traffic.",
+  "relevant": [
+    "domain:anthropic-careers.invalid",
+    "domain:www.anthropic-careers.invalid",
+    "domain:anthropic-recruiting.invalid",
+    "domain:careers-anthropic.invalid",
+    "domain:anthr0pic.invalid",
+    "domain:huggingfaec.invalid",
+    "domain:0penai-interview.invalid",
+    "domain:safetensors-mirror.invalid",
+    "domain:checkpoint-sync.invalid",
+    "package:npm:anthropic-sdk-helper",
+    "package:pypi:huggingfaec-hub",
+    "package:pypi:safetensors-fast",
+    "package:pypi:pytorch-lightning-utils",
+    "url:https://anthropic-careers.invalid/assessment/take-home.zip",
+    "url:https://0penai-interview.invalid/portal"
+  ],
+  "irrelevant_examples": [
+    "domain:shop-deals.invalid",
+    "domain:banking-alert.invalid",
+    "domain:parcel-track.invalid",
+    "domain:blog.example.com",
+    "package:npm:left-pad-again",
+    "package:npm:http-retry",
+    "url:https://banking-alert.invalid/login",
+    "url:https://free-movies.xyz/stream"
+  ]
+}

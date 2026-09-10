@@ -60,6 +60,32 @@ class CampaignOrchestrator:
         },
     }
 
+    CAMPAIGNS_METADATA = {
+        "clickfix": {
+            "name": "ClickFix Stealer Lure",
+            "campaign_id": "CAMP-CLICKFIX-001",
+            "threat_actor": "Luminescent Stealer / ClickFix Operators",
+            "tactic_flow": "Initial Access -> Execution -> Defense Evasion -> Credential Access -> Persistence",
+        },
+        "contagious_interview": {
+            "name": "DPRK Contagious Interview",
+            "campaign_id": "CAMP-DPRK-002",
+            "threat_actor": "Famous Chollima / Tenacious Puddle",
+            "tactic_flow": "Package Hook Ingress -> Workstation Hook Exec -> Dev Credential Access -> Cloud Identity Recon -> S3 Checkpoint Exfil",
+        },
+        "frontier_ai_cluster": {
+            "name": "Frontier AI Cluster Breach",
+            "campaign_id": "CAMP-AI-003",
+            "threat_actor": "Frontier AI Threat Model (APT41 / Flax Typhoon / SVR)",
+            "tactic_flow": "Privileged Pod Ingress -> Host Breakout -> IMDSv2 Role Theft -> Checkpoint Recon -> Model Weight Exfil",
+        },
+    }
+
+    @classmethod
+    def list_campaigns(cls) -> Dict[str, Dict[str, str]]:
+        """Returns catalog of registered multi-stage campaign archetypes."""
+        return cls.CAMPAIGNS_METADATA
+
     def __init__(self, repo_root: Optional[Path] = None) -> None:
         self.repo_root = repo_root or ROOT
         self.prompt_engine = PromptEngine()

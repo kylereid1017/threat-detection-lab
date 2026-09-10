@@ -1,0 +1,53 @@
+title: Interactive Exec Into a Running Training Workload
+id: a9d5f1c7-4b28-4e63-9f10-7c2a6b8d3e04
+status: experimental
+description: >
+    Detects an interactive exec or attach into a pod in a training namespace. Training jobs are
+    submitted, not driven interactively, so a human shell inside a running job is either an operator
+    debugging a failure or an adversary working inside the workload with its service account and its
+    node role. Both look identical in the audit log, which is why the identity and the schedule
+    around the event carry the signal rather than the event alone.
+references:
+    - https://attack.mitre.org/techniques/T1609/
+author: Kyle Reid
+date: 2026-09-05
+tags:
+    - attack.execution
+    - attack.t1609
+    - attack.lateral_movement
+logsource:
+    product: kubernetes
+    service: audit
+telemetry_prerequisites:
+    channel: Kubernetes API server audit log
+    event_id: audit event, verb create on pods/exec and pods/attach
+    audit_policy: >-
+        Metadata level is sufficient for this rule, unlike the pod spec rule. Subresource recording
+        must not be excluded by the audit policy, which some default policies do to reduce volume.
+    required_fields:
+        - objectRef.resource
+        - objectRef.subresource
+        - objectRef.namespace
+        - verb
+        - user.username
+        - sourceIPs
+    degradation_mode: >-
+        Exec traffic that reaches the kubelet directly, bypassing the API server, produces no audit
+        event. Kubelet authentication must be enforced or this rule can be sidestepped entirely.
+detection:
+    selection_exec:
+        objectRef.resource: 'pods'
+        objectRef.subresource:
+            - 'exec'
+            - 'attach'
+        verb: 'create'
+    condition: selection_exec
+fields:
+    - user.username
+    - objectRef.namespace
+    - objectRef.name
+    - sourceIPs
+falsepositives:
+    - Operators debugging a failed training run, which is routine and frequent
+    - Automated job supervisors that attach to collect logs
+level: medium

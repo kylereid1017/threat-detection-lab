@@ -12,3 +12,15 @@ Thumbs.db
 .coverage
 .coverage.*
 htmlcov/
+
+# Acquired corpora: reproducible from the committed acquisition lockfiles via
+# tools/acquire_malicious_corpus.py. The npm snapshot alone is 18 MB, and a
+# hash-pinned lockfile plus an acquisition tool is better provenance than a
+# committed blob nobody can verify the origin of.
+corpus/malicious/*_malicious_packages.jsonl
+corpus/benign/
+corpus/ct/*.jsonl
+corpus/agent/*.jsonl
+
+# Raw endurance run log (9.7 MB) — retained locally, not versioned
+docs/swarm/results/**/endurance_run.log

@@ -1,0 +1,61 @@
+title: Privileged or Host-Namespace Pod Created in a Training Namespace
+id: f6c3a8d2-1e57-4b90-a2c4-8d0b5e3f7a19
+status: experimental
+description: >
+    Detects creation of a pod requesting privileged execution, host namespaces, or a host path mount
+    of the container runtime socket, inside a namespace used for model training. These are the
+    orchestration-layer forms of the same escape primitives the execution-layer rule matches on the
+    command line. A pod spec that mounts the runtime socket does not need to run a breakout binary;
+    it already has host control, and no process-creation rule will observe the escape.
+references:
+    - https://attack.mitre.org/techniques/T1611/
+author: Kyle Reid
+date: 2026-09-05
+tags:
+    - attack.privilege_escalation
+    - attack.t1611
+    - attack.execution
+logsource:
+    product: kubernetes
+    service: audit
+telemetry_prerequisites:
+    channel: Kubernetes API server audit log
+    event_id: audit event, verb create on pods
+    audit_policy: >-
+        Audit policy at RequestResponse level for the pods resource. At Metadata level the pod spec
+        is not recorded and every selection below is blind, while the audit log still appears to be
+        collecting normally.
+    required_fields:
+        - objectRef.resource
+        - objectRef.namespace
+        - verb
+        - user.username
+        - requestObject.spec.hostPID
+        - requestObject.spec.volumes
+    degradation_mode: >-
+        Managed control planes may not expose audit logs by default. Without them the orchestration
+        layer is entirely unmonitored and only node-level execution telemetry remains.
+detection:
+    selection_pod_create:
+        objectRef.resource: 'pods'
+        verb:
+            - 'create'
+            - 'update'
+    selection_escape_spec:
+        - requestObject.spec.hostPID: true
+        - requestObject.spec.hostNetwork: true
+        - requestObject.spec.containers.securityContext.privileged: true
+        - requestObject.spec.volumes.hostPath.path|contains:
+              - '/var/run/docker.sock'
+              - '/var/run/containerd/containerd.sock'
+              - '/proc'
+    condition: selection_pod_create and selection_escape_spec
+fields:
+    - user.username
+    - objectRef.namespace
+    - objectRef.name
+    - sourceIPs
+falsepositives:
+    - Node monitoring agents and CSI drivers, which legitimately request host access and must be
+      allowlisted by service account before this rule is usable
+level: high

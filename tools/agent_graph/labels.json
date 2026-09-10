@@ -1,0 +1,263 @@
+{
+  "about": "Ground-truth capability labels for verifying the taxonomy in capabilities.py.",
+  "labelling_protocol": [
+    "Labels record what a package's own documentation says it can do, read from its repository README and tool list.",
+    "Labels were assigned before running the taxonomy against them, and were not revised to improve any score.",
+    "No package was executed and no tarball was downloaded to produce these labels.",
+    "A capability is labelled present only when the documentation describes a tool that performs it. Inferred or plausible capabilities are left out, which makes recall the conservative direction.",
+    "Network access used solely to reach a service's own API is labelled net_egress only when the server can send caller-supplied content outward, not merely because a connection is opened.",
+    "Labels added 2026-09-06 were sourced from an independent documentation survey of each server's published tool list, conducted without reference to the taxonomy's output."
+  ],
+  "known_limitations": [
+    "The set is small. It is large enough to expose a systematically broken rule and too small to estimate ecosystem-wide precision to a tight interval.",
+    "It is drawn from well-documented, widely-used servers, which are easier to label and probably cleaner than the ecosystem tail. Precision measured here is an optimistic bound.",
+    "Labels reflect documentation, which can be incomplete or aspirational relative to the code."
+  ],
+  "packages": [
+    {
+      "name": "@modelcontextprotocol/server-filesystem",
+      "ecosystem": "npm",
+      "capabilities": [
+        "fs_read",
+        "fs_write"
+      ],
+      "basis": "Documented tools read, write, edit, move files and list directories within allowed roots. No network tool is documented.",
+      "source_url": "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem"
+    },
+    {
+      "name": "@modelcontextprotocol/server-github",
+      "ecosystem": "npm",
+      "capabilities": [
+        "repo_read",
+        "repo_write",
+        "issue_tracker",
+        "net_egress"
+      ],
+      "basis": "Documented tools read file contents and search repositories, create or update files and branches, and create issues and pull requests. Issue and pull request bodies are attacker-writable content.",
+      "source_url": "https://github.com/modelcontextprotocol/servers/tree/main/src/github"
+    },
+    {
+      "name": "@modelcontextprotocol/server-gitlab",
+      "ecosystem": "npm",
+      "capabilities": [
+        "repo_read",
+        "repo_write",
+        "issue_tracker",
+        "net_egress"
+      ],
+      "basis": "Documented tools mirror the GitHub server: read and write repository files, create branches, and create issues and merge requests.",
+      "source_url": "https://github.com/modelcontextprotocol/servers/tree/main/src/gitlab"
+    },
+    {
+      "name": "@modelcontextprotocol/server-slack",
+      "ecosystem": "npm",
+      "capabilities": [
+        "comms_read",
+        "inbound_messages",
+        "message_send",
+        "net_egress"
+      ],
+      "basis": "Documented tools list channels, read channel and thread history, and post messages and replies. Message bodies are written by other people.",
+      "source_url": "https://github.com/modelcontextprotocol/servers/tree/main/src/slack"
+    },
+    {
+      "name": "@modelcontextprotocol/server-postgres",
+      "ecosystem": "npm",
+      "capabilities": [
+        "database_read"
+      ],
+      "basis": "Documented as a read-only SQL query tool against a configured database. No write tool and no outbound content channel are documented.",
+      "source_url": "https://github.com/modelcontextprotocol/servers/tree/main/src/postgres"
+    },
+    {
+      "name": "@modelcontextprotocol/server-brave-search",
+      "ecosystem": "npm",
+      "capabilities": [
+        "search_results",
+        "web_fetch",
+        "net_egress"
+      ],
+      "basis": "Documented web and local search tools returning third-party page content and descriptions, which are attacker-plantable.",
+      "source_url": "https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search"
+    },
+    {
+      "name": "@modelcontextprotocol/server-puppeteer",
+      "ecosystem": "npm",
+      "capabilities": [
+        "browser_automation",
+        "web_fetch",
+        "net_egress"
+      ],
+      "basis": "Documented tools navigate to arbitrary URLs, screenshot, click, fill forms, and evaluate scripts in page context.",
+      "source_url": "https://github.com/modelcontextprotocol/servers/tree/main/src/puppeteer"
+    },
+    {
+      "name": "@modelcontextprotocol/server-memory",
+      "ecosystem": "npm",
+      "capabilities": [
+        "fs_read",
+        "fs_write"
+      ],
+      "basis": "Documented as a knowledge graph persisted to a local JSON file, which it both reads and writes. No network tool is documented.",
+      "source_url": "https://github.com/modelcontextprotocol/servers/tree/main/src/memory"
+    },
+    {
+      "name": "@modelcontextprotocol/server-sequential-thinking",
+      "ecosystem": "npm",
+      "capabilities": [],
+      "basis": "Documented as a structured reasoning aid with no external access of any kind. Included deliberately as a negative control: a taxonomy that assigns this package any capability is producing false positives.",
+      "source_url": "https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking"
+    },
+    {
+      "name": "@modelcontextprotocol/server-google-maps",
+      "ecosystem": "npm",
+      "capabilities": [
+        "net_egress"
+      ],
+      "basis": "Documented tools query a mapping API for geocoding, places, and directions. Labelled conservatively: place data includes user-submitted text, but the server is not documented as a general content fetcher.",
+      "source_url": "https://github.com/modelcontextprotocol/servers/tree/main/src/google-maps"
+    },
+    {
+      "name": "firecrawl-mcp",
+      "ecosystem": "npm",
+      "capabilities": [
+        "web_fetch",
+        "document_parse",
+        "search_results",
+        "net_egress"
+      ],
+      "basis": "Documented tools scrape arbitrary URLs, crawl sites, and return extracted page content as markdown.",
+      "source_url": "https://github.com/mendableai/firecrawl-mcp-server"
+    },
+    {
+      "name": "@upstash/context7-mcp",
+      "ecosystem": "npm",
+      "capabilities": [
+        "web_fetch",
+        "net_egress"
+      ],
+      "basis": "Documented tools resolve a library identifier and fetch that library's documentation text from a remote service.",
+      "source_url": "https://github.com/upstash/context7"
+    },
+    {
+      "name": "@modelcontextprotocol/server-gdrive",
+      "ecosystem": "npm",
+      "capabilities": [
+        "cloud_read",
+        "document_parse"
+      ],
+      "basis": "Documented single search tool plus resource reads over the whole Drive account under a readonly OAuth scope, auto-converting Docs, Sheets and Slides to text. No write tool documented.",
+      "source_url": "https://github.com/modelcontextprotocol/servers-archived/tree/main/src/gdrive"
+    },
+    {
+      "name": "@modelcontextprotocol/server-redis",
+      "ecosystem": "npm",
+      "capabilities": [
+        "database_read",
+        "remote_write"
+      ],
+      "basis": "Documented tools set, get, delete and list against a configured Redis instance. Writes and deletes are unrestricted.",
+      "source_url": "https://github.com/modelcontextprotocol/servers-archived/tree/main/src/redis"
+    },
+    {
+      "name": "@modelcontextprotocol/server-aws-kb-retrieval",
+      "ecosystem": "npm",
+      "capabilities": [
+        "cloud_read",
+        "document_parse"
+      ],
+      "basis": "Documented single retrieval tool against an AWS knowledge base, returning corpus documents. Configured with static AWS keys.",
+      "source_url": "https://github.com/modelcontextprotocol/servers-archived/tree/main/src/aws-kb-retrieval-server"
+    },
+    {
+      "name": "@brave/brave-search-mcp-server",
+      "ecosystem": "npm",
+      "capabilities": [
+        "search_results",
+        "web_fetch",
+        "net_egress"
+      ],
+      "basis": "Documented web, local, video, image and news search tools plus a summarizer returning pre-extracted page content. No write tools documented.",
+      "source_url": "https://github.com/brave/brave-search-mcp-server"
+    },
+    {
+      "name": "@playwright/mcp",
+      "ecosystem": "npm",
+      "capabilities": [
+        "browser_automation",
+        "web_fetch",
+        "net_egress",
+        "fs_read",
+        "credential_read"
+      ],
+      "basis": "Documented tools navigate, evaluate scripts, fill and submit forms, issue network requests, upload local files, and read cookies and storage state from a persistent authenticated browser profile.",
+      "source_url": "https://github.com/microsoft/playwright-mcp"
+    },
+    {
+      "name": "chrome-devtools-mcp",
+      "ecosystem": "npm",
+      "capabilities": [
+        "browser_automation",
+        "web_fetch",
+        "net_egress"
+      ],
+      "basis": "Documented browser automation, network request analysis and console inspection. Its own documentation states it exposes browser content to the client and permits modifying data in the browser.",
+      "source_url": "https://github.com/ChromeDevTools/chrome-devtools-mcp"
+    },
+    {
+      "name": "@notionhq/notion-mcp-server",
+      "ecosystem": "npm",
+      "capabilities": [
+        "document_parse",
+        "remote_write",
+        "net_egress"
+      ],
+      "basis": "Documented tools query and retrieve pages and data sources, and create or update pages, blocks and comments across the granted workspace.",
+      "source_url": "https://github.com/makenotion/notion-mcp-server"
+    },
+    {
+      "name": "@supabase/mcp-server-supabase",
+      "ecosystem": "npm",
+      "capabilities": [
+        "database_read",
+        "remote_write",
+        "net_egress",
+        "credential_read"
+      ],
+      "basis": "Documented tools execute SQL, apply migrations, deploy edge functions and return publishable API keys. Read-only mode is opt-in.",
+      "source_url": "https://github.com/supabase-community/supabase-mcp"
+    },
+    {
+      "name": "tavily-mcp",
+      "ecosystem": "npm",
+      "capabilities": [
+        "search_results",
+        "web_fetch",
+        "net_egress"
+      ],
+      "basis": "Documented search, extract, map and crawl tools returning third-party web content.",
+      "source_url": "https://github.com/tavily-ai/tavily-mcp"
+    },
+    {
+      "name": "exa-mcp-server",
+      "ecosystem": "npm",
+      "capabilities": [
+        "search_results",
+        "web_fetch",
+        "net_egress"
+      ],
+      "basis": "Documented web search and an arbitrary-URL fetch tool.",
+      "source_url": "https://github.com/exa-labs/exa-mcp-server"
+    },
+    {
+      "name": "mongodb-mcp-server",
+      "ecosystem": "npm",
+      "capabilities": [
+        "database_read",
+        "remote_write"
+      ],
+      "basis": "Documented database tools find, aggregate, export, insert, update and drop, plus Atlas control-plane tools that create database users and modify the network access list.",
+      "source_url": "https://github.com/mongodb-js/mongodb-mcp-server"
+    }
+  ]
+}

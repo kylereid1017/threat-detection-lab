@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-05 15:00:00.000",
+  "ParentImage": "/usr/local/bin/node",
+  "Image": "/bin/sh",
+  "CommandLine": "sh -c \"cat ~/.aws/credentials\"",
+  "User": "researcher"
+}

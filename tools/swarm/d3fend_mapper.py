@@ -121,13 +121,24 @@ BRIEFING_TECHNIQUES: frozenset = frozenset(
 #: Extended techniques verified against the published MITRE D3FEND ontology.
 VERIFIED_TECHNIQUES: frozenset = frozenset(
     {
+        "T1036",
         "T1059.003",
         "T1059.005",
+        "T1059.006",
+        "T1059.007",
         "T1105",
         "T1027",
+        "T1195.001",
         "T1218.005",
         "T1218.011",
+        "T1530",
+        "T1539",
+        "T1552.001",
+        "T1552.005",
         "T1562.001",
+        "T1567.002",
+        "T1574.013",
+        "T1611",
     }
 )
 
@@ -156,13 +167,24 @@ ATTACK_TO_D3FEND: Dict[str, Tuple[D3fendCountermeasure, ...]] = {
     "T1003.001": (LSA_PROTECT,),
     "T1053.005": (SJA,),
     # -- verified against published MITRE D3FEND ontology ------------------
+    "T1036": (PROC_ANALYSIS, PSA),
     "T1059.003": (SEA,),
     "T1059.005": (SEA,),
+    "T1059.006": (SEA,),
+    "T1059.007": (SEA,),
     "T1105": (NTA,),
     "T1027": (FILE_ANALYSIS,),
+    "T1195.001": (FAA, FILE_ANALYSIS),
     "T1218.005": (PSA,),
     "T1218.011": (PSA,),
+    "T1530": (NTA,),
+    "T1539": (FILE_ANALYSIS,),
+    "T1552.001": (FILE_ANALYSIS,),
+    "T1552.005": (NTA,),
     "T1562.001": (PROC_ANALYSIS,),
+    "T1567.002": (NTA,),
+    "T1574.013": (FILE_ANALYSIS, SEA),
+    "T1611": (PROC_ANALYSIS, PSA),
 }
 
 

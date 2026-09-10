@@ -1,0 +1,64 @@
+title: Execution of Alien JS Runtime Bun from Suspicious or Site-Packages Directory
+name: agent_alien_runtime_bun_infostealer
+id: e5a8d2c1-7b94-4f32-8a16-9c4d2e0f1b78
+status: experimental
+description: >
+    Detects execution of the standalone Bun JavaScript runtime spawned from temporary directories,
+    user caches, or Python site-packages locations. Observed in targeted AI agent supply-chain attacks
+    (exemplar: targeted PyPI agent packages like groq-mcp, MAL-2026-5321), where compromised Python packages abuse auto-loading
+    .pth files to fetch an alien runtime and execute an obfuscated infostealer outside the visibility
+    of Python-only runtime scanners.
+references:
+    - https://attack.mitre.org/techniques/T1036/
+    - https://attack.mitre.org/techniques/T1574/013/
+    - https://attack.mitre.org/techniques/T1059/007/
+author: Kyle Reid
+date: 2026-09-06
+tags:
+    - attack.execution
+    - attack.t1059.007
+    - attack.persistence
+    - attack.t1574.013
+    - attack.defense_evasion
+    - attack.t1036
+logsource:
+    category: process_creation
+    product: windows
+telemetry_prerequisites:
+    channel: Microsoft-Windows-Sysmon/Operational or Security
+    event_id: Sysmon Event ID 1 or Security Event ID 4688
+    audit_policy: Process Creation auditing with command-line argument logging enabled.
+    required_fields:
+        - Image
+        - CommandLine
+        - ParentImage
+        - User
+    degradation_mode: >-
+        Without full image path logging, Bun executed from temporary directories cannot be
+        distinguished from standard developer installations on PATH.
+detection:
+    selection_bun_binary:
+        Image|endswith:
+            - '\bun.exe'
+            - '\bun'
+    selection_suspicious_location:
+        Image|contains:
+            - '\Temp\'
+            - '\AppData\Local\Temp\'
+            - '\tmp\'
+            - 'site-packages'
+            - 'dist-packages'
+    selection_suspicious_cmdline:
+        CommandLine|contains:
+            - 'site-packages'
+            - '_index.js'
+            - '.bun_ran'
+    condition: selection_bun_binary and (selection_suspicious_location or selection_suspicious_cmdline)
+fields:
+    - CommandLine
+    - Image
+    - ParentImage
+    - User
+falsepositives:
+    - Developer test harnesses intentionally running ephemeral Bun builds from temp directories.
+level: critical

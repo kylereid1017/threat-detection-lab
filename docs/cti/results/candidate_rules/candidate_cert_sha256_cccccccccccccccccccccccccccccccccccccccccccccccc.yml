@@ -1,0 +1,34 @@
+title: Candidate - Network Contact With Clustered Lure Infrastructure (cert_sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc)
+status: unsupported
+description: |
+    AUTOMATICALLY DRAFTED. Not a production rule.
+    Generated from clustered collection output. It has not been evaluated against
+    a noise floor, has no fixture coverage, and its false-positive behavior is
+    unknown. Review, measure, and rewrite before deployment.
+    Relevance signals: references protected assets: checkpoint; references protected assets: safetensors; registered or first observed within the collection window
+author: tools/cti pipeline
+date: 2026-09-05
+tags:
+    - attack.command_and_control
+    - attack.t1071.001
+logsource:
+    category: dns_query
+detection:
+    selection:
+        QueryName:
+            - 'checkpoint-sync.invalid'
+            - 'safetensors-mirror.invalid'
+    condition: selection
+fields:
+    - QueryName
+    - Image
+    - User
+falsepositives:
+    - Unmeasured. This draft has no false-positive evaluation.
+level: medium
+indicator_lifecycle:
+    first_seen: 2026-09-02
+    review_by: 2026-10-17
+    review_action: >-
+        Retire or re-validate on this date. An indicator rule left in place after its
+        infrastructure is recycled becomes a false positive source.

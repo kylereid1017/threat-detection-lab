@@ -1,0 +1,66 @@
+{
+  "name": "frontier_ai_lab",
+  "description": "Relevance vocabulary for an organization whose crown jewels are model weights, training compute, and researcher identity.",
+  "note": "This file is the entire coverage of the substring branches of the scorer. A campaign imitating a name absent from `brands` scores zero on those branches. Measured held-out recall for vocabulary-only scoring is 0%; see docs/detections/evaluation-relevance-recall.json. Inventory-derived protected names are the branch that generalizes.",
+  "brands": [
+    "anthropic",
+    "openai",
+    "huggingface",
+    "deepmind",
+    "pytorch",
+    "nvidia",
+    "databricks",
+    "weightsandbiases",
+    "wandb"
+  ],
+  "lures": [
+    "careers",
+    "recruit",
+    "recruiting",
+    "recruiter",
+    "hiring",
+    "interview",
+    "assessment",
+    "candidate",
+    "onboarding",
+    "talent"
+  ],
+  "assets": [
+    "safetensors",
+    "checkpoint",
+    "modelweights",
+    "weights",
+    "gpucluster",
+    "trainingrun"
+  ],
+  "supply_chain": [
+    "npm",
+    "pypi",
+    "registry",
+    "sdk",
+    "cli",
+    "package"
+  ],
+  "suspicious_tlds": [
+    ".top",
+    ".xyz",
+    ".icu",
+    ".cfd",
+    ".sbs",
+    ".click",
+    ".work",
+    ".rest"
+  ],
+  "weights": {
+    "brand_typosquat": 0.55,
+    "brand_substring": 0.35,
+    "lure_term": 0.2,
+    "asset_term": 0.25,
+    "supply_chain_term": 0.1,
+    "suspicious_tld": 0.1,
+    "hyphenated_brand_compound": 0.15,
+    "recently_registered": 0.15,
+    "recently_issued_cert": 0.15,
+    "protected_inventory_typosquat": 0.5
+  }
+}

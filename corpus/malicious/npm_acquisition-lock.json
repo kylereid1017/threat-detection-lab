@@ -1,0 +1,11 @@
+{
+  "dataset": "ossf/malicious-packages",
+  "source_url": "https://github.com/ossf/malicious-packages",
+  "license": "Apache-2.0",
+  "ecosystem": "npm",
+  "retrieval_date": "2026-09-05",
+  "package_count": 221033,
+  "snapshot_file": "npm_malicious_packages.jsonl",
+  "snapshot_sha256": "14b267d943a90156ee021d9beed54bf3ae529420415f402c435242d39b0c235c",
+  "content_note": "Package identities and advisory identifiers only. No package contents, archives, or payloads are retrieved or stored by this tool."
+}

@@ -1,0 +1,12 @@
+{
+  "eventVersion": "1.09",
+  "eventSource": "s3.amazonaws.com",
+  "eventName": "GetObject",
+  "awsRegion": "us-west-2",
+  "sourceIPAddress": "203.0.113.88",
+  "userAgent": "Boto3/1.34.0 Python/3.11.6",
+  "userIdentity.type": "AssumedRole",
+  "userIdentity.arn": "arn:aws:sts::111122223333:assumed-role/gpu-node-role/i-0abcd1234",
+  "requestParameters.bucketName": "frontier-checkpoints",
+  "requestParameters.key": "runs/2026-09-04/step-41000/model-00001.safetensors"
+}

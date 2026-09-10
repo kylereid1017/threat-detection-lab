@@ -1,0 +1,18 @@
+{
+  "corpus_path": "tests/fixtures/telemetry/benign_enterprise_workstation.jsonl",
+  "corpus_format": "jsonl",
+  "total_events": 50,
+  "processing_time_seconds": 0.080849300022237,
+  "events_per_second": 618.4345440993042,
+  "total_detections": 0,
+  "unique_rules_fired": 0,
+  "empirical_fp_rate": 0.0,
+  "wilson_ci_lower": 0.0,
+  "wilson_ci_upper": 0.07134759913335872,
+  "latency_p50_seconds": null,
+  "latency_p95_seconds": null,
+  "detections": [],
+  "correlation_detections": [],
+  "rule_hit_counts": {},
+  "is_benign": true
+}

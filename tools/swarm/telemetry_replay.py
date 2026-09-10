@@ -459,7 +459,13 @@ class TelemetryReplayEngine:
                         logger.warning(f"Failed to load correlation rule {cp}: {exc}")
 
     def _build_resolver_map(self) -> None:
-        """Builds rule UUID -> Path resolver map for correlation stages."""
+        """Builds rule reference -> Path resolver map for correlation stages.
+
+        Sigma correlations may reference a component rule by either its ``id``
+        or its ``name``. Indexing only by id silently produced correlations whose
+        stages carried no rule, which surfaced at evaluation time as a warning and
+        a correlation that could never fire.
+        """
         if not self.rules_dir.exists():
             return
         import yaml
@@ -467,10 +473,13 @@ class TelemetryReplayEngine:
         for yml in self.rules_dir.rglob("*.yml"):
             try:
                 data = yaml.safe_load(yml.read_text(encoding="utf-8"))
-                if isinstance(data, dict) and "id" in data:
-                    self.rule_resolver_map[str(data["id"])] = str(yml)
             except Exception:
-                pass
+                continue
+            if not isinstance(data, dict):
+                continue
+            for key in ("id", "name"):
+                if data.get(key):
+                    self.rule_resolver_map[str(data[key])] = str(yml)
 
     def _resolve_rule(self, ref_id: str) -> Optional[Tuple[str, Optional[int]]]:
         """Resolves correlation rule reference ID to file path."""

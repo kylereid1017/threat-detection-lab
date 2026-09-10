@@ -1,0 +1,7 @@
+{"id": "1001", "url": "https://anthropic-careers.invalid/assessment/take-home.zip", "date_added": "2026-09-04", "threat": "malware_download", "reporter": "analyst", "resolved_ip": "203.0.113.10", "asn": "AS64496"}
+{"id": "1002", "url": "https://0penai-interview.invalid/portal", "date_added": "2026-09-04", "threat": "phishing", "reporter": "analyst", "resolved_ip": "203.0.113.11", "asn": "AS64496"}
+{"id": "1003", "url": "https://banking-alert.invalid/login", "date_added": "2026-09-04", "threat": "phishing", "reporter": "analyst", "resolved_ip": "198.51.100.7", "asn": "AS64500"}
+{"id": "1004", "url": "https://parcel-track.invalid/pay", "date_added": "2026-09-04", "threat": "phishing", "reporter": "analyst", "resolved_ip": "198.51.100.8", "asn": "AS64500"}
+{"id": "1005", "url": "https://free-movies.xyz/stream", "date_added": "2026-09-03", "threat": "malware_download", "reporter": "analyst", "resolved_ip": "198.51.100.9", "asn": "AS64500"}
+{"id": "1006", "url": "https://crypto-airdrop.top/claim", "date_added": "2026-09-03", "threat": "scam", "reporter": "analyst", "resolved_ip": "198.51.100.10", "asn": "AS64500"}
+{"id": "1007", "url": "not-a-url", "date_added": "2026-09-03", "threat": "", "reporter": "analyst"}

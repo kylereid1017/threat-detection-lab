@@ -1,0 +1,425 @@
+[
+  {
+    "value": "anthropic-careers.invalid",
+    "type": "domain",
+    "confidence": "moderate",
+    "relevance": 0.85,
+    "relevance_reasons": [
+      "contains brand term: anthropic",
+      "brand used as a compound label, a common lure form",
+      "recruitment lure vocabulary: careers",
+      "registered or first observed within the collection window"
+    ],
+    "tags": [
+      "ct-log",
+      "url-feed",
+      "package-registry",
+      "homepage"
+    ],
+    "first_seen": "2026-09-02",
+    "expires_on": "2026-12-01",
+    "ttl_days": 90,
+    "provenance": {
+      "source": "certificate_transparency",
+      "collected": "2026-09-05",
+      "raw_reference": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "context": {
+      "issuer": "Lets Encrypt R3",
+      "cert_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "recently_registered": true,
+      "corroborating_sources": [
+        "malicious_url_feed",
+        "package_registry"
+      ]
+    }
+  },
+  {
+    "value": "anthropic-recruiting.invalid",
+    "type": "domain",
+    "confidence": "low",
+    "relevance": 0.85,
+    "relevance_reasons": [
+      "contains brand term: anthropic",
+      "brand used as a compound label, a common lure form",
+      "recruitment lure vocabulary: recruit, recruiting",
+      "registered or first observed within the collection window"
+    ],
+    "tags": [
+      "ct-log"
+    ],
+    "first_seen": "2026-09-02",
+    "expires_on": "2026-10-17",
+    "ttl_days": 45,
+    "provenance": {
+      "source": "certificate_transparency",
+      "collected": "2026-09-05",
+      "raw_reference": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "context": {
+      "issuer": "Lets Encrypt R3",
+      "cert_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "recently_registered": true
+    }
+  },
+  {
+    "value": "careers-anthropic.invalid",
+    "type": "domain",
+    "confidence": "low",
+    "relevance": 0.85,
+    "relevance_reasons": [
+      "contains brand term: anthropic",
+      "brand used as a compound label, a common lure form",
+      "recruitment lure vocabulary: careers",
+      "registered or first observed within the collection window"
+    ],
+    "tags": [
+      "ct-log"
+    ],
+    "first_seen": "2026-09-02",
+    "expires_on": "2026-10-17",
+    "ttl_days": 45,
+    "provenance": {
+      "source": "certificate_transparency",
+      "collected": "2026-09-05",
+      "raw_reference": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "context": {
+      "issuer": "Lets Encrypt R3",
+      "cert_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "recently_registered": true
+    }
+  },
+  {
+    "value": "www.anthropic-careers.invalid",
+    "type": "domain",
+    "confidence": "low",
+    "relevance": 0.85,
+    "relevance_reasons": [
+      "contains brand term: anthropic",
+      "brand used as a compound label, a common lure form",
+      "recruitment lure vocabulary: careers",
+      "registered or first observed within the collection window"
+    ],
+    "tags": [
+      "ct-log"
+    ],
+    "first_seen": "2026-09-02",
+    "expires_on": "2026-10-17",
+    "ttl_days": 45,
+    "provenance": {
+      "source": "certificate_transparency",
+      "collected": "2026-09-05",
+      "raw_reference": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "context": {
+      "issuer": "Lets Encrypt R3",
+      "cert_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "recently_registered": true
+    }
+  },
+  {
+    "value": "pypi:huggingfaec-hub",
+    "type": "package",
+    "confidence": "low",
+    "relevance": 0.8,
+    "relevance_reasons": [
+      "typosquat of 'huggingface' at edit distance 1",
+      "developer supply chain surface: pypi",
+      "registered or first observed within the collection window"
+    ],
+    "tags": [
+      "package-registry",
+      "pypi"
+    ],
+    "first_seen": "2026-09-03",
+    "expires_on": "2027-03-04",
+    "ttl_days": 182,
+    "provenance": {
+      "source": "package_registry",
+      "collected": "2026-09-05",
+      "raw_reference": "huggingfaec-hub@0.1.0"
+    },
+    "context": {
+      "version": "0.1.0",
+      "maintainer": "mm22",
+      "has_install_hook": true,
+      "recently_registered": true
+    }
+  },
+  {
+    "value": "npm:anthropic-sdk-helper",
+    "type": "package",
+    "confidence": "low",
+    "relevance": 0.75,
+    "relevance_reasons": [
+      "contains brand term: anthropic",
+      "brand used as a compound label, a common lure form",
+      "developer supply chain surface: npm, sdk",
+      "registered or first observed within the collection window"
+    ],
+    "tags": [
+      "package-registry",
+      "npm"
+    ],
+    "first_seen": "2026-09-03",
+    "expires_on": "2027-03-04",
+    "ttl_days": 182,
+    "provenance": {
+      "source": "package_registry",
+      "collected": "2026-09-05",
+      "raw_reference": "anthropic-sdk-helper@0.0.1"
+    },
+    "context": {
+      "version": "0.0.1",
+      "maintainer": "kx91",
+      "has_install_hook": true,
+      "recently_registered": true
+    }
+  },
+  {
+    "value": "pypi:pytorch-lightning-utils",
+    "type": "package",
+    "confidence": "low",
+    "relevance": 0.75,
+    "relevance_reasons": [
+      "contains brand term: pytorch",
+      "brand used as a compound label, a common lure form",
+      "developer supply chain surface: pypi",
+      "registered or first observed within the collection window"
+    ],
+    "tags": [
+      "package-registry",
+      "pypi"
+    ],
+    "first_seen": "2026-09-04",
+    "expires_on": "2027-03-05",
+    "ttl_days": 182,
+    "provenance": {
+      "source": "package_registry",
+      "collected": "2026-09-05",
+      "raw_reference": "pytorch-lightning-utils@2.0.9"
+    },
+    "context": {
+      "version": "2.0.9",
+      "maintainer": "zz01",
+      "has_install_hook": true,
+      "recently_registered": true
+    }
+  },
+  {
+    "value": "0penai-interview.invalid",
+    "type": "domain",
+    "confidence": "moderate",
+    "relevance": 0.7,
+    "relevance_reasons": [
+      "contains brand term: openai",
+      "recruitment lure vocabulary: interview",
+      "registered or first observed within the collection window"
+    ],
+    "tags": [
+      "ct-log",
+      "url-feed"
+    ],
+    "first_seen": "2026-09-02",
+    "expires_on": "2026-12-01",
+    "ttl_days": 90,
+    "provenance": {
+      "source": "certificate_transparency",
+      "collected": "2026-09-05",
+      "raw_reference": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "context": {
+      "issuer": "Lets Encrypt R3",
+      "cert_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "recently_registered": true,
+      "corroborating_sources": [
+        "malicious_url_feed"
+      ]
+    }
+  },
+  {
+    "value": "huggingfaec.invalid",
+    "type": "domain",
+    "confidence": "low",
+    "relevance": 0.7,
+    "relevance_reasons": [
+      "typosquat of 'huggingface' at edit distance 1",
+      "registered or first observed within the collection window"
+    ],
+    "tags": [
+      "ct-log"
+    ],
+    "first_seen": "2026-09-02",
+    "expires_on": "2026-10-17",
+    "ttl_days": 45,
+    "provenance": {
+      "source": "certificate_transparency",
+      "collected": "2026-09-05",
+      "raw_reference": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "context": {
+      "issuer": "Lets Encrypt R3",
+      "cert_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "recently_registered": true
+    }
+  },
+  {
+    "value": "https://anthropic-careers.invalid/assessment/take-home.zip",
+    "type": "url",
+    "confidence": "moderate",
+    "relevance": 0.7,
+    "relevance_reasons": [
+      "contains brand term: anthropic",
+      "brand used as a compound label, a common lure form",
+      "recruitment lure vocabulary: careers"
+    ],
+    "tags": [
+      "url-feed",
+      "malware_download"
+    ],
+    "first_seen": "2026-09-04",
+    "expires_on": "2026-10-04",
+    "ttl_days": 30,
+    "provenance": {
+      "source": "malicious_url_feed",
+      "collected": "2026-09-05",
+      "raw_reference": "1001"
+    },
+    "context": {
+      "reporter": "analyst"
+    }
+  },
+  {
+    "value": "https://0penai-interview.invalid/portal",
+    "type": "url",
+    "confidence": "moderate",
+    "relevance": 0.55,
+    "relevance_reasons": [
+      "contains brand term: openai",
+      "recruitment lure vocabulary: interview"
+    ],
+    "tags": [
+      "url-feed",
+      "phishing"
+    ],
+    "first_seen": "2026-09-04",
+    "expires_on": "2026-10-04",
+    "ttl_days": 30,
+    "provenance": {
+      "source": "malicious_url_feed",
+      "collected": "2026-09-05",
+      "raw_reference": "1002"
+    },
+    "context": {
+      "reporter": "analyst"
+    }
+  },
+  {
+    "value": "anthr0pic.invalid",
+    "type": "domain",
+    "confidence": "low",
+    "relevance": 0.5,
+    "relevance_reasons": [
+      "contains brand term: anthropic",
+      "registered or first observed within the collection window"
+    ],
+    "tags": [
+      "ct-log"
+    ],
+    "first_seen": "2026-09-02",
+    "expires_on": "2026-10-17",
+    "ttl_days": 45,
+    "provenance": {
+      "source": "certificate_transparency",
+      "collected": "2026-09-05",
+      "raw_reference": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "context": {
+      "issuer": "Lets Encrypt R3",
+      "cert_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "recently_registered": true
+    }
+  },
+  {
+    "value": "pypi:safetensors-fast",
+    "type": "package",
+    "confidence": "low",
+    "relevance": 0.5,
+    "relevance_reasons": [
+      "references protected assets: safetensors",
+      "developer supply chain surface: pypi",
+      "registered or first observed within the collection window"
+    ],
+    "tags": [
+      "package-registry",
+      "pypi"
+    ],
+    "first_seen": "2026-09-04",
+    "expires_on": "2027-03-05",
+    "ttl_days": 182,
+    "provenance": {
+      "source": "package_registry",
+      "collected": "2026-09-05",
+      "raw_reference": "safetensors-fast@0.0.3"
+    },
+    "context": {
+      "version": "0.0.3",
+      "maintainer": "kx91",
+      "has_install_hook": true,
+      "recently_registered": true
+    }
+  },
+  {
+    "value": "checkpoint-sync.invalid",
+    "type": "domain",
+    "confidence": "low",
+    "relevance": 0.4,
+    "relevance_reasons": [
+      "references protected assets: checkpoint",
+      "registered or first observed within the collection window"
+    ],
+    "tags": [
+      "ct-log"
+    ],
+    "first_seen": "2026-09-02",
+    "expires_on": "2026-10-17",
+    "ttl_days": 45,
+    "provenance": {
+      "source": "certificate_transparency",
+      "collected": "2026-09-05",
+      "raw_reference": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "context": {
+      "issuer": "Lets Encrypt R3",
+      "cert_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "recently_registered": true
+    }
+  },
+  {
+    "value": "safetensors-mirror.invalid",
+    "type": "domain",
+    "confidence": "low",
+    "relevance": 0.4,
+    "relevance_reasons": [
+      "references protected assets: safetensors",
+      "registered or first observed within the collection window"
+    ],
+    "tags": [
+      "ct-log"
+    ],
+    "first_seen": "2026-09-02",
+    "expires_on": "2026-10-17",
+    "ttl_days": 45,
+    "provenance": {
+      "source": "certificate_transparency",
+      "collected": "2026-09-05",
+      "raw_reference": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "context": {
+      "issuer": "Lets Encrypt R3",
+      "cert_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "recently_registered": true
+    }
+  }
+]

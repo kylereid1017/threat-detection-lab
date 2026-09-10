@@ -1,0 +1,12 @@
+{
+  "dataset": "pypi-agent-execution-layer",
+  "source_url": "https://pypi.org/simple",
+  "total_pypi_projects_indexed": 885821,
+  "license": "Open Data / Public Registry Metadata",
+  "ecosystem": "pypi",
+  "retrieval_date": "2026-09-05",
+  "package_count": 500,
+  "snapshot_file": "pypi_agent_packages.jsonl",
+  "snapshot_sha256": "058608732fc0a1f9a448449d93994cd89a482288cf53e9553d84e1310f987671",
+  "content_note": "Agent execution layer package metadata and manifests only. No package payloads, binary blobs, or executable archives are retrieved or stored."
+}

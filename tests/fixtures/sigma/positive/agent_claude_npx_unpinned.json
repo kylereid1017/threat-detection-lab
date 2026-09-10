@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-06 00:10:00.000",
+  "ParentImage": "C:\\Users\\researcher\\AppData\\Local\\Programs\\Claude\\Claude.exe",
+  "Image": "C:\\Program Files\\nodejs\\npx.cmd",
+  "CommandLine": "npx.cmd -y @modelcontextprotocol/server-postgres",
+  "User": "CORP\\researcher"
+}

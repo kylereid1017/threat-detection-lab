@@ -1,0 +1,13 @@
+{
+  "kind": "Event",
+  "verb": "create",
+  "user.username": "system:serviceaccount:training:job-submitter",
+  "sourceIPs": "10.0.4.21",
+  "objectRef.resource": "pods",
+  "objectRef.namespace": "training",
+  "objectRef.name": "profiler-sidecar-2",
+  "requestObject.spec.hostPID": false,
+  "requestObject.spec.hostNetwork": false,
+  "requestObject.spec.volumes.hostPath.path": "",
+  "requestObject.spec.containers.securityContext.privileged": true
+}

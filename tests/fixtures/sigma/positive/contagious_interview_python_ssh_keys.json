@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-05 15:01:00.000",
+  "ParentImage": "/usr/bin/python3",
+  "Image": "/bin/bash",
+  "CommandLine": "bash -c \"tar -czf /tmp/ssh.tgz ~/.ssh/id_rsa\"",
+  "User": "researcher"
+}

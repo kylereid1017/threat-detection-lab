@@ -12,7 +12,8 @@
 Over Q1–Q3 2026, threat actors have accelerated the adoption of **user-assisted execution lures**—broadly clustered as **ClickFix** and **ClearFake**—to bypass automated email and secure web gateways (SEGs/SWGs). Rather than attempting to deliver traditional weaponized office documents or binary attachments directly to the inbox, adversaries deliver visually benign attachments (such as **SVG vector graphics**) or compromised web landing pages that trick the victim into executing arbitrary commands via the native Windows shell (`explorer.exe` / Run dialog `Win + R`).
 
 * **Analytic Judgment:** It is **highly likely (80–90% probability)** that initial-access brokers (IABs) and info-stealer operators will continue to favor user-assisted clipboard lures over direct macro or binary attachments due to high enterprise endpoint bypass rates and near-zero reliance on software vulnerabilities.
-* **Analytic Judgment:** It is **almost certain (95–99% probability)** that adversaries will continue diversifying away from standard `powershell.exe -w hidden` strings into switch aliases (`-w 1`), cmdlet invocation splitting, and secondary LOLBins (`rundll32.exe`, `wscript.exe`, `curl.exe`) to degrade brittle endpoint string detections.
+* **Analytic Judgment:** It is **highly likely (80–90% probability)** that adversaries will continue diversifying away from standard `powershell.exe -w hidden` strings into switch aliases (`-w 1`), cmdlet invocation splitting, and secondary LOLBins (`rundll32.exe`, `wscript.exe`, `curl.exe`) to degrade brittle endpoint string detections, based on observed telemetry permutations across ClickFix and ClearFake campaigns.
+
 * **Analytic Confidence Level:** **HIGH**. Grounded in multi-vendor public telemetry corroboration, empirical adversarial stress-testing in the laboratory, and frontline threat hunting observation.
 
 ---

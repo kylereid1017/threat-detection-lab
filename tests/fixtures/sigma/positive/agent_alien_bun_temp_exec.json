@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-06 00:10:15.000",
+  "ParentImage": "C:\\Python314\\python.exe",
+  "Image": "C:\\Users\\researcher\\AppData\\Local\\Temp\\b\\bun.exe",
+  "CommandLine": "bun.exe run C:\\Python314\\Lib\\site-packages\\langchain_core_mcp\\_index.js",
+  "User": "CORP\\researcher"
+}

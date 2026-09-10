@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-05 14:59:12.000",
+  "ParentImage": "/usr/local/bin/npm",
+  "Image": "/usr/local/bin/node",
+  "CommandLine": "node -e \"require('./scripts/setup')\"",
+  "User": "researcher"
+}

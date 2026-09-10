@@ -1,0 +1,71 @@
+{
+  "status": "RUNNING",
+  "start_time": "2026-09-05T08:36:17.440917+00:00",
+  "last_heartbeat": "2026-09-05T10:15:13.830652+00:00",
+  "elapsed_seconds": 5936.4,
+  "total_cycles": 16500,
+  "probes_evaluated": 641194,
+  "critic_approved": 641194,
+  "critic_blocked": 0,
+  "critic_approval_rate": 1.0,
+  "true_positives": 74371,
+  "evasion_gaps": 10866,
+  "resilience_rate": 0.116,
+  "campaigns_evaluated": 2750,
+  "campaign_containment_rate": 1.0,
+  "average_depth_of_defense": 0.946,
+  "graph_walks_evaluated": 2750,
+  "average_mttd_seconds": 0.0,
+  "telemetry_replays_evaluated": 2750,
+  "noise_benchmarks_evaluated": 2750,
+  "cluster_breakdown": {
+    "Cluster A: LOLBin & Process Proxying": 2492,
+    "Cluster B: Argument Masking & Parameter Aliasing": 633,
+    "Cluster C: Parser Differentials & Offset Padding": 2241,
+    "Cluster D: Sensor Blinding & Telemetry Tampering": 0
+  },
+  "current_pattern_suite": "Multi-Stage Kill Chain Campaign (5 Stages)",
+  "recent_findings": [
+    {
+      "variant_id": "svg-33fbea63",
+      "target_type": "yara",
+      "mutation_name": "endurance_namespace_svg_prefix_pad_1500",
+      "detected": true,
+      "cluster": "Cluster C: Parser Differentials & Offset Padding",
+      "timestamp": "2026-09-05T10:15:08.348383+00:00"
+    },
+    {
+      "variant_id": "proc-5199b977",
+      "target_type": "sigma",
+      "mutation_name": "endurance_hh",
+      "detected": false,
+      "cluster": "Cluster A: LOLBin & Process Proxying",
+      "timestamp": "2026-09-05T10:15:09.806124+00:00"
+    },
+    {
+      "variant_id": "svg-18940861",
+      "target_type": "yara",
+      "mutation_name": "endurance_bracket_concat_js_pad_1500",
+      "detected": true,
+      "cluster": "Cluster B: Argument Masking & Parameter Aliasing",
+      "timestamp": "2026-09-05T10:15:10.511385+00:00"
+    },
+    {
+      "variant_id": "proc-7e249726",
+      "target_type": "sigma",
+      "mutation_name": "endurance_stdin_pipe",
+      "detected": false,
+      "cluster": "Cluster B: Argument Masking & Parameter Aliasing",
+      "timestamp": "2026-09-05T10:15:12.001670+00:00"
+    },
+    {
+      "variant_id": "svg-36bbffaf",
+      "target_type": "yara",
+      "mutation_name": "endurance_bracket_concat_js_pad_6000",
+      "detected": false,
+      "cluster": "Cluster B: Argument Masking & Parameter Aliasing",
+      "timestamp": "2026-09-05T10:15:12.706384+00:00"
+    }
+  ],
+  "stop_signal_file": "C:\\Users\\kyler\\Projects\\threat-detection-lab\\docs\\swarm\\results\\STOP_ENDURANCE"
+}

@@ -1,0 +1,346 @@
+{
+  "type": "bundle",
+  "id": "bundle--cti-2026-09-05",
+  "objects": [
+    {
+      "type": "indicator",
+      "spec_version": "2.1",
+      "id": "indicator--6ede30fc-483a-58a1-b1d8-dea26103b7ce",
+      "created": "2026-09-05T00:00:00.000Z",
+      "modified": "2026-09-05T00:00:00.000Z",
+      "valid_from": "2026-09-02T00:00:00.000Z",
+      "valid_until": "2026-12-01T00:00:00.000Z",
+      "pattern": "[domain-name:value = 'anthropic-careers.invalid']",
+      "pattern_type": "stix",
+      "confidence": 50,
+      "labels": [
+        "ct-log",
+        "url-feed",
+        "package-registry",
+        "homepage"
+      ],
+      "description": "contains brand term: anthropic; brand used as a compound label, a common lure form; recruitment lure vocabulary: careers; registered or first observed within the collection window",
+      "external_references": [
+        {
+          "source_name": "certificate_transparency",
+          "external_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ]
+    },
+    {
+      "type": "indicator",
+      "spec_version": "2.1",
+      "id": "indicator--7762d1da-2a70-f413-7dad-88a64c7ae1cd",
+      "created": "2026-09-05T00:00:00.000Z",
+      "modified": "2026-09-05T00:00:00.000Z",
+      "valid_from": "2026-09-02T00:00:00.000Z",
+      "valid_until": "2026-10-17T00:00:00.000Z",
+      "pattern": "[domain-name:value = 'anthropic-recruiting.invalid']",
+      "pattern_type": "stix",
+      "confidence": 15,
+      "labels": [
+        "ct-log"
+      ],
+      "description": "contains brand term: anthropic; brand used as a compound label, a common lure form; recruitment lure vocabulary: recruit, recruiting; registered or first observed within the collection window",
+      "external_references": [
+        {
+          "source_name": "certificate_transparency",
+          "external_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ]
+    },
+    {
+      "type": "indicator",
+      "spec_version": "2.1",
+      "id": "indicator--a4950332-551b-fa53-4c87-b62d4fe4312d",
+      "created": "2026-09-05T00:00:00.000Z",
+      "modified": "2026-09-05T00:00:00.000Z",
+      "valid_from": "2026-09-02T00:00:00.000Z",
+      "valid_until": "2026-10-17T00:00:00.000Z",
+      "pattern": "[domain-name:value = 'careers-anthropic.invalid']",
+      "pattern_type": "stix",
+      "confidence": 15,
+      "labels": [
+        "ct-log"
+      ],
+      "description": "contains brand term: anthropic; brand used as a compound label, a common lure form; recruitment lure vocabulary: careers; registered or first observed within the collection window",
+      "external_references": [
+        {
+          "source_name": "certificate_transparency",
+          "external_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ]
+    },
+    {
+      "type": "indicator",
+      "spec_version": "2.1",
+      "id": "indicator--6627efe1-2246-620e-8d3b-df0d4dbc552f",
+      "created": "2026-09-05T00:00:00.000Z",
+      "modified": "2026-09-05T00:00:00.000Z",
+      "valid_from": "2026-09-02T00:00:00.000Z",
+      "valid_until": "2026-10-17T00:00:00.000Z",
+      "pattern": "[domain-name:value = 'www.anthropic-careers.invalid']",
+      "pattern_type": "stix",
+      "confidence": 15,
+      "labels": [
+        "ct-log"
+      ],
+      "description": "contains brand term: anthropic; brand used as a compound label, a common lure form; recruitment lure vocabulary: careers; registered or first observed within the collection window",
+      "external_references": [
+        {
+          "source_name": "certificate_transparency",
+          "external_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ]
+    },
+    {
+      "type": "indicator",
+      "spec_version": "2.1",
+      "id": "indicator--1b5fbf29-df7a-ff2c-680e-3bc2602fda54",
+      "created": "2026-09-05T00:00:00.000Z",
+      "modified": "2026-09-05T00:00:00.000Z",
+      "valid_from": "2026-09-03T00:00:00.000Z",
+      "valid_until": "2027-03-04T00:00:00.000Z",
+      "pattern": "[software:name = 'pypi:huggingfaec-hub']",
+      "pattern_type": "stix",
+      "confidence": 15,
+      "labels": [
+        "package-registry",
+        "pypi"
+      ],
+      "description": "typosquat of 'huggingface' at edit distance 1; developer supply chain surface: pypi; registered or first observed within the collection window",
+      "external_references": [
+        {
+          "source_name": "package_registry",
+          "external_id": "huggingfaec-hub@0.1.0"
+        }
+      ]
+    },
+    {
+      "type": "indicator",
+      "spec_version": "2.1",
+      "id": "indicator--3a1485b9-d6e1-c937-36aa-6f03f2253ffb",
+      "created": "2026-09-05T00:00:00.000Z",
+      "modified": "2026-09-05T00:00:00.000Z",
+      "valid_from": "2026-09-03T00:00:00.000Z",
+      "valid_until": "2027-03-04T00:00:00.000Z",
+      "pattern": "[software:name = 'npm:anthropic-sdk-helper']",
+      "pattern_type": "stix",
+      "confidence": 15,
+      "labels": [
+        "package-registry",
+        "npm"
+      ],
+      "description": "contains brand term: anthropic; brand used as a compound label, a common lure form; developer supply chain surface: npm, sdk; registered or first observed within the collection window",
+      "external_references": [
+        {
+          "source_name": "package_registry",
+          "external_id": "anthropic-sdk-helper@0.0.1"
+        }
+      ]
+    },
+    {
+      "type": "indicator",
+      "spec_version": "2.1",
+      "id": "indicator--c41b9460-c60a-8293-aae1-b95c50990060",
+      "created": "2026-09-05T00:00:00.000Z",
+      "modified": "2026-09-05T00:00:00.000Z",
+      "valid_from": "2026-09-04T00:00:00.000Z",
+      "valid_until": "2027-03-05T00:00:00.000Z",
+      "pattern": "[software:name = 'pypi:pytorch-lightning-utils']",
+      "pattern_type": "stix",
+      "confidence": 15,
+      "labels": [
+        "package-registry",
+        "pypi"
+      ],
+      "description": "contains brand term: pytorch; brand used as a compound label, a common lure form; developer supply chain surface: pypi; registered or first observed within the collection window",
+      "external_references": [
+        {
+          "source_name": "package_registry",
+          "external_id": "pytorch-lightning-utils@2.0.9"
+        }
+      ]
+    },
+    {
+      "type": "indicator",
+      "spec_version": "2.1",
+      "id": "indicator--86a06902-9c47-f86f-de35-2cad5649d869",
+      "created": "2026-09-05T00:00:00.000Z",
+      "modified": "2026-09-05T00:00:00.000Z",
+      "valid_from": "2026-09-02T00:00:00.000Z",
+      "valid_until": "2026-12-01T00:00:00.000Z",
+      "pattern": "[domain-name:value = '0penai-interview.invalid']",
+      "pattern_type": "stix",
+      "confidence": 50,
+      "labels": [
+        "ct-log",
+        "url-feed"
+      ],
+      "description": "contains brand term: openai; recruitment lure vocabulary: interview; registered or first observed within the collection window",
+      "external_references": [
+        {
+          "source_name": "certificate_transparency",
+          "external_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      ]
+    },
+    {
+      "type": "indicator",
+      "spec_version": "2.1",
+      "id": "indicator--87c0e3eb-d831-c008-68c7-0efea5a5b6fe",
+      "created": "2026-09-05T00:00:00.000Z",
+      "modified": "2026-09-05T00:00:00.000Z",
+      "valid_from": "2026-09-02T00:00:00.000Z",
+      "valid_until": "2026-10-17T00:00:00.000Z",
+      "pattern": "[domain-name:value = 'huggingfaec.invalid']",
+      "pattern_type": "stix",
+      "confidence": 15,
+      "labels": [
+        "ct-log"
+      ],
+      "description": "typosquat of 'huggingface' at edit distance 1; registered or first observed within the collection window",
+      "external_references": [
+        {
+          "source_name": "certificate_transparency",
+          "external_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      ]
+    },
+    {
+      "type": "indicator",
+      "spec_version": "2.1",
+      "id": "indicator--4e0f7e44-9824-e6e6-e6dc-5c7f7af447c0",
+      "created": "2026-09-05T00:00:00.000Z",
+      "modified": "2026-09-05T00:00:00.000Z",
+      "valid_from": "2026-09-04T00:00:00.000Z",
+      "valid_until": "2026-10-04T00:00:00.000Z",
+      "pattern": "[url:value = 'https://anthropic-careers.invalid/assessment/take-home.zip']",
+      "pattern_type": "stix",
+      "confidence": 50,
+      "labels": [
+        "url-feed",
+        "malware_download"
+      ],
+      "description": "contains brand term: anthropic; brand used as a compound label, a common lure form; recruitment lure vocabulary: careers",
+      "external_references": [
+        {
+          "source_name": "malicious_url_feed",
+          "external_id": "1001"
+        }
+      ]
+    },
+    {
+      "type": "indicator",
+      "spec_version": "2.1",
+      "id": "indicator--fa379f0b-937e-46f0-0053-8d2aa0564b79",
+      "created": "2026-09-05T00:00:00.000Z",
+      "modified": "2026-09-05T00:00:00.000Z",
+      "valid_from": "2026-09-04T00:00:00.000Z",
+      "valid_until": "2026-10-04T00:00:00.000Z",
+      "pattern": "[url:value = 'https://0penai-interview.invalid/portal']",
+      "pattern_type": "stix",
+      "confidence": 50,
+      "labels": [
+        "url-feed",
+        "phishing"
+      ],
+      "description": "contains brand term: openai; recruitment lure vocabulary: interview",
+      "external_references": [
+        {
+          "source_name": "malicious_url_feed",
+          "external_id": "1002"
+        }
+      ]
+    },
+    {
+      "type": "indicator",
+      "spec_version": "2.1",
+      "id": "indicator--2404f5c6-5b12-566a-1204-5f5627b1fe2a",
+      "created": "2026-09-05T00:00:00.000Z",
+      "modified": "2026-09-05T00:00:00.000Z",
+      "valid_from": "2026-09-02T00:00:00.000Z",
+      "valid_until": "2026-10-17T00:00:00.000Z",
+      "pattern": "[domain-name:value = 'anthr0pic.invalid']",
+      "pattern_type": "stix",
+      "confidence": 15,
+      "labels": [
+        "ct-log"
+      ],
+      "description": "contains brand term: anthropic; registered or first observed within the collection window",
+      "external_references": [
+        {
+          "source_name": "certificate_transparency",
+          "external_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      ]
+    },
+    {
+      "type": "indicator",
+      "spec_version": "2.1",
+      "id": "indicator--9afd1ce6-676c-c9d7-0350-b15fa3624d4d",
+      "created": "2026-09-05T00:00:00.000Z",
+      "modified": "2026-09-05T00:00:00.000Z",
+      "valid_from": "2026-09-04T00:00:00.000Z",
+      "valid_until": "2027-03-05T00:00:00.000Z",
+      "pattern": "[software:name = 'pypi:safetensors-fast']",
+      "pattern_type": "stix",
+      "confidence": 15,
+      "labels": [
+        "package-registry",
+        "pypi"
+      ],
+      "description": "references protected assets: safetensors; developer supply chain surface: pypi; registered or first observed within the collection window",
+      "external_references": [
+        {
+          "source_name": "package_registry",
+          "external_id": "safetensors-fast@0.0.3"
+        }
+      ]
+    },
+    {
+      "type": "indicator",
+      "spec_version": "2.1",
+      "id": "indicator--559fd843-ae88-a222-9743-6c9fa8fafc43",
+      "created": "2026-09-05T00:00:00.000Z",
+      "modified": "2026-09-05T00:00:00.000Z",
+      "valid_from": "2026-09-02T00:00:00.000Z",
+      "valid_until": "2026-10-17T00:00:00.000Z",
+      "pattern": "[domain-name:value = 'checkpoint-sync.invalid']",
+      "pattern_type": "stix",
+      "confidence": 15,
+      "labels": [
+        "ct-log"
+      ],
+      "description": "references protected assets: checkpoint; registered or first observed within the collection window",
+      "external_references": [
+        {
+          "source_name": "certificate_transparency",
+          "external_id": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        }
+      ]
+    },
+    {
+      "type": "indicator",
+      "spec_version": "2.1",
+      "id": "indicator--20c144ba-615e-93a7-5ff3-f5adc053753d",
+      "created": "2026-09-05T00:00:00.000Z",
+      "modified": "2026-09-05T00:00:00.000Z",
+      "valid_from": "2026-09-02T00:00:00.000Z",
+      "valid_until": "2026-10-17T00:00:00.000Z",
+      "pattern": "[domain-name:value = 'safetensors-mirror.invalid']",
+      "pattern_type": "stix",
+      "confidence": 15,
+      "labels": [
+        "ct-log"
+      ],
+      "description": "references protected assets: safetensors; registered or first observed within the collection window",
+      "external_references": [
+        {
+          "source_name": "certificate_transparency",
+          "external_id": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        }
+      ]
+    }
+  ]
+}

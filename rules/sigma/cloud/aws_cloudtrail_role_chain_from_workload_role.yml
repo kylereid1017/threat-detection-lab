@@ -1,0 +1,55 @@
+title: Role Chaining From an Assumed Workload Role
+id: e2b6d9f3-7a41-4c85-b30d-6f1e8c4a7b52
+status: experimental
+description: >
+    Detects an AssumeRole call whose caller is already an assumed workload or node role. Role
+    chaining is how a stolen workload credential is converted into broader access, and it is a
+    control-plane-only observable. This is also the operationalization stage of developer credential
+    theft: harvested keys are used to assume a role before enumeration begins. Legitimate pipelines
+    do chain roles, so treat this as a hunting lead until the environment's normal chains are
+    enumerated.
+references:
+    - https://attack.mitre.org/techniques/T1078/004/
+author: Kyle Reid
+date: 2026-09-05
+tags:
+    - attack.privilege_escalation
+    - attack.t1078.004
+    - attack.lateral_movement
+logsource:
+    product: aws
+    service: cloudtrail
+telemetry_prerequisites:
+    channel: AWS CloudTrail management events (sts.amazonaws.com)
+    event_id: CloudTrail eventName AssumeRole
+    audit_policy: Management event logging in all regions, including the global STS endpoint region.
+    required_fields:
+        - eventSource
+        - eventName
+        - userIdentity.type
+        - userIdentity.sessionContext.sessionIssuer.userName
+        - requestParameters.roleArn
+        - userAgent
+    degradation_mode: >-
+        STS calls to the global endpoint are recorded in a single region. A trail missing that region
+        loses every chain event while appearing healthy everywhere else.
+detection:
+    selection_chain:
+        eventSource: 'sts.amazonaws.com'
+        eventName: 'AssumeRole'
+        userIdentity.type: 'AssumedRole'
+    selection_workload_origin:
+        userIdentity.sessionContext.sessionIssuer.userName|contains:
+            - 'gpu-node'
+            - 'training-node'
+            - 'inference-node'
+            - 'eks-node'
+    condition: selection_chain and selection_workload_origin
+fields:
+    - userIdentity.sessionContext.sessionIssuer.userName
+    - requestParameters.roleArn
+    - sourceIPAddress
+    - userAgent
+falsepositives:
+    - Deployment pipelines that intentionally chain from a node role into a deployment role
+level: medium

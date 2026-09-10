@@ -1,54 +1,10 @@
 {
   "target_type": "yara",
   "target_rule": "Suspicious_Active_Content_SVG_Attachment",
-  "iterations_run": 3,
-  "total_generated": 3,
-  "critic_approved": 3,
-  "detected_count": 2,
-  "evaded_count": 1,
-  "final_resilience": 0.667,
-  "history": [
-    {
-      "iteration": 1,
-      "timestamp": "2026-09-03T22:43:54.167529+00:00",
-      "prompt": "Test SVG parsing with namespace prefix <svg:svg> and location.replace",
-      "variant_id": "prompt-95b50f21",
-      "mutation_name": "prompt_svg_structural",
-      "axis": "structural",
-      "critic_passed": true,
-      "critic_reason": "Passed all pre-flight syntax and safety checks",
-      "detected": true,
-      "evasion_gap": false,
-      "healing": null,
-      "cumulative_resilience": 1.0
-    },
-    {
-      "iteration": 2,
-      "timestamp": "2026-09-03T22:43:54.167821+00:00",
-      "prompt": "Test SVG foreignObject containing HTML meta-refresh redirect to external URL",
-      "variant_id": "prompt-c4492141",
-      "mutation_name": "prompt_svg_parser_differential",
-      "axis": "parser_differential",
-      "critic_passed": true,
-      "critic_reason": "Passed all pre-flight syntax and safety checks",
-      "detected": false,
-      "evasion_gap": true,
-      "healing": null,
-      "cumulative_resilience": 0.5
-    },
-    {
-      "iteration": 3,
-      "timestamp": "2026-09-03T22:43:54.168078+00:00",
-      "prompt": "Test JavaScript bracket access window['location']['href'] to evade literal strings",
-      "variant_id": "prompt-bfb3e4d1",
-      "mutation_name": "prompt_svg_obfuscation",
-      "axis": "obfuscation",
-      "critic_passed": true,
-      "critic_reason": "Passed all pre-flight syntax and safety checks",
-      "detected": true,
-      "evasion_gap": false,
-      "healing": null,
-      "cumulative_resilience": 0.667
-    }
-  ]
+  "total_generated": 500,
+  "critic_approved": 500,
+  "detected_count": 177,
+  "evaded_count": 323,
+  "final_resilience": 0.354,
+  "endurance_mode": true
 }

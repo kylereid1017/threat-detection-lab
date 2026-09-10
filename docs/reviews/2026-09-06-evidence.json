@@ -1,0 +1,781 @@
+{
+  "review_date": "2026-09-06",
+  "scope": "Working tree, not committed HEAD; inert test inputs and public local snapshots only. No production fixes.",
+  "primary": {
+    "closure_remediation": {
+      "minimal_closures": [
+        [
+          "A"
+        ]
+      ],
+      "critical": [
+        "A"
+      ],
+      "still_closed_after_removing_A": true
+    },
+    "corpus": {
+      "installations": 336,
+      "closing_trifecta": 80,
+      "closure_rate": 0.2381,
+      "composed_closures": 26,
+      "composed_rate": 0.0774,
+      "single_package_closures": 54,
+      "leg_presence_counts": {
+        "private_data": 137,
+        "untrusted_ingress": 147,
+        "exfiltration": 136
+      },
+      "minimal_closure_size_distribution": {
+        "2": 26
+      },
+      "most_frequent_critical_packages": [
+        [
+          "@modelcontextprotocol/server-github",
+          13
+        ],
+        [
+          "@modelcontextprotocol/server-filesystem",
+          12
+        ],
+        [
+          "shadcn",
+          6
+        ],
+        [
+          "@upstash/context7-mcp",
+          4
+        ],
+        [
+          "@executeautomation/playwright-mcp-server",
+          3
+        ],
+        [
+          "@modelcontextprotocol/server-postgres",
+          3
+        ],
+        [
+          "@modelcontextprotocol/server-slack",
+          3
+        ],
+        [
+          "@playwright/mcp",
+          3
+        ],
+        [
+          "mcp-remote",
+          3
+        ],
+        [
+          "tavily-mcp",
+          3
+        ],
+        [
+          "@smithery/cli",
+          2
+        ],
+        [
+          "article-mcp",
+          2
+        ],
+        [
+          "figma-developer-mcp",
+          2
+        ],
+        [
+          "firecrawl-mcp",
+          2
+        ],
+        [
+          "task-master-ai",
+          2
+        ],
+        [
+          "@apify/actors-mcp-server",
+          1
+        ],
+        [
+          "@automatalabs/mcp-server-playwright",
+          1
+        ],
+        [
+          "@azure-devops/mcp",
+          1
+        ],
+        [
+          "@bunas/fs-mcp",
+          1
+        ],
+        [
+          "@byterover/cipher",
+          1
+        ]
+      ],
+      "min_evidence_tier": 1,
+      "headline": "composed_rate is the share of installations whose exfiltration chain exists only because of how packages combine. Per-package review cannot see those, which is the entire argument for measuring composition.",
+      "lower_bound_note": "Capabilities are derived statically and are a lower bound, so the true closure rate is at least this high and cannot be lower.",
+      "false_removal_recommendations": [
+        {
+          "repo": "HongMing-Huang/autodev-engine",
+          "path": "config/mcp_config.json",
+          "incorrect_critical": "@modelcontextprotocol/server-github"
+        },
+        {
+          "repo": "KunihiroS/idx_settings_repo",
+          "path": "cline_mcp_settings.json",
+          "incorrect_critical": "@apify/actors-mcp-server"
+        },
+        {
+          "repo": "Shreeprasandh/LynDesk",
+          "path": ".agents/mcp_config.json",
+          "incorrect_critical": "@modelcontextprotocol/server-github"
+        },
+        {
+          "repo": "applejxd/windows-setup",
+          "path": "config/claude_desktop_config.json",
+          "incorrect_critical": "@wonderwhy-er/desktop-commander"
+        },
+        {
+          "repo": "fyuuki0jp/next-hono-template",
+          "path": ".mcp.json",
+          "incorrect_critical": "shadcn"
+        },
+        {
+          "repo": "gunnit/bitrix24-mcp-server",
+          "path": "claude_desktop_config.json",
+          "incorrect_critical": "@modelcontextprotocol/server-github"
+        },
+        {
+          "repo": "k3nsei/ng-in-viewport",
+          "path": "mcp.json",
+          "incorrect_critical": "@modelcontextprotocol/server-github"
+        },
+        {
+          "repo": "mithun50/SuperGravity",
+          "path": "mcp_config.json",
+          "incorrect_critical": "tavily-mcp"
+        },
+        {
+          "repo": "tuning4frames/MCPCost",
+          "path": "fixtures/mcp.json",
+          "incorrect_critical": "@modelcontextprotocol/server-slack"
+        },
+        {
+          "repo": "yangsi7/the-fountain-studio",
+          "path": ".mcp.json",
+          "incorrect_critical": "shadcn"
+        },
+        {
+          "repo": "zuhayr635/kadromanus",
+          "path": ".mcp.json",
+          "incorrect_critical": "@modelcontextprotocol/server-github"
+        }
+      ],
+      "unique_identifiers": 332,
+      "payload_overwrite_mismatches": 4
+    },
+    "lock": {
+      "source": "GitHub code search over public repositories",
+      "retrieval_date": "2026-09-06",
+      "queries": [
+        "mcpServers in:file language:json filename:mcp.json",
+        "mcpServers in:file language:json filename:claude_desktop_config.json",
+        "mcpServers in:file language:json filename:.mcp.json",
+        "mcpServers in:file language:json filename:mcp_config.json",
+        "mcpServers in:file language:json filename:cline_mcp_settings.json"
+      ],
+      "configs_retained": 336,
+      "packages_resolved": 205,
+      "acquisition_stats": {
+        "fetched": 1387,
+        "unreadable": 0,
+        "unparseable": 0,
+        "no_servers": 112,
+        "duplicates_collapsed": 178,
+        "packages_referenced": 380,
+        "packages_unresolved": 175
+      },
+      "configs_sha256": "6acab141ba2c722f6718774dc4069f4bca1c277de228dad9ab34a8cffdc6fa24",
+      "packages_sha256": "89c14b9cd319119c98264a152f598969307dfa91a5420d29f5ffea6c4dcce64f",
+      "sampling_note": "Configurations published to public repositories are not a random sample of configurations in use. They skew toward example configs in server repositories and template projects, which typically list a single server. That biases the corpus against finding composed closures, so a measured composed rate is conservative.",
+      "content_note": "Configuration files and registry manifest metadata only. No package payloads were downloaded and nothing was executed."
+    },
+    "snapshot_integrity": {
+      "configs_sha256": true,
+      "packages_sha256": true
+    },
+    "resolver": {
+      "('uvx', ['demo==1.2.3'])": null,
+      "('npx', ['--registry', 'https://registry.npmjs.org', 'demo'])": "https://registry.npmjs.org",
+      "('npx', ['demo@1.2.3'])": "demo"
+    },
+    "dedup_ignores_wiring": {
+      "same_fingerprint": true,
+      "retained": 1
+    },
+    "audit": {
+      "npm_range": {
+        "categories": [],
+        "summary": {
+          "total_servers": 1,
+          "total_findings": 0,
+          "critical_count": 0,
+          "high_count": 0,
+          "medium_count": 0,
+          "low_count": 0
+        },
+        "clean_claim": true
+      },
+      "npm_tag": {
+        "categories": [],
+        "summary": {
+          "total_servers": 1,
+          "total_findings": 0,
+          "critical_count": 0,
+          "high_count": 0,
+          "medium_count": 0,
+          "low_count": 0
+        },
+        "clean_claim": true
+      },
+      "uvx_from": {
+        "categories": [],
+        "summary": {
+          "total_servers": 1,
+          "total_findings": 0,
+          "critical_count": 0,
+          "high_count": 0,
+          "medium_count": 0,
+          "low_count": 0
+        },
+        "clean_claim": true
+      },
+      "uvx_pinned_advisory": {
+        "categories": [],
+        "summary": {
+          "total_servers": 1,
+          "total_findings": 0,
+          "critical_count": 0,
+          "high_count": 0,
+          "medium_count": 0,
+          "low_count": 0
+        },
+        "clean_claim": true
+      },
+      "windows_home": {
+        "categories": [],
+        "summary": {
+          "total_servers": 1,
+          "total_findings": 0,
+          "critical_count": 0,
+          "high_count": 0,
+          "medium_count": 0,
+          "low_count": 0
+        },
+        "clean_claim": true
+      },
+      "invalid_entry": {
+        "categories": [],
+        "summary": {
+          "total_servers": 1,
+          "total_findings": 0,
+          "critical_count": 0,
+          "high_count": 0,
+          "medium_count": 0,
+          "low_count": 0
+        },
+        "clean_claim": true
+      },
+      "remote": {
+        "categories": [],
+        "summary": {
+          "total_servers": 1,
+          "total_findings": 0,
+          "critical_count": 0,
+          "high_count": 0,
+          "medium_count": 0,
+          "low_count": 0
+        },
+        "clean_claim": true
+      },
+      "bad_block": {
+        "summary": {
+          "total_servers": 0,
+          "total_findings": 0,
+          "critical_count": 0,
+          "high_count": 0,
+          "medium_count": 0,
+          "low_count": 0
+        },
+        "clean_claim": true
+      },
+      "unknown_schema": {
+        "summary": {
+          "total_servers": 0,
+          "total_findings": 0,
+          "critical_count": 0,
+          "high_count": 0,
+          "medium_count": 0,
+          "low_count": 0
+        },
+        "clean_claim": true
+      },
+      "secret_copied_to_output": true
+    },
+    "watchdog_cross_ecosystem": {
+      "package_name": "review-marker",
+      "ecosystem": "npm",
+      "version": "999.0.0",
+      "risk_score": 100,
+      "severity": "CRITICAL",
+      "action": "QUARANTINE_IMMEDIATELY",
+      "reasons": [
+        "Confirmed malicious package match in OpenSSF catalog (MAL-REVIEW-INERT)."
+      ],
+      "imitated_package": null,
+      "imitation_kind": null,
+      "timestamp": "2026-09-06T16:15:49.142865+00:00"
+    },
+    "watchdog_schema": {
+      "flat_score": 55,
+      "acquisition_shape_score": 0
+    },
+    "sandbox": {
+      "policy_other_host_allowed": false,
+      "linux_summary": [
+        "Network enabled (restricted to hosts: ['example.invalid'])",
+        "Isolated in-memory /tmp tmpfs (neutralizes persistent disk staging)"
+      ],
+      "mac_profile": "(version 1)\n(deny default)\n(allow process-exec (literal \"/bin/sh\"))\n(allow file-read-data (subpath \"/usr/lib\"))\n(allow file-read-data (subpath \"/System/Library\"))\n(deny process-fork)\n(allow network-outbound)\n(deny file* (subpath \"C:\\Users\\kyler/.aws\"))\n(deny file* (subpath \"C:\\Users\\kyler/.ssh\"))\n(deny file* (subpath \"C:\\Users\\kyler/Library/Application Support/Google/Chrome\"))",
+      "note": "Generated plan inspection on Windows; Linux/macOS confinement not runtime tested."
+    },
+    "correlation_cross_host": {
+      "rule_name": "group",
+      "matched": true,
+      "within_window": true,
+      "stage_matches": {
+        "a": [
+          0
+        ],
+        "b": [
+          1
+        ]
+      },
+      "selected_indices": [
+        0,
+        1
+      ],
+      "span_seconds": 1.0,
+      "details": "Correlated 2 stages within 1.0s (window 60s)."
+    },
+    "correlation_unordered_valid_chain_missed": null,
+    "correlation_ordered_overlap_valid_chain_missed": null,
+    "brittleness_false_dependency": {
+      "score": 1.0,
+      "observations": [
+        "cannot fire without command-line capture; an in-process or SDK-driven adversary produces nothing for this rule to read",
+        "declares no telemetry prerequisites",
+        "declares no false positives"
+      ],
+      "matches_without_cmd": true
+    },
+    "hooks": {
+      "manifests": 300,
+      "all_declared_hook_set": 78,
+      "consumer_install_named_hooks": 8
+    },
+    "synthetic_labelled_external": {
+      "measurement_type": "external",
+      "hardcoded_registry_totals": {
+        "npm_keywords_mcp_count": 70552,
+        "npm_modelcontextprotocol_count": 6285,
+        "pypi_mcp_project_count": 20374,
+        "github_mcp_server_repo_count": 51595
+      }
+    },
+    "missing_rule_still_reports_zero_detections": {
+      "count": 0,
+      "total": 1,
+      "rate_pct": 0.0,
+      "ci_lower_pct": 0.0,
+      "ci_upper_pct": 79.345
+    },
+    "stix_bundle_id": {
+      "id": "bundle--cti-2026-09-05",
+      "uuid_valid": false
+    }
+  },
+  "additional": {
+    "js_parity": {
+      "configs": 336,
+      "mismatches": 9,
+      "closure_mismatches": 4,
+      "details": [
+        {
+          "id": "bluelibs/runner:examples/fastify-mikroorm/.mcp.json",
+          "python_type": "none",
+          "js_type": "none",
+          "python_legs": [
+            "exfiltration"
+          ],
+          "js_legs": []
+        },
+        {
+          "id": "cyberreinxy/pgautopilot:server/config/cline/cline_mcp_settings.json",
+          "python_type": "none",
+          "js_type": "none",
+          "python_legs": [
+            "exfiltration",
+            "private_data"
+          ],
+          "js_legs": [
+            "private_data"
+          ]
+        },
+        {
+          "id": "hasanhuseyinyetkiner/randevu:mcp_config.json",
+          "python_type": "composed",
+          "js_type": "none",
+          "python_legs": [
+            "exfiltration",
+            "private_data",
+            "untrusted_ingress"
+          ],
+          "js_legs": [
+            "private_data",
+            "untrusted_ingress"
+          ]
+        },
+        {
+          "id": "hpp-io/x402-mcp-bridge:examples/claude_desktop_config.json",
+          "python_type": "none",
+          "js_type": "none",
+          "python_legs": [
+            "exfiltration"
+          ],
+          "js_legs": []
+        },
+        {
+          "id": "mertdemir0/NLP:~/Library/Application Support/Cursor/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json",
+          "python_type": "composed",
+          "js_type": "none",
+          "python_legs": [
+            "exfiltration",
+            "private_data",
+            "untrusted_ingress"
+          ],
+          "js_legs": [
+            "private_data",
+            "untrusted_ingress"
+          ]
+        },
+        {
+          "id": "peterradzisz/OpenOhMyCodePortable:skills/microsoft-skills/.github/plugins/azure-skills/.mcp.json",
+          "python_type": "none",
+          "js_type": "none",
+          "python_legs": [
+            "exfiltration",
+            "private_data"
+          ],
+          "js_legs": []
+        },
+        {
+          "id": "rashidazarang/airtable-mcp:examples/windsurf_mcp_config.json",
+          "python_type": "none",
+          "js_type": "none",
+          "python_legs": [
+            "exfiltration"
+          ],
+          "js_legs": []
+        },
+        {
+          "id": "sgx-labs/statelessagent:mcp.json",
+          "python_type": "single_package",
+          "js_type": "none",
+          "python_legs": [
+            "exfiltration",
+            "private_data",
+            "untrusted_ingress"
+          ],
+          "js_legs": [
+            "private_data",
+            "untrusted_ingress"
+          ]
+        },
+        {
+          "id": "solanabr/solana-ai-kit:.mcp.json",
+          "python_type": "single_package",
+          "js_type": "composed",
+          "python_legs": [
+            "exfiltration",
+            "private_data",
+            "untrusted_ingress"
+          ],
+          "js_legs": [
+            "exfiltration",
+            "private_data",
+            "untrusted_ingress"
+          ]
+        }
+      ]
+    },
+    "url_normalization": [
+      {
+        "type": "url",
+        "value": "https://example.invalid/casesensitive?key=abc"
+      },
+      {
+        "type": "domain",
+        "value": "example.invalid"
+      }
+    ],
+    "dns_rule_url_literal": "title: Candidate - Network Contact With Clustered Lure Infrastructure (unclustered)\nstatus: unsupported\ndescription: |\n    AUTOMATICALLY DRAFTED. Not a production rule.\n    Generated from clustered collection output. It has not been evaluated against\n    a noise floor, has no fixture coverage, and its false-positive behavior is\n    unknown. Review, measure, and rewrite before deployment.\n    Relevance signals: none recorded\nauthor: tools/cti pipeline\ndate: 2026-09-06\ntags:\n    - attack.command_and_control\n    - attack.t1071.001\nlogsource:\n    category: dns_query\ndetection:\n    selection:\n        QueryName:\n            - 'example.invalid'\n            - 'https://example.invalid/casesensitive?key=abc'\n    condition: selection\nfields:\n    - QueryName\n    - Image\n    - User\nfalsepositives:\n    - Unmeasured. This draft has no false-positive evaluation.\nlevel: medium\nindicator_lifecycle:\n    first_seen: 2026-09-06\n    review_by: 2026-10-06\n    review_action: >-\n        Retire or re-validate on this date. An indicator rule left in place after its\n        infrastructure is recycled becomes a false positive source.\n",
+    "ct_recently_registered": {
+      "issuer": "",
+      "cert_sha256": "",
+      "registrable_domain": "example.invalid",
+      "recently_registered": true
+    },
+    "suffix_false_merge": {
+      "unrelated-a.co.nz": "co.nz",
+      "unrelated-b.co.nz": "co.nz"
+    },
+    "ui_canary": {
+      "browser": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      "returncode": 0,
+      "dom_bytes": 477571,
+      "canary_executed": true,
+      "completed": true,
+      "stderr": ""
+    }
+  },
+  "swarm_and_labels": {
+    "supply": {
+      "contained_despite_all_detectors_miss": true,
+      "reported_detection_nodes": [
+        "supply_chain_correlation",
+        "macos_esf_fim",
+        "cloud_recon",
+        "storage_exfil"
+      ]
+    },
+    "cloud": {
+      "contained_despite_all_detectors_miss": true,
+      "reported_detection_nodes": [
+        "ebpf_breakout_trace",
+        "imds_s3_correlation",
+        "checkpoint_recon",
+        "weight_exfil"
+      ]
+    },
+    "agent": {
+      "contained_despite_all_detectors_miss": true,
+      "reported_detection_nodes": [
+        "agent_config_audit",
+        "agent_correlation",
+        "agent_credential_harvest",
+        "agent_exfil"
+      ]
+    },
+    "endurance_split_without_event_records": {
+      "boundary_history_sigma.json": {
+        "target_type": "sigma",
+        "target_rule": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+        "total_generated": 6,
+        "critic_approved": 6,
+        "detected_count": 5,
+        "evaded_count": 1,
+        "final_resilience": 0.833,
+        "endurance_mode": true
+      },
+      "boundary_history_yara.json": {
+        "target_type": "yara",
+        "target_rule": "Suspicious_Active_Content_SVG_Attachment",
+        "total_generated": 4,
+        "critic_approved": 4,
+        "detected_count": 2,
+        "evaded_count": 2,
+        "final_resilience": 0.5,
+        "endurance_mode": true
+      }
+    },
+    "zero_observation_defaults": {
+      "resilience": 0.714,
+      "dod": 0.91,
+      "containment": 1.0,
+      "mttd": 25.0
+    },
+    "shared_issuer_alone_clusters": {
+      "node_count": 2,
+      "edge_count": 1,
+      "cluster_count": 1,
+      "clusters": [
+        {
+          "cluster_id": "issuer:same public ca",
+          "members": [
+            "domain:unrelated-a.invalid",
+            "domain:unrelated-b.invalid"
+          ],
+          "shared_attribute": "issuer",
+          "shared_value": "same public ca"
+        }
+      ],
+      "edges": [
+        {
+          "source_key": "domain:unrelated-a.invalid",
+          "target_key": "domain:unrelated-b.invalid",
+          "relationship": "shares_issuer",
+          "evidence": "issuer=same public ca"
+        }
+      ],
+      "rejected_pivots": {},
+      "rejected_pivot_note": "Attribute values shared by more than 25 indicators are treated as common infrastructure and are not used to link indicators."
+    },
+    "taxonomy_verification": {
+      "labelled_packages": 23,
+      "scored_packages": 20,
+      "unresolved_labels": [
+        "@modelcontextprotocol/server-aws-kb-retrieval",
+        "exa-mcp-server",
+        "mongodb-mcp-server"
+      ],
+      "by_tier": [
+        {
+          "tier": 3,
+          "tier_name": "DECLARED_DEPENDENCY",
+          "true_positives": 18,
+          "false_positives": 9,
+          "false_negatives": 37,
+          "precision": 0.6667,
+          "recall": 0.3273,
+          "f1": 0.439
+        },
+        {
+          "tier": 2,
+          "tier_name": "MANIFEST_STRUCTURE",
+          "true_positives": 18,
+          "false_positives": 9,
+          "false_negatives": 37,
+          "precision": 0.6667,
+          "recall": 0.3273,
+          "f1": 0.439
+        },
+        {
+          "tier": 1,
+          "tier_name": "DECLARED_TEXT",
+          "true_positives": 30,
+          "false_positives": 9,
+          "false_negatives": 25,
+          "precision": 0.7692,
+          "recall": 0.5455,
+          "f1": 0.6383
+        }
+      ]
+    },
+    "name_only_advisory_other_ecosystem": {
+      "package_name": "groq-mcp",
+      "ecosystem": "npm",
+      "version": "999.0.0",
+      "risk_score": 100,
+      "severity": "CRITICAL",
+      "action": "QUARANTINE_IMMEDIATELY",
+      "reasons": [
+        "Confirmed malicious package match in OpenSSF catalog (MAL-2026-5321)."
+      ],
+      "imitated_package": null,
+      "imitation_kind": null,
+      "timestamp": "2026-09-06T16:19:44.689980+00:00"
+    },
+    "audit_no_ecosystem_scope": [
+      "passive_lifecycle_hooks",
+      "confirmed_malicious"
+    ],
+    "denominators": {
+      "install_hook_rate": 0.02666666666666667,
+      "retained_resolution_fraction": 0.4031372549019608,
+      "dropped_resolution_fraction": 0.5968627450980392,
+      "duplicate_fraction_resolvable": 0.3463035019455253,
+      "duplicate_fraction_all_server_configs": 0.1396078431372549
+    }
+  },
+  "isolated_baseline": {
+    "test_exit": 0,
+    "elapsed_seconds": 20.797,
+    "coverage_exit": 2,
+    "result_files_changed_by_tests": [
+      "docs/swarm/results/endurance_run.log",
+      "docs/swarm/results/endurance_state.json",
+      "docs/swarm/results/telemetry_replay.json"
+    ],
+    "tests_summary": "06 10:18:54 [INFO]     - Resilience Equilibrium: 71.4%\r\n2026-09-06 10:18:54 [INFO]     - Resilience Equilibrium: 71.4%\r\n...................................................................Error: feed file not found: non_existent_feed_file_12345.jsonl\r\n.......................................................................................................................................................................................................................................................................................................................Failed to load manifest: Manifest not found: nonexistent_manifest.json\r\n..Unknown dataset 'nonexistent_dataset_name'. Available: ['mordor_lsass_dump', 'mordor_schtasks_persistence', 'benign_enterprise_workstation', 'sample_sysmon_process_create']\r\n.......[!] mordor_lsass_dump: HASH MISMATCH!\r\n    Expected: bad_hash\r\n    Actual:   69d2a5c2e7fa368ee2bbd119b3034c76ac0bea75232b6284605fb472df0ee927\r\n.[-] test: File not found at C:\\Users\\kyler\\AppData\\Local\\Temp\\tdl-review\\isolated-repo\\missing_file.jsonl\r\n..........................\r\n----------------------------------------------------------------------\r\nRan 414 tests in 17.723s\r\n\r\nOK\r\n",
+    "coverage_report": "Name                                                 Stmts   Miss  Cover\r\n------------------------------------------------------------------------\r\ntools\\acquire_agent_registry.py                        230    189    18%\r\ntools\\acquire_corpus.py                                 14     14     0%\r\ntools\\acquire_ct_snapshot.py                           105     52    50%\r\ntools\\acquire_malicious_corpus.py                      139    139     0%\r\ntools\\acquire_telemetry.py                              94     24    74%\r\ntools\\agent_audit.py                                   179     84    53%\r\ntools\\agent_graph\\__init__.py                            0      0   100%\r\ntools\\agent_graph\\capabilities.py                      119      9    92%\r\ntools\\agent_graph\\composition.py                       118      2    98%\r\ntools\\agent_graph\\config_corpus.py                     218    137    37%\r\ntools\\agent_graph\\export_artifact.py                   107    107     0%\r\ntools\\agent_graph\\marginal.py                          154      5    97%\r\ntools\\agent_graph\\verification.py                       83     45    46%\r\ntools\\agent_sandbox\\__init__.py                          3      0   100%\r\ntools\\agent_sandbox\\launcher.py                         93     11    88%\r\ntools\\agent_sandbox\\policy.py                           74      6    92%\r\ntools\\agent_watchdog.py                                150     22    85%\r\ntools\\brittleness\\__init__.py                            0      0   100%\r\ntools\\brittleness\\cli.py                                76     76     0%\r\ntools\\brittleness\\git_corpus.py                         84     62    26%\r\ntools\\brittleness\\metrics.py                           157     12    92%\r\ntools\\cti\\__init__.py                                    0      0   100%\r\ntools\\cti\\cli.py                                        68     68     0%\r\ntools\\cti\\emit.py                                       38      1    97%\r\ntools\\cti\\graph.py                                      79      4    95%\r\ntools\\cti\\models.py                                    111      2    98%\r\ntools\\cti\\pipeline.py                                   92      1    99%\r\ntools\\cti\\protected_names.py                           119      5    96%\r\ntools\\cti\\relevance.py                                 115      2    98%\r\ntools\\cti\\sources.py                                   102     13    87%\r\ntools\\evaluate_agent_population.py                     281     59    79%\r\ntools\\evaluate_manifest_corpus.py                      135    135     0%\r\ntools\\evaluate_relevance_recall.py                     184    184     0%\r\ntools\\evaluate_rule.py                                  78     40    49%\r\ntools\\swarm\\__init__.py                                 18      0   100%\r\ntools\\swarm\\adapter.py                                 179     48    73%\r\ntools\\swarm\\analyst.py                                  51     13    75%\r\ntools\\swarm\\autonomous.py                               62      7    89%\r\ntools\\swarm\\cable_writer.py                            104     14    87%\r\ntools\\swarm\\campaign.py                                 72      6    92%\r\ntools\\swarm\\cli.py                                     244      5    98%\r\ntools\\swarm\\config.py                                   28      3    89%\r\ntools\\swarm\\craftsmen\\__init__.py                        7      0   100%\r\ntools\\swarm\\craftsmen\\agent_execution_craftsman.py      28      0   100%\r\ntools\\swarm\\craftsmen\\base.py                            8      1    88%\r\ntools\\swarm\\craftsmen\\cloud_cluster_craftsman.py        21      0   100%\r\ntools\\swarm\\craftsmen\\process_craftsman.py              22      0   100%\r\ntools\\swarm\\craftsmen\\supply_chain_craftsman.py         29      0   100%\r\ntools\\swarm\\craftsmen\\svg_craftsman.py                  20      0   100%\r\ntools\\swarm\\critic.py                                   59      7    88%\r\ntools\\swarm\\d3fend_mapper.py                           131      9    93%\r\ntools\\swarm\\detectors.py                                67      3    96%\r\ntools\\swarm\\endurance_runner.py                        416    110    74%\r\ntools\\swarm\\evaluator.py                               118      4    97%\r\ntools\\swarm\\export_layer.py                            123     15    88%\r\ntools\\swarm\\graph_engine.py                            366      7    98%\r\ntools\\swarm\\models.py                                  215     15    93%\r\ntools\\swarm\\noise_floor.py                             246      6    98%\r\ntools\\swarm\\orchestrator.py                             60      1    98%\r\ntools\\swarm\\prompt_engine.py                           200     47    76%\r\ntools\\swarm\\siem_profiler.py                           234      4    98%\r\ntools\\swarm\\synthesizer.py                             156     24    85%\r\ntools\\swarm\\telemetry_generator.py                     181     13    93%\r\ntools\\swarm\\telemetry_replay.py                        365     48    87%\r\ntools\\swarm\\validate_gate.py                           119     25    79%\r\ntools\\telemetry_coverage.py                            151     62    59%\r\n------------------------------------------------------------------------\r\nTOTAL                                                 7699   2007    74%\r\nCoverage failure: total of 74 is less than fail-under=85\r\n",
+    "copy": "C:\\Users\\kyler\\AppData\\Local\\Temp\\tdl-review\\isolated-repo"
+  },
+  "source_hashes": {
+    "tools/acquire_agent_registry.py": "906530544ed67c5ab3afc6d3fd73181a1d06353ccf34fef48b293e50fb7924aa",
+    "tools/acquire_corpus.py": "70195cd2fd134387fc6e28e668b771ea59295c1d12291c9bc6d74355c7648d57",
+    "tools/acquire_ct_snapshot.py": "bec00d6cc9433491c05d876e28a1bd64ad830bf2acd735ff58004954e0e0556f",
+    "tools/acquire_malicious_corpus.py": "1e69e8e9fe0be3b4559063064a08cf15dfa6e2913b6f566c6f79685e1c2a3bbf",
+    "tools/acquire_telemetry.py": "8e53a635dd8d7843a3d4a330f57bfb4a49bdf0917eed8fab1b4838c994376d0b",
+    "tools/agent_audit.py": "fe51918440a219d873fb034103112f82a9f9e693bd388408d7ed116d991b4f84",
+    "tools/agent_watchdog.py": "2cb0d7693b946b44952d32c89d3f9dc0d803301f8eb4659b80b63776a343b1cf",
+    "tools/evaluate_agent_population.py": "97378eae538c20bd84176ed700f212b77f49e065d930ff3f2878f5cad212866e",
+    "tools/evaluate_manifest_corpus.py": "36e69230380c6c9699e34796bea90e30a8e0994c65dbe84303d24c3cb55ec9b5",
+    "tools/evaluate_relevance_recall.py": "a257536f434b8484ce993103b31470f51ee88a19ed487194ed554379168acc75",
+    "tools/evaluate_rule.py": "e4a62425c5fc3225c79a43e88c944e6b4ff1ba8779f52011f8bdb409fc73205c",
+    "tools/telemetry_coverage.py": "5d3005a5b0bdec197e3ed890e81a3d8cf9c09f0b3bb9d34b574774bd8fb1d196",
+    "tools/agent_graph/capabilities.py": "5bb8cb21099da4d2250a5431c7f2a90bdad8b94453f1879da854b3dbe2490782",
+    "tools/agent_graph/composition.py": "f799aa6b43bdf2427cda97c6ef7e7f44b6f288fab5a0bcca3de0e3cc81d1148a",
+    "tools/agent_graph/config_corpus.py": "c466e4ce13dfabe593808b2dbb0efb44028c6a843ff71117189b8457d3ede764",
+    "tools/agent_graph/export_artifact.py": "c7118a996f9d677ad4d50c1ebe0d3f3dc9f4cdaecb3cca6963df7d678a18a524",
+    "tools/agent_graph/marginal.py": "b6ba36297b0d766623e71a35d6a6b2b08b3c514b5bdcf51a3a7a678966f6fe66",
+    "tools/agent_graph/verification.py": "5506e5ad434d4153d4d677afad986f2e3b8593788f8300bdc8a25e2a41a16eb9",
+    "tools/agent_graph/__init__.py": "76155f03abc8df4a0fc4fadf276534ad4686acc1ee8bf74249df894d67511800",
+    "tools/agent_sandbox/launcher.py": "4042d01989e3550509dcd65d48901a8898197bf13ae9cf72a378a1f8ed16fe71",
+    "tools/agent_sandbox/policy.py": "c2d78fe5e86a34b05df4bfd890218cfef92f5b4498c2410869e9f8d19b2f2b86",
+    "tools/agent_sandbox/__init__.py": "660aa5ddcabbb0adb44b928ad3e00e54595fb7195d222f5b3c63e40d8118587a",
+    "tools/brittleness/cli.py": "2e1f7c8fb6b22d96d8d7ef35c14a733e95b56af392f4e6737cbb042f2aa20230",
+    "tools/brittleness/git_corpus.py": "474dd0cbac9b4b82983f1433c93ee96a971d97bc9aa3a813432212382f168ac7",
+    "tools/brittleness/metrics.py": "b38e1b882e86402092d771f733edf699b541a613b24d0d3f9a2fbf971d1ec286",
+    "tools/brittleness/__init__.py": "0ab36f040c6eab83b796f6bbbe3adb896947cdc2a5f7f4308e55f6179c199c6c",
+    "tools/cti/cli.py": "dc0e67e3c3084fd5542cb4926cb7c82b1d27be095bbe92eb215ab6d2793ce00c",
+    "tools/cti/emit.py": "5133fb351ea8b3d819ddb6387466813a8221c74c2059a6c4ee2a55b4517323a8",
+    "tools/cti/graph.py": "4d86668a3c82e209deccfed3d8d98f8240438e7f863e30706f29db81763ce061",
+    "tools/cti/models.py": "ed455f962f99c173d8fc95797b2e572d7c74837b5aefa7ceb7909c510545f84a",
+    "tools/cti/pipeline.py": "729fe24308a7704d51b21e3bfd59956198c62be084d25431ca107a9b07a44635",
+    "tools/cti/protected_names.py": "89313c28b937f8820f90b24bd4d5600c2fb3e32fafd6f0f058944d7a8609bb5c",
+    "tools/cti/relevance.py": "3cd4d24127c81bc6ad58107c8a6c5283945325f55f2973ab192ee84720dfba30",
+    "tools/cti/sources.py": "a9fd86d9f3df623ef7594067b06b39a96f1f47779f5bedfcabaa742412a5ba52",
+    "tools/cti/__init__.py": "c806b71a558e808a78ad73a2aff2e29234e8ab8c4dcce1d5b94cbf65ac0799e7",
+    "tools/swarm/adapter.py": "96f33044b1edb629c06186ee89c859ca4c1502aa0a4c781b82f1a6a7a382592f",
+    "tools/swarm/analyst.py": "cf207f9d9fb4d1899c1b7a7fd8588dde7423830a817fbc752ed7d258c0456a0b",
+    "tools/swarm/autonomous.py": "897c6db929e0a609a39c21d4216e47dc1596b566055bf1766e8862f3a3152d6b",
+    "tools/swarm/cable_writer.py": "3820f8262e5fcbedfb5abb9f61d8b0c2091d30f0252cacc25648b211d8355291",
+    "tools/swarm/campaign.py": "dba25f4efcb3bf8cd68439aadd8b614c86397b04f1a4aa7527217aa5446efc11",
+    "tools/swarm/cli.py": "d8cb3870c44f425428d22bdec3ee6f802072dd71bc2d328bb181ff09d2a5f368",
+    "tools/swarm/config.py": "54a898f949fb246347ed155e969d93b181da8b67b44faf6052fef8173a70bfb3",
+    "tools/swarm/critic.py": "96f49a260a74f3b2964d638a760bda45aa0d7de9d51887fcf5f2b4b9969cc1f0",
+    "tools/swarm/d3fend_mapper.py": "597a9a46adb67dcfdc64b1f639c479504a6c98d5442392660936dc8eff415e3c",
+    "tools/swarm/detectors.py": "c5e3951a839d19d93b88bc51fc53fe855b01fd9b50d1dc1d83ccc795912b32a1",
+    "tools/swarm/endurance_runner.py": "c69dbbdcc57613f239ba8538be4bcc646273d79f56a0951495be0fad07e194ab",
+    "tools/swarm/evaluator.py": "b4eb8de3306baea2e989091191efa7844f45fee5d7f30d4019b5c2d91322400c",
+    "tools/swarm/export_layer.py": "dc3cfbd205590990b513d1fb5cc881f933c514921aecbfd2589a6b52cbc735a7",
+    "tools/swarm/graph_engine.py": "0a94c238908fa5482f8a65ddea4a1d0ee125b46a7a63a334079a6481476a58c3",
+    "tools/swarm/models.py": "d8d5d0ef4dd8e58e043482d74ec77e919be3ca4907486f79a7b07aa9ce46190a",
+    "tools/swarm/noise_floor.py": "e38d071a0cb3f41a5f16192c8052987e5aad2458991861aa35ca9b27b617323e",
+    "tools/swarm/orchestrator.py": "7d16bda1cc8ad7fcc0f33a032a8f09e845654e6c1bfafe261b3da72bc1fdbdbe",
+    "tools/swarm/prompt_engine.py": "ecb6a40a2a11492370c2d3f7d991a8d214122305c1bad47c41db1778e0a461eb",
+    "tools/swarm/siem_profiler.py": "f03c3519e191d0647b56f2c5b6f3952be83809b8092cc4324233d5d5f090a177",
+    "tools/swarm/synthesizer.py": "8c85376c6a15f36fe7780222d206e7b32d4159dd272da93c2e5e3d9463843382",
+    "tools/swarm/telemetry_generator.py": "5e0e3d597d5c2cf2be70bd2b7c87b1a9132d24a13af9fd31ad9abab36846cec9",
+    "tools/swarm/telemetry_replay.py": "dc6e1158d5a5d94cc947d37b6bf26c34f380aff5a65b85388c29bd47516e2111",
+    "tools/swarm/validate_gate.py": "d9c2c1f5e1330fbb3dcb3c415a6fb3e470e12c701a9e90203679448f6dfe1464",
+    "tools/swarm/__init__.py": "cab08bf8e415da537d2c9e3e5aeb752557cc36f7a66f0ac1276d239bc3179704",
+    "tools/swarm/craftsmen/agent_execution_craftsman.py": "11b57a5567c4d01796645929f1737d75c7449705e30f798b0def1397c136c050",
+    "tools/swarm/craftsmen/base.py": "84a9f07f9a1afc1e80bd1b7d0c121e7e0a515574b407879033e03455b64c926f",
+    "tools/swarm/craftsmen/cloud_cluster_craftsman.py": "6199ce66a94ed4a7a4c72617e1db4e8ef5bb4dcb0e3824999e543e1972663f45",
+    "tools/swarm/craftsmen/process_craftsman.py": "d2906ab5f7dcf6791581d796007578cad7c7b3c80bbb1f446f89495f1d9ab709",
+    "tools/swarm/craftsmen/supply_chain_craftsman.py": "9da975711446d1f5fa5fd521cec7b9a63b51d41ca61ae66817c6bb0329ff4586",
+    "tools/swarm/craftsmen/svg_craftsman.py": "7069ba7cfe01ada273bc79168013d8552f28ffe35889c47f0803e40404a71186",
+    "tools/swarm/craftsmen/__init__.py": "ac8c95292b3751055f6555ad30779b7dac6ccf7d4e1ba46e3a049866c7582554"
+  }
+}

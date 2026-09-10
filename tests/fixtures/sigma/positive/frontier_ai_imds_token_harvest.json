@@ -1,0 +1,8 @@
+{
+  "EventID": 1,
+  "UtcTime": "2026-09-05 15:02:00.000",
+  "ParentImage": "/bin/bash",
+  "Image": "/usr/bin/curl",
+  "CommandLine": "curl -s -X PUT http://169.254.169.254/latest/api/token -H \"X-aws-ec2-metadata-token-ttl-seconds: 21600\"",
+  "User": "root"
+}

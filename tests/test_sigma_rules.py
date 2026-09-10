@@ -35,7 +35,7 @@ class SigmaRuleSchemaTests(unittest.TestCase):
 
             # Logsource
             self.assertEqual(rule.logsource.category, "process_creation")
-            self.assertEqual(rule.logsource.product, "windows")
+            self.assertIn(rule.logsource.product, ["windows", "macos", "linux", "aws"])
 
             # Severity and Status
             self.assertIn(str(rule.level.name).lower(), ["low", "medium", "high", "critical"])
@@ -128,6 +128,20 @@ class SigmaRuleFixtureRegressionTests(unittest.TestCase):
                 "clickfix_powershell_encoded.json",
                 "clickfix_powershell_irm_iex.json",
                 "clickfix_powershell_webclient_hidden.json",
+            ],
+            "proc_creation_macos_dev_credential_theft.yml": [
+                "contagious_interview_node_aws_creds.json",
+                "contagious_interview_python_ssh_keys.json",
+            ],
+            "proc_creation_cloud_imds_checkpoint_exfiltration.yml": [
+                "frontier_ai_imds_token_harvest.json",
+                "frontier_ai_s3_weight_multipart_exfil.json",
+            ],
+            "proc_creation_agent_runtime_unpinned_tool_execution.yml": [
+                "agent_claude_npx_unpinned.json",
+            ],
+            "proc_creation_agent_alien_runtime_bun_infostealer.yml": [
+                "agent_alien_bun_temp_exec.json",
             ],
         }
 

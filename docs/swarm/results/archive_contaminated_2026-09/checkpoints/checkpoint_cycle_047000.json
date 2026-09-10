@@ -1,0 +1,71 @@
+{
+  "status": "RUNNING",
+  "start_time": "2026-09-05T08:36:17.440917+00:00",
+  "last_heartbeat": "2026-09-05T13:18:03.561401+00:00",
+  "elapsed_seconds": 16906.1,
+  "total_cycles": 47000,
+  "probes_evaluated": 1826697,
+  "critic_approved": 1826697,
+  "critic_blocked": 0,
+  "critic_approval_rate": 1.0,
+  "true_positives": 211940,
+  "evasion_gaps": 30882,
+  "resilience_rate": 0.116,
+  "campaigns_evaluated": 7833,
+  "campaign_containment_rate": 1.0,
+  "average_depth_of_defense": 0.945,
+  "graph_walks_evaluated": 7834,
+  "average_mttd_seconds": 0.0,
+  "telemetry_replays_evaluated": 7833,
+  "noise_benchmarks_evaluated": 7833,
+  "cluster_breakdown": {
+    "Cluster A: LOLBin & Process Proxying": 7039,
+    "Cluster B: Argument Masking & Parameter Aliasing": 1760,
+    "Cluster C: Parser Differentials & Offset Padding": 6417,
+    "Cluster D: Sensor Blinding & Telemetry Tampering": 0
+  },
+  "current_pattern_suite": "DAG State Machine Correlation Walk (Epic 2)",
+  "recent_findings": [
+    {
+      "variant_id": "proc-78149d11",
+      "target_type": "sigma",
+      "mutation_name": "endurance_conhost",
+      "detected": false,
+      "cluster": "Cluster A: LOLBin & Process Proxying",
+      "timestamp": "2026-09-05T13:17:58.892880+00:00"
+    },
+    {
+      "variant_id": "svg-92f0ae7f",
+      "target_type": "yara",
+      "mutation_name": "endurance_smil_animate_href_pad_4500",
+      "detected": false,
+      "cluster": "Cluster C: Parser Differentials & Offset Padding",
+      "timestamp": "2026-09-05T13:17:59.595682+00:00"
+    },
+    {
+      "variant_id": "proc-47a61f2d",
+      "target_type": "sigma",
+      "mutation_name": "endurance_certutil",
+      "detected": true,
+      "cluster": "Cluster A: LOLBin & Process Proxying",
+      "timestamp": "2026-09-05T13:18:01.050145+00:00"
+    },
+    {
+      "variant_id": "svg-dbbacb31",
+      "target_type": "yara",
+      "mutation_name": "endurance_foreignObject_meta_refresh_pad_4500",
+      "detected": false,
+      "cluster": "Cluster C: Parser Differentials & Offset Padding",
+      "timestamp": "2026-09-05T13:18:01.752609+00:00"
+    },
+    {
+      "variant_id": "proc-1fba21ee",
+      "target_type": "sigma",
+      "mutation_name": "endurance_pcalua",
+      "detected": false,
+      "cluster": "Cluster A: LOLBin & Process Proxying",
+      "timestamp": "2026-09-05T13:18:03.209746+00:00"
+    }
+  ],
+  "stop_signal_file": "C:\\Users\\kyler\\Projects\\threat-detection-lab\\docs\\swarm\\results\\STOP_ENDURANCE"
+}

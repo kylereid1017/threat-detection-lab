@@ -1,0 +1,65 @@
+title: Unpinned Dynamic Tool Execution Spawned by AI Agent Runtime
+name: agent_runtime_unpinned_tool_execution
+id: c7b2e1f4-3d6a-4c89-9a25-8e1f0b7c4d32
+status: experimental
+description: >
+    Detects an AI agent runtime (Claude Desktop, Cursor, or electron-based agent host)
+    spawning a dynamic package runner (npx, uvx, pipx, bunx) with unprompted execution flags (-y, --yes).
+    In Model Context Protocol (MCP) environments, dynamic package execution bypasses package-lock
+    integrity verification, executing latest unvetted code and install lifecycle hooks directly from
+    public registries.
+references:
+    - https://modelcontextprotocol.io
+    - https://attack.mitre.org/techniques/T1059/007/
+    - https://attack.mitre.org/techniques/T1195/001/
+author: Kyle Reid
+date: 2026-09-06
+tags:
+    - attack.initial_access
+    - attack.t1195.001
+    - attack.execution
+    - attack.t1059.007
+logsource:
+    category: process_creation
+    product: windows
+telemetry_prerequisites:
+    channel: Microsoft-Windows-Sysmon/Operational or Security
+    event_id: Sysmon Event ID 1 or Security Event ID 4688
+    audit_policy: Process Creation auditing with command-line argument logging enabled.
+    required_fields:
+        - Image
+        - CommandLine
+        - ParentImage
+        - User
+    degradation_mode: >-
+        Without command-line arguments, dynamic execution flags (-y) cannot be identified,
+        blinding this rule entirely. Without parent lineage, tool invocations cannot be separated
+        from ordinary interactive developer package management.
+detection:
+    selection_agent_parent:
+        ParentImage|endswith:
+            - '\Claude.exe'
+            - '\Cursor.exe'
+            - '\electron.exe'
+            - '\agent.exe'
+    selection_dynamic_runner:
+        Image|endswith:
+            - '\npx.cmd'
+            - '\npx.exe'
+            - '\uvx.exe'
+            - '\bunx.exe'
+            - '\pipx.exe'
+    selection_dynamic_flag:
+        CommandLine|contains:
+            - ' -y '
+            - ' --yes '
+            - ' -y'
+    condition: selection_agent_parent and selection_dynamic_runner and selection_dynamic_flag
+fields:
+    - CommandLine
+    - Image
+    - ParentImage
+    - User
+falsepositives:
+    - Legitimate developer prototyping where agent tool configurations have not yet been pinned to local lockfiles.
+level: high

@@ -1,0 +1,65 @@
+title: Package Manager Lifecycle Hook Spawning an Interpreter or Downloader
+name: macos_package_hook_execution
+id: b8e4c7a2-5d31-4f96-8a07-1c3e9d2b6f48
+status: experimental
+description: >
+    Detects a package manager (npm, yarn, pnpm, pip) spawning an interpreter or transfer utility
+    during dependency installation. This is the execution moment of a dependency-based supply chain
+    lure: the developer runs an install, and the manifest's lifecycle hook runs the adversary's code
+    with the developer's identity. On its own the event is not conclusive, because legitimate
+    packages compile native modules during install. It is the first stage of the correlation rule
+    that pairs it with credential access.
+references:
+    - https://www.cisa.gov/news-events/cybersecurity-advisories/aa24-059a
+    - https://attack.mitre.org/techniques/T1195/001/
+author: Kyle Reid
+date: 2026-09-05
+tags:
+    - attack.initial_access
+    - attack.t1195.001
+    - attack.execution
+    - attack.t1059.007
+logsource:
+    category: process_creation
+    product: macos
+telemetry_prerequisites:
+    channel: Endpoint Security Framework (ESF) or Auditd on Linux developer hosts
+    event_id: ES_EVENT_TYPE_NOTIFY_EXEC, or Auditd execve
+    audit_policy: Process creation with full command-line arguments and parent process lineage.
+    required_fields:
+        - Image
+        - CommandLine
+        - ParentImage
+        - User
+    degradation_mode: >-
+        Without parent lineage this rule cannot separate install-time execution from a developer
+        running the same interpreter directly, and it degrades to alerting on ordinary development.
+detection:
+    selection_package_manager_parent:
+        ParentImage|endswith:
+            - '/npm'
+            - '/npx'
+            - '/yarn'
+            - '/pnpm'
+            - '/pip'
+            - '/pip3'
+    selection_spawned_runtime:
+        Image|endswith:
+            - '/node'
+            - '/python'
+            - '/python3'
+            - '/sh'
+            - '/bash'
+            - '/zsh'
+            - '/curl'
+            - '/osascript'
+    condition: selection_package_manager_parent and selection_spawned_runtime
+fields:
+    - CommandLine
+    - Image
+    - ParentImage
+    - User
+falsepositives:
+    - Packages with legitimate native build steps, which are common and make this rule unsuitable
+      as a standalone alert
+level: low

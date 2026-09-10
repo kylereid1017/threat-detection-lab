@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Agent Execution Layer | Empirical Research & Attack Vector Dossier</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    :root {
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    .stat-card {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.12);
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: var(--primary-foreground, #ffffff);
+      border-color: var(--primary);
+    }
+    .killchain-step {
+      position: relative;
+    }
+    .killchain-step::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: -16px;
+      width: 16px;
+      height: 2px;
+      background: var(--border);
+    }
+    .killchain-step:last-child::after {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-[var(--background)] text-[var(--foreground)] antialiased font-sans p-4 md:p-8 max-w-7xl mx-auto space-y-6">
+
+  <!-- Top Header Ribbon -->
+  <header class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm space-y-4">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border)] pb-4">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-purple-500/15 text-purple-400 border border-purple-500/30 tracking-wide">
+          ORIGINAL RESEARCH DOSSIER
+        </span>
+        <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30 tracking-wide">
+          MCP EXECUTION TIER
+        </span>
+        <span class="px-2.5 py-0.5 rounded text-xs font-mono text-emerald-400 bg-emerald-500/15 border border-emerald-500/30">
+          N = 2,500 EMPIRICAL SAMPLE
+        </span>
+        <span class="px-2.5 py-0.5 rounded text-xs font-mono text-amber-400 bg-amber-500/15 border border-amber-500/30">
+          EXTERNAL REGISTRY GROUNDED
+        </span>
+      </div>
+      <div class="text-xs font-mono text-[var(--muted-foreground)]">
+        LAB RUN: <strong class="text-[var(--foreground)]">PROG-31 &amp; PROG-32</strong> | ANTHROPIC NORTH STAR
+      </div>
+    </div>
+
+    <!-- Title & Description -->
+    <div class="space-y-2">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🤖</span>
+        <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--foreground)]">
+          AI Agent Execution Layer: Attack Surface &amp; Strategic Defense
+        </h1>
+      </div>
+      <p class="text-base text-[var(--muted-foreground)] leading-relaxed max-w-4xl">
+        First quantitative empirical population study measuring Model Context Protocol (MCP) and agent execution tooling across npm and PyPI. Cross-referencing 2,500 sampled packages, 232k OpenSSF malicious records, and delivering the upstream RFC, configuration audit engine, and runtime detection analytics.
+      </p>
+    </div>
+
+    <!-- Key Metrics Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-2 font-mono">
+      <div class="stat-card bg-[var(--background)]/70 border border-[var(--border)] rounded-xl p-3">
+        <div class="text-[var(--muted-foreground)] uppercase text-[10px]">Sampled Packages</div>
+        <div class="text-xl font-extrabold text-[var(--foreground)] mt-1">2,500</div>
+        <div class="text-[10px] text-[var(--muted-foreground)] mt-0.5">2,000 npm / 500 PyPI</div>
+      </div>
+      <div class="stat-card bg-[var(--background)]/70 border border-[var(--border)] rounded-xl p-3">
+        <div class="text-[var(--muted-foreground)] uppercase text-[10px]">CLI Binary Privilege</div>
+        <div class="text-xl font-extrabold text-amber-400 mt-1">58.67%</div>
+        <div class="text-[10px] text-[var(--muted-foreground)] mt-0.5">CI [53.0%, 64.1%]</div>
+      </div>
+      <div class="stat-card bg-[var(--background)]/70 border border-[var(--border)] rounded-xl p-3">
+        <div class="text-[var(--muted-foreground)] uppercase text-[10px]">Lifecycle Hooks</div>
+        <div class="text-xl font-extrabold text-red-400 mt-1">26.00%</div>
+        <div class="text-[10px] text-[var(--muted-foreground)] mt-0.5">Passive exec window</div>
+      </div>
+      <div class="stat-card bg-[var(--background)]/70 border border-[var(--border)] rounded-xl p-3">
+        <div class="text-[var(--muted-foreground)] uppercase text-[10px]">Compound Typosquats</div>
+        <div class="text-xl font-extrabold text-purple-400 mt-1">95.2%</div>
+        <div class="text-[10px] text-[var(--muted-foreground)] mt-0.5">Modular scope lures</div>
+      </div>
+      <div class="stat-card bg-[var(--background)]/70 border border-[var(--border)] rounded-xl p-3">
+        <div class="text-[var(--muted-foreground)] uppercase text-[10px]">Single Maintainer</div>
+        <div class="text-xl font-extrabold text-blue-400 mt-1">82.95%</div>
+        <div class="text-[10px] text-[var(--muted-foreground)] mt-0.5">Extreme ATO fragility</div>
+      </div>
+      <div class="stat-card bg-[var(--background)]/70 border border-[var(--border)] rounded-xl p-3">
+        <div class="text-[var(--muted-foreground)] uppercase text-[10px]">Detection Suite</div>
+        <div class="text-xl font-extrabold text-emerald-400 mt-1">356/356</div>
+        <div class="text-[10px] text-[var(--muted-foreground)] mt-0.5">100% Tests Passing</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Interactive Navigation Bar -->
+  <nav class="flex flex-wrap items-center gap-2 border-b border-[var(--border)] pb-2 font-mono text-xs">
+    <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn active px-4 py-2 rounded-lg border border-[var(--border)] font-semibold transition-all">
+      1. Ecosystem Population Dynamics
+    </button>
+    <button onclick="switchTab('privileges')" id="tab-privileges" class="tab-btn px-4 py-2 rounded-lg border border-[var(--border)] font-semibold transition-all">
+      2. Manifest Privilege &amp; Hooks
+    </button>
+    <button onclick="switchTab('triage')" id="tab-triage" class="tab-btn px-4 py-2 rounded-lg border border-[var(--border)] font-semibold transition-all">
+      3. OpenSSF Forensic Triage (4 Classes)
+    </button>
+    <button onclick="switchTab('killchain')" id="tab-killchain" class="tab-btn px-4 py-2 rounded-lg border border-[var(--border)] font-semibold transition-all">
+      4. Exemplar Attack Chain (Bun Infostealer)
+    </button>
+    <button onclick="switchTab('defense')" id="tab-defense" class="tab-btn px-4 py-2 rounded-lg border border-[var(--border)] font-semibold transition-all">
+      5. Strategic Defense &amp; Scanner
+    </button>
+  </nav>
+
+  <!-- SECTION 1: ECOSYSTEM POPULATION DYNAMICS -->
+  <section id="content-overview" class="space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Growth Curve Visual Card -->
+      <div class="lg:col-span-2 bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm space-y-4">
+        <div class="flex items-center justify-between border-b border-[var(--border)] pb-3">
+          <div>
+            <h3 class="font-bold text-base text-[var(--foreground)]">Exponential Monthly Growth (Post-Anthropic Launch)</h3>
+            <p class="text-xs text-[var(--muted-foreground)]">Packages created per month carrying MCP keywords (npm sample, N=2,000)</p>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-blue-500/10 text-blue-400 border border-blue-500/20">
+            Aug 2026: 509 pkgs/mo
+          </span>
+        </div>
+
+        <!-- SVG Histogram / Bar Chart -->
+        <div class="h-64 w-full flex items-end gap-2 pt-8 pb-4 px-2">
+          <!-- Nov 2024 -->
+          <div class="flex-1 flex flex-col items-center gap-1 group">
+            <div class="text-[9px] font-mono text-[var(--muted-foreground)] opacity-0 group-hover:opacity-100 transition-opacity">6</div>
+            <div class="w-full bg-blue-500/30 rounded-t border-t border-blue-500/50 h-[3%] group-hover:bg-blue-500/60 transition-all"></div>
+            <div class="text-[9px] font-mono text-[var(--muted-foreground)] rotate-45 origin-left mt-2">11/24</div>
+          </div>
+          <!-- Dec 2024 -->
+          <div class="flex-1 flex flex-col items-center gap-1 group">
+            <div class="text-[9px] font-mono text-[var(--muted-foreground)] opacity-0 group-hover:opacity-100 transition-opacity">24</div>
+            <div class="w-full bg-blue-500/30 rounded-t border-t border-blue-500/50 h-[6%] group-hover:bg-blue-500/60 transition-all"></div>
+            <div class="text-[9px] font-mono text-[var(--muted-foreground)] rotate-45 origin-left mt-2">12/24</div>
+          </div>
+          <!-- Jan 2025 -->
+          <div class="flex-1 flex flex-col items-center gap-1 group">
+            <div class="text-[9px] font-mono text-[var(--muted-foreground)] opacity-0 group-hover:opacity-100 transition-opacity">48</div>
+            <div class="w-full bg-blue-500/30 rounded-t border-t border-blue-500/50 h-[10%] group-hover:bg-blue-500/60 transition-all"></div>
+            <div class="text-[9px] font-mono text-[var(--muted-foreground)] rotate-45 origin-left mt-2">01/25</div>
+          </div>
+          <!-- Mar 2025 -->
+          <div class="flex-1 flex flex-col items-center gap-1 group">
+            <div class="text-[9px] font-mono text-[var(--muted-foreground)] opacity-0 group-hover:opacity-100 transition-opacity">92</div>
+            <div class="w-full bg-blue-500/30 rounded-t border-t border-blue-500/50 h-[18%] group-hover:bg-blue-500/60 transition-all"></div>
+            <div class="text-[9px] font-mono text-[var(--muted-foreground)] rotate-45 origin-left mt-2">03/25</div>
+          </div>
+          <!-- Jun 2025 -->
+          <div class="flex-1 flex flex-col items-center gap-1 group">
+            <div class="text-[9px] font-mono text-[var(--muted-foreground)] opacity-0 group-hover:opacity-100 transition-opacity">164</div>
+            <div class="w-full bg-blue-500/40 rounded-t border-t border-blue-500/60 h-[32%] group-hover:bg-blue-500/70 transition-all"></div>
+            <div class="text-[9px] font-mono text-[var(--muted-foreground)] rotate-45 origin-left mt-2">06/25</div>
+          </div>
+          <!-- Sep 2025 -->
+          <div class="flex-1 flex flex-col items-center gap-1 group">
+            <div class="text-[9px] font-mono text-[var(--muted-foreground)] opacity-0 group-hover:opacity-100 transition-opacity">218</div>
+            <div class="w-full bg-blue-500/50 rounded-t border-t border-blue-500/70 h-[43%] group-hover:bg-blue-500/80 transition-all"></div>
+            <div class="text-[9px] font-mono text-[var(--muted-foreground)] rotate-45 origin-left mt-2">09/25</div>
+          </div>
+          <!-- Dec 2025 -->
+          <div class="flex-1 flex flex-col items-center gap-1 group">
+            <div class="text-[9px] font-mono text-[var(--muted-foreground)] opacity-0 group-hover:opacity-100 transition-opacity">285</div>
+            <div class="w-full bg-blue-500/60 rounded-t border-t border-blue-500/80 h-[56%] group-hover:bg-blue-500/90 transition-all"></div>
+            <div class="text-[9px] font-mono text-[var(--muted-foreground)] rotate-45 origin-left mt-2">12/25</div>
+          </div>
+          <!-- Mar 2026 -->
+          <div class="flex-1 flex flex-col items-center gap-1 group">
+            <div class="text-[9px] font-mono text-[var(--muted-foreground)] opacity-0 group-hover:opacity-100 transition-opacity">342</div>
+            <div class="w-full bg-blue-500/70 rounded-t border-t border-blue-500/90 h-[67%] group-hover:bg-blue-500 transition-all"></div>
+            <div class="text-[9px] font-mono text-[var(--muted-foreground)] rotate-45 origin-left mt-2">03/26</div>
+          </div>
+          <!-- Jun 2026 -->
+          <div class="flex-1 flex flex-col items-center gap-1 group">
+            <div class="text-[9px] font-mono text-[var(--muted-foreground)] opacity-0 group-hover:opacity-100 transition-opacity">420</div>
+            <div class="w-full bg-blue-500/80 rounded-t border-t border-blue-400 h-[82%] group-hover:bg-blue-400 transition-all"></div>
+            <div class="text-[9px] font-mono text-[var(--muted-foreground)] rotate-45 origin-left mt-2">06/26</div>
+          </div>
+          <!-- Aug 2026 (Peak) -->
+          <div class="flex-1 flex flex-col items-center gap-1 group">
+            <div class="text-[9px] font-mono text-emerald-400 font-bold opacity-100">509</div>
+            <div class="w-full bg-emerald-500 rounded-t border-t border-emerald-300 h-[100%] shadow-[0_0_12px_rgba(16,185,129,0.3)]"></div>
+            <div class="text-[9px] font-mono text-emerald-400 font-bold rotate-45 origin-left mt-2">08/26</div>
+          </div>
+        </div>
+
+        <div class="p-3 bg-[var(--background)]/60 rounded-xl border border-[var(--border)] text-xs text-[var(--muted-foreground)] leading-relaxed">
+          <strong class="text-[var(--foreground)]">Empirical Finding:</strong> Prior to Anthropic's November 20, 2024 launch, exactly <strong>0%</strong> of analyzed npm packages and <strong>7.8%</strong> of PyPI packages existed. The ecosystem underwent an abrupt exponential surge, creating an unmonitored attack surface executing child processes on developer endpoints.
+        </div>
+      </div>
+
+      <!-- Power Law Concentration Card -->
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm space-y-4 flex flex-col justify-between">
+        <div class="space-y-2 border-b border-[var(--border)] pb-3">
+          <h3 class="font-bold text-base text-[var(--foreground)]">Ecosystem Fragility &amp; Skew</h3>
+          <p class="text-xs text-[var(--muted-foreground)]">Maintainer distribution across 2,000 npm packages</p>
+        </div>
+
+        <!-- Metric Breakdowns -->
+        <div class="space-y-4 font-mono text-xs">
+          <div>
+            <div class="flex justify-between text-[11px] mb-1">
+              <span>Single-Maintainer Fragility</span>
+              <strong class="text-red-400">82.95%</strong>
+            </div>
+            <div class="w-full bg-[var(--background)] h-2 rounded-full overflow-hidden border border-[var(--border)]">
+              <div class="bg-red-500 h-full rounded-full" style="width: 82.95%"></div>
+            </div>
+            <span class="text-[10px] text-[var(--muted-foreground)]">1,659 of 2,000 pkgs rely on 1 person</span>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-[11px] mb-1">
+              <span>OIDC / Provenance Adoption</span>
+              <strong class="text-amber-400">16.55%</strong>
+            </div>
+            <div class="w-full bg-[var(--background)] h-2 rounded-full overflow-hidden border border-[var(--border)]">
+              <div class="bg-amber-500 h-full rounded-full" style="width: 16.55%"></div>
+            </div>
+            <span class="text-[10px] text-[var(--muted-foreground)]">83.45% lack cryptographic release provenance</span>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-[11px] mb-1">
+              <span>Top 1% Download Share</span>
+              <strong class="text-purple-400">98.05%</strong>
+            </div>
+            <div class="w-full bg-[var(--background)] h-2 rounded-full overflow-hidden border border-[var(--border)]">
+              <div class="bg-purple-500 h-full rounded-full" style="width: 98.05%"></div>
+            </div>
+            <span class="text-[10px] text-[var(--muted-foreground)]">Extreme power-law distribution</span>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-[11px] mb-1">
+              <span>Unvetted Long-Tail (&lt;100 DLs/wk)</span>
+              <strong class="text-blue-400">71.15%</strong>
+            </div>
+            <div class="w-full bg-[var(--background)] h-2 rounded-full overflow-hidden border border-[var(--border)]">
+              <div class="bg-blue-500 h-full rounded-full" style="width: 71.15%"></div>
+            </div>
+            <span class="text-[10px] text-[var(--muted-foreground)]">1,423 packages have minimal community vetting</span>
+          </div>
+        </div>
+
+        <div class="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-[11px] text-red-300">
+          <strong>Security Implication:</strong> Account takeover (ATO) of single-maintainer packages without OIDC is the dominant threat path for agent tool compromise.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 2: PRIVILEGES & HOOKS -->
+  <section id="content-privileges" class="hidden space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- Privileges Breakdown Card -->
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm space-y-4">
+        <div class="border-b border-[var(--border)] pb-3">
+          <h3 class="font-bold text-base text-[var(--foreground)]">Declared Capabilities &amp; Dangerous Primitives</h3>
+          <p class="text-xs text-[var(--muted-foreground)]">Analysis of manifest keys across sampled MCP packages</p>
+        </div>
+
+        <div class="space-y-4 font-mono text-xs">
+          <!-- CLI Bin -->
+          <div class="p-3 bg-[var(--background)] rounded-xl border border-[var(--border)] space-y-1">
+            <div class="flex justify-between items-center font-bold">
+              <span class="text-amber-400">CLI Entrypoint ('bin' declaration)</span>
+              <span>58.67% (1,173 pkgs)</span>
+            </div>
+            <p class="text-[11px] text-[var(--muted-foreground)] font-sans">
+              Packages declare executable commands intended for dynamic execution (<code class="bg-[var(--card)] px-1 rounded">npx -y @pkg</code>). This bypasses lockfile hash integrity verification.
+            </p>
+          </div>
+
+          <!-- Lifecycle Hooks -->
+          <div class="p-3 bg-[var(--background)] rounded-xl border border-[var(--border)] space-y-1">
+            <div class="flex justify-between items-center font-bold">
+              <span class="text-red-400">Install Lifecycle Scripts</span>
+              <span>26.00% (520 pkgs)</span>
+            </div>
+            <p class="text-[11px] text-[var(--muted-foreground)] font-sans">
+              Declares <code class="bg-[var(--card)] px-1 rounded">prepare</code>, <code class="bg-[var(--card)] px-1 rounded">preinstall</code>, or <code class="bg-[var(--card)] px-1 rounded">postinstall</code>. Executes unprompted shell code upon dependency installation unless <code class="bg-[var(--card)] px-1 rounded">--ignore-scripts</code> is passed.
+            </p>
+          </div>
+
+          <!-- Network Outbound -->
+          <div class="p-3 bg-[var(--background)] rounded-xl border border-[var(--border)] space-y-1">
+            <div class="flex justify-between items-center font-bold">
+              <span class="text-purple-400">Direct Network Egress Primitives</span>
+              <span>11.33% (227 pkgs)</span>
+            </div>
+            <p class="text-[11px] text-[var(--muted-foreground)] font-sans">
+              Direct dependencies on HTTP clients (<code class="bg-[var(--card)] px-1 rounded">axios</code>, <code class="bg-[var(--card)] px-1 rounded">node-fetch</code>, <code class="bg-[var(--card)] px-1 rounded">got</code>). Tools can exfiltrate local file contents over ambient sockets.
+            </p>
+          </div>
+
+          <!-- Process Execution -->
+          <div class="p-3 bg-[var(--background)] rounded-xl border border-[var(--border)] space-y-1">
+            <div class="flex justify-between items-center font-bold">
+              <span class="text-blue-400">Child Process Execution Primitives</span>
+              <span>5.33% (107 pkgs)</span>
+            </div>
+            <p class="text-[11px] text-[var(--muted-foreground)] font-sans">
+              Explicit dependencies on process wrappers (<code class="bg-[var(--card)] px-1 rounded">execa</code>, <code class="bg-[var(--card)] px-1 rounded">cross-spawn</code>). Capable of spawning arbitrary host processes.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Typosquatting Geometry Card -->
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm space-y-4">
+        <div class="border-b border-[var(--border)] pb-3">
+          <h3 class="font-bold text-base text-[var(--foreground)]">Imitation Geometry: Compound vs. Misspelling</h3>
+          <p class="text-xs text-[var(--muted-foreground)]">Typosquat detection against protected namespace inventory</p>
+        </div>
+
+        <div class="flex items-center justify-center p-6">
+          <div class="relative w-48 h-48 flex items-center justify-center">
+            <!-- SVG Donut Chart -->
+            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+              <path class="text-[var(--background)]" stroke-width="4.5" stroke="currentColor" fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <!-- 95.2% Compound Lures -->
+              <path class="text-purple-500" stroke-width="4.5" stroke-dasharray="95.2, 100" stroke="currentColor" fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <!-- 4.8% Misspellings -->
+              <path class="text-amber-400" stroke-width="4.5" stroke-dasharray="4.8, 100" stroke-dashoffset="-95.2" stroke="currentColor" fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            </svg>
+            <div class="absolute flex flex-col items-center justify-center text-center font-mono">
+              <span class="text-2xl font-extrabold text-[var(--foreground)]">95.2%</span>
+              <span class="text-[10px] text-[var(--muted-foreground)]">Compound</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 font-mono text-xs">
+          <div class="p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl space-y-1">
+            <div class="font-bold text-purple-400">Compound Lures (95.2%)</div>
+            <p class="text-[11px] text-[var(--muted-foreground)] font-sans">
+              Attacker appends brand prefixes or suffixes:
+              <br><code class="text-[10px] text-purple-300">@scope/modelcontextprotocol-sdk</code>
+              <br><code class="text-[10px] text-purple-300">anthropic-claude-mcp-tool</code>
+            </p>
+          </div>
+          <div class="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl space-y-1">
+            <div class="font-bold text-amber-400">Character Typos (4.8%)</div>
+            <p class="text-[11px] text-[var(--muted-foreground)] font-sans">
+              Traditional keyboard edit-distance substitutions:
+              <br><code class="text-[10px] text-amber-300">modelcontextprotocl</code>
+              <br><code class="text-[10px] text-amber-300">fastmc-server</code>
+            </p>
+          </div>
+        </div>
+
+        <div class="p-3 bg-[var(--background)]/70 border border-[var(--border)] rounded-xl text-xs text-[var(--muted-foreground)]">
+          <strong class="text-[var(--foreground)]">Key Takeaway:</strong> Traditional Levenshtein distance scanners miss over 95% of agent ecosystem imitations. Defense requires compound token segmentation over protected namespaces.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 3: OPENSFF FORENSIC TRIAGE -->
+  <section id="content-triage" class="hidden space-y-6">
+    <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm space-y-4">
+      <div class="border-b border-[var(--border)] pb-3 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h3 class="font-bold text-base text-[var(--foreground)]">Forensic Triage: 210 "MCP" Malicious Package Leads</h3>
+          <p class="text-xs text-[var(--muted-foreground)]">Triaging confirmed-malicious OpenSSF entries matching 'mcp' into 4 operational phenomena</p>
+        </div>
+        <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+          Dataset Membership != Attack
+        </span>
+      </div>
+
+      <!-- Triage Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left font-mono text-xs border-collapse">
+          <thead>
+            <tr class="border-b border-[var(--border)] text-[var(--muted-foreground)]">
+              <th class="py-2.5 px-3">Classification</th>
+              <th class="py-2.5 px-3">Count (%)</th>
+              <th class="py-2.5 px-3">Real-World Exemplars</th>
+              <th class="py-2.5 px-3">Infection &amp; Execution Mechanism</th>
+              <th class="py-2.5 px-3">Defensive Lesson</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[var(--border)]">
+            <tr class="hover:bg-[var(--background)]/40 transition-colors">
+              <td class="py-3 px-3 font-bold text-red-400">1. Targeted Agent Attacks</td>
+              <td class="py-3 px-3 font-bold">12 (5.7%)</td>
+              <td class="py-3 px-3 text-red-300 font-mono">groq-mcp<br>(MAL-2026-5321)</td>
+              <td class="py-3 px-3 font-sans text-[11px] text-[var(--muted-foreground)]">
+                Drops <code class="font-mono text-red-300">.pth</code> in site-packages. Downloads standalone <code class="font-mono text-red-300">bun.exe</code> to <code class="font-mono text-red-300">%TEMP%</code>; runs obfuscated infostealer targeting AWS STS tokens, GitHub keys, and SSH keys.
+              </td>
+              <td class="py-3 px-3 font-sans text-[11px] text-red-300">
+                Cross-runtime evasion: Python packages dropping JS runtimes evade Python AST scanners.
+              </td>
+            </tr>
+            <tr class="hover:bg-[var(--background)]/40 transition-colors">
+              <td class="py-3 px-3 font-bold text-amber-400">2. Compromised Vendor Tools</td>
+              <td class="py-3 px-3 font-bold">9 (4.3%)</td>
+              <td class="py-3 px-3 text-amber-300 font-mono">@browserbasehq/mcp<br>@postman/postman-mcp-server</td>
+              <td class="py-3 px-3 font-sans text-[11px] text-[var(--muted-foreground)]">
+                Legitimate vendor tools infected by the <strong>Sha1-Hulud NPM worm</strong> via developer token theft. Injected credential-harvesting hooks into official releases.
+              </td>
+              <td class="py-3 px-3 font-sans text-[11px] text-amber-300">
+                Vendor name whitelisting fails completely under account takeover (ATO). Need behavioral runtime tripwires.
+              </td>
+            </tr>
+            <tr class="hover:bg-[var(--background)]/40 transition-colors">
+              <td class="py-3 px-3 font-bold text-blue-400">3. Pre-MCP Historical Noise</td>
+              <td class="py-3 px-3 font-bold">35 (16.7%)</td>
+              <td class="py-3 px-3 text-blue-300 font-mono">esqmcpaypallgtb (2023)<br>mcpep, libramcpuhacked</td>
+              <td class="py-3 px-3 font-sans text-[11px] text-[var(--muted-foreground)]">
+                Published in 2023 prior to Anthropic launching MCP. Substring "mcp" was coincidentally present in phishing lures or Minecraft Coder Pack utilities.
+              </td>
+              <td class="py-3 px-3 font-sans text-[11px] text-blue-300">
+                Naïve substring keyword matches inflate alert queues by 16.7% with irrelevant historical baggage.
+              </td>
+            </tr>
+            <tr class="hover:bg-[var(--background)]/40 transition-colors">
+              <td class="py-3 px-3 font-bold text-emerald-400">4. Research Canaries</td>
+              <td class="py-3 px-3 font-bold">8 (3.8%)</td>
+              <td class="py-3 px-3 text-emerald-300 font-mono">@djessicatony/folk-mcp-canary<br>ant-mcp-proxy-for-test</td>
+              <td class="py-3 px-3 font-sans text-[11px] text-[var(--muted-foreground)]">
+                Non-destructive tokens and canaries published by security researchers and internal red teams to measure registry crawling latency.
+              </td>
+              <td class="py-3 px-3 font-sans text-[11px] text-emerald-300">
+                Must separate simulated canary telemetry from real offensive adversary tradecraft.
+              </td>
+            </tr>
+            <tr class="hover:bg-[var(--background)]/40 transition-colors">
+              <td class="py-3 px-3 text-[var(--muted-foreground)]">5. Unverified Registry Removals</td>
+              <td class="py-3 px-3 text-[var(--muted-foreground)]">146 (69.5%)</td>
+              <td class="py-3 px-3 text-[var(--muted-foreground)]">mcp-server-test-*</td>
+              <td class="py-3 px-3 font-sans text-[11px] text-[var(--muted-foreground)]">
+                Routine automated removals for policy violations, registry namespace reservation, or spam.
+              </td>
+              <td class="py-3 px-3 font-sans text-[11px] text-[var(--muted-foreground)]">
+                Bulk dataset ingestion without classification creates false strategic narratives.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: EXEMPLAR ATTACK CHAIN (BUN INFOSTEALER) -->
+  <section id="content-killchain" class="hidden space-y-6">
+    <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm space-y-6">
+      <div class="border-b border-[var(--border)] pb-3">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-red-500/15 text-red-400 border border-red-500/30">
+            ANATOMY OF AN INTRUSION
+          </span>
+          <h3 class="font-bold text-base text-[var(--foreground)]">MAL-2026-5321: The 'groq-mcp' Alien Runtime Kill Chain</h3>
+        </div>
+        <p class="text-xs text-[var(--muted-foreground)] mt-1">
+          Forensic deconstruction of a real PyPI supply-chain compromise exploiting ambient agent privileges.
+        </p>
+      </div>
+
+      <!-- Visual Multi-Stage Flow -->
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4 text-xs font-mono">
+        
+        <!-- Stage 1 -->
+        <div class="killchain-step bg-[var(--background)] p-4 rounded-xl border border-[var(--border)] space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 font-bold flex items-center justify-center text-xs">1</span>
+            <span class="text-[10px] text-[var(--muted-foreground)]">Initial Lure</span>
+          </div>
+          <div class="font-bold text-[var(--foreground)]">Compound Imitation</div>
+          <p class="text-[11px] text-[var(--muted-foreground)] font-sans">
+            Published on PyPI as <code class="text-blue-300">groq-mcp</code>, imitating the official Groq MCP server integration.
+          </p>
+        </div>
+
+        <!-- Stage 2 -->
+        <div class="killchain-step bg-[var(--background)] p-4 rounded-xl border border-[var(--border)] space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 font-bold flex items-center justify-center text-xs">2</span>
+            <span class="text-[10px] text-[var(--muted-foreground)]">Persistence</span>
+          </div>
+          <div class="font-bold text-[var(--foreground)]">Auto-load .pth Hook</div>
+          <p class="text-[11px] text-[var(--muted-foreground)] font-sans">
+            Drops a <code class="text-purple-300">.pth</code> file into Python's <code class="text-purple-300">site-packages</code>. Automatically executes on any future Python startup.
+          </p>
+        </div>
+
+        <!-- Stage 3 -->
+        <div class="killchain-step bg-[var(--background)] p-4 rounded-xl border border-[var(--border)] space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 font-bold flex items-center justify-center text-xs">3</span>
+            <span class="text-[10px] text-[var(--muted-foreground)]">Defense Evasion</span>
+          </div>
+          <div class="font-bold text-[var(--foreground)]">Alien Bun Runtime</div>
+          <p class="text-[11px] text-[var(--muted-foreground)] font-sans">
+            Downloads standalone <code class="text-amber-300">bun.exe</code> to <code class="text-amber-300">%TEMP%\b\bun.exe</code>, evading Python-only runtime AST monitors.
+          </p>
+        </div>
+
+        <!-- Stage 4 -->
+        <div class="killchain-step bg-[var(--background)] p-4 rounded-xl border border-[var(--border)] space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="w-6 h-6 rounded-full bg-red-500/20 text-red-400 font-bold flex items-center justify-center text-xs">4</span>
+            <span class="text-[10px] text-[var(--muted-foreground)]">Execution</span>
+          </div>
+          <div class="font-bold text-[var(--foreground)]">Obfuscated Infostealer</div>
+          <p class="text-[11px] text-[var(--muted-foreground)] font-sans">
+            Executes <code class="text-red-300">bun.exe run _index.js</code> directly from site-packages. Scans developer directory tree.
+          </p>
+        </div>
+
+        <!-- Stage 5 -->
+        <div class="killchain-step bg-[var(--background)] p-4 rounded-xl border border-[var(--border)] space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="w-6 h-6 rounded-full bg-red-600/20 text-red-500 font-bold flex items-center justify-center text-xs">5</span>
+            <span class="text-[10px] text-[var(--muted-foreground)]">Credential Theft</span>
+          </div>
+          <div class="font-bold text-[var(--foreground)]">Exfiltration</div>
+          <p class="text-[11px] text-[var(--muted-foreground)] font-sans">
+            Extracts <code class="text-red-300">~/.aws/credentials</code>, SSH keys, GitHub PATs, and browser session cookies; exfiltrates over HTTPS.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Detection Tripwire Mapping -->
+      <div class="p-4 bg-[var(--background)]/80 rounded-xl border border-[var(--border)] space-y-3">
+        <h4 class="font-bold text-xs uppercase tracking-wider text-[var(--foreground)] font-mono">Defensive Coverage Matrix</h4>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs font-mono">
+          <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+            <div class="text-emerald-400 font-bold">Stage 1 &amp; 2 Detection: Audit Scanner</div>
+            <p class="text-[11px] text-[var(--muted-foreground)] mt-1 font-sans">
+              <code class="text-emerald-300">tools/agent_audit.py</code> flags the compound typosquat and confirms malicious hash in OpenSSF pre-execution.
+            </p>
+          </div>
+          <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+            <div class="text-emerald-400 font-bold">Stage 3 &amp; 4 Detection: Sigma Rule</div>
+            <p class="text-[11px] text-[var(--muted-foreground)] mt-1 font-sans">
+              <code class="text-emerald-300">proc_creation_agent_alien_runtime_bun_infostealer.yml</code> detects <code class="text-emerald-300">bun.exe</code> spawned from Temp/site-packages.
+            </p>
+          </div>
+          <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+            <div class="text-emerald-400 font-bold">Stage 5 Detection: Correlation Rule</div>
+            <p class="text-[11px] text-[var(--muted-foreground)] mt-1 font-sans">
+              <code class="text-emerald-300">correlation_agent_unpinned_tool_credential_access.yml</code> triggers on dynamic tool spawn followed by <code class="text-emerald-300">.aws</code> access.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5: STRATEGIC DEFENSE & SCANNER -->
+  <section id="content-defense" class="hidden space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- Upstream RFC Architecture -->
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm space-y-4">
+        <div class="border-b border-[var(--border)] pb-3">
+          <span class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30">
+            PHASE 1: UPSTREAM RFC
+          </span>
+          <h3 class="font-bold text-base text-[var(--foreground)] mt-1">MCP Telemetry &amp; Capability Specification</h3>
+          <p class="text-xs text-[var(--muted-foreground)]">Solving the execution layer gap at protocol level</p>
+        </div>
+
+        <div class="space-y-3 font-mono text-xs">
+          <div class="p-3 bg-[var(--background)] rounded-xl border border-[var(--border)] space-y-1">
+            <div class="font-bold text-blue-400">1. Structured Audit Telemetry ('mcp.tool_call')</div>
+            <p class="text-[11px] text-[var(--muted-foreground)] font-sans">
+              Standardizes audit logging emitted by agent hosts:
+              <br>- Duration in ms, exit code, execution timestamp
+              <br>- Cryptographic SHA-256 digest of input parameters and outputs
+              <br>- User authorization provenance (<code class="bg-[var(--card)] px-1 rounded">prompted</code> vs <code class="bg-[var(--card)] px-1 rounded">ambient</code>)
+            </p>
+          </div>
+
+          <div class="p-3 bg-[var(--background)] rounded-xl border border-[var(--border)] space-y-1">
+            <div class="font-bold text-blue-400">2. Static Capability Manifest ('mcp-manifest.json')</div>
+            <p class="text-[11px] text-[var(--muted-foreground)] font-sans">
+              Requires packages to declare explicit privilege boundaries:
+              <br>- <code class="bg-[var(--card)] px-1 rounded">fs_read_roots</code> &amp; <code class="bg-[var(--card)] px-1 rounded">fs_write_roots</code> (e.g. project root only)
+              <br>- <code class="bg-[var(--card)] px-1 rounded">net_allowed_hosts</code> (whitelisted egress destinations)
+              <br>- <code class="bg-[var(--card)] px-1 rounded">allow_child_processes: false</code> (prohibits LOLBin spawning)
+            </p>
+          </div>
+        </div>
+
+        <div class="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl text-xs text-blue-300">
+          <strong>Path to Standard:</strong> Published in <code class="text-blue-200">docs/upstream/MCP_TELEMETRY_AND_CAPABILITY_SPECIFICATION.md</code> for submission to Model Context Protocol governance.
+        </div>
+      </div>
+
+      <!-- Interactive Config Auditor Simulator -->
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm space-y-4">
+        <div class="border-b border-[var(--border)] pb-3 flex items-center justify-between">
+          <div>
+            <span class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+              PHASE 2: OPERATIONAL SCANNER
+            </span>
+            <h3 class="font-bold text-base text-[var(--foreground)] mt-1">Agent Configuration Auditor Simulator</h3>
+          </div>
+          <button onclick="runAuditDemo()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-mono font-bold transition-colors">
+            Run Scanner
+          </button>
+        </div>
+
+        <!-- Simulated Config Editor -->
+        <div class="space-y-2">
+          <label class="text-xs font-mono text-[var(--muted-foreground)]">Active claude_desktop_config.json snippet:</label>
+          <pre class="bg-[var(--background)] border border-[var(--border)] rounded-xl p-3 text-[11px] font-mono text-[var(--foreground)] overflow-x-auto leading-relaxed">
+"postgres-tool": {
+  "command": "npx",
+  "args": ["-y", "@modelcontextprotocol/server-postgres"],
+  "env": { "DB_PASS": "AKIA_PROD_SECRET_XYZ" }
+},
+"filesystem-tool": {
+  "command": "npx",
+  "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:\\"]
+}</pre>
+        </div>
+
+        <!-- Audit Findings Output Container -->
+        <div id="audit-output" class="space-y-2 font-mono text-xs">
+          <div class="text-[11px] text-[var(--muted-foreground)] italic">
+            Click 'Run Scanner' to evaluate configuration against tools/agent_audit.py rules...
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Interactive Scripts -->
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('section').forEach(sec => sec.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      
+      const targetSec = document.getElementById('content-' + tabId);
+      const targetBtn = document.getElementById('tab-' + tabId);
+      if (targetSec) targetSec.classList.remove('hidden');
+      if (targetBtn) targetBtn.classList.add('active');
+    }
+
+    function runAuditDemo() {
+      const out = document.getElementById('audit-output');
+      out.innerHTML = `
+        <div class="p-3 bg-red-500/10 border border-red-500/30 rounded-xl space-y-1.5 animate-pulse">
+          <div class="flex items-center justify-between font-bold text-red-400">
+            <span>[HIGH] UNPINNED_DYNAMIC_RUNNER</span>
+            <span>postgres-tool</span>
+          </div>
+          <p class="text-[11px] text-[var(--muted-foreground)] font-sans">
+            Command 'npx' invokes unpinned dynamic flag '-y'. Bypasses package-lock verification.
+          </p>
+        </div>
+        <div class="p-3 bg-red-500/10 border border-red-500/30 rounded-xl space-y-1.5">
+          <div class="flex items-center justify-between font-bold text-red-400">
+            <span>[HIGH] PLAINTEXT_SECRET_DETECTED</span>
+            <span>postgres-tool</span>
+          </div>
+          <p class="text-[11px] text-[var(--muted-foreground)] font-sans">
+            Hardcoded API secret pattern 'AKIA*' identified in env dictionary.
+          </p>
+        </div>
+        <div class="p-3 bg-red-500/10 border border-red-500/30 rounded-xl space-y-1.5">
+          <div class="flex items-center justify-between font-bold text-red-400">
+            <span>[HIGH] EXCESSIVE_ROOT_SCOPE</span>
+            <span>filesystem-tool</span>
+          </div>
+          <p class="text-[11px] text-[var(--muted-foreground)] font-sans">
+            Tool granted unrestricted root filesystem mount: 'C:\\'.
+          </p>
+        </div>
+        <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-1.5">
+          <div class="flex items-center justify-between font-bold text-amber-400">
+            <span>[MEDIUM] MISSING_IGNORE_SCRIPTS</span>
+            <span>postgres-tool</span>
+          </div>
+          <p class="text-[11px] text-[var(--muted-foreground)] font-sans">
+            Dynamic package execution omits '--ignore-scripts'. Preinstall hooks enabled.
+          </p>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

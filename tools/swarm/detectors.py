@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import sqlite3
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -14,6 +15,14 @@ from sigma.backends.sqlite import sqliteBackend
 from .models import DetectionResult, Variant
 
 ROOT = Path(__file__).resolve().parents[2]
+
+_RULE_DECLARATION_RE = re.compile(r"(?m)^\s*(?:private\s+|global\s+)*rule\s+([A-Za-z_][A-Za-z0-9_]*)")
+
+
+def _single_rule_name(source: str) -> str | None:
+    """Returns the sole rule name when *source* declares exactly one rule, else None."""
+    names = _RULE_DECLARATION_RE.findall(source)
+    return names[0] if len(names) == 1 else None
 
 
 class BaseDetector(ABC):
@@ -28,31 +37,41 @@ class BaseDetector(ABC):
 class YaraDetector(BaseDetector):
     """Local YARA detection runner."""
 
-    def __init__(self, rule_path: Path | None = None, custom_source: str | None = None) -> None:
+    def __init__(self, rule_path: Path | None = None, custom_source: str | None = None, target_rule_name: str | None = None) -> None:
+        source_text: str | None = None
         if custom_source:
             self.rules = yara.compile(source=custom_source)
             self.rule_path = None
+            source_text = custom_source
         else:
             self.rule_path = rule_path or (ROOT / "rules" / "yara" / "suspicious_active_content_svg.yar")
             self.rules = yara.compile(filepath=str(self.rule_path))
-        self.target_rule_name = "Suspicious_Active_Content_SVG_Attachment"
+            source_text = self.rule_path.read_text(encoding="utf-8")
+        if target_rule_name is None and source_text:
+            target_rule_name = _single_rule_name(source_text)
+        self.target_rule_name = target_rule_name
 
     def evaluate(self, variant: Variant) -> DetectionResult:
         payload_bytes = variant.payload.encode("utf-8") if isinstance(variant.payload, str) else b""
         matches = self.rules.match(data=payload_bytes)
 
-        matched = any(m.rule == self.target_rule_name for m in matches)
+        if self.target_rule_name:
+            matched = any(m.rule == self.target_rule_name for m in matches)
+            active_rule = self.target_rule_name
+        else:
+            matched = len(matches) > 0
+            active_rule = matches[0].rule if matches else "YaraRule"
+
         matched_strings: List[str] = []
         if matched:
             for m in matches:
-                if m.rule == self.target_rule_name:
-                    # Collect matched string identifiers
+                if not self.target_rule_name or m.rule == self.target_rule_name:
                     for s in getattr(m, "strings", []):
                         matched_strings.append(str(s.identifier) if hasattr(s, "identifier") else str(s))
 
         return DetectionResult(
             variant_id=variant.id,
-            rule_name=self.target_rule_name,
+            rule_name=active_rule,
             detected=matched,
             matched_elements=matched_strings,
             details=f"YARA returned {len(matches)} matching rule(s)" if matched else "No YARA match"

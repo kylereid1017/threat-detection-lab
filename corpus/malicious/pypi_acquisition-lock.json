@@ -1,0 +1,11 @@
+{
+  "dataset": "ossf/malicious-packages",
+  "source_url": "https://github.com/ossf/malicious-packages",
+  "license": "Apache-2.0",
+  "ecosystem": "pypi",
+  "retrieval_date": "2026-09-05",
+  "package_count": 11696,
+  "snapshot_file": "pypi_malicious_packages.jsonl",
+  "snapshot_sha256": "d77fc392d4e885e8b8ca8ac1e40a93618bfa1c1a38824b753942ba8b45d1e44c",
+  "content_note": "Package identities and advisory identifiers only. No package contents, archives, or payloads are retrieved or stored by this tool."
+}

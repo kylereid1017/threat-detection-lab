@@ -1,0 +1,11 @@
+{
+  "eventVersion": "1.09",
+  "eventSource": "sts.amazonaws.com",
+  "eventName": "AssumeRole",
+  "awsRegion": "us-east-1",
+  "sourceIPAddress": "203.0.113.47",
+  "userAgent": "aws-cli/2.15.0 Python/3.11.6 Linux/6.1",
+  "userIdentity.type": "AssumedRole",
+  "userIdentity.sessionContext.sessionIssuer.userName": "gpu-node-role",
+  "requestParameters.roleArn": "arn:aws:iam::111122223333:role/dataset-admin"
+}

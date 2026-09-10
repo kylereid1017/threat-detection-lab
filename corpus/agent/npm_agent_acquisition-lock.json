@@ -1,0 +1,15 @@
+{
+  "dataset": "npm-agent-execution-layer",
+  "source_url": "https://registry.npmjs.org",
+  "queries_used": [
+    "modelcontextprotocol"
+  ],
+  "discards_count": 0,
+  "license": "Open Data / Public Registry Metadata",
+  "ecosystem": "npm",
+  "retrieval_date": "2026-09-05",
+  "package_count": 2000,
+  "snapshot_file": "npm_agent_packages.jsonl",
+  "snapshot_sha256": "8dd0248b454acb0ffe3d9bf733b71b47c580395fe5462d7f6e6ee796e1ee6fb9",
+  "content_note": "Agent execution layer package metadata and manifests only. No package payloads, binary blobs, or executable archives are retrieved or stored."
+}
