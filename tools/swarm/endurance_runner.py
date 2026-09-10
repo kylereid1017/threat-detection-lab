@@ -779,11 +779,21 @@ class EnduranceRunner:
         return self.record_writer
 
     def _emit(self, **fields: Any) -> None:
-        """Appends one raw observation record to the run ledger."""
+        """Appends one raw observation record to the run ledger.
+
+        An append failure is never swallowed silently: the run is marked degraded and the error
+        retained, so no later resume or report can present in-memory counters that have drifted
+        from an incomplete ledger as ledger-backed.
+        """
         try:
             self._ensure_writer().append(Observation(run_id=self.run_id, **fields))
         except OSError as exc:
-            logger.warning("Could not append observation record: %s", exc)
+            self.ledger_degraded = True
+            self.ledger_error = f"{type(exc).__name__}: {exc}"
+            logger.error(
+                "LEDGER APPEND FAILED (%s): %s - run marked degraded (ledger_complete=false)",
+                type(exc).__name__, exc,
+            )
 
     def _records_relpath(self) -> str:
         """Repo-relative path of this run's record ledger (for state embedding)."""
@@ -970,6 +980,8 @@ class EnduranceRunner:
 
         state = {
             "status": "RUNNING" if self.running and not self.stop_requested else "STOPPED",
+            "ledger_complete": not getattr(self, "ledger_degraded", False),
+            "ledger_error": getattr(self, "ledger_error", None),
             "start_time": self.start_time.isoformat(),
             "last_heartbeat": now.isoformat(),
             "elapsed_seconds": round(elapsed, 1),

@@ -14,9 +14,10 @@ class SafetyConstraints:
     allowed_tlds: List[str] = field(
         default_factory=lambda: [".invalid", ".example", ".test", ".localhost"]
     )
-    forbid_live_ips: bool = True
-    forbid_binary_payloads: bool = True
-    forbid_real_c2_telemetry: bool = True
+    # Safety is not configurable. Reserved-domain, reserved-address, and binary-payload
+    # enforcement is unconditional in the Critic. Earlier revisions declared
+    # forbid_live_ips / forbid_binary_payloads / forbid_real_c2_telemetry toggles here that no
+    # code read; a toggle that implies an unsafe mode is worse than no toggle, so they are gone.
     max_absolute_cycles: int = 10
     max_absolute_variants_per_cycle: int = 50
 
@@ -28,7 +29,6 @@ class OperatorDirective:
     evasion_axes: List[str] = field(default_factory=list)
     max_cycles: int = 3
     variants_per_cycle: int = 6
-    require_operator_approval: bool = False
     output_dir: Path = field(
         default_factory=lambda: Path(__file__).resolve().parents[2] / "docs" / "swarm" / "results"
     )

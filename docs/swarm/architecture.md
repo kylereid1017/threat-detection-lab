@@ -35,9 +35,10 @@ flowchart TD
     end
 
     subgraph L3 ["Layer 3: Hard Constraints (Immutable)"]
-        H1["RFC 2606 enforcement: all domains MUST end in .invalid, .example, .test, or .localhost"]
-        H2["Routable IPv4/IPv6 addresses strictly rejected by Critic"]
+        H1["RFC 2606/6761 enforcement: domains MUST end in .invalid, .example, .test, or .localhost"]
+        H2["Non-reserved IPv4/IPv6 rejected: loopback, link-local, RFC 1918 private, RFC 4193 ULA and RFC 5737/3849 documentation ranges are permitted"]
         H3["Zero binary executable payloads allowed"]
+        H4["Checked destination forms: explicit URLs, defanged URLs (hxxp/h**p/[.]), UNC paths, and destinations recovered from base64 blobs"]
     end
 
     subgraph L4 ["Layer 4: Full Audit Trail"]
@@ -157,4 +158,5 @@ To add a new evasion axis or target rule:
 * **Bounded vocabulary.** Detection boundaries are mapped only across the mutation classes the craftsmen implement. A gap the harness cannot generate is a gap it cannot count.
 * **Craft-level feedback is not consumed.** The craftsman signatures accept a `feedback` argument for interface stability, but no craftsman reads it (verified by AST inspection in `tests/test_honesty_guards.py`). The loop closes through the deterministic mutation rotation, not through adapter feedback, so "closed-loop adaptation" means re-running the rotation against tuned rules, not per-craft steering.
 * **Keyword-routed objectives.** The prompt interface routes on known keywords. A prompt that names no recognised technique falls through to a generic variant, so the probe is not targeted at what the operator described.
+* **Unparsed destination forms.** The Critic checks explicit URLs, defanged URLs, dotted UNC hosts, and base64-recoverable destinations. A bare scheme-less hostname (indistinguishable from a filename), a dotless NetBIOS UNC name, and encodings other than base64 are **not** parsed; they are gaps, not permitted forms.
 * **No field claim.** Every figure describes this repository's rules under this repository's mutations. It is not prevalence, precision, or evasion resistance in production.
