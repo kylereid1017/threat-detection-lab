@@ -438,6 +438,22 @@ class StrategicSynthesizer:
         pct_c = (cl_c / safe_cl) * 100
         pct_d = (cl_d / safe_cl) * 100
 
+        def _cluster_head(count: int, pct: float) -> str:
+            if cl_total == 0:
+                return "n/a — no recorded evasion observations in window"
+            return f"{count} of {cl_total} recorded evasions — {pct:.1f}%"
+
+        if cl_total:
+            indirection_cell = (
+                f"{pct_a:.1f}% of recorded evasion observations stem from LOLBin proxying; "
+                "attackers intentionally exploit parent-child assumptions in EDR sensors."
+            )
+        else:
+            indirection_cell = (
+                "No recorded evasion observations in this window; the indirection share "
+                "is not measured."
+            )
+
         runs_list = list(records_runs or [])
         runs_str = ", ".join(runs_list) if runs_list else "n/a (boundary-history basis)"
         span_str = f"{span[0][:10]} to {span[1][:10]}" if span is not None else "not recorded"
@@ -453,7 +469,11 @@ class StrategicSynthesizer:
 
         def _stage_str(stage_number: str) -> str:
             value = stage_ratios.get(stage_number)
-            return f"{value:.1%}" if value is not None else "n/a"
+            return f"{value:.1%}" if value is not None else "n/a (not measured)"
+
+        def _stage_evade_str(stage_number: str) -> str:
+            value = stage_ratios.get(stage_number)
+            return f"{1 - value:.1%}" if value is not None else "n/a (not measured)"
 
         replay_frontmatter = ""
         replay_fact_row = ""
@@ -579,7 +599,7 @@ pie title Distribution of {cl_total} Recorded Evasion Observations
 
 *Basis:* per-record cluster tallies — one record per evaded sparring variant, campaign stage, or DAG visit ({cl_total} total). The weighted gap counter ({total_gaps}) additionally includes {total_gaps - cl_total} benchmark and replay misses recorded as aggregates, which carry no per-observation cluster.
 
-### Cluster A: LOLBin & Process Proxy Indirection ({cl_a} of {cl_total} recorded evasions — {pct_a:.1f}%)
+### Cluster A: LOLBin & Process Proxy Indirection ({_cluster_head(cl_a, pct_a)})
 * **Mechanism:** Rather than executing `explorer.exe` $\to$ `powershell.exe` directly, the adversary inserts a legitimate Microsoft-signed proxy binary:
   - `pcalua.exe -a powershell.exe -c "..."` (Program Compatibility Assistant)
   - `wt.exe -w 0 powershell.exe -c "..."` (Windows Terminal Session Manager)
@@ -588,7 +608,7 @@ pie title Distribution of {cl_total} Recorded Evasion Observations
 * **Root Vulnerability:** Point detections that strictly enforce `ParentImage = explorer.exe` and `Image = powershell.exe` fail immediately upon parent-child decoupling.
 * **Mitigation:** Expand child process selection lists to include known execution proxies and implement ancestry-aware process lineage tracking.
 
-### Cluster B: Argument Masking & Parameter Aliasing ({cl_b} of {cl_total} recorded evasions — {pct_b:.1f}%)
+### Cluster B: Argument Masking & Parameter Aliasing ({_cluster_head(cl_b, pct_b)})
 * **Mechanism:** Adversaries mutate command-line syntax to bypass naive string-matching filters:
   - Streaming raw PowerShell commands via standard input: `cmd.exe /c type payload.txt | powershell -` (command-line logging captures only `powershell -`).
   - Abbreviated and integer parameter aliasing: `powershell.exe -w 1` instead of `-windowstyle hidden`.
@@ -596,7 +616,7 @@ pie title Distribution of {cl_total} Recorded Evasion Observations
 * **Root Vulnerability:** Over-reliance on CLI telemetry (Event ID 1 / 4688) with brittle string matches.
 * **Mitigation:** Deploy PowerShell Script Block Logging (**Event ID 4104**) to inspect post-deobfuscated AST tokens at execution time.
 
-### Cluster C: Parser Differentials & Scanning Buffer Limits ({cl_c} of {cl_total} recorded evasions — {pct_c:.1f}%)
+### Cluster C: Parser Differentials & Scanning Buffer Limits ({_cluster_head(cl_c, pct_c)})
 * **Mechanism (Static File / YARA Inspection):**
   - Embedding HTML redirection within XML namespaces: `<foreignObject>` containing `<meta http-equiv="refresh" content="0;url=...">`.
   - SVG SMIL element mutation: `<animate attributeName="href" values="...">` to modify hyperlinks dynamically without `<script>` tokens.
@@ -604,7 +624,7 @@ pie title Distribution of {cl_total} Recorded Evasion Observations
 * **Root Vulnerability:** Static pattern matchers operate on sequential linear byte slices, whereas browser engines construct hierarchical DOM trees and execute recursive event loops.
 * **Mitigation:** Combine YARA static byte inspection with structural AST XML parsers.
 
-### Cluster D: Telemetry Impairment & Anti-Forensics ({cl_d} of {cl_total} recorded evasions — {pct_d:.1f}%)
+### Cluster D: Telemetry Impairment & Anti-Forensics ({_cluster_head(cl_d, pct_d)})
 * **Mechanism:** Proactive execution of sensor-tampering primitives:
   - Event log clearing: `wevtutil.exe cl Security` and `wevtutil.exe cl "Windows PowerShell"`.
   - Realtime protection disabling: `Set-MpPreference -DisableRealtimeMonitoring $true`.
@@ -622,7 +642,7 @@ Adhering to the Sherman Kent doctrine and ICD 203 standards:
 | **Observed Fact** | Harness Resilience Figure | Across {total_evals} self-generated attack variants, baseline single-point detections held at {resilience:.1%}. Internal regression signal, not a field estimate. |
 | **Observed Fact** | Multi-Stage Containment | Across the recorded campaign and walk runs, overall containment was {cont_str}. Containment is defined by the modeled chain; paths outside it are not evaluated. |
 | **Observed Fact** | Critic Safety Gate | {approval_cell} gated proposals approved. Destinations were restricted to RFC 2606 reserved TLDs and routable IPv4/IPv6 literals were rejected; {unclassified} proposal(s) blocked and preserved as unclassified, {errors} errored. |
-{replay_fact_row}| **Analytic Judgment** | Indirection is the Primary Evasion Axis | {pct_a:.1f}% of recorded evasion observations stem from LOLBin proxying; attackers intentionally exploit parent-child assumptions in EDR sensors. |
+{replay_fact_row}| **Analytic Judgment** | Indirection is the Primary Evasion Axis | {indirection_cell} |
 | **Analytic Judgment** | Monolithic Rule Fallacy | Attempting to make a single Sigma rule 100% resilient results in query bloat and catastrophic false-positive spikes. |
 | **Hypothesis** | Turnkey Lure Toolkits | Uniformity in ClickFix lures suggests underground initial-access brokers supply standardized social engineering kits. |
 | **Unknowns** | In-the-Wild Proxy Distribution | The exact market share of `pcalua.exe` vs `wt.exe` across active enterprise breaches remains unquantified outside synthetic testing. |
@@ -635,8 +655,8 @@ Adhering to the Sherman Kent doctrine and ICD 203 standards:
                    THE DETECTION PARADOX & CONVERGENCE
  
  Single-Rule Posture:                  Layered Multi-Stage Posture:
- [Initial Access] ─── {resilience:.1%} Catch      [Stage 1: SVG Ingress]      ─── {resilience:.1%} Intercept
-         │                                       │ ({(total_gaps/total_evals)*100:.1f}% bypass)
+ [Initial Access] ─── {resilience:.1%} Catch      [Stage 1: SVG Ingress]      ─── {_stage_str("1")} Intercept
+         │                                       │ ({_stage_evade_str("1")} evaded)
          ▼ ({(total_gaps/total_evals)*100:.1f}% UNMONITORED                    ▼
    UNCONTAINED BREACH!                 [Stage 2: ClickFix Exec]    ─── {_stage_str("2")} Intercept
                                                  │ (Evasion: pcalua)
@@ -649,6 +669,8 @@ Adhering to the Sherman Kent doctrine and ICD 203 standards:
                                                  ▼
                                        [Overall Intrusion Containment: {cont_str}]
 ```
+
+*Basis:* Right-column stage intercepts are marginal per-stage rates over recorded campaign stage visits (run ledger); the left-column catch rate is the baseline attack-variant resilience over {total_evals} evaluations (§5, Observed Fact) and uses a broader evaluation mix. Stage rates are marginal — not conditional on upstream bypass.
 
 ### 1. Reject the "Perfect Rule" Fallacy
 Security teams frequently spend hundreds of engineering hours attempting to tune a single rule to 99% coverage. The empirical data proves this is counterproductive: closing the final 20% of syntactic permutations in a single rule introduces massive regular expression complexity, increases SIEM compute costs, and dramatically increases false-positive risks on benign administrative scripts.

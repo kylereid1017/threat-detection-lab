@@ -161,8 +161,8 @@ Adhering to the Sherman Kent doctrine and ICD 203 standards:
                    THE DETECTION PARADOX & CONVERGENCE
  
  Single-Rule Posture:                  Layered Multi-Stage Posture:
- [Initial Access] ─── 84.1% Catch      [Stage 1: SVG Ingress]      ─── 84.1% Intercept
-         │                                       │ (15.9% bypass)
+ [Initial Access] ─── 84.1% Catch      [Stage 1: SVG Ingress]      ─── 67.4% Intercept
+         │                                       │ (32.6% evaded)
          ▼ (15.9% UNMONITORED                    ▼
    UNCONTAINED BREACH!                 [Stage 2: ClickFix Exec]    ─── 44.2% Intercept
                                                  │ (Evasion: pcalua)
@@ -175,6 +175,8 @@ Adhering to the Sherman Kent doctrine and ICD 203 standards:
                                                  ▼
                                        [Overall Intrusion Containment: 100.0%]
 ```
+
+*Basis:* Right-column stage intercepts are marginal per-stage rates over recorded campaign stage visits (run ledger); the left-column catch rate is the baseline attack-variant resilience over 20637 evaluations (§5, Observed Fact) and uses a broader evaluation mix. Stage rates are marginal — not conditional on upstream bypass.
 
 ### 1. Reject the "Perfect Rule" Fallacy
 Security teams frequently spend hundreds of engineering hours attempting to tune a single rule to 99% coverage. The empirical data proves this is counterproductive: closing the final 20% of syntactic permutations in a single rule introduces massive regular expression complexity, increases SIEM compute costs, and dramatically increases false-positive risks on benign administrative scripts.
