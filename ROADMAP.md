@@ -1,4 +1,4 @@
-# Portfolio roadmap
+# Roadmap
 
 ## Now: make one detection defensible
 
@@ -35,4 +35,4 @@
 
 ## Not yet
 
-Do not start the enrichment CLI or public-data triage study until the first detection has measured corpus results and a finished write-up. One defensible artifact is stronger than several scaffolds.
+Do not start the enrichment CLI or public-data triage study until the first detection has measured corpus results and a finished write-up. One finished, measured detection is worth more than several half-built ones.

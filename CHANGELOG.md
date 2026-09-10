@@ -134,7 +134,7 @@ Keep a Changelog; versioning follows SemVer.
 - Benign-corpus baseline: 2,079 Bootstrap Icons v1.13.1 SVGs
   (MIT), 0 false positives.
 - Methodology note with ATT&CK mapping, measured results, and limitations;
-  CONTRIBUTING, SECURITY, and portfolio roadmap documents.
+  CONTRIBUTING, SECURITY, and roadmap documents.
 
 ### Fixed
 - Rule initially required the SVG root at byte 0; now allows an XML

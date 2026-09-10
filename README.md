@@ -1,6 +1,6 @@
 # Threat Detection Lab
 
-A public-safe, test-driven portfolio of detection rules built from public research and synthetic fixtures.
+A public-safe, test-driven lab of detection rules built from public research and synthetic fixtures.
 
 ## Detections
 
@@ -29,7 +29,7 @@ A sandboxed multi-agent testing harness (`tools/swarm/`) implementing a closed f
 - `tests/test_yara_rules.py` — YARA regression tests
 - `tests/test_sigma_rules.py` — Sigma schema validation, regression tests, and SIEM conversion tests
 - `tests/test_swarm.py` — Swarm safety gates, mutators, and orchestration tests
-- `PORTFOLIO_ROADMAP.md` — a small, ordered delivery plan
+- `ROADMAP.md` — a small, ordered delivery plan
 
 ## Run locally
 
@@ -99,7 +99,7 @@ This repository uses public sources, public tools, and inert synthetic fixtures 
 
 ## Status
 
-Experimental. These detections are transparent portfolio exercises, not production security controls. See detection methodology notes for operational assumptions and limitations.
+Experimental. These detections are transparent lab exercises, not production security controls. See detection methodology notes for operational assumptions and limitations.
 
 ## Threat Intelligence & Research
 

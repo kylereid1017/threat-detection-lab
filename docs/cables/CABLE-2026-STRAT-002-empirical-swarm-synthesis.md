@@ -171,7 +171,7 @@ The deployment of autonomous sparring agents paired with automated patch synthes
 
 ## 7. Document Provenance & Master Index Reference
 
-* **Catalog Entry:** Registered in [`docs/cables/INDEX.md`](file:///c:/Users/kyler/Projects/threat-detection-lab/docs/cables/INDEX.md).
+* **Catalog Entry:** Registered in [`docs/cables/INDEX.md`](INDEX.md).
 * **Referenced Rules:**
   - `rules/yara/suspicious_active_content_svg.yar`
   - `rules/sigma/proc_creation_win_explorer_clickfix_execution.yml`
