@@ -110,13 +110,15 @@ class SwarmOrchestrator:
         md_path.write_text(md_content, encoding="utf-8", newline="\n")
 
     def _format_markdown_report(self, b_map: BoundaryMap) -> str:
+        rate = b_map.detection_rate_on_approved
+        rate_str = "n/a (not measured)" if rate is None else f"{rate * 100:.1f}%"
         lines = [
-            f"# Adversarial Swarm Campaign Report — {b_map.target_rule}",
+            f"# Detection Boundary Campaign Report - {b_map.target_rule}",
             "",
             f"**Target Type:** `{b_map.target_type}` | **Cycles Completed:** `{b_map.cycles_completed}`  ",
             f"**Total Variants Generated:** `{b_map.total_generated}` | **Critic Approved:** `{b_map.critic_approved}`  ",
             f"**Detected:** `{b_map.detected_count}` | **Evaded (Gaps Found):** `{b_map.evaded_count}`  ",
-            f"**Rule Resilience Score:** `{b_map.resilience_score * 100:.1f}%`",
+            f"**Detection Rate (Critic-approved variants):** `{rate_str}`",
             "",
             "---",
             "",

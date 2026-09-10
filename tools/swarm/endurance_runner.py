@@ -1040,7 +1040,7 @@ class EnduranceRunner:
                 "critic_approved": approved,
                 "detected_count": counts["detected"],
                 "evaded_count": counts["gaps"],
-                "final_resilience": round(counts["detected"] / approved, 3) if approved > 0 else None,
+                "detection_rate_on_approved": round(counts["detected"] / approved, 3) if approved > 0 else None,
                 "endurance_mode": True,
             }
 

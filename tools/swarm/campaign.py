@@ -163,7 +163,7 @@ class CampaignOrchestrator:
             if not is_gap:
                 completed_stages += 1
 
-            # Autonomous self-healing loop
+            # Rule-patch proposal loop (opt-in via propose_patches)
             if is_gap and self_heal:
                 from .models import BoundaryFinding
                 finding = BoundaryFinding(
@@ -175,7 +175,7 @@ class CampaignOrchestrator:
                     evasion_gap_found=True,
                     root_cause=f"Variant bypassed rule {cfg['rule_name']}",
                     policy_recommendation=f"Tune detection {cfg['rule_name']}",
-                    confidence="HIGH",
+                    confidence="LOW",  # generic attribution: no rule-specific root cause identified
                     cycle=1,
                     variant_id=variant.id,
                 )

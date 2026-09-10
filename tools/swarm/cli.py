@@ -391,14 +391,16 @@ def main() -> int:
             print(f"    [Iter {item['iteration']:02d}] {status} | Axis: {item['axis']:<12} | Resilience: {item['cumulative_resilience']*100:.1f}%")
             print(f"             Prompt: \"{item['prompt']}\"")
             if item.get("healing") and item["healing"].get("healed"):
-                print(f"             [+] SELF-HEALED! Synthesized patch & authored cable: {item['healing']['cable_path']}")
+                print(f"             [+] PATCH VERIFIED - synthesized patch and authored cable: {item['healing']['cable_path']}")
 
         summary = auto_orch.run_autonomous(iterations=args.iterations, on_iteration=on_iter, self_heal=args.self_heal)
-        print("\n[+] Autonomous Sparring Complete!")
+        print("\n[+] Continuous sparring complete.")
         print(f"    - Iterations Run: {summary['iterations_run']}")
         print(f"    - Critic Approved: {summary['critic_approved']}")
         print(f"    - Detected Count: {summary['detected_count']}")
-        print(f"    - Final Resilience Score: {summary['final_resilience'] * 100:.1f}%")
+        rate = summary.get("detection_rate_on_approved")
+        rate_str = "n/a (not measured)" if rate is None else f"{rate * 100:.1f}%"
+        print(f"    - Detection Rate (Critic-approved variants): {rate_str}")
         print(f"    - Saved history to: {args.output_dir / f'boundary_history_{args.target}.json'}")
         return 0
 
@@ -413,7 +415,9 @@ def main() -> int:
     print(f"    - Critic Approved: {boundary_map.critic_approved}")
     print(f"    - Detected: {boundary_map.detected_count}")
     print(f"    - Evaded (Gaps): {boundary_map.evaded_count}")
-    print(f"    - Rule Resilience Score: {boundary_map.resilience_score * 100:.1f}%\n")
+    rate = boundary_map.detection_rate_on_approved
+    rate_str = "n/a (not measured)" if rate is None else f"{rate * 100:.1f}%"
+    print(f"    - Detection Rate (Critic-approved variants): {rate_str}\n")
 
     print("[*] Boundary Findings:")
     for f in boundary_map.findings:

@@ -377,8 +377,12 @@ class CableWriterTests(unittest.TestCase):
                 variant=variant,
                 patch_diff="+ selection_proxy_img:\n+   Image|endswith: ['\\pcalua.exe']",
                 recommendation_id="REC-SIGMA-006",
-                resilience_before=0.60,
-                resilience_after=1.00,
+                verification={
+                    "variant_detected_before": False,
+                    "variant_detected_after": True,
+                    "negative_fixtures_checked": 3,
+                    "negative_fixtures_matched": 0,
+                },
             )
             self.assertTrue(cable_path.exists())
             content = cable_path.read_text(encoding="utf-8")
@@ -479,8 +483,10 @@ class SwarmAdapterTests(unittest.TestCase):
         self.assertTrue(len(diff) > 0)
 
         # Verify candidate patch detects the variant
-        is_verified = adapter._verify_patch(rule_path, patched, "sigma", variant)
-        self.assertTrue(is_verified)
+        verification = adapter._verify_patch(rule_path, patched, "sigma", variant)
+        self.assertTrue(verification["variant_detected_after"])
+        self.assertEqual(verification["negative_fixtures_matched"], 0)
+        self.assertIsNone(verification["error"])
 
     def test_heal_yara_gap_candidate(self):
         adapter = SwarmAdapter()
@@ -507,8 +513,9 @@ class SwarmAdapterTests(unittest.TestCase):
         self.assertTrue(len(diff) > 0)
 
         # Verify candidate patch detects the variant
-        is_verified = adapter._verify_patch(rule_path, patched, "yara", variant)
-        self.assertTrue(is_verified)
+        verification = adapter._verify_patch(rule_path, patched, "yara", variant)
+        self.assertTrue(verification["variant_detected_after"])
+        self.assertEqual(verification["negative_fixtures_matched"], 0)
 
     def test_resolve_rule_path_all_rules(self):
         adapter = SwarmAdapter()
@@ -1371,7 +1378,7 @@ class MitreLayerExporterTests(unittest.TestCase):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             custom_hist = Path(tmp) / "custom_hist.json"
-            custom_hist.write_text(json.dumps({"final_resilience": 0.85}), encoding="utf-8")
+            custom_hist.write_text(json.dumps({"detection_rate_on_approved": 0.85}), encoding="utf-8")
             custom_exporter = MitreLayerExporter(history_file=custom_hist)
             layer = custom_exporter.build_layer()
             scored = {t["techniqueID"]: t["score"] for t in layer["techniques"]}

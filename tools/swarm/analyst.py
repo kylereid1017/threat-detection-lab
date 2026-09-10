@@ -23,8 +23,8 @@ class SwarmAnalyst:
                 continue
 
             if not detection.detected:
-                # Evasion discovered! Perform root-cause attribution
-                root_cause, recommendation = self._attribute_evasion(variant)
+                # Evasion discovered: attribute it and record how specific that attribution is.
+                root_cause, recommendation, specific = self._attribution(variant)
                 findings.append(
                     BoundaryFinding(
                         axis=variant.axis,
@@ -33,7 +33,7 @@ class SwarmAnalyst:
                         evasion_gap_found=True,
                         root_cause=root_cause,
                         policy_recommendation=recommendation,
-                        confidence="HIGH",
+                        confidence="HIGH" if specific else "LOW",
                         target_rule=target_rule,
                         target_type=target_type,
                     )
@@ -48,7 +48,7 @@ class SwarmAnalyst:
                         evasion_gap_found=False,
                         root_cause="Rule logic successfully triggered on variant features.",
                         policy_recommendation="Current rule signature is resilient against this variation.",
-                        confidence="HIGH",
+                        confidence="OBSERVED",  # direct detection result, not an inference
                         target_rule=target_rule,
                         target_type=target_type,
                     )
@@ -70,7 +70,9 @@ class SwarmAnalyst:
         critic_approved = len(approved)
         detected_count = sum(1 for r in approved if r[2].detected)
         evaded_count = sum(1 for r in approved if not r[2].detected)
-        resilience = (detected_count / critic_approved) if critic_approved > 0 else 0.0
+        # Detection rate over Critic-approved variants; None when nothing was approved, because
+        # an empty denominator yields no figure (README measurement policy).
+        detection_rate = (detected_count / critic_approved) if critic_approved > 0 else None
 
         return BoundaryMap(
             target_rule=target_rule,
@@ -80,9 +82,20 @@ class SwarmAnalyst:
             critic_approved=critic_approved,
             detected_count=detected_count,
             evaded_count=evaded_count,
-            resilience_score=round(resilience, 4),
+            detection_rate_on_approved=None if detection_rate is None else round(detection_rate, 4),
             findings=all_findings,
         )
+
+    def _attribution(self, variant: Variant) -> Tuple[str, str, bool]:
+        """Returns (root_cause, recommendation, attribution_is_rule_specific).
+
+        The flag is False when attribution fell through to the generic fallback, i.e. no
+        rule-level root cause was identified. Finding confidence is derived from this rather
+        than stamped "HIGH" for everything.
+        """
+        root_cause, recommendation = self._attribute_evasion(variant)
+        specific = not root_cause.startswith("Variant bypassed selection filters")
+        return root_cause, recommendation, specific
 
     def _attribute_evasion(self, variant: Variant) -> Tuple[str, str]:
         """Diagnoses why a variant evaded detection based on its structure and payload."""

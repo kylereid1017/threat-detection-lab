@@ -119,19 +119,21 @@ class SwarmAdapter:
         if not patched_content or patched_content == rule_path.read_text(encoding="utf-8"):
             return False, None, f"No patch candidate could be synthesized for vector '{variant.mutation_name}' on rule '{rule_path.name}'."
 
-        # Verification Gate: Ensure the patch detects the variant without regressions
-        is_verified = self._verify_patch(rule_path, patched_content, target_type, variant)
-        if not is_verified:
+        # Verification Gate: measure that the patch detects the variant without regressions.
+        verification = self._verify_patch(rule_path, patched_content, target_type, variant)
+        if verification["error"]:
+            return False, None, f"Candidate patch could not be verified: {verification['error']}"
+        if not verification["variant_detected_after"] or verification["negative_fixtures_matched"]:
             return False, None, "Verification gate failed: candidate patch introduced regressions or failed to catch variant."
 
-        # Author Formal Threat Intelligence Cable
+        # Author the cable from measured evidence only. There is deliberately no resilience
+        # delta here: the former 0.60 -> 1.00 pair was a constant, not a measurement.
         cable_path = self.cable_writer.write_cable(
             finding=finding,
             variant=variant,
             patch_diff=patch_diff,
             recommendation_id=rec_id,
-            resilience_before=0.60,
-            resilience_after=1.00,
+            verification=verification,
         )
 
         # Apply Patch to Disk if requested
@@ -312,36 +314,52 @@ class SwarmAdapter:
         )
         return patched, rec_id, diff
 
-    def _verify_patch(self, rule_path: Path, patched_content: str, target_type: str, variant: Variant) -> bool:
-        """Verifies that the patched rule detects the evasive variant with zero negative false positives."""
+    def _verify_patch(self, rule_path: Path, patched_content: str, target_type: str, variant: Variant) -> dict:
+        """Measures whether a candidate patch detects the evasive variant without regressions.
+
+        Returns the measured evidence rather than a bare boolean so that the authored cable
+        states what was actually evaluated. An unexpected error is reported in ``error``
+        instead of being silently collapsed into a pass/fail with no provenance.
+        """
         import json
+
+        evidence = {
+            "variant_detected_before": None,
+            "variant_detected_after": None,
+            "negative_fixtures_checked": 0,
+            "negative_fixtures_matched": 0,
+            "error": None,
+        }
         try:
+            original_content = rule_path.read_text(encoding="utf-8")
             if target_type == "sigma":
+                original_detector = SigmaDetector(custom_yaml=original_content)
                 temp_detector = SigmaDetector(custom_yaml=patched_content)
-                result = temp_detector.evaluate(variant)
-                if not result.detected:
-                    return False
-                # Negative regression gate (Zero False Positives)
                 neg_dir = self.repo_root / "tests" / "fixtures" / "sigma" / "negative"
-                if neg_dir.exists():
-                    for f in neg_dir.glob("*.json"):
+                pattern = "*.json"
+            else:
+                original_detector = YaraDetector(custom_source=original_content)
+                temp_detector = YaraDetector(custom_source=patched_content)
+                neg_dir = self.repo_root / "tests" / "fixtures" / "negative"
+                pattern = "*.svg"
+
+            evidence["variant_detected_before"] = bool(original_detector.evaluate(variant).detected)
+            evidence["variant_detected_after"] = bool(temp_detector.evaluate(variant).detected)
+            if not evidence["variant_detected_after"]:
+                return evidence
+
+            # Negative regression gate (zero false positives on the pinned fixtures).
+            if neg_dir.exists():
+                for f in sorted(neg_dir.glob(pattern)):
+                    if target_type == "sigma":
                         data = json.loads(f.read_text(encoding="utf-8"))
                         dummy_v = Variant(id="neg", target_type="sigma", axis="test", mutation_name="neg", description="neg", payload=data, cycle=1)
-                        if temp_detector.evaluate(dummy_v).detected:
-                            return False
-                return True
-            else:
-                temp_detector = YaraDetector(custom_source=patched_content)
-                result = temp_detector.evaluate(variant)
-                if not result.detected:
-                    return False
-                # Negative regression gate (Zero False Positives)
-                neg_dir = self.repo_root / "tests" / "fixtures" / "negative"
-                if neg_dir.exists():
-                    for f in neg_dir.glob("*.svg"):
+                    else:
                         dummy_v = Variant(id="neg", target_type="yara", axis="test", mutation_name="neg", description="neg", payload=f.read_text(encoding="utf-8"), cycle=1)
-                        if temp_detector.evaluate(dummy_v).detected:
-                            return False
-                return True
-        except Exception:
-            return False
+                    evidence["negative_fixtures_checked"] += 1
+                    if temp_detector.evaluate(dummy_v).detected:
+                        evidence["negative_fixtures_matched"] += 1
+            return evidence
+        except Exception as exc:
+            evidence["error"] = f"{type(exc).__name__}: {exc}"
+            return evidence

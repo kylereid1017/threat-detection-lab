@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 from .models import BoundaryFinding, Variant
 
@@ -79,8 +79,7 @@ class CableWriter:
         variant: Variant,
         patch_diff: str,
         recommendation_id: str,
-        resilience_before: float,
-        resilience_after: float,
+        verification: Dict[str, Any],
     ) -> Path:
         """Authors a formal structured cable documenting the evasion, root cause, and engineering patch."""
         cable_id = self.get_next_cable_id()
@@ -96,8 +95,7 @@ class CableWriter:
             variant=variant,
             patch_diff=patch_diff,
             recommendation_id=recommendation_id,
-            resilience_before=resilience_before,
-            resilience_after=resilience_after,
+            verification=verification,
         )
 
         cable_path.write_text(content, encoding="utf-8", newline="\n")
@@ -112,9 +110,14 @@ class CableWriter:
         variant: Variant,
         patch_diff: str,
         recommendation_id: str,
-        resilience_before: float,
-        resilience_after: float,
+        verification: Dict[str, Any],
     ) -> str:
+        v = verification or {}
+        v_before = v.get("variant_detected_before")
+        v_after = v.get("variant_detected_after")
+        v_checked = v.get("negative_fixtures_checked", 0)
+        v_matched = v.get("negative_fixtures_matched", 0)
+
         payload_repr = (
             variant.payload
             if isinstance(variant.payload, str)
@@ -146,9 +149,12 @@ target_rule: {finding.target_rule}
 evasion_axis: {finding.axis}
 mutation_name: {finding.mutation_name}
 recommendation_id: {recommendation_id}
-resilience_before: "{resilience_before * 100:.1f}%"
-resilience_after: "{resilience_after * 100:.1f}%"
-confidence_level: HIGH
+verification:
+  variant_detected_before_patch: {v_before}
+  variant_detected_after_patch: {v_after}
+  negative_fixtures_checked: {v_checked}
+  negative_fixtures_matched: {v_matched}
+confidence_level: {finding.confidence}
 mitre_attack:
   tactic: {tactic}
   technique: {technique_id} ({technique_name})
@@ -157,19 +163,19 @@ mitre_attack:
         body = f"""# Threat Intelligence Cable: {cable_id}
 
 **TLP:** CLEAR | **Date:** {date_str} | **Author:** Kyle Reid  
-**Subject:** Autonomous Adversarial Swarm Finding: Evasion Attribution & Self-Healing Defense for `{finding.mutation_name}`  
+**Subject:** Evasion Attribution & Rule Patch Verification for `{finding.mutation_name}`  
 **Target Rule:** `{finding.target_rule}`  
-**Source Provenance:** Automated continuous sparring session in the Adversarial Swarm Intelligence Engine (`tools/swarm/`).
+**Source Provenance:** Deterministic sparring run in the detection boundary harness (`tools/swarm/`; no language model in the loop).
 
 ---
 
 ## 1. Executive Summary & Estimative Confidence
 
-During automated continuous sparring runs, the Swarm discovered an evasion gap along the **`{finding.axis}`** axis: `{finding.mutation_name}` successfully bypassed detection rule `{finding.target_rule}`.
+During deterministic sparring runs, the harness identified an evasion gap along the **`{finding.axis}`** axis: `{finding.mutation_name}` bypassed detection rule `{finding.target_rule}` in the modelled corpus.
 
-* **Analytic Judgment:** It is **highly likely (80–90% probability)** that adversaries actively weaponize `{finding.mutation_name}` in the wild to circumvent perimeter gateways and host-based endpoint monitors that rely solely on direct parent-child or literal string matching.
-* **Engineering Impact:** Following detection adaptation, rule resilience improved from **{resilience_before * 100:.1f}% $\to$ {resilience_after * 100:.1f}%**, with **zero false positives** observed across regression fixtures.
-* **Analytic Confidence Level:** **HIGH**. Validated empirically in sandboxed, in-memory evaluation environments.
+* **Analytic Judgment:** Adversaries plausibly use `{finding.mutation_name}`-style indirection in the wild to evade sensors that rely on direct parent-child or literal string matching. This is a judgment about adversary behaviour, not a measurement: the harness measures only whether this rule set detects this variant.
+* **Engineering Impact (measured):** the candidate patch detected the evasion variant that the unpatched rule missed (`variant_detected_before={v_before}`, `variant_detected_after={v_after}`), with `{v_matched}` of `{v_checked}` negative regression fixtures matching. Evaluated on one variant plus {v_checked} fixtures: a local regression result, not a field estimate.
+* **Analytic Confidence Level:** **{finding.confidence}** - derived from whether the root cause was attributed to a specific rule gap or is unattributed. Evaluation is confined to sandboxed in-memory detectors.
 
 ---
 
@@ -204,8 +210,8 @@ graph TD
 | **Observed Fact** | Rule Failure | The baseline detection logic failed to fire when presented with `{finding.mutation_name}`. |
 | **Observed Fact** | Root Cause | {finding.root_cause} |
 | **Analytical Judgment** | Threat Utility | Adversaries leverage `{finding.axis}` variations to degrade high-fidelity detections into fragile string checks. |
-| **Analytical Judgment** | Remediation Efficacy | Rule tuning restored 100% recall on the variant without inducing false positive regressions. |
-| **Unknowns** | In-The-Wild Prevalence | Exact real-world deployment rates across untracked threat actor clusters remain pending further telemetry telemetry ingestion. |
+| **Observed Fact** | Remediation Verification | The candidate patch detected the evasive variant (`variant_detected_before={v_before}`, `variant_detected_after={v_after}`); `{v_matched}` of `{v_checked}` negative regression fixtures matched after the patch. |
+| **Unknowns** | In-The-Wild Prevalence | Real-world deployment rates for this primitive are not measured by this harness. |
 
 ---
 
@@ -221,17 +227,17 @@ graph TD
 
 ---
 
-## 6. Self-Healing Defensive Patch & Verification
+## 6. Rule Patch & Verification
 
-### Applied Detection Patch Diff
+### Candidate Patch Diff
 ```diff
 {patch_diff}
 ```
 
-### Verification & Regression Gate
-* **Evasive Variant Detection**: Verified DETECTED.
-* **Positive Fixtures Regression**: 100% recall maintained.
-* **Negative Fixtures & Benign Corpus**: 0 false positives recorded.
+### Verification & Regression Gate (measured)
+* **Evasive Variant Detection**: `variant_detected_before={v_before}` to `variant_detected_after={v_after}`.
+* **Negative Regression Fixtures**: `{v_matched}` of `{v_checked}` fixtures matched after the patch.
+* **Scope**: in-memory evaluation of this one variant plus the pinned fixture set; recall on any other corpus was not measured.
 
 ---
 
@@ -247,8 +253,8 @@ graph TD
 
 | Indicator Type | Value / Signature | Confidence | Expiration Guidance |
 |---|---|---|---|
-| **Behavioral Pattern** | `{finding.mutation_name}` | **HIGH** | Permanent defensive policy rule |
-| **Detection Rule** | `{finding.target_rule}` (Hardened) | **HIGH** | Quarterly review against novel OS updates |
+| **Behavioral Pattern** | `{finding.mutation_name}` | **{finding.confidence}** | Permanent defensive policy rule |
+| **Detection Rule** | `{finding.target_rule}` (patched) | **{finding.confidence}** | Quarterly review against novel OS updates |
 
 ---
 
@@ -358,9 +364,9 @@ mitre_attack:
         body = f"""# Threat Intelligence Cable: {cable_id}
 
 **TLP:** CLEAR | **Date:** {date_str} | **Author:** Kyle Reid  
-**Subject:** Multi-Stage Intrusion Campaign Post-Mortem & Defense-in-Depth Analysis: `{cr.campaign_name}`  
+**Subject:** Multi-Stage Intrusion Campaign Post-Mortem & Defense-in-Depth Analysis (modelled chain): `{cr.campaign_name}`  
 **Campaign ID:** `{cr.campaign_id}` | **Outcome:** **{'CONTAINED' if cr.intercepted else 'UNCONTAINED BREACH'}**  
-**Source Provenance:** Automated multi-stage campaign simulation in the Adversarial Swarm Intelligence Engine (`tools/swarm/campaign.py`).
+**Source Provenance:** Deterministic multi-stage campaign simulation in the detection boundary harness (`tools/swarm/campaign.py`; no language model in the loop).
 
 ---
 
@@ -368,9 +374,9 @@ mitre_attack:
 
 During simulated multi-stage intrusion operations, the Swarm executed an end-to-end attack campaign chaining 5 distinct MITRE ATT&CK tactics from initial access to persistence.
 
-* **Analytic Judgment:** It is **highly likely (80–90% probability)** that threat actors deploy multi-stage chains where early-stage evasion techniques (such as LOLBin process proxying or stdin streaming) are designed to bypass perimeter inspection, relying on post-compromise stages to complete actions on objectives.
+* **Analytic Judgment:** Threat actors plausibly deploy multi-stage chains in which early-stage evasion (such as LOLBin process proxying or stdin streaming) is designed to bypass perimeter inspection, leaning on post-compromise stages to reach their objectives. Judgement about adversary behaviour, not a measurement from this run.
 * **Engineering Impact:** {interception_summary}
-* **Analytic Confidence Level:** **HIGH**. Derived from in-memory cross-telemetry sandbox execution across YARA byte matching and pySigma process creation analytics.
+* **Analytic Confidence Level:** **MODERATE (modelled chain)**. Derived from in-memory cross-telemetry sandbox execution across YARA byte matching and pySigma process-creation analytics; containment is defined by the modelled chain only.
 
 ---
 

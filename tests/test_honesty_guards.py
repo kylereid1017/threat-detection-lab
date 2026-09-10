@@ -14,8 +14,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-from tools.swarm.cable_writer import _existing_index_rows, _rebuild_index  # noqa: E402
+from tools.swarm.adapter import SwarmAdapter  # noqa: E402
+from tools.swarm.cable_writer import CableWriter, _existing_index_rows, _rebuild_index  # noqa: E402
 from tools.swarm.export_layer import MitreLayerExporter  # noqa: E402
+from tools.swarm.models import BoundaryFinding, Variant  # noqa: E402
 from tools.swarm.telemetry_replay import TelemetryReplayEngine  # noqa: E402
 
 FIXTURES_DIR = ROOT / "tests" / "fixtures" / "telemetry"
@@ -150,6 +152,110 @@ class DestinationContainmentTests(unittest.TestCase):
             [],
             "Non-reserved destinations found in harness sources: " + "; ".join(offenders),
         )
+
+
+class PatchVerificationHonestyTests(unittest.TestCase):
+    """A candidate patch that cannot detect the variant must yield no improvement claim."""
+
+    def test_incapable_patch_reports_no_detection(self):
+        adapter = SwarmAdapter()
+        variant = Variant(
+            id="var-fault-injection",
+            target_type="sigma",
+            axis="lolbin_proxy",
+            mutation_name="fault_injection_no_match",
+            description="Fault injection: a variant nothing in the corpus can match.",
+            payload={
+                "ParentImage": "explorer.exe",
+                "Image": "definitely-not-a-real-binary.exe",
+                "CommandLine": "no-match-marker",
+            },
+            cycle=1,
+        )
+        rule_path = adapter.rules_dir / "sigma" / "proc_creation_win_explorer_clickfix_execution.yml"
+        verification = adapter._verify_patch(
+            rule_path, rule_path.read_text(encoding="utf-8"), "sigma", variant
+        )
+        self.assertIsNone(verification["error"])
+        self.assertFalse(verification["variant_detected_before"])
+        self.assertFalse(verification["variant_detected_after"])
+        self.assertEqual(verification["negative_fixtures_checked"], 0)
+
+    def test_incomplete_payload_surfaces_an_error_instead_of_a_silent_miss(self):
+        """A payload the evaluator cannot process must be reported, not quietly treated as a pass."""
+        adapter = SwarmAdapter()
+        variant = Variant(
+            id="var-malformed",
+            target_type="sigma",
+            axis="lolbin_proxy",
+            mutation_name="malformed_payload",
+            description="Fault injection: payload missing the columns the analytic requires.",
+            payload={"CommandLine": "pcalua.exe -a powershell.exe"},
+            cycle=1,
+        )
+        rule_path = adapter.rules_dir / "sigma" / "proc_creation_win_explorer_clickfix_execution.yml"
+        verification = adapter._verify_patch(
+            rule_path, rule_path.read_text(encoding="utf-8"), "sigma", variant
+        )
+        # Either the analytic handles the payload (clean miss) or the error is reported -
+        # what must not happen is a silent False with no provenance.
+        if verification["error"] is None:
+            self.assertFalse(verification["variant_detected_after"])
+        else:
+            self.assertIn("Error", verification["error"])
+
+    def test_healed_cable_states_evidence_and_claims_no_resilience_delta(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            writer = CableWriter(cables_dir=Path(tmpdir))
+            finding = BoundaryFinding(
+                target_rule="proc_creation_win_explorer_clickfix_execution",
+                target_type="sigma",
+                cycle=1,
+                variant_id="var-test",
+                mutation_name="pcalua_proxy",
+                axis="lolbin_proxy",
+                detected=False,
+                evasion_gap_found=True,
+                root_cause="Explorer spawned pcalua.exe as an indirect execution proxy.",
+                policy_recommendation="REC-SIGMA-006: Add pcalua.exe to monitored child images.",
+                confidence="HIGH",
+            )
+            variant = Variant(
+                id="var-test",
+                target_type="sigma",
+                axis="lolbin_proxy",
+                mutation_name="pcalua_proxy",
+                description="Test directive",
+                payload={"Image": "pcalua.exe", "CommandLine": "pcalua.exe -a powershell.exe -c irm"},
+                cycle=1,
+            )
+            cable_path = writer.write_cable(
+                finding=finding,
+                variant=variant,
+                patch_diff="+ selection_proxy_img:",
+                recommendation_id="REC-SIGMA-006",
+                verification={
+                    "variant_detected_before": False,
+                    "variant_detected_after": True,
+                    "negative_fixtures_checked": 7,
+                    "negative_fixtures_matched": 0,
+                },
+            )
+            text = cable_path.read_text(encoding="utf-8")
+
+            # The cable reports what was measured...
+            self.assertIn("variant_detected_before_patch: False", text)
+            self.assertIn("variant_detected_after_patch: True", text)
+            self.assertIn("negative_fixtures_checked: 7", text)
+            self.assertIn("detected the evasion variant that the unpatched rule missed", text)
+            # ...and claims no resilience delta or unsupported probability.
+            self.assertNotIn("resilience", text.lower())
+            self.assertNotIn("improved from", text)
+            self.assertNotIn("probability", text.lower())
+            self.assertNotIn("Autonomous", text)
+            self.assertNotIn("Self-Healing", text)
+            # Confidence is carried through from the finding rather than hardcoded.
+            self.assertIn("confidence_level: HIGH", text)
 
 
 if __name__ == "__main__":  # pragma: no cover

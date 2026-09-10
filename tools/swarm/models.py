@@ -49,7 +49,7 @@ class BoundaryFinding:
     evasion_gap_found: bool
     root_cause: str
     policy_recommendation: str
-    confidence: str = "HIGH"  # "HIGH", "MEDIUM", "LOW"
+    confidence: str = "LOW"  # HIGH = rule-specific attribution, LOW = unattributed, OBSERVED = direct detection
     target_rule: str = ""
     target_type: str = ""
     cycle: int = 1
@@ -66,7 +66,7 @@ class BoundaryMap:
     critic_approved: int
     detected_count: int
     evaded_count: int
-    resilience_score: float
+    detection_rate_on_approved: Optional[float]
     findings: List[BoundaryFinding] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:

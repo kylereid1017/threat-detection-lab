@@ -119,7 +119,8 @@ class AutonomousOrchestrator:
             if on_iteration:
                 on_iteration(item)
 
-        final_resilience = (detected_count / approved_count) if approved_count > 0 else 0.0
+        # Detection rate over Critic-approved variants; None when nothing was approved.
+        detection_rate = (detected_count / approved_count) if approved_count > 0 else None
 
         summary = {
             "target_type": self.directive.target,
@@ -129,7 +130,7 @@ class AutonomousOrchestrator:
             "critic_approved": approved_count,
             "detected_count": detected_count,
             "evaded_count": evaded_count,
-            "final_resilience": round(final_resilience, 3),
+            "detection_rate_on_approved": None if detection_rate is None else round(detection_rate, 3),
             "history": history,
         }
 

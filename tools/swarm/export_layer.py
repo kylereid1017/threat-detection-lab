@@ -141,7 +141,8 @@ class MitreLayerExporter:
         if self.history_file is not None and self.history_file.exists():
             try:
                 data = json.loads(self.history_file.read_text(encoding="utf-8"))
-                val = data.get("final_resilience")
+                # Accept the legacy key for boundary histories written before the rename.
+                val = data.get("detection_rate_on_approved", data.get("final_resilience"))
                 if isinstance(val, (int, float)):
                     empirical_float = float(val)
             except (json.JSONDecodeError, OSError):
