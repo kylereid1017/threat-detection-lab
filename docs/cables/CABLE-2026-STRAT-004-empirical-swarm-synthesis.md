@@ -15,11 +15,11 @@ empirical_basis:
   campaign_containment_rate: 100.0%
   average_depth_of_defense: 0.86
   telemetry_grounding:
-    corpus_file: mordor_schtasks_persistence.jsonl
+    corpus_file: mordor_lsass_dump.jsonl
     format: JSONL
-    events_evaluated: 2
-    empirical_fp_rate: 0.0000
-    wilson_ci_95: [0.0000, 0.6576]
+    events_evaluated: 3
+    empirical_fp_rate: n/a (not measured; attack-corpus replay)
+    detections: 2
 ---
 
 # Strategic Intelligence Cable: CABLE-2026-STRAT-004
@@ -147,7 +147,7 @@ Adhering to the Sherman Kent doctrine and ICD 203 standards:
 | **Observed Fact** | Harness Resilience Figure | Across 20637 self-generated attack variants, baseline single-point detections held at 84.1%. Internal regression signal, not a field estimate. |
 | **Observed Fact** | Multi-Stage Containment | Across the recorded campaign and walk runs, overall containment was 100.0%. Containment is defined by the modeled chain; paths outside it are not evaluated. |
 | **Observed Fact** | Critic Safety Gate | 1000 / 1000 (100.0%) gated proposals approved. Destinations were restricted to RFC 2606 reserved TLDs and routable IPv4/IPv6 literals were rejected; 0 proposal(s) blocked and preserved as unclassified, 0 errored. |
-| **Observed Fact** | Real-World Telemetry Grounding | Replayed `mordor_schtasks_persistence.jsonl` (JSONL) across 2 events (533.7 eps) with empirical FP rate of 0.00% (95% Wilson CI [0.00%, 65.76%]). |
+| **Observed Fact** | Real-World Telemetry Grounding | Replayed `mordor_lsass_dump.jsonl` (JSONL) across 3 events (61.5 eps): 2 rule detection(s). The false-positive rate is not applicable to an attack corpus and was not measured. |
 | **Analytic Judgment** | Indirection is the Primary Evasion Axis | 51.6% of recorded evasion observations stem from LOLBin proxying; attackers intentionally exploit parent-child assumptions in EDR sensors. |
 | **Analytic Judgment** | Monolithic Rule Fallacy | Attempting to make a single Sigma rule 100% resilient results in query bloat and catastrophic false-positive spikes. |
 | **Hypothesis** | Turnkey Lure Toolkits | Uniformity in ClickFix lures suggests underground initial-access brokers supply standardized social engineering kits. |

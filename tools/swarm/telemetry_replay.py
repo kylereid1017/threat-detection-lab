@@ -309,9 +309,9 @@ class ReplayReport:
     events_per_second: float
     total_detections: int
     unique_rules_fired: int
-    empirical_fp_rate: float
-    wilson_ci_lower: float
-    wilson_ci_upper: float
+    empirical_fp_rate: Optional[float]
+    wilson_ci_lower: Optional[float]
+    wilson_ci_upper: Optional[float]
     latency_p50_seconds: Optional[float] = None
     latency_p95_seconds: Optional[float] = None
     detections: List[Dict[str, Any]] = field(default_factory=list)
@@ -327,21 +327,32 @@ class ReplayReport:
 
     def to_markdown(self) -> str:
         """Renders an analytical report conforming to ICD 203 Analytic Standards."""
-        ci_str = f"[{self.wilson_ci_lower * 100:.2f}%, {self.wilson_ci_upper * 100:.2f}%]"
-        fp_str = f"{self.empirical_fp_rate * 100:.2f}%"
+        if self.empirical_fp_rate is None:
+            ci_str = "n/a"
+            fp_str = "n/a (not measured - FP rate is defined only over benign corpora)"
+        else:
+            ci_str = f"[{self.wilson_ci_lower * 100:.2f}%, {self.wilson_ci_upper * 100:.2f}%]"
+            fp_str = f"{self.empirical_fp_rate * 100:.2f}%"
 
         p50_str = f"{self.latency_p50_seconds:.2f}s" if self.latency_p50_seconds is not None else "N/A"
         p95_str = f"{self.latency_p95_seconds:.2f}s" if self.latency_p95_seconds is not None else "N/A"
 
-        confidence_level = "HIGH" if self.total_events >= 50 and self.empirical_fp_rate < 0.05 else "MODERATE"
+        if self.total_events < 50:
+            confidence_level = "LOW (small sample)"
+        elif not self.is_benign:
+            confidence_level = "MODERATE (detection replay; FP rate not applicable)"
+        elif self.empirical_fp_rate is not None and self.empirical_fp_rate < 0.05:
+            confidence_level = "HIGH"
+        else:
+            confidence_level = "MODERATE"
 
         md = [
             "# TELEMETRY REPLAY & GROUNDING REPORT (ICD 203)",
             "",
             "> **ANALYTIC RIGOR & SOURCE GROUNDING DIRECTIVE**",
             f"> - **Analytic Confidence Level:** {confidence_level}",
-            f"> - **Source Integrity:** Cryptographically verified replay over `{Path(self.corpus_path).name}`",
-            "> - **Statistical Bounding:** 95% Wilson Binomial Confidence Interval on Empirical FP Rate",
+            f"> - **Source:** hash-pinned fixture `{Path(self.corpus_path).name}` (manifest: tools/telemetry_manifest.json; verify with tools/acquire_telemetry.py --verify-only)",
+            "> - **Statistical Bounding:** 95% Wilson binomial interval on the empirical FP rate (benign corpora only)",
             "",
             "## Executive Summary",
             "",
@@ -350,13 +361,17 @@ class ReplayReport:
             f"| **Corpus File** | `{Path(self.corpus_path).name}` | Authorized Fixture | PASS |",
             f"| **Format** | `{self.corpus_format.upper()}` | Native Ingest | PASS |",
             f"| **Evaluated Events** | {self.total_events:,} | Full Stream Replay | PASS |",
-            f"| **Throughput** | {self.events_per_second:,.1f} events/sec | > 500 events/sec | PASS |",
+            f"| **Throughput** | {self.events_per_second:,.1f} events/sec | > 500 events/sec | "
+            + ("PASS" if self.events_per_second > 500 else "REVIEW")
+            + " |",
             f"| **Rule Detections** | {self.total_detections} alerts | Expected Signal | INFO |",
             f"| **Unique Rules Fired** | {self.unique_rules_fired} | Multi-Rule Coverage | INFO |",
-            f"| **Empirical FP Rate** | {fp_str} (95% CI: {ci_str}) | < 1.00% FP Floor | "
-            + ("PASS" if self.empirical_fp_rate < 0.01 else "REVIEW")
+            f"| **Empirical FP Rate** | {fp_str}"
+            + (f" (95% CI: {ci_str})" if self.empirical_fp_rate is not None else "")
+            + " | < 1.00% FP Floor | "
+            + ("n/a" if self.empirical_fp_rate is None else ("PASS" if self.empirical_fp_rate < 0.01 else "REVIEW"))
             + " |",
-            f"| **Alert Latency (p50 / p95)** | {p50_str} / {p95_str} | < 5.00s | PASS |",
+            f"| **Corpus Timestamp Offset (p50 / p95)** | {p50_str} / {p95_str} | time from first corpus event to alert (not detection latency) | INFO |",
             "",
             "## Detection Findings & Fired Rules",
             "",
@@ -552,7 +567,7 @@ class TelemetryReplayEngine:
                         detections.append(
                             {
                                 "rule_name": res.rule_name,
-                                "rule_path": str(rule_path),
+                                "rule_path": _repo_relative(rule_path),
                                 "event_index": idx,
                                 "event_id": matched_evt.event_id,
                                 "utc_time": matched_evt.utc_time,
@@ -591,8 +606,16 @@ class TelemetryReplayEngine:
 
         # False positive & confidence interval calculations
         unique_firing_events = len({d["event_index"] for d in detections})
-        empirical_fp_rate = (unique_firing_events / total_events) if (is_benign and total_events > 0) else 0.0
-        ci_lower, ci_upper = wilson_score_interval(unique_firing_events if is_benign else 0, total_events, 0.95)
+        # A false-positive rate is defined only over a benign corpus. Reporting 0.0 for an
+        # attack corpus fabricates a measurement (it drove a "PASS" verdict and a Wilson
+        # interval computed from a count of zero). Unmeasured stays None end to end.
+        if is_benign and total_events > 0:
+            empirical_fp_rate: Optional[float] = unique_firing_events / total_events
+            ci_lower, ci_upper = wilson_score_interval(unique_firing_events, total_events, 0.95)
+        else:
+            empirical_fp_rate = None
+            ci_lower = None
+            ci_upper = None
 
         # Latency percentiles
         p50_lat: Optional[float] = None

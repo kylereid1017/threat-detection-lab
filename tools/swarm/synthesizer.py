@@ -482,22 +482,42 @@ class StrategicSynthesizer:
             cformat = replay_stats.get("corpus_format", "").upper()
             tevents = replay_stats.get("total_events", 0)
             eps = replay_stats.get("events_per_second", 0.0)
-            fp_rate = replay_stats.get("empirical_fp_rate", 0.0)
-            ci_low = replay_stats.get("wilson_ci_lower", 0.0)
-            ci_high = replay_stats.get("wilson_ci_upper", 0.0)
-            replay_frontmatter = (
-                f"  telemetry_grounding:\n"
-                f"    corpus_file: {cname}\n"
-                f"    format: {cformat}\n"
-                f"    events_evaluated: {tevents}\n"
-                f"    empirical_fp_rate: {fp_rate:.4f}\n"
-                f"    wilson_ci_95: [{ci_low:.4f}, {ci_high:.4f}]\n"
-            )
-            replay_fact_row = (
-                f"| **Observed Fact** | Real-World Telemetry Grounding | "
-                f"Replayed `{cname}` ({cformat}) across {tevents:,} events ({eps:.1f} eps) with empirical FP rate of {fp_rate * 100:.2f}% "
-                f"(95% Wilson CI [{ci_low * 100:.2f}%, {ci_high * 100:.2f}%]). |\n"
-            )
+            detections = replay_stats.get("total_detections", 0)
+            fp_rate = replay_stats.get("empirical_fp_rate")
+            ci_low = replay_stats.get("wilson_ci_lower")
+            ci_high = replay_stats.get("wilson_ci_upper")
+            if fp_rate is None:
+                # An FP rate is defined only over a benign corpus. Emitting a number here
+                # would fabricate a measurement (the previous default of 0.0 also made the
+                # replay report's FP verdict PASS unconditionally). Unmeasured stays unstated.
+                replay_frontmatter = (
+                    f"  telemetry_grounding:\n"
+                    f"    corpus_file: {cname}\n"
+                    f"    format: {cformat}\n"
+                    f"    events_evaluated: {tevents}\n"
+                    f"    empirical_fp_rate: n/a (not measured; attack-corpus replay)\n"
+                    f"    detections: {detections}\n"
+                )
+                replay_fact_row = (
+                    f"| **Observed Fact** | Real-World Telemetry Grounding | "
+                    f"Replayed `{cname}` ({cformat}) across {tevents:,} events ({eps:.1f} eps): "
+                    f"{detections} rule detection(s). The false-positive rate is not applicable to an "
+                    f"attack corpus and was not measured. |\n"
+                )
+            else:
+                replay_frontmatter = (
+                    f"  telemetry_grounding:\n"
+                    f"    corpus_file: {cname}\n"
+                    f"    format: {cformat}\n"
+                    f"    events_evaluated: {tevents}\n"
+                    f"    empirical_fp_rate: {fp_rate:.4f}\n"
+                    f"    wilson_ci_95: [{ci_low:.4f}, {ci_high:.4f}]\n"
+                )
+                replay_fact_row = (
+                    f"| **Observed Fact** | Real-World Telemetry Grounding | "
+                    f"Replayed `{cname}` ({cformat}) across {tevents:,} events ({eps:.1f} eps) with empirical FP rate of {fp_rate * 100:.2f}% "
+                    f"(95% Wilson CI [{ci_low * 100:.2f}%, {ci_high * 100:.2f}%]). |\n"
+                )
 
         return f"""---
 cable_id: {cable_id}

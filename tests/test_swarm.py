@@ -1351,18 +1351,20 @@ class MitreLayerExporterTests(unittest.TestCase):
             self.assertIn("techniques", data)
 
     def test_layer_scores_are_deterministic_and_reproducible(self):
-        # By default, layer scoring uses the pinned empirical baseline (0.712)
-        # ensuring identical, reproducible outputs across machines regardless of mutable history.
+        # Scoring is deterministic. With no measurement supplied, techniques stay at the
+        # documented heuristics (baseline 75; correlation-backed 95). The withdrawn 0.712
+        # constant is never blended in by default.
         layer1 = self.exporter.build_layer()
         layer2 = self.exporter.build_layer()
         scored1 = {t["techniqueID"]: t["score"] for t in layer1["techniques"]}
         scored2 = {t["techniqueID"]: t["score"] for t in layer2["techniques"]}
         self.assertEqual(scored1, scored2)
-        # Single-event rules blend baseline 75 with pinned 71 -> 73
-        self.assertEqual(scored1.get("T1204.002"), 73)
-        self.assertEqual(scored1.get("T1053.005"), 73)
         # Correlation-backed techniques stay at 95
         self.assertEqual(scored1.get("T1003.001"), 95)
+        if self.exporter.pinned_resilience is None and self.exporter.history_file is None:
+            self.assertEqual(scored1.get("T1204.002"), 75)
+            self.assertEqual(scored1.get("T1053.005"), 75)
+            self.assertNotIn(73, set(scored1.values()))
 
     def test_layer_explicit_history_file_override(self):
         import json
