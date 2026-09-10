@@ -1,0 +1,105 @@
+test_absent_cluster_evidence_cannot_produce_observed_categories (__main__.ReviewRegressionSpecifications.test_absent_cluster_evidence_cannot_produce_observed_categories) ... FAIL
+test_boolean_alternative_is_not_mandatory_commandline (__main__.ReviewRegressionSpecifications.test_boolean_alternative_is_not_mandatory_commandline) ... FAIL
+test_correlation_respects_group_by (__main__.ReviewRegressionSpecifications.test_correlation_respects_group_by) ... FAIL
+test_npm_range_is_not_exactly_pinned (__main__.ReviewRegressionSpecifications.test_npm_range_is_not_exactly_pinned) ... FAIL
+test_pinned_uvx_identity_resolves (__main__.ReviewRegressionSpecifications.test_pinned_uvx_identity_resolves) ... FAIL
+test_removal_recommendation_actually_breaks_every_chain (__main__.ReviewRegressionSpecifications.test_removal_recommendation_actually_breaks_every_chain) ... FAIL
+test_stix_bundle_has_uuid_identifier (__main__.ReviewRegressionSpecifications.test_stix_bundle_has_uuid_identifier) ... FAIL
+test_unsupported_input_is_not_certified_hardened (__main__.ReviewRegressionSpecifications.test_unsupported_input_is_not_certified_hardened) ... FAIL
+test_watchdog_accepts_acquisition_manifest_shape (__main__.ReviewRegressionSpecifications.test_watchdog_accepts_acquisition_manifest_shape) ... FAIL
+
+======================================================================
+FAIL: test_absent_cluster_evidence_cannot_produce_observed_categories (__main__.ReviewRegressionSpecifications.test_absent_cluster_evidence_cannot_produce_observed_categories)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\kyler\Projects\threat-detection-lab\docs\reviews\reproduce_review.py", line 97, in test_absent_cluster_evidence_cannot_produce_observed_categories
+    self.assertEqual(sum(counts.values()), 0, 'No source records, yet category counts produced')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1000 != 0 : No source records, yet category counts produced
+
+======================================================================
+FAIL: test_boolean_alternative_is_not_mandatory_commandline (__main__.ReviewRegressionSpecifications.test_boolean_alternative_is_not_mandatory_commandline)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\kyler\Projects\threat-detection-lab\docs\reviews\reproduce_review.py", line 85, in test_boolean_alternative_is_not_mandatory_commandline
+    self.assertNotEqual(score.dimensions['commandline_dependence'], 1.0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1.0 == 1.0
+
+======================================================================
+FAIL: test_correlation_respects_group_by (__main__.ReviewRegressionSpecifications.test_correlation_respects_group_by)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\kyler\Projects\threat-detection-lab\docs\reviews\reproduce_review.py", line 78, in test_correlation_respects_group_by
+    self.assertFalse(MultiEventEvaluator().evaluate_correlation(correlation, sequence).matched)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_npm_range_is_not_exactly_pinned (__main__.ReviewRegressionSpecifications.test_npm_range_is_not_exactly_pinned)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\kyler\Projects\threat-detection-lab\docs\reviews\reproduce_review.py", line 56, in test_npm_range_is_not_exactly_pinned
+    self.assertIn('supply_chain_unpinned', [f.category for f in findings])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'supply_chain_unpinned' not found in []
+
+======================================================================
+FAIL: test_pinned_uvx_identity_resolves (__main__.ReviewRegressionSpecifications.test_pinned_uvx_identity_resolves)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\kyler\Projects\threat-detection-lab\docs\reviews\reproduce_review.py", line 63, in test_pinned_uvx_identity_resolves
+    self.assertEqual(extract_package('uvx', ['demo==1.2.3']), 'demo')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None != 'demo'
+
+======================================================================
+FAIL: test_removal_recommendation_actually_breaks_every_chain (__main__.ReviewRegressionSpecifications.test_removal_recommendation_actually_breaks_every_chain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\kyler\Projects\threat-detection-lab\docs\reviews\reproduce_review.py", line 51, in test_removal_recommendation_actually_breaks_every_chain
+    self.assertFalse(analyze(after).closes, f'Removing {name} leaves a closure')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false : Removing A leaves a closure
+
+======================================================================
+FAIL: test_stix_bundle_has_uuid_identifier (__main__.ReviewRegressionSpecifications.test_stix_bundle_has_uuid_identifier)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\kyler\Projects\threat-detection-lab\docs\reviews\reproduce_review.py", line 90, in test_stix_bundle_has_uuid_identifier
+    uuid.UUID(value)
+    ~~~~~~~~~^^^^^^^
+  File "C:\Python314\Lib\uuid.py", line 219, in __init__
+    raise ValueError('badly formed hexadecimal UUID string')
+ValueError: badly formed hexadecimal UUID string
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\kyler\Projects\threat-detection-lab\docs\reviews\reproduce_review.py", line 92, in test_stix_bundle_has_uuid_identifier
+    self.fail(f'Not a STIX UUID: {value}')
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Not a STIX UUID: cti-2026-09-06
+
+======================================================================
+FAIL: test_unsupported_input_is_not_certified_hardened (__main__.ReviewRegressionSpecifications.test_unsupported_input_is_not_certified_hardened)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\kyler\Projects\threat-detection-lab\docs\reviews\reproduce_review.py", line 60, in test_unsupported_input_is_not_certified_hardened
+    self.assertNotIn('follows hardening baseline', format_report_text(findings, summary, 'review'))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'follows hardening baseline' unexpectedly found in '========================================================================\n  AI AGENT EXECUTION LAYER SECURITY AUDIT (mcp-audit)\n  Target Configuration: review\n  Audit Date: 2026-09-06\n========================================================================\nTotal Servers Audited: 0\nFindings: 0 (CRITICAL: 0, HIGH: 0, MEDIUM: 0)\n------------------------------------------------------------------------\n[+] Zero security findings detected. Agent configuration follows hardening baseline.\n========================================================================'
+
+======================================================================
+FAIL: test_watchdog_accepts_acquisition_manifest_shape (__main__.ReviewRegressionSpecifications.test_watchdog_accepts_acquisition_manifest_shape)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\kyler\Projects\threat-detection-lab\docs\reviews\reproduce_review.py", line 72, in test_watchdog_accepts_acquisition_manifest_shape
+    self.assertEqual(flat.risk_score, nested.risk_score)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 55 != 0
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.028s
+
+FAILED (failures=9)

@@ -200,7 +200,7 @@ could not verify it against any primary source. **Drop it** and do not name it a
 - GitHub code search is authenticated through the `gh` CLI and rate limited to ten requests a
   minute; the acquisition paces itself at 6.5 seconds between pages.
 - Large corpora are gitignored, lockfiles are committed, and everything is reproducible from them.
-- Other Claude Code sessions may be open on this repository. Check `git status` before assuming a
+- Other agent sessions may be open on this repository. Check `git status` before assuming a
   change is yours.
 - Nothing is committed. That is a standing decision, not an oversight.
 

