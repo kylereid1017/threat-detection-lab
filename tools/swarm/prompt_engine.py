@@ -3,15 +3,35 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 import re
-import uuid
 from typing import Tuple
 
 from .models import Variant
 
 
 class PromptEngine:
-    """Parses natural-language threat directives and generates synthetic test variants."""
+    """Maps an operator directive to a synthetic variant by keyword matching.
+
+    This is not language understanding and no model is involved. ``generate_from_prompt``
+    lowercases the directive and matches known substrings against a fixed priority order
+    (proxy/wrapper binaries first, then the LOLBin table in declaration order, then window-style
+    and evasion-style keywords). A directive that names nothing recognised falls through to a
+    default PowerShell variant, so the probe it produces is generic rather than targeted at what
+    the operator described. See ``TestPromptRouting`` for the mapping that is actually
+    implemented; unrecognised input is a documented limitation, not a silent default worth
+    trusting.
+    """
+
+    #: Routing keywords in the order the builder checks them, for reference and testing.
+    ROUTING_PRIORITY = (
+        "pcalua", "wt", "terminal", "hh", "conhost", "stdin", "pipe",
+        "powershell", "pwsh", "cmd", "mshta", "curl", "rundll32", "wscript", "cscript",
+        "certutil", "bitsadmin", "regsvr32", "msiexec",
+        "-w 1", "numeric", "integer", "-w h", "short", "abbreviat", "normal",
+        "split", "concatenat", "enc", "base64", "downloadfile", "webclient",
+        "start /b", "background", "start /min", "minimiz",
+    )
 
     LOLBINS_MAP = {
         "powershell": ("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", "powershell.exe"),
@@ -35,7 +55,9 @@ class PromptEngine:
     def generate_from_prompt(self, prompt: str, target_type: str = "sigma") -> Variant:
         """Translates an arbitrary operator prompt directive into a safe synthetic variant."""
         prompt_lower = prompt.lower()
-        var_id = f"prompt-{uuid.uuid4().hex[:8]}"
+        # Content-derived: the same directive always yields the same probe id, so a prompt is
+        # reproducible rather than a fresh random draw each invocation.
+        var_id = f"prompt-{hashlib.sha256(f'{target_type}|{prompt}'.encode()).hexdigest()[:8]}"
 
         if target_type == "yara":
             return self._build_yara_variant(var_id, prompt, prompt_lower)
@@ -250,7 +272,8 @@ class PromptEngine:
         self, stage: int, cycle: int = 1, evasive: bool = False
     ) -> Tuple[str, str, str, Variant]:
         """Generates a synthetic variant tailored for a specific kill chain stage."""
-        var_id = f"stage{stage}-{uuid.uuid4().hex[:8]}"
+        # Content-derived, so the same (stage, cycle, evasion) reproduces the same id.
+        var_id = f"stage{stage}-{hashlib.sha256(f'{stage}|{cycle}|{evasive}'.encode()).hexdigest()[:8]}"
 
         if stage == 1:
             stage_name = "Initial Access"

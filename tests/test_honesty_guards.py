@@ -674,5 +674,51 @@ class DeterminismTests(unittest.TestCase):
             self.assertRegex(probe_id, r"^proc-[0-9a-f]{8}$")
 
 
+class TestPromptRouting(unittest.TestCase):
+    """The prompt interface is keyword routing. These are the mappings it really implements."""
+
+    def setUp(self):
+        from tools.swarm.prompt_engine import PromptEngine
+        self.engine = PromptEngine()
+
+    def test_known_keywords_route_to_their_documented_probe(self):
+        cases = (
+            ("Simulate pcalua.exe proxy execution", "prompt_pcalua_lolbin_proxy", "pcalua.exe -a powershell.exe"),
+            ("Simulate wt.exe terminal wrapper", "prompt_wt_lolbin_proxy", "wt.exe"),
+            ("hxxp: Explorer spawning hh.exe", "prompt_hh_lolbin", "hh.exe"),
+            ("stdin pipe into powershell", "prompt_powershell_argument_hiding", "ExecutionPolicy Bypass -"),
+            ("Explorer spawning rundll32 url.dll handler", "prompt_rundll32_lolbin", "rundll32.exe url.dll"),
+            ("certutil urlcache download", "prompt_certutil_lolbin", "certutil.exe -urlcache"),
+            ("powershell base64 encoded command", "prompt_powershell_obfuscation", "-enc "),
+            ("powershell split Invoke-RestMethod", "prompt_powershell_obfuscation", "Inv"),
+        )
+        for prompt, expected_name, command_marker in cases:
+            variant = self.engine.generate_from_prompt(prompt)
+            self.assertEqual(expected_name, variant.mutation_name, prompt)
+            self.assertIn(command_marker, variant.payload["CommandLine"], prompt)
+
+    def test_unrecognised_directive_falls_through_to_a_generic_probe(self):
+        """A directive naming no recognised technique produces a default variant, not a targeted one."""
+        variant = self.engine.generate_from_prompt("unmapped gibberish foobar")
+        self.assertEqual("prompt_powershell_syntax", variant.mutation_name)
+        self.assertIn("-w hidden", variant.payload["CommandLine"])
+
+    def test_prompt_ids_are_content_derived(self):
+        first = self.engine.generate_from_prompt("Test PowerShell execution with short -w h switch")
+        second = self.engine.generate_from_prompt("Test PowerShell execution with short -w h switch")
+        other = self.engine.generate_from_prompt("Test pcalua.exe proxy execution")
+        self.assertEqual(first.id, second.id, "the same directive must reproduce the same probe id")
+        self.assertNotEqual(first.id, other.id)
+        self.assertRegex(first.id, r"^prompt-[0-9a-f]{8}$")
+
+    def test_the_interface_does_not_claim_language_understanding(self):
+        from tools.swarm.prompt_engine import PromptEngine
+        doc = (PromptEngine.__doc__ or "").lower()
+        self.assertIn("keyword", doc, "the routing mechanism must be stated")
+        for claim in ("natural language understanding", "llm", "language model", "nlp", "semantic"):
+            self.assertNotIn(claim, doc, f"prompt interface claims {claim!r}")
+        self.assertTrue(PromptEngine.ROUTING_PRIORITY, "routing table must be exposed")
+
+
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
