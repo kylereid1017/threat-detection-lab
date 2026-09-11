@@ -34,7 +34,7 @@ Output evaluates:
 
 | Capability Area | Lifecycle Status | Empirical Evidence & Test Coverage | Operational Constraints & Caveats |
 |---|---|---|---|
-| **Agent Exposure Review & Composition** | **Verified** | `tools/agent_graph/` (91–99% coverage), 475 passing unit tests in CI (<8s). Evaluated across 336 real public configurations. | Static analysis taxonomy (P=0.73, R=0.53); measures potential capability co-occurrence across static configurations, not runtime telemetry. |
+| **Agent Exposure Review & Composition** | **Verified** | `tools/agent_graph/` (91–99% coverage), 545 passing unit tests in CI. Evaluated across 336 real public configurations. | Static analysis taxonomy (P=0.73, R=0.53); measures potential capability co-occurrence across static configurations, not runtime telemetry. |
 | **Detection Engineering & Swarm Sparring** | **Verified** | 5 production Sigma/YARA rules; closed-loop multi-campaign DAG engine with zero false positives on 1,755 benign manifests and 2,079 SVGs. | Closed-loop mutations test detection boundaries; does not represent live adversary operational campaigns. |
 | **CTI Collection & Protected Names** | **Verified** | `tools/cti/` pipeline (96–99% coverage), Certificate Transparency live acquisition, inventory-derived typosquat detection evaluated on 232k OpenSSF records. | Zero recall on packages outside local inventory; complete SBOM is a prerequisite. |
 | **Host Confinement & Agent Sandbox** | **Experimental (Linux/macOS) / Blocked (Windows)** | Bubblewrap (`bwrap`) on Linux, Seatbelt (`sandbox-exec`) on macOS. | Windows provides advisory environment sanitization and isolated temp trees; **disclaims kernel-level containment** without virtualization/JobObjects. |
@@ -116,7 +116,7 @@ The full external validation, including the three defects it exposed and the ope
 characteristic that recall equals dependency-inventory coverage, is in
 `docs/detections/RECALL.md`.
 
-**Internal measurements** come from the adversarial swarm probing rules this repository
+**Internal measurements** come from the boundary harness probing rules this repository
 wrote, using mutations this repository generated. They are regression and boundary-tracking
 signals. A confidence interval over them describes sampling error inside a closed system,
 not evasion resistance in the field, and it is not evidence that a rule survives real
@@ -138,9 +138,9 @@ ledger and reconciles back to it:
 - **An empty denominator produces no figure.** A rate with nothing to divide by is
   reported as not measured, never as 0 or 1.
 
-## Adversarial Swarm Harness
+## Detection Boundary Harness
 
-A sandboxed, deterministic testing harness (`tools/swarm/`) implementing a closed feedback loop across specialized roles (Strategist, Craftsmen, Critic, Detectors, Analyst, Adapter) that systematically probes detection boundaries across structural, syntactic, and LOLBin evasion axes. Every mutation, safety gate, and verdict is deterministic code; no language model runs in the loop.
+A sandboxed, deterministic testing harness (`tools/swarm/`) implementing a closed feedback loop across specialized roles (Craftsmen, Critic, Detectors, Analyst, Adapter) that systematically probes detection boundaries across structural, syntactic, and LOLBin evasion axes. Every mutation, safety gate, and verdict is deterministic code; no language model runs in the loop.
 
 ### Multi-Campaign Intrusion Archetypes
 The harness models three canonical adversary campaigns:
@@ -155,7 +155,7 @@ The harness models three canonical adversary campaigns:
 - `rules/sigma/cloud/` — CloudTrail and Kubernetes audit control-plane rules
 - `rules/sigma/correlation/` — multi-event temporal correlation rules
 - `tools/cti/` — CTI collection, enrichment, pivoting, and operationalization pipeline
-- `tools/swarm/` — multi-agent adversarial boundary testing engine and craftsmen
+- `tools/swarm/` — deterministic mutation craftsmen and the closed-loop boundary testing engine
 - `tools/swarm/craftsmen/` — specialized adversarial generators (`ProcessCraftsman`, `SvgCraftsman`, `SupplyChainCraftsman`, `CloudClusterCraftsman`)
 - `docs/cables/` — structured threat intelligence cables (ICD 203 / Sherman Kent doctrine)
 - `docs/research/` — original research notes
@@ -178,12 +178,12 @@ python -m pip install -r requirements-dev.txt
 # Run all unit and regression tests (YARA, Sigma, Swarm)
 python -m unittest discover -s tests -v
 
-# Run the Adversarial Swarm against detections (closed-loop)
+# Run the boundary harness against detections (closed-loop)
 python -m tools.swarm.cli --target yara --max-cycles 3
 python -m tools.swarm.cli --target sigma --max-cycles 3
 
-# Run closed-loop sparring with automated self-healing & cable generation
-python -m tools.swarm.cli --target sigma --autonomous --iterations 10 --self-heal
+# Run continuous sparring with the patch-proposal loop (candidate patches + cables for verified ones)
+python -m tools.swarm.cli --target sigma --continuous --iterations 10 --propose-patches
 
 # Run simulated multi-stage intrusion campaign across 5 MITRE ATT&CK stages
 python -m tools.swarm.cli --campaign infostealer

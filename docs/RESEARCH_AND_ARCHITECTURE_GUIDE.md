@@ -5,7 +5,7 @@ This guide explains the foundational concepts, security hypotheses, engineering 
 It is written for developers, security researchers, and engineers seeking to understand:
 1. **The Core Problem:** Why autonomous AI agents and local tool protocols (MCP) break traditional security models.
 2. **The Security Hypotheses:** What claims the project tests and what it empirically proves.
-3. **The Subsystem Architectures:** How the capability graph, adversarial swarm, detection engine, and CTI pipeline operate under the hood.
+3. **The Subsystem Architectures:** How the capability graph, boundary harness, detection engine, and CTI pipeline operate under the hood.
 4. **The Empirical Methodology:** How we measure risk, calibrate claims, and verify defensive controls using real-world data.
 
 ---

@@ -51,7 +51,7 @@ class MitreLayerExporter:
     def __init__(
         self,
         repo_root: Optional[Path] = None,
-        pinned_resilience: Optional[float] = 0.712,
+        pinned_resilience: Optional[float] = None,
         history_file: Optional[Path] = None,
     ) -> None:
         self.repo_root = repo_root or ROOT
@@ -130,22 +130,25 @@ class MitreLayerExporter:
     def _apply_boundary_history(self, techniques: Dict[str, Dict[str, object]]) -> None:
         """Applies empirical resilience scoring deterministically.
 
-        To guarantee that published coverage layers are reproducible across machines,
-        this defaults to a pinned empirical resilience baseline (0.712, based on the
-        published CABLE-2026-STRAT-001 N=764 empirical sample). If an explicit
-        history_file is provided, it reads from that file. It does not unpinned-read
-        from mutable workspace artifacts.
+        Empirical resilience is blended only when it can be sourced: from an explicit
+        history_file (a measured boundary-history artifact) or an explicit caller-supplied
+        value. There is deliberately no built-in default - the former 0.712 constant was
+        the retracted STRAT-001 headline and must not be baked into exported layers. With
+        neither source present, technique scores stay at the static baseline/correlation
+        values, which are documented coverage heuristics rather than measurements.
         """
         empirical_float: Optional[float] = None
         if self.history_file is not None and self.history_file.exists():
             try:
                 data = json.loads(self.history_file.read_text(encoding="utf-8"))
-                val = data.get("final_resilience")
+                # Accept the legacy key for boundary histories written before the rename.
+                val = data.get("detection_rate_on_approved", data.get("final_resilience"))
                 if isinstance(val, (int, float)):
                     empirical_float = float(val)
             except (json.JSONDecodeError, OSError):
                 pass
         elif self.pinned_resilience is not None:
+            # Explicit caller-supplied value only; never a default (see docstring).
             empirical_float = self.pinned_resilience
 
         if empirical_float is None:
@@ -154,7 +157,7 @@ class MitreLayerExporter:
         empirical = int(round(empirical_float * 100))
         for entry in techniques.values():
             if not entry["correlated"]:
-                # Blend the static baseline with verified empirical resilience.
+                # Blend the static baseline with the explicitly supplied empirical value.
                 entry["score"] = int(round((_BASELINE_SCORE + empirical) / 2))
 
     # -- layer assembly ---------------------------------------------------

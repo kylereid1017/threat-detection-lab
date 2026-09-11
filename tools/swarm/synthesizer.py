@@ -482,22 +482,42 @@ class StrategicSynthesizer:
             cformat = replay_stats.get("corpus_format", "").upper()
             tevents = replay_stats.get("total_events", 0)
             eps = replay_stats.get("events_per_second", 0.0)
-            fp_rate = replay_stats.get("empirical_fp_rate", 0.0)
-            ci_low = replay_stats.get("wilson_ci_lower", 0.0)
-            ci_high = replay_stats.get("wilson_ci_upper", 0.0)
-            replay_frontmatter = (
-                f"  telemetry_grounding:\n"
-                f"    corpus_file: {cname}\n"
-                f"    format: {cformat}\n"
-                f"    events_evaluated: {tevents}\n"
-                f"    empirical_fp_rate: {fp_rate:.4f}\n"
-                f"    wilson_ci_95: [{ci_low:.4f}, {ci_high:.4f}]\n"
-            )
-            replay_fact_row = (
-                f"| **Observed Fact** | Real-World Telemetry Grounding | "
-                f"Replayed `{cname}` ({cformat}) across {tevents:,} events ({eps:.1f} eps) with empirical FP rate of {fp_rate * 100:.2f}% "
-                f"(95% Wilson CI [{ci_low * 100:.2f}%, {ci_high * 100:.2f}%]). |\n"
-            )
+            detections = replay_stats.get("total_detections", 0)
+            fp_rate = replay_stats.get("empirical_fp_rate")
+            ci_low = replay_stats.get("wilson_ci_lower")
+            ci_high = replay_stats.get("wilson_ci_upper")
+            if fp_rate is None:
+                # An FP rate is defined only over a benign corpus. Emitting a number here
+                # would fabricate a measurement (the previous default of 0.0 also made the
+                # replay report's FP verdict PASS unconditionally). Unmeasured stays unstated.
+                replay_frontmatter = (
+                    f"  telemetry_grounding:\n"
+                    f"    corpus_file: {cname}\n"
+                    f"    format: {cformat}\n"
+                    f"    events_evaluated: {tevents}\n"
+                    f"    empirical_fp_rate: n/a (not measured; attack-corpus replay)\n"
+                    f"    detections: {detections}\n"
+                )
+                replay_fact_row = (
+                    f"| **Observed Fact** | Real-World Telemetry Grounding | "
+                    f"Replayed `{cname}` ({cformat}) across {tevents:,} events ({eps:.1f} eps): "
+                    f"{detections} rule detection(s). The false-positive rate is not applicable to an "
+                    f"attack corpus and was not measured. |\n"
+                )
+            else:
+                replay_frontmatter = (
+                    f"  telemetry_grounding:\n"
+                    f"    corpus_file: {cname}\n"
+                    f"    format: {cformat}\n"
+                    f"    events_evaluated: {tevents}\n"
+                    f"    empirical_fp_rate: {fp_rate:.4f}\n"
+                    f"    wilson_ci_95: [{ci_low:.4f}, {ci_high:.4f}]\n"
+                )
+                replay_fact_row = (
+                    f"| **Observed Fact** | Real-World Telemetry Grounding | "
+                    f"Replayed `{cname}` ({cformat}) across {tevents:,} events ({eps:.1f} eps) with empirical FP rate of {fp_rate * 100:.2f}% "
+                    f"(95% Wilson CI [{ci_low * 100:.2f}%, {ci_high * 100:.2f}%]). |\n"
+                )
 
         return f"""---
 cable_id: {cable_id}
@@ -520,15 +540,15 @@ empirical_basis:
 # Strategic Intelligence Cable: {cable_id}
 
 **TLP:** CLEAR | **Date:** {date} | **Author:** {self.author}  
-**Subject:** Empirical Analysis of {total_evals} Adversarial Swarm Probes: Evasion Vector Taxonomies, Detection Boundary Dynamics, and Defense-in-Depth Convergence  
+**Subject:** Empirical Analysis of {total_evals} Boundary Probes: Evasion Vector Taxonomies, Detection Boundary Dynamics, and Defense-in-Depth Convergence  
 **Target Audience:** Chief Information Security Officers (CISOs), Directors of Detection Engineering, Principal Threat Hunters, SOC Architects  
-**Source Provenance:** Bounded empirical execution of the deterministic Adversarial Swarm Engine (`tools/swarm/`) evaluating YARA and Sigma detection pipelines: {total_evals} evaluated attack variants recorded {span_str} (run(s): {runs_str}; every aggregate in this cable is derived from the append-only observation ledger under `docs/swarm/results/records/`).
+**Source Provenance:** Bounded empirical execution of the deterministic detection boundary harness (`tools/swarm/`) evaluating YARA and Sigma detection pipelines: {total_evals} evaluated attack variants recorded {span_str} (run(s): {runs_str}; every aggregate in this cable is derived from the append-only observation ledger under `docs/swarm/results/records/`).
 
 ---
 
 ## 1. Executive Summary & Estimative Confidence
 
-In a bounded measurement window ({span_str}), the lab ran the deterministic Adversarial Swarm Engine as a closed-loop stress test across multi-stage detection architectures. Operating across {total_evals} evaluated attack variants, the harness mapped the boundary limits of both perimeter static inspection (YARA) and endpoint behavioral detection (Sigma/pySigma).
+In a bounded measurement window ({span_str}), the lab ran the deterministic boundary harness as a closed-loop stress test across multi-stage detection architectures. Operating across {total_evals} evaluated attack variants, the harness mapped the boundary limits of both perimeter static inspection (YARA) and endpoint behavioral detection (Sigma/pySigma).
 
 > [!IMPORTANT] Scope of this evidence
 > Every figure below comes from a closed loop. The mutations were generated by this
@@ -542,7 +562,7 @@ In a bounded measurement window ({span_str}), the lab ran the deterministic Adve
 > measurement policy.
 
 * **Analytic Judgment:** Against the mutation vocabulary implemented in `tools/swarm/craftsmen/`, baseline single-point detections held at **{resilience:.1%}** across {total_evals} attack variants. Confidence in this figure as a description of the harness is **high**; confidence in it as a predictor of field performance is **low**, because the adversary and the defender share an author.
-* **Analytic Judgment:** It is **likely (55–80% probability)** that detections depending on enumerated command-line spellings degrade against mutation classes outside the implemented vocabulary. This is an inference from the failure taxonomy below, not a measurement, since a gap the harness cannot generate is a gap it cannot count.
+* **Analytic Judgment:** Detections that depend on enumerated command-line spellings are likely to degrade against mutation classes outside the implemented vocabulary. This is an inference from the failure taxonomy below, not a measurement, since a gap the harness cannot generate is a gap it cannot count.
 * **Analytic Judgment:** Layered evaluation converted an isolated {resilience:.1%} point posture into a **{cont_str}** campaign containment rate across the modeled stages. This figure is a property of the stage model: containment is measured against the modeled kill chain this engine implements, and an adversary path outside that model is neither contained nor counted.
 * **Analytic Confidence Level:** **MODERATE**, and capped there by construction. Sample size and safety-gate integrity ({approval_short} Critic approval over {gated_considered} gated proposals; {unclassified} blocked proposal(s) preserved as unclassified; {errors} errored probe(s) preserved; deterministic verification, cross-backend SIEM translation) support internal validity. Nothing here establishes external validity, and no volume of self-play can.
 
@@ -673,7 +693,7 @@ Adhering to the Sherman Kent doctrine and ICD 203 standards:
 *Basis:* Right-column stage intercepts are marginal per-stage rates over recorded campaign stage visits (run ledger); the left-column catch rate is the baseline attack-variant resilience over {total_evals} evaluations (§5, Observed Fact) and uses a broader evaluation mix. Stage rates are marginal — not conditional on upstream bypass.
 
 ### 1. Reject the "Perfect Rule" Fallacy
-Security teams frequently spend hundreds of engineering hours attempting to tune a single rule to 99% coverage. The empirical data proves this is counterproductive: closing the final 20% of syntactic permutations in a single rule introduces massive regular expression complexity, increases SIEM compute costs, and dramatically increases false-positive risks on benign administrative scripts.
+Security teams spend significant effort attempting to make a single rule cover every syntactic variation. Within the vocabulary this harness models, that approach adds regular-expression complexity and SIEM cost and raises false-positive risk on benign administrative scripts. This is an engineering judgement, not a measurement from this run: the harness does not measure SIEM compute cost.
 
 ### 2. Build for Adversary Inevitability (The Graph Approach)
 An adversary can easily mutate their command-line switches to bypass a ClickFix rule. **What they cannot mutate is their operational objective:**
@@ -683,7 +703,7 @@ An adversary can easily mutate their command-line switches to bypass a ClickFix 
 
 By distributing defensive sensors across the kill chain, an organization achieves **{cont_str} campaign containment** with an average Depth-of-Defense score of **{dod_str}**, rendering early-stage evasion inconsequential.
 
-### 3. Deploy Closed-Loop Continuous Self-Healing
+### 3. Deploy Continuous Sparring
 The closed-loop sparring harness, paired with deterministic patch synthesis and zero-false-positive regression gates, provides continuous automated regression coverage for detection engineering teams—discovering blindspots before threat actors exploit them in the wild.
 
 ---

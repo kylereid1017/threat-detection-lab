@@ -1,4 +1,4 @@
-"""Swarm Orchestrator: Multi-agent closed-loop coordination engine."""
+"""Orchestrator: closed-loop coordination of mutation, gating, detection, and attribution."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from .models import BoundaryFinding, BoundaryMap, CriticVerdict, DetectionResult
 
 
 class SwarmOrchestrator:
-    """Coordinates the 5-agent closed loop: Strategist -> Craftsman -> Critic -> Detector -> Analyst -> Adapter."""
+    """Coordinates the closed loop: Craftsmen -> Critic -> Detector -> Analyst -> Adapter."""
 
     def __init__(self, directive: OperatorDirective) -> None:
         directive.validate()
@@ -41,7 +41,7 @@ class SwarmOrchestrator:
         target_rule_name = getattr(self.detector, "target_rule_name", self.directive.target)
 
         for cycle in range(1, self.directive.max_cycles + 1):
-            # 1 & 2. Strategist / Craftsman generation
+            # Craftsman generation (objective axes come from the directive)
             variants = self.craftsman.generate_variants(cycle=cycle, feedback=adapter_feedback)
 
             # Cap variants per cycle according to directive
@@ -110,13 +110,15 @@ class SwarmOrchestrator:
         md_path.write_text(md_content, encoding="utf-8", newline="\n")
 
     def _format_markdown_report(self, b_map: BoundaryMap) -> str:
+        rate = b_map.detection_rate_on_approved
+        rate_str = "n/a (not measured)" if rate is None else f"{rate * 100:.1f}%"
         lines = [
-            f"# Adversarial Swarm Campaign Report — {b_map.target_rule}",
+            f"# Detection Boundary Campaign Report - {b_map.target_rule}",
             "",
             f"**Target Type:** `{b_map.target_type}` | **Cycles Completed:** `{b_map.cycles_completed}`  ",
             f"**Total Variants Generated:** `{b_map.total_generated}` | **Critic Approved:** `{b_map.critic_approved}`  ",
             f"**Detected:** `{b_map.detected_count}` | **Evaded (Gaps Found):** `{b_map.evaded_count}`  ",
-            f"**Rule Resilience Score:** `{b_map.resilience_score * 100:.1f}%`",
+            f"**Detection Rate (Critic-approved variants):** `{rate_str}`",
             "",
             "---",
             "",

@@ -6,13 +6,22 @@ target_rule: Suspicious Process Spawning From Explorer Run Prompt (ClickFix Patt
 evasion_axis: argument_hiding
 mutation_name: prompt_powershell_argument_hiding
 recommendation_id: REC-SIGMA-007
-resilience_before: "60.0%"
-resilience_after: "100.0%"
+resilience_before: "RETRACTED (see correction notice)"
+resilience_after: "RETRACTED (see correction notice)"
 confidence_level: HIGH
 mitre_attack:
   tactic: Defense Evasion
   technique: T1027 (Obfuscated/Argument Hiding)
 ---
+
+> [!WARNING] **Correction (2026-09-10): the resilience figures in this cable are retracted.**
+> `resilience_before` / `resilience_after` were rendered from constants hard-coded in
+> `tools/swarm/adapter.py` (0.60 -> 1.00), not from a measurement, and the verification
+> block below asserted "100% recall maintained" and "0 false positives recorded" as
+> constants as well. Neither was computed from an evaluation. The template now reports only
+> measured patch-verification evidence (variant detection before/after the patch, and the
+> negative-fixture counts), and no resilience delta. See
+> [ERRATA-2026-09-10](ERRATA-2026-09-10.md), section "Self-healing cable corrections".
 
 # Threat Intelligence Cable: CABLE-2026-003
 

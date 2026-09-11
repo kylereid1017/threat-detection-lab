@@ -1,4 +1,4 @@
-"""CLI interface for the Adversarial Swarm Intelligence Engine."""
+"""CLI interface for the detection boundary harness."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from .autonomous import AutonomousOrchestrator
+from .sparring import SparringRunner
 from .config import OperatorDirective
 from .critic import SwarmCritic
 from .detectors import SigmaDetector, YaraDetector
@@ -17,7 +17,7 @@ from .prompt_engine import PromptEngine
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="python -m tools.swarm.cli",
-        description="Adversarial Swarm Intelligence: Controlled Multi-Agent Detection Boundary Testing",
+        description="Detection Boundary Harness: deterministic closed-loop rule boundary testing (no LLM in the loop)",
     )
     parser.add_argument(
         "--target",
@@ -38,9 +38,9 @@ def parse_args() -> argparse.Namespace:
         help="Maximum variants to generate per cycle (default: 6)",
     )
     parser.add_argument(
-        "--autonomous",
+        "--continuous",
         action="store_true",
-        help="Run autonomous continuous sparring mode",
+        help="Run continuous sparring mode (sequential iterations, no LLM)",
     )
     parser.add_argument(
         "--iterations",
@@ -55,15 +55,15 @@ def parse_args() -> argparse.Namespace:
         help="Custom operator threat prompt directive to test immediately",
     )
     parser.add_argument(
-        "--self-heal",
+        "--propose-patches",
         action="store_true",
-        help="Enable autonomous self-healing loop to synthesize rule patches and threat intelligence cables",
+        help="Enable the patch-proposal loop: synthesize candidate rule patches and author cables for verified ones",
     )
     parser.add_argument(
         "--campaign",
         type=str,
         default=None,
-        help="Run multi-stage kill-chain intrusion campaign (e.g. 'infostealer', 'ransomware')",
+        help="Run a staged kill-chain intrusion campaign (e.g. 'infostealer', 'ransomware')",
     )
     parser.add_argument(
         "--synthesize-trends",
@@ -129,12 +129,6 @@ def parse_args() -> argparse.Namespace:
         help="Mark telemetry corpus as benign baseline to measure empirical false-positive rate",
     )
     parser.add_argument(
-        "--window",
-        type=int,
-        default=300,
-        help="Correlation sliding window in seconds for --replay-telemetry (default: 300)",
-    )
-    parser.add_argument(
         "--endurance",
         action="store_true",
         help="Run continuous overnight adversarial endurance harness across all pattern suites",
@@ -180,7 +174,7 @@ def main() -> int:
             target_path = root / target_path
         print(f"[*] Replaying real-world telemetry corpus: {target_path.name} ...")
         is_benign = args.is_benign or ("benign" in str(target_path).lower())
-        report = engine.replay_file(target_path, is_benign=is_benign, window_seconds=args.window)
+        report = engine.replay_file(target_path, is_benign=is_benign)
         print(report.to_markdown())
         out = args.output_dir / "telemetry_replay.json"
         out.parent.mkdir(parents=True, exist_ok=True)
@@ -300,8 +294,8 @@ def main() -> int:
         print("[*] Simulating 5-stage MITRE ATT&CK intrusion lifecycle...")
         orchestrator = CampaignOrchestrator()
 
-        if args.autonomous:
-            print(f"[*] Deploying Autonomous Kill-Chain Sparring ({args.iterations} campaigns)...")
+        if args.continuous:
+            print(f"[*] Running kill-chain campaigns ({args.iterations} iterations)...")
             cable_writer = CableWriter()
             authored_cables = []
 
@@ -312,10 +306,10 @@ def main() -> int:
                 cpath = cable_writer.write_campaign_cable(res)
                 authored_cables.append(cpath)
 
-            results = orchestrator.run_autonomous_campaigns(
+            results = orchestrator.run_campaigns(
                 iterations=args.iterations,
                 campaign_name=f"{args.campaign.capitalize()}-Sparring",
-                self_heal=args.self_heal,
+                propose_patches=args.propose_patches,
                 campaign_callback=camp_cb,
             )
 
@@ -323,7 +317,7 @@ def main() -> int:
             intercepted_runs = sum(1 for r in results if r.intercepted)
             avg_dod = sum(r.depth_of_defense_score for r in results) / total_runs if total_runs else 0.0
 
-            print("\n[+] Autonomous Kill-Chain Sparring Complete!")
+            print("\n[+] Kill-chain campaigns complete.")
             print(f"    - Campaigns Evaluated: {total_runs}")
             print(f"    - Intercepted by Layered Net: {intercepted_runs}/{total_runs} ({(intercepted_runs/total_runs)*100:.1f}%)")
             print(f"    - Average Depth-of-Defense (DoD) Score: {avg_dod:.2f}")
@@ -338,7 +332,7 @@ def main() -> int:
             campaign_name=f"{args.campaign.capitalize()}-Intrusion-Flow",
             campaign_id="CAMP-2026-001",
             evasion_at_stages=[2],  # Stage 2 uses pcalua LOLBin evasion to test defense-in-depth
-            self_heal=args.self_heal,
+            propose_patches=args.propose_patches,
             callback=stage_callback,
         )
 
@@ -360,7 +354,7 @@ def main() -> int:
         output_dir=args.output_dir,
     )
 
-    print(f"[*] Initializing Adversarial Swarm for target: {args.target}")
+    print(f"[*] Initializing detection boundary harness for target: {args.target}")
     print("[*] Safety containment: RFC 2606 reserved domains only | Local sandbox execution only")
 
     # 1. Custom Single-Prompt Mode
@@ -381,24 +375,26 @@ def main() -> int:
         print(f"    [Detector Verdict] {status}")
         return 0
 
-    # 2. Autonomous Continuous Sparring Mode
-    if args.autonomous:
-        print(f"[*] Deploying Autonomous Continuous Sparring ({args.iterations} iterations)...")
-        auto_orch = AutonomousOrchestrator(directive)
+    # 2. Continuous sparring mode
+    if args.continuous:
+        print(f"[*] Running continuous sparring ({args.iterations} iterations)...")
+        sparring_runner = SparringRunner(directive)
 
         def on_iter(item):
             status = "[+] DETECTED" if item["detected"] else ("[!] EVASION GAP" if item["critic_passed"] else "[X] CRITIC BLOCKED")
             print(f"    [Iter {item['iteration']:02d}] {status} | Axis: {item['axis']:<12} | Resilience: {item['cumulative_resilience']*100:.1f}%")
             print(f"             Prompt: \"{item['prompt']}\"")
             if item.get("healing") and item["healing"].get("healed"):
-                print(f"             [+] SELF-HEALED! Synthesized patch & authored cable: {item['healing']['cable_path']}")
+                print(f"             [+] PATCH VERIFIED - synthesized patch and authored cable: {item['healing']['cable_path']}")
 
-        summary = auto_orch.run_autonomous(iterations=args.iterations, on_iteration=on_iter, self_heal=args.self_heal)
-        print("\n[+] Autonomous Sparring Complete!")
+        summary = sparring_runner.run_sparring(iterations=args.iterations, on_iteration=on_iter, propose_patches=args.propose_patches)
+        print("\n[+] Continuous sparring complete.")
         print(f"    - Iterations Run: {summary['iterations_run']}")
         print(f"    - Critic Approved: {summary['critic_approved']}")
         print(f"    - Detected Count: {summary['detected_count']}")
-        print(f"    - Final Resilience Score: {summary['final_resilience'] * 100:.1f}%")
+        rate = summary.get("detection_rate_on_approved")
+        rate_str = "n/a (not measured)" if rate is None else f"{rate * 100:.1f}%"
+        print(f"    - Detection Rate (Critic-approved variants): {rate_str}")
         print(f"    - Saved history to: {args.output_dir / f'boundary_history_{args.target}.json'}")
         return 0
 
@@ -413,7 +409,9 @@ def main() -> int:
     print(f"    - Critic Approved: {boundary_map.critic_approved}")
     print(f"    - Detected: {boundary_map.detected_count}")
     print(f"    - Evaded (Gaps): {boundary_map.evaded_count}")
-    print(f"    - Rule Resilience Score: {boundary_map.resilience_score * 100:.1f}%\n")
+    rate = boundary_map.detection_rate_on_approved
+    rate_str = "n/a (not measured)" if rate is None else f"{rate * 100:.1f}%"
+    print(f"    - Detection Rate (Critic-approved variants): {rate_str}\n")
 
     print("[*] Boundary Findings:")
     for f in boundary_map.findings:

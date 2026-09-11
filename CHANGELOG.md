@@ -5,6 +5,60 @@ Keep a Changelog; versioning follows SemVer.
 
 ## [Unreleased]
 
+### Changed
+- **Identity and claim vocabulary de-claimed.** The package, CLI, architecture note, and README no
+  longer describe this system as an "Adversarial Swarm Intelligence Engine", "multi-agent", or
+  "self-healing". No language model or autonomous agent participates in mutation, gating,
+  evaluation, or measurement; the harness is a deterministic closed loop and is now named as one.
+- **Renames (breaking for scripts importing the internals):** `tools/swarm/autonomous.py` →
+  `tools/swarm/sparring.py`, `AutonomousOrchestrator` → `SparringRunner`, `run_autonomous` →
+  `run_sparring`, `run_autonomous_campaigns` → `run_campaigns`.
+- **CLI flags renamed (breaking for scripts):** `--autonomous` → `--continuous`,
+  `--self-heal` → `--propose-patches`.
+- **Fixture provenance corrected.** The `mordor_*.jsonl` telemetry fixtures are hand-styled
+  synthetic telemetry authored for this repository, modelled on the named OTRF Mordor datasets —
+  they are not upstream slices, and earlier descriptions calling them authentic were wrong. The
+  manifest now records a `provenance` and `derivation` per dataset, and
+  `tools/acquire_telemetry.py` verifies a download's hash in a staging file before replacing a
+  fixture (previously it wrote over the fixture first and checked after).
+- **Metric names now state their basis.** `resilience_score` / `final_resilience` become
+  `detection_rate_on_approved`; an empty denominator reports `n/a (not measured)` rather than a
+  figure. Finding confidence is derived from attribution specificity instead of stamped `HIGH`.
+- **Self-healing cables retracted and re-templated.** `CABLE-2026-002` and `CABLE-2026-003`
+  published a `60.0% → 100.0%` resilience improvement that was a code constant, not a measurement;
+  both carry correction notices, and the template now publishes only measured patch-verification
+  evidence. See `docs/cables/ERRATA-2026-09-10.md`.
+- **Safety is unconditional, not a toggle.** Three `forbid_*` flags that no code path read were
+  deleted; the permitted-address policy is now a declared table in the Critic
+  (`PERMITTED_ADDRESS_RANGES`), and the "Routable IPv4" label was corrected to "non-reserved".
+- **Determinism is verified, not assumed.** The endurance runner seeds its RNG and derives probe
+  ids from content; two consecutive CLI runs produce byte-identical artifacts, and regenerating the
+  committed boundary maps with the documented command reproduces them exactly. CI runs the
+  pair-check on every push.
+- **The prompt interface states what it is:** keyword routing, documented as such, with
+  content-derived ids — not a model-driven planner.
+
+### Fixed
+- **A concluded run no longer leaks its workbench listener.** `_finish_run()` called `shutdown()`
+  without releasing the socket or clearing the attribute, leaving a bound loopback port until
+  garbage collection; because the server tries only three ports before giving up silently, leaked
+  sockets could quietly cost later runs their workbench. Teardown now routes through one helper
+  that also calls `server_close()`.
+- **The replay false-positive rate counted only one of its two detection paths.** Events reached
+  through a correlation chain were absent from the numerator; on the fixture that exercises it the
+  published rate was 33% where the measured rate is 100%.
+- **Two classes of Critic false positive removed.** JSON-escaped Windows paths (`\\Claude.exe`)
+  were flagged as network destinations, and a file-extension denylist containing `.com` silently
+  skipped every `.com` host. Both are pinned by regression tests; the UNC attacks are still caught.
+- **The ledger can no longer desync silently.** An append failure marks the run degraded
+  (`ledger_complete: false`) instead of being swallowed, so no later resume or report can present
+  drifted counters as ledger-backed.
+- **Patch application fails loudly on anchor drift** instead of silently doing nothing, and records
+  which resolution it used.
+- **The regression suite no longer writes into published artifacts.** Orchestrator tests wrote
+  through to `docs/swarm/results/`; they now take a scratch directory, and CI fails if a test run
+  modifies `docs/swarm/` or `docs/cables/`.
+
 ### Added
 - Dual-Mode Real-World Telemetry Replay Engine (`tools/swarm/telemetry_replay.py`):
   ingests native binary Windows `.evtx` (via `python-evtx`) and normalized JSONL / NDJSON streams
@@ -16,25 +70,32 @@ Keep a Changelog; versioning follows SemVer.
   CLI and SHA-256 lockfile tracking provenance, licensing, and cryptographic digests for external
   and in-repo telemetry corpora, supporting offline-first `--verify-only` validation.
 - In-Repo Compact Telemetry Fixture Suite (`tests/fixtures/telemetry/`, ~89KB total):
-  authentic Sysmon binary `.evtx` (`sample_sysmon_process_create.evtx`), Mordor credential dump
-  (`mordor_lsass_dump.jsonl`), Mordor scheduled task persistence (`mordor_schtasks_persistence.jsonl`),
-  and non-synthetic enterprise routine baseline (`benign_enterprise_workstation.jsonl`).
+  one upstream Sysmon `.evtx` export (`sample_sysmon_process_create.evtx`) and three hand-styled
+  synthetic fixtures (`mordor_lsass_dump.jsonl`, `mordor_schtasks_persistence.jsonl`,
+  `benign_enterprise_workstation.jsonl`) authored in the repository's `*.corp.example` namespace.
+  They are modelled on the named OTRF Mordor datasets but are not upstream slices; the manifest
+  records that provenance per dataset, and the `.evtx` copy is hash-pinned locally without an
+  offline byte-identity check against the upstream source.
 - Swarm CLI Replay Commands (`tools/swarm/cli.py`):
-  added `--replay-telemetry`, `--corpus-path`, `--is-benign`, and `--window` flags emitting ICD 203
-  telemetry replay reports to stdout and `docs/swarm/results/telemetry_replay.json`.
+  added `--replay-telemetry`, `--corpus-path`, and `--is-benign` flags emitting ICD 203 telemetry
+  replay reports to stdout and `docs/swarm/results/telemetry_replay.json`.
 - Strategic Synthesizer Replay Grounding (`tools/swarm/synthesizer.py`):
   integrated empirical telemetry replay metrics and Wilson confidence intervals directly into
   the strategic intelligence cable synthesis pipeline.
-- Continuous Workbench Sparring & 8,033-Probe Synthesis:
-  added `Continuous Sparring: ON / OFF` sequential looping in `swarm_workbench.html`, synthesized
-  overnight 8,033-probe run (71.4% resilience, 95% Wilson CI [70.43%, 72.39%], 2,296 evasion gaps
-  in 4 taxonomies) into `CABLE-2026-STRAT-002` and briefing dashboard `CABLE-2026-STRAT-002.html`.
-- Test Suite Expansion: added `tests/test_telemetry_replay.py`, expanding regression suite to 160 tests
-  passing in <1.8s with 89% total coverage across `tools/`.
+- Continuous Workbench Sparring: `Continuous Sparring: ON / OFF` sequential looping in
+  `swarm_workbench.html`. The overnight run first published as `CABLE-2026-STRAT-002`
+  (8,033 probes / 71.4%) was **retracted on 2026-09-10**: no persisted ledger exists for it, the
+  headline rate matched a retired code default, and its denominator mixed benign noise-floor events
+  with attack probes. The cable and its dashboard carry retraction notices; see
+  `docs/cables/ERRATA-2026-09-10.md`.
+- Test Suite Expansion: added `tests/test_telemetry_replay.py` plus coverage for the endurance
+  lifecycle, replay, observation-record, and honesty-guard paths; the suite is 545 tests with 87%
+  statement coverage across `tools/` (floor 85), enforced in CI.
 - MITRE D3FEND Ontology Taxonomy Reconciliation (`tools/swarm/d3fend_mapper.py`):
   disambiguated `D3-LSA` identifier collision (`D3-LSA` Log Storage Auditing, `D3-LSAP` Local
-  Security Authority Protection), updated official technique IDs (`D3-PSA`, `D3-SEA`, `D3-SJA`),
-  and verified all extended technique mappings against the published MITRE D3FEND ontology.
+  Security Authority Protection), and updated official technique IDs (`D3-PSA`, `D3-SEA`, `D3-SJA`).
+  Each mapping carries its own provenance; the earlier blanket claim that every extended identifier
+  had been verified against the ontology is withdrawn, and unverified entries are listed as gaps.
 - Grounded Enterprise Noise Floor & Wilson Confidence Intervals (`tools/swarm/noise_floor.py`):
   widened baseline to 16 realistic endpoint profiles, integrated volume-weighting reflecting
   real-world EDR/agent emission ratios (>60% volume), and added Wilson score 95% binomial
@@ -48,10 +109,11 @@ Keep a Changelog; versioning follows SemVer.
   ProcessAccess with Sysmon EID 11 FileCreate within 120s windows, exercised directly in production
   `GraphEngine` walks.
 - Empirical SIEM Query Calibration (`tools/swarm/siem_profiler.py`): calibrated static complexity
-  scores against wall-clock SQLite execution times, computing empirical latencies and Pearson
-  correlation coefficient ($r$).
-- Test Suite Coverage Expansion: added `tests/test_swarm_cli.py` and `SiemQueryProfilerTests`,
-  raising total test count to 130 tests and test coverage across `tools/` to 89.1% in <1.5s.
+  scores against wall-clock SQLite execution times, computing empirical latencies and a Pearson
+  correlation coefficient ($r$) from exactly one measurement per rule, so the coefficient is not
+  inflated by duplicated cross-backend pairs. A latency is reported only for the backend actually
+  timed; the driver attribution is stated only when the measurements support it.
+- Test Suite Coverage Expansion: added `tests/test_swarm_cli.py` and `SiemQueryProfilerTests`.
 - Strategic Threat Intelligence Synthesizer (`tools/swarm/synthesizer.py`): automated engine
   aggregating empirical threat cables and boundary telemetry to author ICD 203 / Sherman Kent
   doctrine Strategic Intelligence Cables with Diamond Model diagrams and trend breakdowns.

@@ -1,11 +1,13 @@
-"""Adversarial Swarm Intelligence Engine.
+"""Detection Boundary Harness.
 
-Controlled multi-agent test harness for continuous detection boundary mapping
-and automated rule resilience evaluation.
+Deterministic, LLM-free closed-loop harness for mapping the detection boundary of
+YARA and Sigma rules against a bounded vocabulary of mutations. No language model
+runs in the loop: mutation, evaluation, gating, and measurement are all rule-based
+and byte-reproducible.
 """
 
 from .adapter import SwarmAdapter
-from .autonomous import AutonomousOrchestrator
+from .sparring import SparringRunner
 from .cable_writer import CableWriter
 from .campaign import CampaignOrchestrator
 from .config import OperatorDirective, SafetyConstraints
@@ -64,7 +66,7 @@ __all__ = [
     "NodeVisit",
     "GraphWalkResult",
     "SwarmOrchestrator",
-    "AutonomousOrchestrator",
+    "SparringRunner",
     "CampaignOrchestrator",
     "PromptEngine",
     "SwarmAdapter",

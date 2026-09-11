@@ -175,10 +175,12 @@ class ProfilerReport:
                 "## Empirical timing calibration",
                 "",
                 f"Empirical latency was benchmarked across {cal.get('corpus_size', 0)} events "
-                f"({cal.get('repetitions', 0)} repetitions per query).",
+                f"({cal.get('repetitions', 0)} repetitions per query) on the "
+                f"`{cal.get('backend_timed', 'unrecorded')}` backend.",
                 "",
                 "| Metric | Value |",
                 "|---|---|",
+                f"| Rules timed (one pair each) | {cal.get('observations', 0)} |",
                 f"| Mean execution latency | {cal.get('mean_latency_ms', 0.0):.2f} ms |",
                 f"| Pearson correlation ($r$) | {cal.get('pearson_correlation', 0.0):.3f} ({cal.get('correlation_strength', 'unmeasured')}) |",
                 "",
@@ -222,14 +224,35 @@ class ProfilerReport:
                 "No query exhibits the nesting depth or clause breadth that would degrade a "
                 "production search cluster."
             )
+        # Driver attribution is counted from the elevated-cost profiles, not asserted. A
+        # contributor is only called dominant if it is present in every costly query.
+        contributors = {
+            "leading-wildcard matching": sum(1 for p in costly if p.leading_wildcards > 0),
+            "unanchored regular-expression matching": sum(1 for p in costly if p.unanchored_regexes > 0),
+            "boolean nesting depth": sum(1 for p in costly if p.nesting_depth >= 2),
+            "OR/IN expansion breadth": sum(1 for p in costly if p.or_expansion_terms >= 3),
+        }
+        ranked = sorted(contributors.items(), key=lambda item: item[1], reverse=True)
+        top_driver, top_count = ranked[0]
+        breakdown = ", ".join(f"{name} in {count}" for name, count in ranked if count)
+        if top_count == len(costly):
+            return (
+                f"We judge {len(costly)} of {len(self.profiles)} compiled queries to carry "
+                f"**elevated search cost**. The dominant contributor, present in all "
+                f"{len(costly)} of them, is {top_driver} (contributor counts: {breakdown}). "
+                f"Leading wildcards arise from Sigma's `endswith` and `contains` modifiers and "
+                f"prevent term-index seeks. It is likely that constraining these analytics with "
+                f"an indexed field predicate, such as a bounded event-code or channel filter "
+                f"evaluated first, would reduce scanned volume more than any rewrite of the "
+                f"string matching itself."
+            )
         return (
             f"We judge {len(costly)} of {len(self.profiles)} compiled queries to carry "
-            f"**elevated search cost**. The dominant driver is leading-wildcard matching, "
-            f"present in {len(wildcard_heavy)} compiled queries, which arises from Sigma's "
-            f"`endswith` and `contains` modifiers and prevents term-index seeks. It is "
-            f"likely that constraining these analytics with an indexed field predicate, such "
-            f"as a bounded event-code or channel filter evaluated first, would reduce scanned "
-            f"volume more than any rewrite of the string matching itself."
+            f"**elevated search cost**. No single contributor explains all of them "
+            f"(contributor counts among the elevated-cost set: {breakdown}). It is likely that "
+            f"constraining these analytics with an indexed field predicate, such as a bounded "
+            f"event-code or channel filter evaluated first, would reduce scanned volume more "
+            f"than any rewrite of the string matching itself."
         )
 
 
@@ -420,6 +443,10 @@ class SiemQueryProfiler:
 
             sqlite_be = sqliteBackend()
             rule_timings: Dict[str, float] = {}
+            #: Complexity score of the query that was actually executed, per rule. Scoring the
+            #: rule's *other-backend* query text would pair a Splunk/Lucene score with a SQLite
+            #: latency, and would also enter the same rule up to three times.
+            rule_scores: Dict[str, float] = {}
 
             for rule_path in self.rule_paths():
                 try:
@@ -443,15 +470,24 @@ class SiemQueryProfiler:
                     t1 = time.perf_counter()
                     times.append((t1 - t0) * 1000.0)
                 rule_timings[rule_title] = sum(times) / len(times)
+                executed_sql = " ".join(q.replace("<TABLE_NAME>", "events") for q in sql_queries)
+                rule_scores[rule_title] = self.analyze(rule_title, "sqlite", executed_sql).complexity_score
 
-            # Assign empirical_ms to matching profiles
+            # Empirical latency belongs only to the backend that was timed (SQLite). Attaching
+            # it to the Splunk/Lucene/LogScale profiles would present one backend's timing as
+            # another backend's measurement.
+            for profile in report.profiles:
+                if profile.backend.lower() == "sqlite" and profile.rule_name in rule_timings:
+                    profile.empirical_ms = rule_timings[profile.rule_name]
+
+            # Pearson r needs independent observations: exactly one (score, latency) pair per
+            # rule, both measured on the same backend.
             scores: List[float] = []
             latencies: List[float] = []
-            for profile in report.profiles:
-                if profile.rule_name in rule_timings:
-                    profile.empirical_ms = rule_timings[profile.rule_name]
-                    scores.append(profile.complexity_score)
-                    latencies.append(profile.empirical_ms)
+            for rule_title, latency in rule_timings.items():
+                if rule_title in rule_scores:
+                    scores.append(rule_scores[rule_title])
+                    latencies.append(latency)
 
             # Compute Pearson correlation coefficient r
             if len(scores) >= 2:
@@ -468,6 +504,8 @@ class SiemQueryProfiler:
 
             strength = "strong" if abs(r) >= 0.7 else ("moderate" if abs(r) >= 0.4 else "weak")
             report.empirical_calibration = {
+                "backend_timed": "sqlite",
+                "observations": len(scores),
                 "corpus_size": corpus_size,
                 "repetitions": repetitions,
                 "mean_latency_ms": round(sum(latencies) / len(latencies), 3) if latencies else 0.0,

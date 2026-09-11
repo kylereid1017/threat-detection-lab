@@ -24,7 +24,7 @@ class SwarmCliParserTests(unittest.TestCase):
             self.assertEqual(args.iterations, 10)
             self.assertEqual(args.events, 2500)
             self.assertEqual(args.attack_variants, 14)
-            self.assertFalse(args.autonomous)
+            self.assertFalse(args.continuous)
             self.assertFalse(args.benchmark_snr)
             self.assertFalse(args.profile_siem)
             self.assertFalse(args.export_d3fend)
@@ -35,7 +35,6 @@ class SwarmCliParserTests(unittest.TestCase):
             self.assertFalse(args.replay_telemetry)
             self.assertIsNone(args.corpus_path)
             self.assertFalse(args.is_benign)
-            self.assertEqual(args.window, 300)
             self.assertFalse(args.endurance)
             self.assertEqual(args.pace, 0.4)
 
@@ -51,7 +50,7 @@ class SwarmCliParserTests(unittest.TestCase):
                 "5",
                 "--variants-per-cycle",
                 "8",
-                "--autonomous",
+                "--continuous",
                 "--iterations",
                 "20",
                 "--benchmark-snr",
@@ -65,7 +64,7 @@ class SwarmCliParserTests(unittest.TestCase):
                 "--export-layer",
                 "--graph",
                 "--synthesize-trends",
-                "--self-heal",
+                "--propose-patches",
                 "--campaign",
                 "infostealer",
                 "--prompt",
@@ -74,8 +73,6 @@ class SwarmCliParserTests(unittest.TestCase):
                 "--corpus-path",
                 "tests/fixtures/telemetry/sample_sysmon_process_create.evtx",
                 "--is-benign",
-                "--window",
-                "120",
                 "--endurance",
                 "--pace",
                 "0.2",
@@ -85,7 +82,7 @@ class SwarmCliParserTests(unittest.TestCase):
             self.assertEqual(args.target, "yara")
             self.assertEqual(args.max_cycles, 5)
             self.assertEqual(args.variants_per_cycle, 8)
-            self.assertTrue(args.autonomous)
+            self.assertTrue(args.continuous)
             self.assertEqual(args.iterations, 20)
             self.assertTrue(args.benchmark_snr)
             self.assertEqual(args.events, 500)
@@ -96,13 +93,12 @@ class SwarmCliParserTests(unittest.TestCase):
             self.assertTrue(args.export_layer)
             self.assertTrue(args.graph)
             self.assertTrue(args.synthesize_trends)
-            self.assertTrue(args.self_heal)
+            self.assertTrue(args.propose_patches)
             self.assertEqual(args.campaign, "infostealer")
             self.assertEqual(args.prompt, "Test prompt directive")
             self.assertTrue(args.replay_telemetry)
             self.assertEqual(args.corpus_path, Path("tests/fixtures/telemetry/sample_sysmon_process_create.evtx"))
             self.assertTrue(args.is_benign)
-            self.assertEqual(args.window, 120)
             self.assertTrue(args.endurance)
             self.assertEqual(args.pace, 0.2)
 
@@ -230,7 +226,7 @@ class SwarmCliDispatchTests(unittest.TestCase):
                     ret = cli.main()
                     self.assertEqual(ret, 0)
 
-    def test_main_campaign_autonomous_fast(self):
+    def test_main_campaign_fast(self):
         with patch("tools.swarm.cable_writer.CableWriter.write_campaign_cable", return_value=Path("mock.md")):
             with patch.object(
                 sys,
@@ -239,7 +235,7 @@ class SwarmCliDispatchTests(unittest.TestCase):
                     "tools.swarm.cli",
                     "--campaign",
                     "ransomware",
-                    "--autonomous",
+                    "--continuous",
                     "--iterations",
                     "1",
                 ],
@@ -247,14 +243,14 @@ class SwarmCliDispatchTests(unittest.TestCase):
                 with patch("sys.stdout", new=io.StringIO()):
                     ret = cli.main()
                     self.assertEqual(ret, 0)
-    def test_main_autonomous_sparring_fast(self):
+    def test_main_continuous_sparring_fast(self):
         with tempfile.TemporaryDirectory() as tmp:
             with patch.object(
                 sys,
                 "argv",
                 [
                     "tools.swarm.cli",
-                    "--autonomous",
+                    "--continuous",
                     "--iterations",
                     "1",
                     "--output-dir",

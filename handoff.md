@@ -1,15 +1,17 @@
 # Handoff: agent capability composition
 
-> 2026-09-10: test count updated 479 → **485** (swarm review session added 6 tests; see
-> [HANDOFF_2026-09-10.md](HANDOFF_2026-09-10.md) for the swarm-programme handoff and errata).
+> 2026-09-10: test count 479 → **545**, statement coverage 86% → **87% over `tools/`**. The
+> honesty-pass session added tests and republished figures for the *swarm* programme; see
+> [HANDOFF_2026-09-10.md](HANDOFF_2026-09-10.md) for that handoff. **This file's
+> composition-programme measurements below were NOT re-verified by that session.**
 
-Updated 2026-09-06 after verifying the release-readiness work. Everything below is on disk and
-uncommitted. **485 tests passing, statement coverage 86%.** Keep both green.
+Updated 2026-09-06 after verifying the release-readiness work. **545 tests passing, statement
+coverage 87% over `tools/`.** Keep both green.
 
 ## Verification status of the release-readiness work
 
 All four gates verified independently rather than taken on trust: reproductions 9/9, coverage
-86% against an 85% floor, the suite mutates nothing under `docs/swarm/results/` (hash-compared
+87% against an 85% floor, the suite mutates nothing under `docs/swarm/results/` (hash-compared
 before and after), the artifact is self-contained with the CDN removed, and the taxonomy embedded
 in the page matches the Python source exactly.
 
@@ -202,7 +204,10 @@ could not verify it against any primary source. **Drop it** and do not name it a
 - Large corpora are gitignored, lockfiles are committed, and everything is reproducible from them.
 - Other agent sessions may be open on this repository. Check `git status` before assuming a
   change is yours.
-- Nothing is committed. That is a standing decision, not an oversight.
+- **The repo now has real committed history** (`main` @ `9b79436`, 11 merged PRs; the swarm honesty
+  pass is on `fix/swarm-honesty-pass`). An earlier revision of this file said "nothing is committed"
+  — that described the Sep 4–6 state and is retired. Check `git log`/`git status` yourself; do not
+  trust a handoff doc on repository state.
 
 ## Earlier programmes, for context
 

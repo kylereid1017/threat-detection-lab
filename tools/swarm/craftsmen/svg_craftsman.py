@@ -1,4 +1,4 @@
-"""Craftsman Agent 2c: Structural & payload mutator for active-content SVG files."""
+"""Mutation craftsman (SVG): structural and payload mutator for active-content SVG files."""
 
 from __future__ import annotations
 

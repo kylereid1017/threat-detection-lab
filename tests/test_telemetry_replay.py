@@ -179,7 +179,7 @@ class SlidingWindowEventStoreTests(unittest.TestCase):
 
 
 class TelemetryReplayEngineTests(unittest.TestCase):
-    """Verifies end-to-end replay across authentic Mordor, EVTX, and Benign datasets."""
+    """Verifies end-to-end replay across the hash-pinned fixtures (synthetic JSONL + native EVTX)."""
 
     def setUp(self):
         self.engine = TelemetryReplayEngine()
@@ -249,7 +249,13 @@ class TelemetryReplayEngineTests(unittest.TestCase):
         self.assertIn("# TELEMETRY REPLAY & GROUNDING REPORT (ICD 203)", md)
         self.assertIn("LSASS Process Memory Dump via Rundll32 Comsvcs.dll", md)
         self.assertIn("Correlated LSASS Memory Access and Dump File Creation", md)
-        self.assertIn("95% Wilson Binomial Confidence Interval", md)
+        self.assertIn("95% Wilson binomial interval", md)
+        # This fixture is an attack corpus: an FP rate is not defined over it, so the report
+        # must say so rather than print a fabricated 0.00% and a PASS verdict.
+        self.assertIsNone(report.empirical_fp_rate)
+        fp_row = [ln for ln in md.splitlines() if "Empirical FP Rate" in ln][0]
+        self.assertIn("n/a (not measured", fp_row)
+        self.assertNotIn("PASS", fp_row)
 
 
 class AcquireTelemetryCliTests(unittest.TestCase):

@@ -1,9 +1,9 @@
-# Adversarial Swarm Campaign Report — Suspicious_Active_Content_SVG_Attachment
+# Detection Boundary Campaign Report - Suspicious_Active_Content_SVG_Attachment
 
 **Target Type:** `yara` | **Cycles Completed:** `2`  
 **Total Variants Generated:** `7` | **Critic Approved:** `7`  
 **Detected:** `7` | **Evaded (Gaps Found):** `0`  
-**Rule Resilience Score:** `100.0%`
+**Detection Rate (Critic-approved variants):** `100.0%`
 
 ---
 

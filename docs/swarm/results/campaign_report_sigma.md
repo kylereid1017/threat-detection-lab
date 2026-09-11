@@ -1,9 +1,9 @@
-# Adversarial Swarm Campaign Report — Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)
+# Detection Boundary Campaign Report - Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)
 
 **Target Type:** `sigma` | **Cycles Completed:** `2`  
 **Total Variants Generated:** `7` | **Critic Approved:** `7`  
 **Detected:** `7` | **Evaded (Gaps Found):** `0`  
-**Rule Resilience Score:** `100.0%`
+**Detection Rate (Critic-approved variants):** `100.0%`
 
 ---
 

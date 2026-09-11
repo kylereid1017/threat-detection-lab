@@ -312,8 +312,11 @@ class D3fendReport:
             lines += [
                 "## Taxonomy status",
                 "",
-                "All countermeasure identifiers have been verified against the published "
-                "MITRE D3FEND ontology (v0.10+). Zero identifier collisions detected.",
+                "Countermeasure mappings carry a `source` field recording how each was "
+                "established: `verified` was checked by hand against the published MITRE "
+                "D3FEND ontology (v0.10+), `briefing` came from the operator briefing. Not "
+                "every identifier has been verified against the ontology, so coverage is "
+                "partial and the split is visible per entry.",
                 "",
             ]
 
