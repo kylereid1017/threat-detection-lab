@@ -628,5 +628,51 @@ class PatchEngineDriftTests(unittest.TestCase):
         self.assertTrue(any("No synthesis path matched" in line for line in logs.output), logs.output)
 
 
+class DeterminismTests(unittest.TestCase):
+    """The same seed and parameters must reproduce the same probe sequence."""
+
+    def test_seeded_runs_produce_identical_probe_ids(self):
+        from tools.swarm.endurance_runner import DEFAULT_SEED, EnduranceRunner
+        from tools.swarm.records import load_records
+
+        def probe_ids(seed):
+            with tempfile.TemporaryDirectory() as tmp:
+                results = Path(tmp)
+                with EnduranceRunner(pace_seconds=0.0, serve_workbench=False,
+                                     results_dir=results, seed=seed) as runner:
+                    for _ in range(3):
+                        runner._run_lolbin_proxy_sparring()
+                return [row.get("probe_id") for row in load_records(results) if row.get("probe_id")]
+
+        first, second = probe_ids(20260910), probe_ids(20260910)
+        self.assertEqual(first, second, "same seed must yield the same probe ids")
+        self.assertEqual(3, len(first))
+
+    def test_default_seed_is_recorded_for_reproduction(self):
+        from tools.swarm.endurance_runner import DEFAULT_SEED, EnduranceRunner
+
+        with tempfile.TemporaryDirectory() as tmp:
+            # The context manager matters on Windows: a leaked log FileHandler keeps the run
+            # log locked and the temp dir cannot be cleaned up (WinError 32).
+            with EnduranceRunner(pace_seconds=0.0, serve_workbench=False,
+                                 results_dir=Path(tmp)) as runner:
+                self.assertEqual(DEFAULT_SEED, runner.seed)
+
+    def test_probe_ids_are_content_derived_not_random(self):
+        from tools.swarm.endurance_runner import EnduranceRunner
+        from tools.swarm.records import load_records
+
+        with tempfile.TemporaryDirectory() as tmp:
+            with EnduranceRunner(pace_seconds=0.0, serve_workbench=False,
+                                 results_dir=Path(tmp)) as runner:
+                for _ in range(4):
+                    runner._run_lolbin_proxy_sparring()
+            probe_ids = [row["probe_id"] for row in load_records(Path(tmp)) if row.get("probe_id")]
+
+        self.assertTrue(probe_ids)
+        for probe_id in probe_ids:
+            self.assertRegex(probe_id, r"^proc-[0-9a-f]{8}$")
+
+
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
