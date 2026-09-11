@@ -322,12 +322,24 @@ class EnduranceRunner:
             logger.removeHandler(self._file_handler)
             self._file_handler.close()
             self._file_handler = None
-        if self.httpd:
-            try:
-                self.httpd.shutdown()
-            except Exception:
-                pass
-            self.httpd = None
+        self._stop_http_server()
+
+    def _stop_http_server(self) -> None:
+        """Stops the workbench listener and releases its socket.
+
+        ``shutdown()`` only stops the serve_forever loop; without ``server_close()`` the
+        listening socket stays bound until garbage collection, so a later run can fail to
+        bind its port and silently lose the workbench.  Both ``close()`` and run wrap-up
+        route through here so the teardown cannot drift between the two paths.
+        """
+        if not self.httpd:
+            return
+        try:
+            self.httpd.shutdown()
+            self.httpd.server_close()
+        except Exception as exc:
+            logger.warning("Workbench server teardown warning: %s", exc)
+        self.httpd = None
 
     def __enter__(self) -> EnduranceRunner:
         return self
@@ -1128,11 +1140,7 @@ class EnduranceRunner:
             cable_path = None
             stats = {}
 
-        if self.httpd:
-            try:
-                self.httpd.shutdown()
-            except Exception:
-                pass
+        self._stop_http_server()
 
         return {
             "total_cycles": self.total_cycles,

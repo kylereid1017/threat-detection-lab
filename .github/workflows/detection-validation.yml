@@ -18,8 +18,8 @@ concurrency:
 
 env:
   PYTHON_VERSION: "3.12"
-  # Statement coverage floor. The suite currently measures 88%; this is set
-  # below that so the gate catches regression rather than blocking routine work.
+  # Statement coverage floor. The suite currently measures 87% over tools/; this
+  # is set below that so the gate catches regression rather than blocking routine work.
   COVERAGE_FLOOR: "85"
 
 jobs:
