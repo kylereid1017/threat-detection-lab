@@ -216,11 +216,20 @@ class SwarmDetectorTests(unittest.TestCase):
 class SwarmOrchestratorEndToEndTests(unittest.TestCase):
     """Verifies end-to-end multi-cycle closed-loop runs for both YARA and Sigma."""
 
+    def setUp(self):
+        # Results must land in scratch space. Writing them into docs/swarm/results meant a test
+        # run silently rewrote the published boundary maps and campaign reports, so a code change
+        # could alter published artifacts without any deliberate regeneration.
+        self._scratch = tempfile.TemporaryDirectory()
+        self.addCleanup(self._scratch.cleanup)
+        self.output_dir = Path(self._scratch.name)
+
     def test_yara_orchestrator_run(self):
         directive = OperatorDirective(
             target="yara",
             max_cycles=2,
             variants_per_cycle=4,
+            output_dir=self.output_dir,
         )
         orchestrator = SwarmOrchestrator(directive)
         boundary_map, results = orchestrator.run()
@@ -241,6 +250,7 @@ class SwarmOrchestratorEndToEndTests(unittest.TestCase):
             target="sigma",
             max_cycles=2,
             variants_per_cycle=4,
+            output_dir=self.output_dir,
         )
         orchestrator = SwarmOrchestrator(directive)
         boundary_map, results = orchestrator.run()

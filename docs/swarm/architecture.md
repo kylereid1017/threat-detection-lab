@@ -115,7 +115,7 @@ The discovered gaps were converted into rule changes (commit `3f94da5`):
 
 ### Cycle 3 (current): re-measurement
 
-Against the tuned rules, the swarm currently measures **7/7 variants detected (100%)** for both targets. Fresh, deterministic results (byte-identical across runs) are in `docs/swarm/results/boundary_map_yara.json`, `boundary_map_sigma.json` and the Markdown campaign reports:
+Against the tuned rules, the swarm currently measures **7/7 variants detected (100%)** for both targets. Fresh results are in `docs/swarm/results/boundary_map_yara.json`, `boundary_map_sigma.json` and the Markdown campaign reports. Those committed files were regenerated with the commands below and compared byte-for-byte against a fresh run: they match exactly. CI enforces the same property by running each target twice and diffing, and by failing if a test run modifies anything under `docs/swarm/` or `docs/cables/`.
 
 ```powershell
 python -m tools.swarm.cli --target yara --max-cycles 2

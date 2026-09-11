@@ -92,6 +92,13 @@ jobs:
       - name: Run full regression suite with coverage
         run: python -m coverage run --source=tools -m unittest discover -s tests -v
 
+      - name: Published artifacts must not change during the test run
+        run: |
+          if ! git diff --exit-code -- docs/swarm/results docs/cables; then
+            echo "::error::the test suite modified published artifacts; isolate the test that writes them"
+            exit 1
+          fi
+
       - name: Enforce coverage floor
         run: |
           python -m coverage report -m
