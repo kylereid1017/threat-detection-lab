@@ -13,12 +13,16 @@ action under the repository owner's own identity and is theirs to take.
 
 | Measurement | Result |
 |---|---|
-| Rules that cannot fire without command-line capture | 33.5% |
+| Rules that cannot fire without command-line capture | 31.0% |
 | Mean documentation gap, driven by absent prerequisites | 0.603 |
 
-Windows command-line auditing is not on by default. A third of the corpus depends on it, and
+Windows command-line auditing is not on by default. Nearly a third of the corpus depends on it, and
 almost no rule says so. When the policy is absent those rules validate, deploy, alert on
 nothing, and look healthy. An operator cannot distinguish a quiet rule from a blind one.
+
+*Figures re-measured 2026-09-10 under the repaired Sigma condition semantics; the earlier
+33.5% was the pre-repair scorer's output (see `docs/brittleness/README.md`, re-derivation
+section).*
 
 A Sigma rule can express what it matches. It has no way to express what must be true for it to
 match anything. The proposal adds an optional block covering the channel, the audit policy,
