@@ -30,3 +30,7 @@ corpus/email/corpus.jsonl
 
 # Raw endurance run log (9.7 MB) — retained locally, not versioned
 docs/swarm/results/**/endurance_run.log
+
+# STRAT-005 endurance ledgers: the raw records (100+ MB) stay local; the committed
+# artifact is the deterministic gzip snapshot (gzip -9 -n) of the same bytes.
+docs/swarm/results/records/*.jsonl

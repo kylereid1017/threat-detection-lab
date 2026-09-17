@@ -1,10 +1,10 @@
 {
   "target_type": "yara",
   "target_rule": "Suspicious_Active_Content_SVG_Attachment",
-  "total_generated": 500,
-  "critic_approved": 500,
-  "detected_count": 177,
-  "evaded_count": 323,
-  "endurance_mode": true,
-  "detection_rate_on_approved": 0.354
+  "total_generated": 19531,
+  "critic_approved": 19531,
+  "detected_count": 7241,
+  "evaded_count": 11967,
+  "detection_rate_on_approved": 0.371,
+  "endurance_mode": true
 }
