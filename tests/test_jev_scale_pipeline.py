@@ -474,6 +474,14 @@ class TestScoreScaleMain(unittest.TestCase):
             records_dir, _ = self._write_records(base)
             deviations = base / "scale-deviations.json"
             deviations.write_text(json.dumps(["test deviation item"]), encoding="utf-8")
+            comp_meta = {"kind": "run_meta", "run_id": "deepseek-flash-t",
+                         "model_requested": "deepseek-flash", "provider": "deepseek",
+                         "corpus_size": 2, "ts_utc": "2026-09-17T00:10:00+00:00"}
+            comp_rows = [_obs("scale-00001", "attack", "attack", confidence=0.8),
+                         _obs("scale-00002", "safe", "attack", confidence=0.8)]
+            (records_dir / "deepseek-deepseek-flash-t.jsonl").write_text(
+                "\n".join([json.dumps(comp_meta)] + [json.dumps(r) for r in comp_rows]) + "\n",
+                encoding="utf-8")
             _patch_attrs(self, score_scale,
                          RECORDS_DIR=records_dir,
                          OUT_DIR=base / "out",
@@ -486,8 +494,10 @@ class TestScoreScaleMain(unittest.TestCase):
             self.assertEqual(results["reconciliation"][0]["ok"], True)
             self.assertEqual(results["attack_misses"][0]["email_id"], "scale-00004")
             self.assertEqual(results["deviations"], ["test deviation item"])
+            self.assertEqual(len(results["baseline_comparison"]), 1)
             report = (score_scale.OUT_DIR / "RESULTS-SCALE.md").read_text(encoding="utf-8")
             self.assertIn("## Registered criteria (A7)", report)
+            self.assertIn("Secondary arm", report)
             self.assertIn("test deviation item", report)
             self.assertIn("## Provenance", report)
 
@@ -565,6 +575,65 @@ class TestRunLlmScaleSubset(unittest.TestCase):
             _patch_attrs(self, run_llm_scale, RECORDS_DIR=Path(td) / "empty")
             with mock.patch.object(sys, "argv", ["run_llm_scale.py", "--resume"]):
                 self.assertEqual(run_llm_scale.main(), 1)
+
+
+class TestBaselineComparison(unittest.TestCase):
+    def _jev_run(self):
+        rows = [_obs("scale-00001", "attack", "attack", confidence=0.9),
+                _obs("scale-00002", "safe", "safe", confidence=0.9),
+                _obs("scale-00003", "spam", "spam", confidence=0.4),
+                _obs("scale-00004", "attack", "gray", confidence=0.2)]
+        return {"meta": {"run_id": "jev-scale-t", "model_requested": "jev-latest",
+                         "provider": "typesafe", "corpus_size": 4},
+                "path": Path("jev-scale-t.jsonl"), "observations": rows}
+
+    def _deepseek_run(self):
+        rows = [_obs("scale-00001", "attack", "attack"),
+                _obs("scale-00002", "safe", "safe"),
+                _obs("scale-00003", "spam", "attack")]
+        return {"meta": {"run_id": "deepseek-flash-t", "model_requested": "deepseek-flash",
+                         "provider": "deepseek", "corpus_size": 3},
+                "path": Path("deepseek-deepseek-flash-t.jsonl"), "observations": rows}
+
+    def test_common_subset_alignment(self):
+        runs = {"jev-scale-t.jsonl": self._jev_run(),
+                "deepseek-deepseek-flash-t.jsonl": self._deepseek_run()}
+        summaries = {name: score.summarize_run(run) for name, run in runs.items()}
+        out = score_scale.baseline_comparison(runs, summaries, "jev-scale-t.jsonl")
+        self.assertEqual(len(out), 1)
+        entry = out["deepseek-deepseek-flash-t.jsonl"]
+        self.assertEqual(entry["n"], 3)   # ids 1-3 are common
+        self.assertEqual(set(entry["models"]), {"jev", "deepseek-flash"})
+        self.assertAlmostEqual(entry["models"]["jev"]["accuracy"], 1.0)
+        self.assertAlmostEqual(entry["models"]["deepseek-flash"]["accuracy"], 2 / 3)
+        self.assertEqual(entry["models"]["jev"]["attack_support"], 1)
+        self.assertGreater(entry["models"]["deepseek-flash"]["cost_per_1000"],
+                           entry["models"]["jev"]["cost_per_1000"])
+
+    def test_no_comparator_yields_empty(self):
+        runs = {"jev-scale-t.jsonl": self._jev_run()}
+        summaries = {name: score.summarize_run(run) for name, run in runs.items()}
+        self.assertEqual(score_scale.baseline_comparison(runs, summaries, "jev-scale-t.jsonl"), {})
+
+
+class TestScoreScaleLoad(unittest.TestCase):
+    def test_loads_plaintext_and_gz_and_prefers_plaintext(self):
+        import gzip as gzip_mod
+        with tempfile.TemporaryDirectory() as td:
+            records_dir = Path(td)
+            meta = {"kind": "run_meta", "run_id": "x", "model_requested": "jev-latest",
+                    "provider": "typesafe", "corpus_size": 1}
+            obs = _obs("scale-00001", "safe", "safe", confidence=0.9)
+            blob = "\n".join([json.dumps(meta), json.dumps(obs)]) + "\n"
+            (records_dir / "jev-scale-plain.jsonl").write_text(blob, encoding="utf-8")
+            (records_dir / "jev-scale-gz.jsonl").write_text(blob, encoding="utf-8")
+            with gzip_mod.open(records_dir / "jev-scale-gz.jsonl.gz", "wt", encoding="utf-8") as handle:
+                handle.write(blob)
+            _patch_attrs(self, score_scale, RECORDS_DIR=records_dir)
+            runs = score_scale.load_scale_runs()
+            self.assertEqual(set(runs), {"jev-scale-plain.jsonl", "jev-scale-gz.jsonl"})
+            self.assertFalse(runs["jev-scale-gz.jsonl"]["path"].name.endswith(".gz"))
+            self.assertEqual(len(runs["jev-scale-gz.jsonl"]["observations"]), 1)
 
 
 class TestLoadDeviations(unittest.TestCase):

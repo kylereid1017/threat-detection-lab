@@ -15,6 +15,7 @@ Run:  python tools/jev_triage/score_scale.py
 
 from __future__ import annotations
 
+import gzip
 import hashlib
 import json
 import sys
@@ -38,9 +39,17 @@ def load_scale_runs() -> dict[str, dict]:
     runs: dict[str, dict] = {}
     if not RECORDS_DIR.exists():
         return runs
-    for path in sorted(RECORDS_DIR.glob("*.jsonl")):
+    by_stem: dict[str, Path] = {}
+    for path in sorted(RECORDS_DIR.glob("*.jsonl")) + sorted(RECORDS_DIR.glob("*.jsonl.gz")):
+        stem = path.name[:-3] if path.name.endswith(".gz") else path.name
+        existing = by_stem.get(stem)
+        if existing is None or (existing.name.endswith(".gz") and not path.name.endswith(".gz")):
+            by_stem[stem] = path
+    for _, path in sorted(by_stem.items()):
+        text = (gzip.open(path, "rt", encoding="utf-8").read()
+                if path.name.endswith(".gz") else path.read_text(encoding="utf-8"))
         meta, observations = None, []
-        for line in path.read_text(encoding="utf-8").split("\n"):
+        for line in text.split("\n"):
             if not line.strip():
                 continue
             row = json.loads(line)
@@ -99,6 +108,41 @@ def load_deviations() -> list[str]:
     return [str(item) for item in data] if isinstance(data, list) else []
 
 
+def baseline_comparison(runs: dict, summaries: dict, jev_name: str) -> dict:
+    """A8.1 secondary arm: Jev vs each comparator run on their common subset ids."""
+    jev_obs = {r["email_id"]: r for r in runs[jev_name]["observations"]
+               if not r.get("error") and r.get("label_pred") in LABELS}
+    out: dict[str, dict] = {}
+    for name, run in runs.items():
+        if name == jev_name or summaries[name]["provider"] in (None, "typesafe"):
+            continue
+        other_obs = {r["email_id"]: r for r in run["observations"]
+                     if not r.get("error") and r.get("label_pred") in LABELS}
+        common = sorted(set(jev_obs) & set(other_obs))
+        if not common:
+            continue
+        entry: dict = {"n": len(common), "models": {}}
+        for model_key, obs_map, meta in (("jev", jev_obs, runs[jev_name]["meta"]),
+                                         (summaries[name]["model"], other_obs, run["meta"])):
+            rows = [obs_map[email_id] for email_id in common]
+            correct = sum(1 for r in rows if r["label_pred"] == r["label_true"])
+            attack_rows = [r for r in rows if r["label_true"] == "attack"]
+            attack_correct = sum(1 for r in attack_rows if r["label_pred"] == "attack")
+            latencies = [r["latency_ms"] for r in rows if r.get("latency_ms")]
+            pricing = sc.clients.PRICING.get(meta.get("model_requested"), {})
+            costs = [sc.email_cost(r, pricing) for r in rows]
+            entry["models"][model_key] = {
+                "accuracy": (correct / len(rows)) if rows else None,
+                "attack_recall": (attack_correct / len(attack_rows)) if attack_rows else None,
+                "attack_support": len(attack_rows),
+                "p50_ms": sc.percentile(latencies, 0.50),
+                "p95_ms": sc.percentile(latencies, 0.95),
+                "cost_per_1000": (sum(costs) / len(costs) * 1000) if costs else None,
+            }
+        out[name] = entry
+    return out
+
+
 def main() -> int:
     runs = load_scale_runs()
     if not runs:
@@ -146,6 +190,7 @@ def main() -> int:
         "summaries": summaries,
         "criteria": crit,
         "attack_misses": attack_misses,
+        "baseline_comparison": baseline_comparison(runs, summaries, jev_name),
         "calibration": sc.calibration(jev_run["observations"]),
         "sweep": sweep,
         "sensitivity_hard_ham_as_safe": sc.sensitivity_hard_ham_as_safe(jev_run),
@@ -214,6 +259,17 @@ def main() -> int:
                             str(r["misroutes"]["safe_to_attack"]), str(r["misroutes"]["spam_to_attack"]),
                             str(r["misroutes"]["spam_to_safe"]), str(r["misroutes"]["gray_to_attack"]),
                             str(r["misroutes"]["gray_to_safe"])] for r in sweep]), "",
+    ]
+    if results["baseline_comparison"]:
+        lines += ["## Secondary arm: cheap-LLM comparator on the common subset (A8.1)", ""]
+        for name, entry in results["baseline_comparison"].items():
+            lines += [f"Comparator run: `{name}` - common subset n={entry['n']}", "",
+                      sc.markdown_table(
+                          ["model", "accuracy", "attack recall", "attack support", "p50 ms", "p95 ms", "$/1k"],
+                          [[model, fmt(m["accuracy"]), fmt(m["attack_recall"]), str(m["attack_support"]),
+                            fmt(m["p50_ms"], 0), fmt(m["p95_ms"], 0), fmt(m["cost_per_1000"], 4)]
+                           for model, m in entry["models"].items()]), ""]
+    lines += [
         f"## Attack misses ({len(attack_misses)} total; listed by confidence, highest first)", "",
         sc.markdown_table(["email_id", "source", "predicted", "confidence"],
                           [[m["email_id"], str(m["source"]), str(m["pred"]), fmt(m["confidence"])]
