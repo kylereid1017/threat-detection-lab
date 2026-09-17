@@ -1,0 +1,3 @@
+[
+  "A9 stopping rule invoked once: TypeSafe returned 'model_unavailable' (HTTP 503) for all calls from email ~1,246 onward (2026-09-17). The battery was stopped, a recovery watchdog was started, and the run resumed via --resume after service recovery. Errored observations are retained in the ledger and retried to clean rows; the error rate on resumption is reported from the records."
+]
