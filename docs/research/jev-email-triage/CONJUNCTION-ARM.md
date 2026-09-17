@@ -5,6 +5,14 @@
 **Reproduce:** `python tools/jev_triage/conjunction_arm.py` (repo root; reads committed
 records only; writes nothing).
 
+> **Correction (2026-09-17, post-review):** the original `from_addr`-only sender key was
+> absent on public-corpus rows and collapsed all 75 of them into one shared bucket. The
+> "Results" table below is preserved as the committed record; the **Correction section
+> near the end carries the regenerated numbers**, which supersede the readings that
+> depended on the sender keys (first-contact share, V1/V2 volumes, V1/V2 order
+> sensitivity). V0 rows, the threshold cliff, the latency block, and the escalation
+> composition are sender-independent and unaffected.
+
 ## Question
 
 Does adding a sender-recurrence leg to the confidence gate change the deployable envelope
@@ -71,6 +79,56 @@ Overall p50 224.8 ms / p95 369.2 ms / max 842.0 ms. Per-partition p50 spans 221�
 p95 spans 270–331 ms (synthetic n=115; spamassassin partitions n=25 each; hand-authored
 n=10). Sequential single-client timing — throughput under concurrency is unmeasured.
 
+## Correction (2026-09-17, post-review)
+
+**Root cause.** The script built sender keys from `from_addr` only. Public-corpus rows
+carry no `from_addr` (their sender lives in the display `from` header), so all 75
+public rows fell into one shared "" bucket: their real senders were never keyed, and
+every public row after the first was falsely "seen-before". Every figure that depends
+on sender keys was affected — first-contact counts, V1/V2 volumes, and the V1/V2
+order-sensitivity check. V0 rows, the threshold cliff, the latency block, and the
+escalation composition are sender-independent and unchanged.
+
+**Fix.** `sender_key()` now falls back to parsing the address out of `from`
+(`Name <addr>` → `addr`), which was available in the spec's input list. The script is
+the regenerated artifact; **every corrected number below comes from re-running it.**
+
+| key | variant | T | auto | delivered attacks | quarantined legit | spam-q | escalated | first-contact |
+|-----|---------|---|------|-------------------|-------------------|--------|-----------|---------------|
+| addr | V0 | 0.25 | 135 | **2** | 0 | 14 | 65 | 190 |
+| addr | V0 | 0.30 | 129 | 0 | 0 | 13 | 71 | 190 |
+| addr | V0 | 0.35 | 126 | 0 | 0 | 13 | 74 | 190 |
+| addr | V1 | 0.25–0.35 | 4 | 0 | 0 | 0 | 196 | 190 |
+| addr | V2 | 0.25–0.35 | 4 | 0 | 0 | 0 | 196 | 190 |
+| domain | V0 | 0.30 | 129 | 0 | 0 | 13 | 71 | 170 |
+| domain | V1 | 0.25 / 0.30 / 0.35 | 15 / 14 / 14 | 0 | 0 | 1 | 185/186/186 | 170 |
+| domain | V2 | 0.25–0.35 | 6 | 0 | 0 | 0 | 194 | 170 |
+
+Order sensitivity, corrected (key=addr, T=0.30, corpus order → seed-7 shuffle):
+V0 129 → 129; **V1 4 → 4; V2 4 → 4** (order-stable).
+
+**Revised readings (supersede Results readings 1–3 where they differ).**
+
+1. **First contact is ~95% (190/200) by address and ~85% (170/200) by domain** — the
+   original 63% figure undercounted public-mail sender diversity by collapsing it into
+   one bucket. Sender-recurrence legs are structurally near-inert on this corpus:
+   V1/V2 can auto-act on at most ~2% (address) / ~3–7% (domain) of volume. The
+   queue-triage comparison stands and sharpens: first-contact walls of this kind
+   (78–85% unreachable there; 95% here) are a property of the traffic mix, and here
+   the wall is higher.
+2. **The corrected V1/V2 order check is stable (4 → 4).** The earlier "V2 collapses
+   18 → 1 under shuffle" finding is superseded — that instability was itself an
+   artifact of the shared bucket. The methodological requirement is unchanged:
+   order/permutation controls remain mandatory for recurrence-dependent signals —
+   they are what surfaced this defect chain.
+3. Unchanged: the threshold cliff (T=0.25 auto-delivers 2 attacks; registered 0.30
+   sits above the observed miss band), the latency block, and the V0/T=0.30 escalation
+   composition.
+
+This correction supersedes the 63%-first-contact reading circulated in the 2026-09-17
+session report. The corrected conclusion for the recurrence arm is stronger and
+simpler: on this corpus there is almost nothing for a recurrence leg to reach.
+
 ## Limitations
 
 - `label_true` as prior history = perfect memory; optimistic for any recurrence leg.
@@ -82,4 +140,5 @@ n=10). Sequential single-client timing — throughput under concurrency is unmea
 ## Files
 
 - Spec: `tools/jev_triage/PLAN-addendum-conjunction-arm.md` (frozen before computation)
-- Script: `tools/jev_triage/conjunction_arm.py` (reproduces every number above)
+- Script: `tools/jev_triage/conjunction_arm.py` (regenerates the corrected grid in the
+  Correction section; the original defective join is described there)

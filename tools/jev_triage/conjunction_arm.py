@@ -11,11 +11,27 @@ import hashlib
 import json
 import os
 import random
+import re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 REC = os.path.join(ROOT, "docs", "research", "jev-email-triage", "records",
                    "jev-20260917T143754Z.jsonl")
 CORPUS = os.path.join(ROOT, "corpus", "email", "corpus.jsonl")
+
+
+def sender_key(c):
+    """Sender address key.
+
+    2026-09-17 correction: the original version used `from_addr` only, which is absent
+    on public-corpus rows and collapsed all of them into one bucket. Parse the address
+    out of the display `from` header when `from_addr` is not present.
+    """
+    addr = (c.get("from_addr") or "").strip()
+    if not addr:
+        frm = c.get("from") or ""
+        match = re.search(r"<([^>]+)>", frm)
+        addr = (match.group(1) if match else frm).strip()
+    return addr.lower()
 
 
 def load():
@@ -26,7 +42,7 @@ def load():
     assert len(obs) == 200 and len(crp) == 200, "unexpected input sizes"
     assert all(c["email_id"] in by for c in crp), "join incomplete"
     rows = [(by[c["email_id"]]["confidence"], by[c["email_id"]]["label_pred"],
-             c["label"], (c.get("from_addr") or "").lower()) for c in crp]
+             c["label"], sender_key(c)) for c in crp]
     return obs, rows
 
 
