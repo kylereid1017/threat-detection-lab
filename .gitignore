@@ -22,5 +22,11 @@ corpus/benign/
 corpus/ct/*.jsonl
 corpus/agent/*.jsonl
 
+# Email triage (Jev) corpus: the public-corpus content is retained locally and is
+# NOT redistributed; only locks/manifests and the inert synthetic corpus are committed.
+corpus/email/_downloads/
+corpus/email/normalized_public.jsonl
+corpus/email/corpus.jsonl
+
 # Raw endurance run log (9.7 MB) — retained locally, not versioned
 docs/swarm/results/**/endurance_run.log

@@ -1,0 +1,233 @@
+{
+  "generator": "deepseek-flash",
+  "generated_utc": "2026-09-17T14:37:15.158915+00:00",
+  "seed": 20260917,
+  "prompt_sha256": "312ff9c50b7bafcdb2bd5d5ae4ab793c5b12ef3532d61d6cb8356cc454e5b98d",
+  "batch_plan": [
+    {
+      "batch_id": "attack-phish-1",
+      "label": "attack",
+      "count": 8,
+      "subtypes": [
+        "credential_phishing"
+      ],
+      "difficulty_mix": "2,3,3,3,2,3,3,3"
+    },
+    {
+      "batch_id": "attack-invoice-1",
+      "label": "attack",
+      "count": 7,
+      "subtypes": [
+        "invoice_fraud"
+      ],
+      "difficulty_mix": "3,3,2,3,3,3,3"
+    },
+    {
+      "batch_id": "attack-malware-1",
+      "label": "attack",
+      "count": 7,
+      "subtypes": [
+        "malware_lure"
+      ],
+      "difficulty_mix": "2,3,3,2,3,3,3"
+    },
+    {
+      "batch_id": "attack-extortion-1",
+      "label": "attack",
+      "count": 5,
+      "subtypes": [
+        "extortion"
+      ],
+      "difficulty_mix": "2,2,3,3,3"
+    },
+    {
+      "batch_id": "attack-qr-1",
+      "label": "attack",
+      "count": 6,
+      "subtypes": [
+        "qr_phishing"
+      ],
+      "difficulty_mix": "2,3,3,2,3,3"
+    },
+    {
+      "batch_id": "attack-techsupport-1",
+      "label": "attack",
+      "count": 7,
+      "subtypes": [
+        "tech_support_scam"
+      ],
+      "difficulty_mix": "2,2,3,3,2,3,3"
+    },
+    {
+      "batch_id": "safe-personal-1",
+      "label": "safe",
+      "count": 7,
+      "subtypes": [
+        "personal",
+        "notification"
+      ],
+      "difficulty_mix": "1,1,2,2,1,2,2"
+    },
+    {
+      "batch_id": "safe-transaction-1",
+      "label": "safe",
+      "count": 6,
+      "subtypes": [
+        "transactional"
+      ],
+      "difficulty_mix": "1,2,2,1,2,2"
+    },
+    {
+      "batch_id": "safe-internal-1",
+      "label": "safe",
+      "count": 6,
+      "subtypes": [
+        "internal_work"
+      ],
+      "difficulty_mix": "1,2,2,1,2,2"
+    },
+    {
+      "batch_id": "safe-newsletter-1",
+      "label": "safe",
+      "count": 6,
+      "subtypes": [
+        "newsletter_subscribed"
+      ],
+      "difficulty_mix": "1,1,2,2,1,2"
+    },
+    {
+      "batch_id": "gray-outreach-1",
+      "label": "gray",
+      "count": 7,
+      "subtypes": [
+        "cold_outreach",
+        "vendor_oddity"
+      ],
+      "difficulty_mix": "2,2,3,3,2,3,3"
+    },
+    {
+      "batch_id": "gray-unknownbulk-1",
+      "label": "gray",
+      "count": 6,
+      "subtypes": [
+        "unknown_list_bulk"
+      ],
+      "difficulty_mix": "2,2,3,2,3,3"
+    },
+    {
+      "batch_id": "gray-ambiguous-1",
+      "label": "gray",
+      "count": 6,
+      "subtypes": [
+        "ambiguous_marketing"
+      ],
+      "difficulty_mix": "2,3,2,3,2,3"
+    },
+    {
+      "batch_id": "gray-internalodd-1",
+      "label": "gray",
+      "count": 6,
+      "subtypes": [
+        "internal_oddity"
+      ],
+      "difficulty_mix": "3,3,2,3,3,2"
+    },
+    {
+      "batch_id": "spam-promo-1",
+      "label": "spam",
+      "count": 7,
+      "subtypes": [
+        "promo_bulk",
+        "retail"
+      ],
+      "difficulty_mix": "1,1,2,1,2,1,2"
+    },
+    {
+      "batch_id": "spam-getrich-1",
+      "label": "spam",
+      "count": 6,
+      "subtypes": [
+        "get_rich",
+        "work_from_home"
+      ],
+      "difficulty_mix": "1,2,1,2,1,2"
+    },
+    {
+      "batch_id": "spam-retail-1",
+      "label": "spam",
+      "count": 6,
+      "subtypes": [
+        "retail",
+        "promo_bulk"
+      ],
+      "difficulty_mix": "1,1,2,2,1,2"
+    },
+    {
+      "batch_id": "spam-misc-1",
+      "label": "spam",
+      "count": 6,
+      "subtypes": [
+        "pharma_ish",
+        "get_rich"
+      ],
+      "difficulty_mix": "1,2,2,1,2,2"
+    }
+  ],
+  "records_in_file": 115,
+  "counts_this_run": {
+    "attack": 40,
+    "safe": 25,
+    "gray": 25,
+    "spam": 25
+  },
+  "rejects": [
+    {
+      "batch_id": "attack-malware-1",
+      "attempt": 1,
+      "reason": "body-length:245"
+    },
+    {
+      "batch_id": "attack-malware-1",
+      "attempt": 1,
+      "reason": "body-length:238"
+    },
+    {
+      "batch_id": "attack-qr-1",
+      "attempt": 1,
+      "reason": "body-length:243"
+    },
+    {
+      "batch_id": "attack-qr-1",
+      "attempt": 1,
+      "reason": "body-length:245"
+    },
+    {
+      "batch_id": "attack-qr-1",
+      "attempt": 1,
+      "reason": "body-length:196"
+    },
+    {
+      "batch_id": "attack-techsupport-1",
+      "attempt": 1,
+      "reason": "inertness:email-domain:example.com"
+    },
+    {
+      "batch_id": "safe-transaction-1",
+      "attempt": 1,
+      "reason": "inertness:email-domain:housing.university-example.edu;email-domain:university-example.edu.;url-host:housing.university-example.edu"
+    },
+    {
+      "batch_id": "safe-transaction-1",
+      "attempt": 1,
+      "reason": "inertness:email-domain:university-example.edu;url-host:library.university-example.edu"
+    },
+    {
+      "batch_id": "safe-newsletter-1",
+      "attempt": 1,
+      "reason": "inertness:email-domain:example.com"
+    }
+  ],
+  "warnings": 2,
+  "output_sha256": "77264d6128db404dd3bb84dc5fb798c3d3691b4e5c4ce9d3de918e16f52db734",
+  "note": "Synthetic, inert email generated by an LLM for mechanics evaluation. Not evidence of real-world efficacy. All hosts on reserved TLDs; regenerate with: python tools/jev_triage/generate_synthetic.py"
+}
