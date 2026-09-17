@@ -1,3 +1,4 @@
 [
-  "A9 stopping rule invoked once: TypeSafe returned 'model_unavailable' (HTTP 503) for all calls from email ~1,246 onward (2026-09-17). The battery was stopped, a recovery watchdog was started, and the run resumed via --resume after service recovery. Errored observations are retained in the ledger and retried to clean rows; the error rate on resumption is reported from the records."
+  "A9 stopping rule invoked once: TypeSafe returned 'model_unavailable' (HTTP 503) for all calls from email ~1,246 onward (2026-09-17). The battery was stopped, a recovery watchdog was started, and it resumed the run via --resume once the service recovered; all 10 errored observations were retried to clean rows (raw error rows remain in the ledger as record).",
+  "A8.1 comparator arm: DeepSeek returned HTTP 402 (insufficient balance) for a block of subset rows mid-run (2026-09-17). The arm was completed via --resume after a balance top-up; all 1,388 errored rows were retried to clean observations (raw error rows remain in the ledger as record)."
 ]

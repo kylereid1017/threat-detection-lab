@@ -30,6 +30,9 @@ corpus/email/corpus.jsonl
 corpus/email/scale/_downloads_scale/
 corpus/email/scale/scale-normalized.jsonl
 corpus/email/scale/scale-corpus.jsonl
+# Scale-battery records: plaintext kept locally; committed artifact is the
+# deterministic gzip snapshot (python -c "gzip ... mtime=0").
+docs/research/jev-email-triage/records/scale/*.jsonl
 
 # Raw endurance run log (9.7 MB) — retained locally, not versioned
 docs/swarm/results/**/endurance_run.log

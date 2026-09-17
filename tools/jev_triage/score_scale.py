@@ -180,7 +180,27 @@ def main() -> int:
                == jev_run["meta"].get("corpus_size")),
     }]
 
-    records_sha = hashlib.sha256(jev_run["path"].read_bytes()).hexdigest()
+    attack_by_source = {}
+    for r in clean:
+        if r["label_true"] != "attack":
+            continue
+        src = r.get("source", "?")
+        agg = attack_by_source.setdefault(src, {"support": 0, "recalled": 0})
+        agg["support"] += 1
+        if r["label_pred"] == "attack":
+            agg["recalled"] += 1
+
+    records_entries = []
+    for entry_name, entry_run in sorted(runs.items()):
+        entry_path = entry_run["path"]
+        gz_path = Path(str(entry_path) + ".gz")
+        records_entries.append({
+            "run": entry_name,
+            "file": entry_path.name,
+            "sha256": hashlib.sha256(entry_path.read_bytes()).hexdigest(),
+            "gz": gz_path.name if gz_path.exists() else None,
+            "gz_sha256": hashlib.sha256(gz_path.read_bytes()).hexdigest() if gz_path.exists() else None,
+        })
     manifest = json.loads(SCALE_MANIFEST.read_text(encoding="utf-8")) if SCALE_MANIFEST.exists() else {}
     results = {
         "generated_utc": datetime.now(timezone.utc).isoformat(),
@@ -190,14 +210,14 @@ def main() -> int:
         "summaries": summaries,
         "criteria": crit,
         "attack_misses": attack_misses,
+        "attack_recall_by_source": attack_by_source,
         "baseline_comparison": baseline_comparison(runs, summaries, jev_name),
         "calibration": sc.calibration(jev_run["observations"]),
         "sweep": sweep,
         "sensitivity_hard_ham_as_safe": sc.sensitivity_hard_ham_as_safe(jev_run),
         "aux_noul": sc.aux_signal(jev_run["observations"]),
         "provenance": {
-            "records_file": jev_run["path"].name,
-            "records_sha256": records_sha,
+            "records": records_entries,
             "corpus": jev_run["meta"].get("corpus"),
             "corpus_sha256": jev_run["meta"].get("corpus_sha256"),
             "scale_manifest_input_hashes": manifest.get("input_hashes", {}),
@@ -210,11 +230,18 @@ def main() -> int:
 
     fmt = sc.fmt
     summary = summaries[jev_name]
+    unresolved = {}
+    for run_name, run in runs.items():
+        err_ids = {r["email_id"] for r in run["observations"] if r.get("error")}
+        clean_ids = {r["email_id"] for r in run["observations"] if not r.get("error")}
+        unresolved[run_name] = len(err_ids - clean_ids)
+    jev_sha16 = next(e["sha256"][:16] for e in records_entries if e["run"] == jev_name)
     lines = [
         "# Jev Email Triage - Scale Battery Results", "",
         f"Generated: {results['generated_utc']} - recomputed from raw records only "
-        f"({jev_run['path'].name}, sha256 {records_sha[:16]}...).", "",
+        f"({jev_run['path'].name}, sha256 {jev_sha16}...).", "",
         f"Plan: `tools/jev_triage/PLAN-addendum-scale.md` - registered operating point T={REGISTERED_T:.2f}.", "",
+        "Readings (post-hoc interpretation): `SCALE-READINGS.md`; conjunction arm: `CONJUNCTION-ARM-SCALE.md`.", "",
         "## Reconciliation", "",
         sc.markdown_table(["run", "observations", "errors", "clean ids", "expected", "ok"],
                           [[r["run"], str(r["observations"]), str(r["errors"]),
@@ -225,10 +252,10 @@ def main() -> int:
                           [[c["id"], c["criterion"], json.dumps(c["actual"], default=str), c["result"]]
                            for c in crit]), "",
         "## Model summary", "",
-        sc.markdown_table(["run", "model", "n scored", "errors", "accuracy", "p50 ms", "p95 ms",
+        sc.markdown_table(["run", "model", "n scored", "unresolved errors", "accuracy", "p50 ms", "p95 ms",
                            "$/email", "$/1k"],
                           [[summary["file"], summary["model"], str(summary["scored"]),
-                            str(summary["errors"]), fmt(summary["accuracy"]),
+                            str(unresolved[jev_name]), fmt(summary["accuracy"]),
                             fmt(summary["latency_ms"]["p50"], 0), fmt(summary["latency_ms"]["p95"], 0),
                             f"{summary['cost']['per_email_usd_mean']:.6f}"
                             if summary["cost"]["per_email_usd_mean"] else "n/a",
@@ -243,6 +270,11 @@ def main() -> int:
         sc.markdown_table(["source", "n", "accuracy"],
                           [[src, str(v["n"]), fmt(v["accuracy"])]
                            for src, v in summary["by_source"].items()]), "",
+        "## Attack recall by source", "",
+        sc.markdown_table(["source", "attack support", "recalled", "recall"],
+                          [[src, str(v["support"]), str(v["recalled"]),
+                            fmt(v["recalled"] / v["support"]) if v["support"] else "n/a"]
+                           for src, v in sorted(results["attack_recall_by_source"].items())]), "",
         "## Calibration (confidence decile vs accuracy)", "",
         sc.markdown_table(["bucket", "n", "accuracy"],
                           [[c["bucket"], str(c["n"]), fmt(c["accuracy"])]
@@ -290,11 +322,14 @@ def main() -> int:
         lines += [f"- {d}" for d in deviations]
     else:
         lines += ["(none recorded at scoring time)"]
-    lines += ["", "## Provenance", "",
-              f"- records: `{jev_run['path'].name}` sha256 `{records_sha}`",
-              f"- corpus: `{jev_run['meta'].get('corpus')}` sha256 `{jev_run['meta'].get('corpus_sha256')}`",
-              f"- scale manifest input hashes: `{json.dumps(results['provenance']['scale_manifest_input_hashes'])}`",
-              f"- recompute: `{results['provenance']['recompute_command']}`", ""]
+    lines += ["", "## Provenance", ""]
+    for entry in results["provenance"]["records"]:
+        gz_note = f" | gz `{entry['gz']}` sha256 `{entry['gz_sha256']}`" if entry["gz"] else ""
+        lines.append(f"- records `{entry['file']}` sha256 `{entry['sha256']}`{gz_note}")
+    lines += [
+        f"- corpus: `{jev_run['meta'].get('corpus')}` sha256 `{jev_run['meta'].get('corpus_sha256')}`",
+        f"- scale manifest input hashes: `{json.dumps(results['provenance']['scale_manifest_input_hashes'])}`",
+        f"- recompute: `{results['provenance']['recompute_command']}`", ""]
 
     (OUT_DIR / "RESULTS-SCALE.md").write_text("\n".join(lines), encoding="utf-8")
     print("\n".join(lines[:45]))
