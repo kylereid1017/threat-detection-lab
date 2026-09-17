@@ -27,6 +27,9 @@ corpus/agent/*.jsonl
 corpus/email/_downloads/
 corpus/email/normalized_public.jsonl
 corpus/email/corpus.jsonl
+corpus/email/scale/_downloads_scale/
+corpus/email/scale/scale-normalized.jsonl
+corpus/email/scale/scale-corpus.jsonl
 
 # Raw endurance run log (9.7 MB) — retained locally, not versioned
 docs/swarm/results/**/endurance_run.log

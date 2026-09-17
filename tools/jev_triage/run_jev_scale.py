@@ -1,13 +1,13 @@
-"""Run Jev (TypeSafe System One) over the email corpus; append raw records.
+"""Run Jev (TypeSafe System One) over the SCALE email corpus; append raw records.
 
-One call per email. Questions are frozen in PLAN.md §4 (disposition choice +
-two auxiliary nouls). Records go to docs/research/jev-email-triage/records/ as
-append-only JSONL, one row per email plus a run_meta header row.
+Mirrors tools/jev_triage/run_jev.py conventions: same frozen questions (PLAN.md §4),
+same record schema, append-only JSONL with a run_meta header row and skip-completed
+resume. Fixed to the scale corpus and records/scale/ output.
 
 Run:
-  python tools/jev_triage/run_jev.py                 # new run
-  python tools/jev_triage/run_jev.py --resume        # continue the latest Jev run
-  python tools/jev_triage/run_jev.py --limit 5       # quick smoke
+  python tools/jev_triage/run_jev_scale.py              # new run
+  python tools/jev_triage/run_jev_scale.py --resume     # continue the latest scale run
+  python tools/jev_triage/run_jev_scale.py --limit 5    # quick smoke
 """
 
 from __future__ import annotations
@@ -22,78 +22,21 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import clients  # noqa: E402
+from run_jev import QUESTIONS, completed_ids, normalized_state  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
-CORPUS = REPO / "corpus" / "email" / "corpus.jsonl"
-RECORDS_DIR = REPO / "docs" / "research" / "jev-email-triage" / "records"
+CORPUS = REPO / "corpus" / "email" / "scale" / "scale-corpus.jsonl"
+RECORDS_DIR = REPO / "docs" / "research" / "jev-email-triage" / "records" / "scale"
 
 MODEL = "jev-latest"
 MODEL_LABEL = "jev"
-
-QUESTIONS = {
-    "disposition": {
-        "type": "choice",
-        "instructions": (
-            "Classify this email into exactly one category from the perspective of a "
-            "security analyst reviewing an inbox. Base the decision only on the email's "
-            "content (sender identity, subject, body, any links or attachments mentioned)."
-        ),
-        "criteria": {
-            "safe": "Wanted, legitimate mail the recipient would expect: personal correspondence, "
-                    "transactional/notification mail, internal work mail, subscribed newsletters.",
-            "gray": "Real ambiguity — a careful analyst would neither auto-trust nor auto-block: "
-                    "unsolicited but plausible outreach, unclear list provenance, or legitimate-looking "
-                    "mail with a concrete anomaly (sender/brand mismatch, unexpected attachment, "
-                    "urgency from an unknown party).",
-            "spam": "Unsolicited bulk or promotional junk with no deceptive or malicious intent.",
-            "attack": "Intent to harm or defraud: credential phishing, invoice/BEC fraud, malware "
-                      "lures, extortion, QR phishing, or technical-support scams.",
-        },
-    },
-    "deception_present": {
-        "type": "noul",
-        "instructions": (
-            "Does the email attempt to deceive the recipient about who the sender is, what "
-            "the recipient must do, or what the consequences of inaction are?"
-        ),
-    },
-    "requests_credentials_or_payment": {
-        "type": "noul",
-        "instructions": (
-            "Does the email request credentials, identity data, or a payment/wire "
-            "(or instruct the recipient to enter such details somewhere)?"
-        ),
-    },
-}
-
-
-def normalized_state(record: dict) -> str:
-    lines = [f"From: {record['from']}"]
-    if record.get("reply_to"):
-        lines.append(f"Reply-To: {record['reply_to']}")
-    lines.append(f"Subject: {record['subject']}")
-    lines.append("")
-    lines.append(record["body"])
-    return "\n".join(lines)
 
 
 def latest_run_file() -> Path | None:
     if not RECORDS_DIR.exists():
         return None
-    runs = sorted(RECORDS_DIR.glob("jev-*.jsonl"))
+    runs = sorted(RECORDS_DIR.glob("jev-scale-*.jsonl"))
     return runs[-1] if runs else None
-
-
-def completed_ids(run_file: Path | None) -> set[str]:
-    done = set()
-    if run_file and run_file.exists():
-        for line in run_file.read_text(encoding="utf-8").splitlines():
-            if not line.strip():
-                continue
-            row = json.loads(line)
-            if row.get("kind") == "observation" and not row.get("error"):
-                done.add(row["email_id"])
-    return done
 
 
 def main() -> int:
@@ -102,7 +45,12 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=0)
     args = parser.parse_args()
 
-    corpus = [json.loads(line) for line in CORPUS.read_text(encoding="utf-8").splitlines() if line.strip()]
+    if not CORPUS.exists():
+        print(f"missing corpus: {CORPUS}")
+        print("run: python tools/jev_triage/fetch_scale.py && python tools/jev_triage/build_corpus_scale.py")
+        return 1
+    corpus = [json.loads(line) for line in CORPUS.read_text(encoding="utf-8").split("\n")
+              if line.strip()]
     corpus_hash = hashlib.sha256(CORPUS.read_bytes()).hexdigest()
     if args.limit:
         corpus = corpus[: args.limit]
@@ -111,12 +59,12 @@ def main() -> int:
     if args.resume:
         run_file = latest_run_file()
         if run_file is None:
-            print("no existing run to resume")
+            print("no existing scale run to resume")
             return 1
         done = completed_ids(run_file)
         print(f"resuming {run_file.name}: {len(done)} already done")
     else:
-        run_id = "jev-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        run_id = "jev-scale-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         run_file = RECORDS_DIR / f"{run_id}.jsonl"
         done = set()
         meta = {
@@ -132,7 +80,8 @@ def main() -> int:
             "questions": QUESTIONS,
             "pricing_ref": clients.PRICING["jev-latest"],
             "pricing_accessed": clients.PRICING_ACCESSED,
-            "note": "one row per email (kind=observation); append-only",
+            "plan_ref": "tools/jev_triage/PLAN-addendum-scale.md",
+            "note": "one row per email (kind=observation); append-only; scale battery",
         }
         run_file.write_text(json.dumps(meta, ensure_ascii=False) + "\n", encoding="utf-8")
 
@@ -180,7 +129,7 @@ def main() -> int:
             handle.flush()
             processed += 1
             status = row["label_pred"] or f"ERROR: {row['error'][:60]}"
-            print(f"  [{processed:3d}] {row['email_id']:24s} true={row['label_true']:6s} "
+            print(f"  [{processed:5d}] {row['email_id']:12s} true={row['label_true']:6s} "
                   f"pred={status:6s} conf={row['confidence']} {row['latency_ms']}ms")
             if processed % 25 == 0:
                 time.sleep(0.2)

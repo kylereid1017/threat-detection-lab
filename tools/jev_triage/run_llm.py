@@ -191,7 +191,8 @@ def main() -> int:
             "provider": args.provider,
             "ts_utc": datetime.now(timezone.utc).isoformat(),
             "system_prompt": SYSTEM_PROMPT,
-            "corpus": str(CORPUS.relative_to(REPO)).replace("\\", "/"),
+            "corpus": (str(CORPUS.relative_to(REPO)).replace("\\", "/")
+                       if CORPUS.is_relative_to(REPO) else str(CORPUS)),
             "corpus_sha256": corpus_hash,
             "corpus_size": len(corpus),
             "subset_filter": args.email_ids or None,
