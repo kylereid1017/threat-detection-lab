@@ -40,3 +40,18 @@ docs/swarm/results/**/endurance_run.log
 # STRAT-005 endurance ledgers: the raw records (100+ MB) stay local; the committed
 # artifact is the deterministic gzip snapshot (gzip -9 -n) of the same bytes.
 docs/swarm/results/records/*.jsonl
+
+# Local working docs & presentation artifacts — not published in this repo.
+# Handoff/status notes, internal review artifacts, and deck/pitch exports
+# stay local; the public repo carries the work itself.
+HANDOFF*.md
+handoff*.md
+STATUS*.md
+status*.md
+deck*
+pitch/
+docs/reviews/
+*.ppt
+*.pptx
+*.key
+*.odp
