@@ -22,5 +22,36 @@ corpus/benign/
 corpus/ct/*.jsonl
 corpus/agent/*.jsonl
 
+# Email triage (Jev) corpus: the public-corpus content is retained locally and is
+# NOT redistributed; only locks/manifests and the inert synthetic corpus are committed.
+corpus/email/_downloads/
+corpus/email/normalized_public.jsonl
+corpus/email/corpus.jsonl
+corpus/email/scale/_downloads_scale/
+corpus/email/scale/scale-normalized.jsonl
+corpus/email/scale/scale-corpus.jsonl
+# Scale-battery records: plaintext kept locally; committed artifact is the
+# deterministic gzip snapshot (python -c "gzip ... mtime=0").
+docs/research/jev-email-triage/records/scale/*.jsonl
+
 # Raw endurance run log (9.7 MB) — retained locally, not versioned
 docs/swarm/results/**/endurance_run.log
+
+# STRAT-005 endurance ledgers: the raw records (100+ MB) stay local; the committed
+# artifact is the deterministic gzip snapshot (gzip -9 -n) of the same bytes.
+docs/swarm/results/records/*.jsonl
+
+# Local working docs & presentation artifacts — not published in this repo.
+# Handoff/status notes, internal review artifacts, and deck/pitch exports
+# stay local; the public repo carries the work itself.
+HANDOFF*.md
+handoff*.md
+STATUS*.md
+status*.md
+deck*
+pitch/
+docs/reviews/
+*.ppt
+*.pptx
+*.key
+*.odp

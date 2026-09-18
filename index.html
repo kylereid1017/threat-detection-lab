@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Threat Detection Lab — interactive artifacts</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #0b0f17; color: #e5e7eb;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.6;
+  }
+  main { max-width: 960px; margin: 0 auto; padding: 48px 24px 64px; }
+  h1 { font-size: 28px; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .tag { color: #9ca3af; font-size: 15px; margin: 0 0 32px; }
+  .card {
+    display: block; border: 1px solid #1f2937; background: #111827;
+    border-radius: 12px; padding: 20px 22px; margin: 0 0 16px;
+    text-decoration: none; color: inherit;
+  }
+  .card:hover { border-color: #374151; background: #131c2e; }
+  .card h2 { font-size: 17px; margin: 0 0 6px; }
+  .card p { margin: 0; color: #9ca3af; font-size: 14.5px; }
+  .pill {
+    display: inline-block; border: 1px solid #374151; color: #9ca3af;
+    border-radius: 999px; font-size: 12px; padding: 1px 10px;
+    margin-left: 8px; vertical-align: 2px;
+  }
+  .meta { margin-top: 36px; padding-top: 20px; border-top: 1px solid #1f2937; color: #9ca3af; font-size: 14px; }
+  a { color: #7dd3fc; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Threat Detection Lab</h1>
+  <p class="tag">Interactive artifacts. Static, self-contained pages — no external scripts, no runtime fetches.</p>
+
+  <a class="card" href="docs/research/agent-capability-composition.html">
+    <h2>Agent Exposure Review — capability composition analyzer <span class="pill">flagship</span></h2>
+    <p>&ldquo;What changes if I add this tool to my agent?&rdquo; Paste an agent configuration and see the capability
+    graph, the minimal exfiltration closures, and which removal actually breaks every chain. The taxonomy is
+    evaluated over 336 real public configurations, and every finding states its evidence.</p>
+  </a>
+
+  <a class="card" href="docs/research/agent-execution-layer-dashboard.html">
+    <h2>AI Agent Execution Layer — empirical dossier</h2>
+    <p>Five-tab dashboard over a 2,500-package population study of the MCP / agent tool tier: ecosystem growth,
+    maintainer concentration, advisory triage, an interactive kill-chain simulator, and a config scanner demo.</p>
+  </a>
+
+  <a class="card" href="swarm_workbench.html">
+    <h2>Detection Boundary Workbench — kill-chain state machine</h2>
+    <p>The DAG canvas from the deterministic mutation harness: walk the kill chain, watch an evasion branch to
+    compensating controls, and read Depth-of-Defense and path-to-objective against this repository's own rules.
+    An internal regression and teaching artifact, not a field measurement.</p>
+  </a>
+
+  <p class="meta">
+    Everything here is a static file in the repository. Figures follow the repository&rsquo;s measurement policy:
+    external measurements come from data the repository did not author; internal harness numbers are regression
+    signals inside a closed system, never field-efficacy claims.
+    Source, detections, research notes, and measured results:
+    <a href="https://github.com/kylereid1017/threat-detection-lab">github.com/kylereid1017/threat-detection-lab</a>.
+  </p>
+</main>
+</body>
+</html>

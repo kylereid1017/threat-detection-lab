@@ -1,6 +1,6 @@
 """Honesty guards for the swarm harness.
 
-Regression tests for the findings in docs/reviews/2026-09-10-swarm-harness-evaluation.md:
+Regression tests for findings recorded in the 2026-09-10 swarm-harness evaluation:
 figures that were published without being measured, claims the code did not enforce, and
 retraction text that a routine regeneration could silently delete.
 """

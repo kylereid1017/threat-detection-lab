@@ -1,0 +1,85 @@
+{
+  "status": "RUNNING",
+  "seed": 20260910,
+  "ledger_complete": true,
+  "ledger_error": null,
+  "start_time": "2026-09-10T22:02:24.694716+00:00",
+  "last_heartbeat": "2026-09-11T05:23:01.380311+00:00",
+  "elapsed_seconds": 26436.7,
+  "total_cycles": 38500,
+  "probes_evaluated": 1502126,
+  "critic_approved": 1502126,
+  "critic_blocked": 0,
+  "critic_approval_rate": 1.0,
+  "true_positives": 222702,
+  "evasion_gaps": 41844,
+  "resilience_rate": 0.8418,
+  "campaigns_evaluated": 6416,
+  "campaign_containment_rate": 1.0,
+  "average_depth_of_defense": 0.857,
+  "graph_walks_evaluated": 6417,
+  "average_mttd_seconds": 25.0,
+  "telemetry_replays_evaluated": 6417,
+  "noise_benchmarks_evaluated": 6416,
+  "run_id": "endur-20260910T220224Z-be1a82",
+  "attack_variants_evaluated": 264546,
+  "attack_variants_detected": 222702,
+  "benign_events_evaluated": 1365900,
+  "benign_false_positives": 6416,
+  "unclassified_preserved": 0,
+  "error_records_preserved": 0,
+  "observation_records": {
+    "file": "docs\\swarm\\results\\records\\run-endur-20260910T220224Z-be1a82.jsonl",
+    "count": 105873
+  },
+  "cluster_breakdown": {
+    "Cluster A: LOLBin & Process Proxying": 9126,
+    "Cluster B: Argument Masking & Parameter Aliasing": 1366,
+    "Cluster C: Parser Differentials & Offset Padding": 7353,
+    "Cluster D: Sensor Blinding & Telemetry Tampering": 0
+  },
+  "current_pattern_suite": "Real-World Telemetry Replay Sweep (EVTX & JSONL)",
+  "recent_findings": [
+    {
+      "variant_id": "svg-7b16f0bd",
+      "target_type": "yara",
+      "mutation_name": "endurance_cdata_enclosed_script_pad_6000",
+      "detected": false,
+      "cluster": "Cluster C: Parser Differentials & Offset Padding",
+      "timestamp": "2026-09-11T05:22:56.069305+00:00"
+    },
+    {
+      "variant_id": "proc-d6b4e94d",
+      "target_type": "sigma",
+      "mutation_name": "endurance_switch_w1",
+      "detected": true,
+      "cluster": "Cluster B: Argument Masking & Parameter Aliasing",
+      "timestamp": "2026-09-11T05:22:57.716404+00:00"
+    },
+    {
+      "variant_id": "svg-03430f94",
+      "target_type": "yara",
+      "mutation_name": "endurance_cdata_enclosed_script_pad_2048",
+      "detected": true,
+      "cluster": "Cluster C: Parser Differentials & Offset Padding",
+      "timestamp": "2026-09-11T05:22:58.521706+00:00"
+    },
+    {
+      "variant_id": "proc-288b589a",
+      "target_type": "sigma",
+      "mutation_name": "endurance_switch_w1",
+      "detected": true,
+      "cluster": "Cluster B: Argument Masking & Parameter Aliasing",
+      "timestamp": "2026-09-11T05:23:00.168894+00:00"
+    },
+    {
+      "variant_id": "svg-a93efa92",
+      "target_type": "yara",
+      "mutation_name": "endurance_bracket_concat_js_pad_1024",
+      "detected": true,
+      "cluster": "Cluster B: Argument Masking & Parameter Aliasing",
+      "timestamp": "2026-09-11T05:23:00.974271+00:00"
+    }
+  ],
+  "stop_signal_file": "C:\\Users\\kyler\\Projects\\threat-detection-lab\\docs\\swarm\\results\\STOP_ENDURANCE"
+}

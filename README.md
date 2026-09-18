@@ -28,6 +28,21 @@ Output evaluates:
 3. **Exfiltration Paths:** Modeled composition paths if closure occurs.
 4. **Concrete Mitigations:** Argument-level path scoping, dual-profile architectural separation, and version pinning.
 
+## Interactive artifacts
+
+Static, self-contained pages — no external scripts or runtime fetches (guarded by
+`tests/test_artifact_self_containment.py`). Live via GitHub Pages:
+**https://kylereid1017.github.io/threat-detection-lab/**
+
+**Agent Exposure Review** — paste an agent configuration; see the capability graph, the closure, and a removal that breaks every chain.
+[![Agent Exposure Review analyzer](docs/assets/screenshots/agent-exposure-review.png)](https://kylereid1017.github.io/threat-detection-lab/docs/research/agent-capability-composition.html)
+
+**Detection Boundary Workbench** — walk the kill-chain DAG from the deterministic mutation harness.
+[![Detection boundary workbench](docs/assets/screenshots/detection-boundary-workbench.png)](https://kylereid1017.github.io/threat-detection-lab/swarm_workbench.html)
+
+**AI Agent Execution Layer dossier** — the MCP population study as a five-tab dashboard.
+[![Agent execution layer dashboard](docs/assets/screenshots/agent-execution-layer-dashboard.png)](https://kylereid1017.github.io/threat-detection-lab/docs/research/agent-execution-layer-dashboard.html)
+
 ---
 
 ## Status & Governance Matrix
@@ -166,6 +181,8 @@ The harness models three canonical adversary campaigns:
 - `tests/test_sigma_rules.py` — Sigma schema validation, regression tests, and SIEM conversion tests
 - `tests/test_swarm.py` — Swarm safety gates, mutators, and orchestration tests
 - `tests/test_multi_campaign_graphs.py` — Multi-campaign DAG state machine regression suite
+- `docs/assets/` — vendored assets (single Tailwind build) and README screenshots
+- `index.html` — landing page for the interactive artifacts
 - `ROADMAP.md` — project delivery roadmap
 
 ## Run locally
