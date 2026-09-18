@@ -1,0 +1,41 @@
+{
+  "audit_date": "2026-09-17",
+  "method": "Manual review of every synthetic record (labels, mechanics, inertness) and of all public-corpus records' subjects/bodies, performed AFTER corpus build but BEFORE any model outputs were scored. Exclusions apply uniformly to every model's records.",
+  "excluded_from_primary_metrics": [
+    {
+      "email_id": "syn-spam-promo-1-02",
+      "reason": "Content is a city newsletter that reads as legitimate/safe; the 'spam' label is not defensible. Excluded rather than relabeled to avoid post-hoc label edits."
+    },
+    {
+      "email_id": "pub-052",
+      "reason": "Non-English-dominant (German body/subject); pre-registered exclusion rule; the ASCII-ratio heuristic missed it."
+    },
+    {
+      "email_id": "pub-058",
+      "reason": "Non-English-dominant (Turkish subject/body); pre-registered exclusion rule; ASCII-ratio heuristic missed it."
+    },
+    {
+      "email_id": "pub-072",
+      "reason": "Non-English-dominant (Chinese subject); pre-registered exclusion rule; ASCII-ratio heuristic missed it."
+    }
+  ],
+  "kept_with_note": [
+    {
+      "email_id": "syn-gray-outreach-1-06",
+      "note": "Teams-client update message sits on the gray/attack boundary; kept as gray because the ambiguity band is the point of the class."
+    },
+    {
+      "email_id": "syn-spam-retail-1-02",
+      "note": "Gated whitepaper promo - boundary between spam and (unwanted) marketing; kept as spam."
+    },
+    {
+      "email_id": "syn-spam-retail-1-06",
+      "note": "Free webinar promo - boundary between spam and (unwanted) marketing; kept as spam."
+    },
+    {
+      "email_id": "syn-attack-extortion-1-01",
+      "note": "BTC wallet string is a placeholder-form value; no live indicator."
+    }
+  ],
+  "sensitivity_plan": "Primary metrics exclude the four records above for all models. The excluded set is small (2%); a sensitivity check including them was computed once and is reported alongside in RESULTS.md if the delta changes any class ordering."
+}

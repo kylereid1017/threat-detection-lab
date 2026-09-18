@@ -1,0 +1,40 @@
+# Line-ending policy
+# =================
+# Every text file is stored AND checked out with LF on all platforms.
+#
+# This is a correctness requirement, not a style preference. `tools/telemetry_
+# manifest.json` pins SHA-256 digests of the telemetry corpora, and those
+# digests are computed over working-tree bytes. Under the Windows default
+# (core.autocrlf=true) the working tree holds CRLF while the object store holds
+# LF, so a digest generated on Windows can never match one verified on the
+# Linux CI runner. Pinning eol=lf makes the two byte-identical.
+
+* text=auto eol=lf
+
+# Binary corpora: never transform. EVTX is the native Windows binary event log
+# container and contains CR bytes as payload data, not as line terminators.
+*.evtx  binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.pdf   binary
+*.zip   binary
+*.gz    binary
+*.woff  binary
+*.woff2 binary
+
+# Explicit text declarations, so detection never depends on content sniffing.
+*.py    text eol=lf
+*.json  text eol=lf
+*.jsonl text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.yar   text eol=lf
+*.md    text eol=lf
+*.svg   text eol=lf
+*.html  text eol=lf
+*.txt   text eol=lf
+*.cfg   text eol=lf
+*.toml  text eol=lf
