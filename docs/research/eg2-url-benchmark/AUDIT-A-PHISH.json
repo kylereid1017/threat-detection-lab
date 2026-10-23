@@ -1,0 +1,185 @@
+{
+ "label": "POST-HOC manual audit (2026-10-09), one reviewer, by eye from screenshots",
+ "sample": "24 of the 336 Battery A phishing screenshots, random.Random(20261009).sample",
+ "categories": {
+  "visible_phishing": 5,
+  "fraud_store": 3,
+  "dead_parked_blank": 11,
+  "benign_looking": 5
+ },
+ "no_visible_phishing": [
+  0.6666666666666666,
+  0.46706316684738447,
+  0.8202780976355061
+ ],
+ "items": [
+  {
+   "n": 1,
+   "file": "phishing/transperfect_next/homepage.png",
+   "title": "Home - TransPerfect NEXT",
+   "url": "https://globallinknext.com/Rogue_cu",
+   "category": "benign_looking"
+  },
+  {
+   "n": 2,
+   "file": "phishing/hjemmeside/homepage.png",
+   "title": "Hjemmeside",
+   "url": "http://botik.dk",
+   "category": "benign_looking"
+  },
+  {
+   "n": 3,
+   "file": "phishing/app/homepage.png",
+   "title": "app-vinci.com",
+   "url": "https://app-vinci.com",
+   "category": "dead_parked_blank"
+  },
+  {
+   "n": 4,
+   "file": "phishing/strato/homepage.png",
+   "title": "STRATO - Domain not available",
+   "url": "http://53686310.swh.strato-hosting.eu/indexenglish1.html",
+   "category": "dead_parked_blank"
+  },
+  {
+   "n": 5,
+   "file": "phishing/rabby_wallet/homepage.png",
+   "title": "Rabby Wallet",
+   "url": "https://rabby.at/imports.php",
+   "category": "visible_phishing"
+  },
+  {
+   "n": 6,
+   "file": "phishing/plesk_obsidian_18_0_78/homepage.png",
+   "title": "Plesk Obsidian 18.0.78",
+   "url": "https://lms.jyoratech.com",
+   "category": "benign_looking"
+  },
+  {
+   "n": 7,
+   "file": "phishing/this_domain_is_free_to_take/homepage.png",
+   "title": "This domain is free to take | Boxmode",
+   "url": "https://attloginportalservice.boxmode.io",
+   "category": "dead_parked_blank"
+  },
+  {
+   "n": 8,
+   "file": "phishing/katempl/payment.png",
+   "title": "pay stub",
+   "url": "https://katempl.cc/product-category/pay-stub/",
+   "category": "fraud_store"
+  },
+  {
+   "n": 9,
+   "file": "phishing/logistique_relais/homepage.png",
+   "title": "nan",
+   "url": "https://logistique-relais.com/pac/calcul.php",
+   "category": "dead_parked_blank"
+  },
+  {
+   "n": 10,
+   "file": "phishing/katempl/account.png",
+   "title": "My account",
+   "url": "https://katempl.cc/my-account/",
+   "category": "fraud_store"
+  },
+  {
+   "n": 11,
+   "file": "phishing/support/homepage.png",
+   "title": "support-myapp.com",
+   "url": "https://support-myapp.com/index.php",
+   "category": "dead_parked_blank"
+  },
+  {
+   "n": 12,
+   "file": "phishing/biolink/homepage.png",
+   "title": "w4ed5rftygu - Biolink",
+   "url": "https://biolink.website/w4ed5rftygu",
+   "category": "dead_parked_blank"
+  },
+  {
+   "n": 13,
+   "file": "phishing/etax/homepage.png",
+   "title": "ETAX Services - eFile Provider",
+   "url": "http://taxids.com",
+   "category": "benign_looking"
+  },
+  {
+   "n": 14,
+   "file": "phishing/brobizz/homepage.png",
+   "title": "Brobizz",
+   "url": "https://brobizz9685846.wpenginepowered.com",
+   "category": "visible_phishing"
+  },
+  {
+   "n": 15,
+   "file": "phishing/mardi/homepage.png",
+   "title": "mardi-redirection-prb.com",
+   "url": "https://mardi-redirection-prb.com/as.php",
+   "category": "dead_parked_blank"
+  },
+  {
+   "n": 16,
+   "file": "phishing/wlfiportal/homepage.png",
+   "title": "nan",
+   "url": "https://wlfiportal.com",
+   "category": "dead_parked_blank"
+  },
+  {
+   "n": 17,
+   "file": "phishing/exped/homepage.png",
+   "title": "exped-coursier.com",
+   "url": "https://exped-coursier.com/as.php",
+   "category": "dead_parked_blank"
+  },
+  {
+   "n": 18,
+   "file": "phishing/casas_bahia/homepage.png",
+   "title": "Casas bahia",
+   "url": "https://pay.completando-seupagamento.com/checkout?product=6ac0f6a5-8560-11f0-986",
+   "category": "visible_phishing"
+  },
+  {
+   "n": 19,
+   "file": "phishing/about/homepage.png",
+   "title": "eJyM0EFrwyAUB_BPo5dAMCZGPXhJ2x3HDruHF_PaOhINxoT12w8LY-ltICj688-fZ2FewN",
+   "url": "http://email.about.me/o/eJyM0EFrwyAUB_BPo5dAMCZGPXhJ2x3HDruHF_PaOhINxoT12w8LY-lt",
+   "category": "dead_parked_blank"
+  },
+  {
+   "n": 20,
+   "file": "phishing/orange_maroc/homepage.png",
+   "title": "nan",
+   "url": "https://weloveyou.orange-maroc.net/login",
+   "category": "visible_phishing"
+  },
+  {
+   "n": 21,
+   "file": "phishing/batalkan_cc/homepage.png",
+   "title": "batalkan.cc",
+   "url": "https://batalkan.cc/DBS.co.id/",
+   "category": "dead_parked_blank"
+  },
+  {
+   "n": 22,
+   "file": "phishing/katempl/cart.png",
+   "title": "Cart",
+   "url": "https://katempl.cc/cart/",
+   "category": "fraud_store"
+  },
+  {
+   "n": 23,
+   "file": "phishing/xrp2/homepage.png",
+   "title": "HOME | Xrp2",
+   "url": "https://alainasaltosa.wixsite.com/xrp2",
+   "category": "visible_phishing"
+  },
+  {
+   "n": 24,
+   "file": "phishing/collectchat/homepage.png",
+   "title": "Collectchat | Interactive Form Builder for Websites",
+   "url": "https://reach.at/67a3766e9b94a96edb5a0fd9",
+   "category": "benign_looking"
+  }
+ ]
+}

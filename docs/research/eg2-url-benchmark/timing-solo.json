@@ -1,0 +1,14 @@
+{
+  "ts_utc": "2026-10-09T06:26:54.746059+00:00",
+  "cpu": "AMD64 Family 25 Model 97 Stepping 2, AuthenticAMD",
+  "torch_threads": 12,
+  "dtype": "float32",
+  "batch": 16,
+  "n": 48,
+  "ms_per_item": {
+    "url_text": 93.18121250180411,
+    "screenshot": 3900.5444499998703,
+    "url_plus_screenshot": 3969.594687499921
+  },
+  "summary": "URL text 93 ms, screenshot 3.9 s, URL + screenshot 4.0 s per item"
+}

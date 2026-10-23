@@ -1,0 +1,47 @@
+{
+  "built_utc": "2026-09-17T18:45:50.734750+00:00",
+  "total": 18314,
+  "by_label": {
+    "attack": 12000,
+    "gray": 245,
+    "safe": 3857,
+    "spam": 2212
+  },
+  "by_source": {
+    "ceas_08": 7203,
+    "ling": 445,
+    "nazario": 1523,
+    "nigerian_5": 3274,
+    "spamassassin_easy_ham": 2472,
+    "spamassassin_easy_ham_2": 1385,
+    "spamassassin_hard_ham": 245,
+    "spamassassin_spam": 471,
+    "spamassassin_spam_2": 1296
+  },
+  "by_source_label": {
+    "ceas_08|attack": 7203,
+    "ling|spam": 445,
+    "nazario|attack": 1523,
+    "nigerian_5|attack": 3274,
+    "spamassassin_easy_ham|safe": 2472,
+    "spamassassin_easy_ham_2|safe": 1385,
+    "spamassassin_hard_ham|gray": 245,
+    "spamassassin_spam|spam": 471,
+    "spamassassin_spam_2|spam": 1296
+  },
+  "empty_from_rows": 771,
+  "empty_from_by_source": {
+    "ling": 445,
+    "nigerian_5": 326
+  },
+  "input_hashes": {
+    "scale-normalized.jsonl": "ede15ebe5eef62e465fd0184e792c520a3c7b75c279c87ccc9b746f44234343a"
+  },
+  "notes": [
+    "scale-corpus.jsonl is local-only: it embeds public-corpus content that is not redistributed.",
+    "Composition, caps, and exclusions are recorded in corpus/email/scale/scale-lock.json (frozen by tools/jev_triage/PLAN-addendum-scale.md).",
+    "771 row(s) carry an empty from field (curated CSVs may lack sender values; see empty_from_by_source).",
+    "Labels follow PLAN-addendum-scale.md A1/A3 mappings; phishing/fraud rows are inert text (no live payloads are fetched or executed)."
+  ],
+  "repro_command": "python tools/jev_triage/build_corpus_scale.py"
+}

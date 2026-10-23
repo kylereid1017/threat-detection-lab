@@ -1,0 +1,361 @@
+{
+  "run_id": "eg2-email-20261009T030203Z",
+  "ts_utc": "2026-10-09T03:02:03.205804+00:00",
+  "n_emails": 18314,
+  "criteria": [
+    {
+      "id": "C8a",
+      "desc": "E1 attack recall on clean sources >= Jev",
+      "actual": "EG2: 0.9739 vs Jev: 0.9562",
+      "pass": true
+    },
+    {
+      "id": "C8b",
+      "desc": "E1 delivered attacks on clean sources at matched auto-share < Jev (60)",
+      "actual": "EG2: 0 (T=0.795) vs Jev: 60 (T=0.30)",
+      "pass": true
+    },
+    {
+      "id": "C8c",
+      "desc": "E2a nazario attack recall >= 0.80",
+      "actual": "0.2154 (328/1523)",
+      "pass": false
+    },
+    {
+      "id": "C8d",
+      "desc": "E2b nigerian_5 attack recall >= 0.80",
+      "actual": "0.0269 (88/3274)",
+      "pass": false
+    },
+    {
+      "id": "C8e",
+      "desc": "Embed latency CPU p50 <= 1000 ms/email",
+      "actual": "667.6 ms",
+      "pass": true
+    }
+  ],
+  "registered_basis": {
+    "accuracy": 0.929289068472207,
+    "matrix": {
+      "safe": {
+        "safe": 3733,
+        "gray": 87,
+        "spam": 11,
+        "attack": 26
+      },
+      "gray": {
+        "safe": 27,
+        "gray": 197,
+        "spam": 15,
+        "attack": 6
+      },
+      "spam": {
+        "safe": 26,
+        "gray": 49,
+        "spam": 1998,
+        "attack": 139
+      },
+      "attack": {
+        "safe": 72,
+        "gray": 501,
+        "spam": 336,
+        "attack": 11091
+      }
+    },
+    "per_class": {
+      "safe": {
+        "precision": 0.9675997926386729,
+        "recall": 0.9678506611355976,
+        "support": 3857,
+        "pred_count": 3858
+      },
+      "gray": {
+        "precision": 0.23621103117505995,
+        "recall": 0.8040816326530612,
+        "support": 245,
+        "pred_count": 834
+      },
+      "spam": {
+        "precision": 0.8466101694915255,
+        "recall": 0.903254972875226,
+        "support": 2212,
+        "pred_count": 2360
+      },
+      "attack": {
+        "precision": 0.9848161960575387,
+        "recall": 0.92425,
+        "support": 12000,
+        "pred_count": 11262
+      }
+    }
+  },
+  "remap_basis": {
+    "accuracy": 0.9396636452986786,
+    "matrix": {
+      "safe": {
+        "safe": 3740,
+        "gray": 86,
+        "spam": 24,
+        "attack": 7
+      },
+      "gray": {
+        "safe": 28,
+        "gray": 209,
+        "spam": 8,
+        "attack": 0
+      },
+      "spam": {
+        "safe": 101,
+        "gray": 636,
+        "spam": 8513,
+        "attack": 165
+      },
+      "attack": {
+        "safe": 3,
+        "gray": 7,
+        "spam": 40,
+        "attack": 4747
+      }
+    },
+    "per_class": {
+      "safe": {
+        "precision": 0.9659090909090909,
+        "recall": 0.9696655431682655,
+        "support": 3857,
+        "pred_count": 3872
+      },
+      "gray": {
+        "precision": 0.22281449893390193,
+        "recall": 0.8530612244897959,
+        "support": 245,
+        "pred_count": 938
+      },
+      "spam": {
+        "precision": 0.9916132789749563,
+        "recall": 0.9041954328199682,
+        "support": 9415,
+        "pred_count": 8585
+      },
+      "attack": {
+        "precision": 0.9650335434031307,
+        "recall": 0.9895768188451115,
+        "support": 4797,
+        "pred_count": 4919
+      }
+    }
+  },
+  "jev_same_rows": {
+    "accuracy_registered": 0.5992137162826253,
+    "accuracy_remap": 0.7715955007098395,
+    "matrix_registered": {
+      "safe": {
+        "safe": 3536,
+        "gray": 238,
+        "spam": 76,
+        "attack": 7
+      },
+      "gray": {
+        "safe": 192,
+        "gray": 4,
+        "spam": 46,
+        "attack": 3
+      },
+      "spam": {
+        "safe": 9,
+        "gray": 12,
+        "spam": 1672,
+        "attack": 519
+      },
+      "attack": {
+        "safe": 1334,
+        "gray": 550,
+        "spam": 4354,
+        "attack": 5762
+      }
+    },
+    "clean_attack_recall": 0.9562226391494684,
+    "clean_delivered_030": 60
+  },
+  "e2_holdouts": {
+    "nazario_recall": 0.2153644123440578,
+    "nigerian_5_recall": 0.02687843616371411
+  },
+  "mrl_256_sensitivity": {
+    "accuracy": 0.9211532161188162
+  },
+  "matched_gate": {
+    "jev_auto_share_030": 0.6084416293545921,
+    "t_matched": 0.795,
+    "clean_delivered_attacks": 0
+  },
+  "sweep_registered": [
+    {
+      "threshold": 0.0,
+      "auto_decided": 15120,
+      "auto_share": 0.8255979032434203,
+      "auto_error_rate": 0.019576719576719578,
+      "delivered_attacks": 72,
+      "safe_to_attack": 26
+    },
+    {
+      "threshold": 0.05,
+      "auto_decided": 15120,
+      "auto_share": 0.8255979032434203,
+      "auto_error_rate": 0.019576719576719578,
+      "delivered_attacks": 72,
+      "safe_to_attack": 26
+    },
+    {
+      "threshold": 0.1,
+      "auto_decided": 15120,
+      "auto_share": 0.8255979032434203,
+      "auto_error_rate": 0.019576719576719578,
+      "delivered_attacks": 72,
+      "safe_to_attack": 26
+    },
+    {
+      "threshold": 0.15,
+      "auto_decided": 15120,
+      "auto_share": 0.8255979032434203,
+      "auto_error_rate": 0.019576719576719578,
+      "delivered_attacks": 72,
+      "safe_to_attack": 26
+    },
+    {
+      "threshold": 0.2,
+      "auto_decided": 15120,
+      "auto_share": 0.8255979032434203,
+      "auto_error_rate": 0.019576719576719578,
+      "delivered_attacks": 72,
+      "safe_to_attack": 26
+    },
+    {
+      "threshold": 0.25,
+      "auto_decided": 15120,
+      "auto_share": 0.8255979032434203,
+      "auto_error_rate": 0.019576719576719578,
+      "delivered_attacks": 72,
+      "safe_to_attack": 26
+    },
+    {
+      "threshold": 0.3,
+      "auto_decided": 15102,
+      "auto_share": 0.824615048596702,
+      "auto_error_rate": 0.01926897099721891,
+      "delivered_attacks": 67,
+      "safe_to_attack": 26
+    },
+    {
+      "threshold": 0.35,
+      "auto_decided": 14982,
+      "auto_share": 0.8180626842852463,
+      "auto_error_rate": 0.01855560005339741,
+      "delivered_attacks": 57,
+      "safe_to_attack": 26
+    },
+    {
+      "threshold": 0.4,
+      "auto_decided": 14721,
+      "auto_share": 0.8038112919078301,
+      "auto_error_rate": 0.01759391345696624,
+      "delivered_attacks": 46,
+      "safe_to_attack": 25
+    },
+    {
+      "threshold": 0.45,
+      "auto_decided": 14412,
+      "auto_share": 0.7869389538058316,
+      "auto_error_rate": 0.01630585623091868,
+      "delivered_attacks": 40,
+      "safe_to_attack": 19
+    },
+    {
+      "threshold": 0.5,
+      "auto_decided": 14097,
+      "auto_share": 0.7697389974882604,
+      "auto_error_rate": 0.014754912392707669,
+      "delivered_attacks": 31,
+      "safe_to_attack": 12
+    },
+    {
+      "threshold": 0.55,
+      "auto_decided": 13803,
+      "auto_share": 0.7536857049251938,
+      "auto_error_rate": 0.012968195319858001,
+      "delivered_attacks": 19,
+      "safe_to_attack": 9
+    },
+    {
+      "threshold": 0.6,
+      "auto_decided": 13515,
+      "auto_share": 0.7379600305777001,
+      "auto_error_rate": 0.01117277099519053,
+      "delivered_attacks": 12,
+      "safe_to_attack": 3
+    },
+    {
+      "threshold": 0.65,
+      "auto_decided": 13156,
+      "auto_share": 0.7183575406792617,
+      "auto_error_rate": 0.009881422924901186,
+      "delivered_attacks": 8,
+      "safe_to_attack": 3
+    },
+    {
+      "threshold": 0.7,
+      "auto_decided": 12654,
+      "auto_share": 0.6909468166430054,
+      "auto_error_rate": 0.00845582424529793,
+      "delivered_attacks": 4,
+      "safe_to_attack": 2
+    },
+    {
+      "threshold": 0.75,
+      "auto_decided": 12013,
+      "auto_share": 0.6559462706126461,
+      "auto_error_rate": 0.006992424873054191,
+      "delivered_attacks": 1,
+      "safe_to_attack": 1
+    },
+    {
+      "threshold": 0.8,
+      "auto_decided": 11032,
+      "auto_share": 0.6023806923664956,
+      "auto_error_rate": 0.005982596084118927,
+      "delivered_attacks": 0,
+      "safe_to_attack": 0
+    },
+    {
+      "threshold": 0.85,
+      "auto_decided": 9589,
+      "auto_share": 0.5235885115212405,
+      "auto_error_rate": 0.005110021900093857,
+      "delivered_attacks": 0,
+      "safe_to_attack": 0
+    },
+    {
+      "threshold": 0.9,
+      "auto_decided": 7285,
+      "auto_share": 0.3977831167412908,
+      "auto_error_rate": 0.004118050789293068,
+      "delivered_attacks": 0,
+      "safe_to_attack": 0
+    },
+    {
+      "threshold": 0.95,
+      "auto_decided": 3757,
+      "auto_share": 0.20514360598449274,
+      "auto_error_rate": 0.004524886877828055,
+      "delivered_attacks": 0,
+      "safe_to_attack": 0
+    },
+    {
+      "threshold": 1.0,
+      "auto_decided": 0,
+      "auto_share": 0.0,
+      "auto_error_rate": 0.0,
+      "delivered_attacks": 0,
+      "safe_to_attack": 0
+    }
+  ]
+}

@@ -1,10 +1,10 @@
 {
   "target_type": "sigma",
   "target_rule": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
-  "total_generated": 500,
-  "critic_approved": 500,
-  "detected_count": 260,
-  "evaded_count": 240,
-  "endurance_mode": true,
-  "detection_rate_on_approved": 0.52
+  "total_generated": 19531,
+  "critic_approved": 19531,
+  "detected_count": 11179,
+  "evaded_count": 8112,
+  "detection_rate_on_approved": 0.572,
+  "endurance_mode": true
 }

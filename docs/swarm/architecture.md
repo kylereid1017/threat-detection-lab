@@ -144,6 +144,19 @@ Results are automatically saved to `docs/swarm/results/`:
 
 ---
 
+## Artifact retention
+
+- **Raw ledgers stay local.** The `.jsonl` observation ledgers under `results/records/`
+  grow to hundreds of MB; the raw file is gitignored and the committed artifact is a
+  deterministic gzip snapshot (`gzip -9 -n`) of the completed ledger, so published
+  figures remain recomputable from versioned bytes.
+- **Checkpoints are committed per run.** `results/checkpoints/` holds the full series for
+  a completed run — small files, and cited evidence for run-state claims.
+- **Superseded runs are archived, not deleted.** Contested or retracted artifacts move to
+  `archive_*/` directories with a provenance README; git history keeps both versions.
+
+---
+
 ## Extending the Swarm
 
 To add a new evasion axis or target rule:

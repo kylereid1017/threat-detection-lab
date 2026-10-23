@@ -37,6 +37,14 @@ Keep a Changelog; versioning follows SemVer.
   pair-check on every push.
 - **The prompt interface states what it is:** keyword routing, documented as such, with
   content-derived ids — not a model-driven planner.
+- **Brittleness figures regenerated under the repaired condition semantics.** The committed
+  SigmaHQ report predated the R11 repair (it searched the condition text instead of evaluating
+  it) and reported 33.5% command-line bound / 192 fragile rules; the regenerated report records
+  **31.0% / 163**. Re-deriving the report's pinned revision with the repaired scorer reproduces
+  the new figures exactly, and the corpus's `rules/` subtree is byte-identical between the two
+  revisions — the delta is the repair alone. The 2026-09-05 reports are preserved as
+  `*_2026-09-05.json`, `docs/brittleness/rederive_at_revision.py` re-derives any pinned
+  revision, and the upstream-facing figures (`docs/upstream/README.md`) carry the correction.
 
 ### Fixed
 - **A concluded run no longer leaks its workbench listener.** `_finish_run()` called `shutdown()`
@@ -58,8 +66,20 @@ Keep a Changelog; versioning follows SemVer.
 - **The regression suite no longer writes into published artifacts.** Orchestrator tests wrote
   through to `docs/swarm/results/`; they now take a scratch directory, and CI fails if a test run
   modifies `docs/swarm/` or `docs/cables/`.
+- **Interactive artifacts load no external resources.** `swarm_workbench.html`, the three STRAT
+  briefings, and the agent-execution-layer dashboard loaded Tailwind from third-party CDNs
+  (including an Antigravity dev URL). Tailwind is now vendored once at
+  `docs/assets/vendor/tailwind-play.js`, all five reference the local copy, and
+  `tests/test_artifact_self_containment.py` fails if an external script or stylesheet link
+  returns.
+- **The withdrawn STRAT briefings now open with a withdrawal banner** linking
+  `ERRATA-2026-09-10` and `CABLE-2026-STRAT-004`, and `docs/cables/INDEX.md` marks their rows as
+  figures-withdrawn.
 
 ### Added
+- **Repository landing page and README screenshots.** `index.html` links the interactive
+  artifacts (ready for GitHub Pages), and the README gains screenshots of the composition
+  analyzer, the workbench, and the agent execution layer dashboard (`docs/assets/screenshots/`).
 - Dual-Mode Real-World Telemetry Replay Engine (`tools/swarm/telemetry_replay.py`):
   ingests native binary Windows `.evtx` (via `python-evtx`) and normalized JSONL / NDJSON streams
   (Mordor OTRF, Splunk, Elastic NDJSON), normalizes heterogeneous schemas (Security 4688/4698,

@@ -104,7 +104,7 @@ To measure this, we developed the **Distance-to-Closure ($d$)** metric:
 > **Hypothesis:** Process-creation command-line detections are fragile and brittle; true resilience requires control-plane telemetry (CloudTrail, Kubernetes audit logs) and multi-event temporal correlation.
 
 **What We Proved:**
-- Built `tools/brittleness/` to benchmark 3,144 public SigmaHQ rules: **189 of 192 fragile rules read process creation**, and 33.5% fail to fire without Windows command-line auditing (which is disabled by default).
+- Built `tools/brittleness/` to benchmark 3,144 public SigmaHQ rules: **163 of 163 fragile rules read process creation**, and 31.0% cannot fire without Windows command-line auditing (which is disabled by default; figures re-measured 2026-09-10 under the repaired condition semantics).
 - For cloud AI environments, an adversary invoking an AWS SDK leaves **zero process command lines**. We implemented control-plane rules (`rules/sigma/cloud/`) reading AWS CloudTrail S3 Data Events and Kubernetes audit logs to detect node role theft and model weight exfiltration (`*.safetensors`) directly where the telemetry occurs.
 
 ---

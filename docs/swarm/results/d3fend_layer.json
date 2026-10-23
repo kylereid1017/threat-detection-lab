@@ -49,7 +49,7 @@
     },
     {
       "technique_id": "T1027",
-      "attack_score": 73,
+      "attack_score": 75,
       "correlation_backed": false,
       "mapping_source": "verified",
       "analytics": [
@@ -67,7 +67,7 @@
     },
     {
       "technique_id": "T1036",
-      "attack_score": 73,
+      "attack_score": 75,
       "correlation_backed": false,
       "mapping_source": "verified",
       "analytics": [
@@ -92,7 +92,7 @@
     },
     {
       "technique_id": "T1053.005",
-      "attack_score": 73,
+      "attack_score": 75,
       "correlation_backed": false,
       "mapping_source": "briefing",
       "analytics": [
@@ -136,7 +136,7 @@
     },
     {
       "technique_id": "T1059.003",
-      "attack_score": 73,
+      "attack_score": 75,
       "correlation_backed": false,
       "mapping_source": "verified",
       "analytics": [
@@ -154,7 +154,7 @@
     },
     {
       "technique_id": "T1059.005",
-      "attack_score": 73,
+      "attack_score": 75,
       "correlation_backed": false,
       "mapping_source": "verified",
       "analytics": [
@@ -172,7 +172,7 @@
     },
     {
       "technique_id": "T1059.006",
-      "attack_score": 73,
+      "attack_score": 75,
       "correlation_backed": false,
       "mapping_source": "verified",
       "analytics": [
@@ -190,7 +190,7 @@
     },
     {
       "technique_id": "T1059.007",
-      "attack_score": 73,
+      "attack_score": 75,
       "correlation_backed": false,
       "mapping_source": "verified",
       "analytics": [
@@ -211,7 +211,7 @@
     },
     {
       "technique_id": "T1070.001",
-      "attack_score": 73,
+      "attack_score": 75,
       "correlation_backed": false,
       "mapping_source": "briefing",
       "analytics": [
@@ -277,7 +277,7 @@
     },
     {
       "technique_id": "T1204.002",
-      "attack_score": 73,
+      "attack_score": 75,
       "correlation_backed": false,
       "mapping_source": "briefing",
       "analytics": [
@@ -302,7 +302,7 @@
     },
     {
       "technique_id": "T1218.005",
-      "attack_score": 73,
+      "attack_score": 75,
       "correlation_backed": false,
       "mapping_source": "verified",
       "analytics": [
@@ -320,7 +320,7 @@
     },
     {
       "technique_id": "T1218.011",
-      "attack_score": 73,
+      "attack_score": 75,
       "correlation_backed": false,
       "mapping_source": "verified",
       "analytics": [
@@ -357,7 +357,7 @@
     },
     {
       "technique_id": "T1539",
-      "attack_score": 73,
+      "attack_score": 75,
       "correlation_backed": false,
       "mapping_source": "verified",
       "analytics": [
@@ -414,7 +414,7 @@
     },
     {
       "technique_id": "T1562.001",
-      "attack_score": 73,
+      "attack_score": 75,
       "correlation_backed": false,
       "mapping_source": "verified",
       "analytics": [
@@ -432,7 +432,7 @@
     },
     {
       "technique_id": "T1566.001",
-      "attack_score": 73,
+      "attack_score": 75,
       "correlation_backed": false,
       "mapping_source": "briefing",
       "analytics": [
@@ -469,7 +469,7 @@
     },
     {
       "technique_id": "T1574.013",
-      "attack_score": 73,
+      "attack_score": 75,
       "correlation_backed": false,
       "mapping_source": "verified",
       "analytics": [
@@ -494,7 +494,7 @@
     },
     {
       "technique_id": "T1611",
-      "attack_score": 73,
+      "attack_score": 75,
       "correlation_backed": false,
       "mapping_source": "verified",
       "analytics": [

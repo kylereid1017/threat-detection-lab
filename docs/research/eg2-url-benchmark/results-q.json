@@ -1,0 +1,285 @@
+{
+  "ts_utc": "2026-10-10T03:08:35.916534+00:00",
+  "questions": {
+    "login_form": "Does the page show a login or sign-in form (fields for a username, email, phone number or password)?",
+    "asks_secrets": "Does the page ask the visitor to enter a password, payment card, bank details, or identity details?",
+    "brand_shown": "Does the page display the name or logo of a well-known company or service?",
+    "brand_domain_mismatch": "Does a brand shown on the page belong to a different organization than the one that owns the URL's domain?",
+    "file_share_lure": "Does the page invite the visitor to view, download or unlock a shared document, file, invoice, fax or voicemail?",
+    "urgency_or_threat": "Does the page pressure the visitor with urgency, threats, or account problems (suspended, locked, expiring, verify now)?",
+    "dead_or_parked": "Is the page blank, an error, a parked or for-sale domain, or a hosting placeholder?"
+  },
+  "haiku_available": true,
+  "deviations": [
+    "Q-b uses audit labels from AUDIT-Q-LABELS.json (Q-c is direct Q-H vs Q-J agreement)"
+  ],
+  "arms": {
+    "Q-H": {
+      "questions": {
+        "login_form": {
+          "yes_x_host": [
+            0.8501291989664083,
+            0.8111335450477347,
+            0.8822422313493811
+          ],
+          "yes_a_legit": [
+            0.12369597615499255,
+            0.10090580880852135,
+            0.15077027991733588
+          ]
+        },
+        "asks_secrets": {
+          "yes_x_host": [
+            0.8423772609819121,
+            0.8027305243500438,
+            0.8752937588427079
+          ],
+          "yes_a_legit": [
+            0.09687034277198212,
+            0.07673136852295873,
+            0.12159885722097943
+          ]
+        },
+        "brand_shown": {
+          "yes_x_host": [
+            0.9560723514211886,
+            0.9307840142005899,
+            0.9723955026561697
+          ],
+          "yes_a_legit": [
+            0.992548435171386,
+            0.9826762586685001,
+            0.9968130588606254
+          ]
+        },
+        "brand_domain_mismatch": {
+          "yes_x_host": [
+            0.9043927648578811,
+            0.87099618308077,
+            0.9298400457468952
+          ],
+          "yes_a_legit": [
+            0.01788375558867362,
+            0.010259331128219102,
+            0.030996964724512865
+          ]
+        },
+        "file_share_lure": {
+          "yes_x_host": [
+            0.2713178294573643,
+            0.22942674534919338,
+            0.3177042051220632
+          ],
+          "yes_a_legit": [
+            0.0014903129657228018,
+            0.00026312528941448837,
+            0.008392920963255812
+          ]
+        },
+        "urgency_or_threat": {
+          "yes_x_host": [
+            0.13695090439276486,
+            0.10624912586130655,
+            0.17478927573430406
+          ],
+          "yes_a_legit": [
+            0.0029806259314456036,
+            0.000817776048959204,
+            0.010801929258262156
+          ]
+        },
+        "dead_or_parked": {
+          "yes_x_host": [
+            0.056847545219638244,
+            0.03783768011348212,
+            0.08456862503703191
+          ],
+          "yes_a_legit": [
+            0.014903129657228018,
+            0.008114871531129908,
+            0.027214106212499936
+          ]
+        }
+      },
+      "rule_r1": {
+        "x_host_recall": [
+          0.8165374677002584,
+          0.7749288342497815,
+          0.8519238049284228
+        ],
+        "x_rand_recall": [
+          0.8816666666666667,
+          0.8533616926559555,
+          0.9051155421607984
+        ],
+        "a_legit_fpr": [
+          0.0,
+          0.0,
+          0.005692387198119239
+        ],
+        "a_hardneg_fpr": [
+          0.0,
+          0.0,
+          0.012854504511108953
+        ]
+      },
+      "explanation_coverage": [
+        0.9937434827945777,
+        0.9864176577032512,
+        0.9971295205625229
+      ]
+    },
+    "Q-J": {
+      "questions": {
+        "login_form": {
+          "roc_auc": 0.8696710510445314,
+          "yes_x": [
+            0.729483282674772,
+            0.7009193702845478,
+            0.7562677971876905
+          ],
+          "yes_a": [
+            0.11607142857142858,
+            0.09400638899128967,
+            0.1425009409169372
+          ]
+        },
+        "asks_secrets": {
+          "roc_auc": 0.8778329594249047,
+          "yes_x": [
+            0.6697061803444783,
+            0.639756306364262,
+            0.6983401640622278
+          ],
+          "yes_a": [
+            0.1488095238095238,
+            0.12389944422930431,
+            0.1777119118107791
+          ]
+        },
+        "brand_domain_mismatch": {
+          "roc_auc": 0.9573940391759541,
+          "yes_x": [
+            0.922998986828774,
+            0.9046787272186546,
+            0.9380393408593121
+          ],
+          "yes_a": [
+            0.16964285714285715,
+            0.1431623024615183,
+            0.19987888838974666
+          ]
+        },
+        "file_share_lure": {
+          "roc_auc": 0.7561627044434794,
+          "yes_x": [
+            0.1398176291793313,
+            0.11957547878362285,
+            0.16285260935597662
+          ],
+          "yes_a": [
+            0.008928571428571428,
+            0.004098285758430416,
+            0.019341322263720196
+          ]
+        },
+        "urgency_or_threat": {
+          "roc_auc": 0.8904161842041782,
+          "yes_x": [
+            0.08105369807497467,
+            0.06560720074532264,
+            0.09974867673913415
+          ],
+          "yes_a": [
+            0.005952380952380952,
+            0.0023171275637327987,
+            0.015203932628249029
+          ]
+        },
+        "dead_or_parked": {
+          "roc_auc": 0.8960346106527718,
+          "yes_x": [
+            0.10030395136778116,
+            0.08308468586852492,
+            0.12062243303744412
+          ],
+          "yes_a": [
+            0.013392857142857142,
+            0.007061739060282363,
+            0.025255690707121425
+          ]
+        }
+      }
+    },
+    "Q-E": {
+      "questions": {
+        "login_form": {
+          "roc_auc": 0.8229332513147103
+        },
+        "asks_secrets": {
+          "roc_auc": 0.8297721570897862
+        },
+        "file_share_lure": {
+          "roc_auc": 0.6356096516620833
+        },
+        "urgency_or_threat": {
+          "roc_auc": 0.782454648526077
+        },
+        "dead_or_parked": {
+          "roc_auc": 0.7314380096010036
+        }
+      }
+    }
+  },
+  "agreement_h_vs_j": {
+    "login_form": {
+      "n": 1658,
+      "agreement": 0.9161640530759951
+    },
+    "asks_secrets": {
+      "n": 1658,
+      "agreement": 0.8413751507840772
+    }
+  },
+  "audit_accuracy_qh": {
+    "login_form": 1.0,
+    "asks_secrets": 1.0,
+    "brand_domain_mismatch": 0.975
+  },
+  "criteria": [
+    {
+      "id": "Q-a",
+      "desc": "Q-H rule R1: X-host recall >= 0.80 and A-legit FPR <= 0.05",
+      "actual": {
+        "x_host_recall": 0.8165374677002584,
+        "a_legit_fpr": 0.0
+      },
+      "pass": true
+    },
+    {
+      "id": "Q-d",
+      "desc": "Explanation coverage >= 0.95",
+      "actual": 0.9937434827945777,
+      "pass": true
+    },
+    {
+      "id": "Q-c",
+      "desc": "Q-H vs Q-J agreement >= 0.80 for login_form and asks_secrets",
+      "actual": {
+        "login_form": 0.9161640530759951,
+        "asks_secrets": 0.8413751507840772
+      },
+      "pass": true
+    },
+    {
+      "id": "Q-b",
+      "desc": "Q-H accuracy >=0.85 for login_form, asks_secrets, brand_domain_mismatch",
+      "actual": {
+        "login_form": 1.0,
+        "asks_secrets": 1.0,
+        "brand_domain_mismatch": 0.975
+      },
+      "pass": true
+    }
+  ]
+}

@@ -28,17 +28,51 @@ Output evaluates:
 3. **Exfiltration Paths:** Modeled composition paths if closure occurs.
 4. **Concrete Mitigations:** Argument-level path scoping, dual-profile architectural separation, and version pinning.
 
+## Interactive artifacts
+
+Static, self-contained pages — no external scripts or runtime fetches (guarded by
+`tests/test_artifact_self_containment.py`). Live via GitHub Pages:
+**https://kylereid1017.github.io/threat-detection-lab/**
+
+**Agent Exposure Review** — paste an agent configuration; see the capability graph, the closure, and a removal that breaks every chain.
+[![Agent Exposure Review analyzer](docs/assets/screenshots/agent-exposure-review.png)](https://kylereid1017.github.io/threat-detection-lab/docs/research/agent-capability-composition.html)
+
+**Detection Boundary Workbench** — walk the kill-chain DAG from the deterministic mutation harness.
+[![Detection boundary workbench](docs/assets/screenshots/detection-boundary-workbench.png)](https://kylereid1017.github.io/threat-detection-lab/swarm_workbench.html)
+
+**AI Agent Execution Layer dossier** — the MCP population study as a five-tab dashboard.
+[![Agent execution layer dashboard](docs/assets/screenshots/agent-execution-layer-dashboard.png)](https://kylereid1017.github.io/threat-detection-lab/docs/research/agent-execution-layer-dashboard.html)
+
+**Seeing the Page Behind the Link (EG2 & Vision-LLM Link Triage)** — interactive research brief ([brief.html](https://kylereid1017.github.io/threat-detection-lab/docs/research/eg2-url-benchmark/brief.html)) and visual kit gallery ([gallery.html](https://kylereid1017.github.io/threat-detection-lab/docs/research/eg2-url-benchmark/gallery.html)).
+
 ---
 
 ## Status & Governance Matrix
 
 | Capability Area | Lifecycle Status | Empirical Evidence & Test Coverage | Operational Constraints & Caveats |
 |---|---|---|---|
-| **Agent Exposure Review & Composition** | **Verified** | `tools/agent_graph/` (91–99% coverage), 545 passing unit tests in CI. Evaluated across 336 real public configurations. | Static analysis taxonomy (P=0.73, R=0.53); measures potential capability co-occurrence across static configurations, not runtime telemetry. |
-| **Detection Engineering & Swarm Sparring** | **Verified** | 5 production Sigma/YARA rules; closed-loop multi-campaign DAG engine with zero false positives on 1,755 benign manifests and 2,079 SVGs. | Closed-loop mutations test detection boundaries; does not represent live adversary operational campaigns. |
+| **Agent Exposure Review & Composition** | **Verified** | `tools/agent_graph/` (91–99% coverage), 545+ passing unit tests in CI. Evaluated across 336 real public configurations. | Static analysis taxonomy (P=0.73, R=0.53); measures potential capability co-occurrence across static configurations, not runtime telemetry. |
+| **Multimodal Link & Email Triage (`eg2_triage`, `jev_triage`)** | **Verified** | Pre-registered across **18,314 public emails** (`docs/research/jev-email-triage/`) and **1,995 rendered pages** (`docs/research/eg2-url-benchmark/`). 28 registered URL criteria (22 PASS / 6 MISS). | Public corpora (Phishpedia + 2026 screenshot benchmark + public email sets); benign shared-host false-alarm bounds require production shadow validation (`INTERNAL-VALIDATION.md`). |
+| **Detection Engineering & Swarm Sparring** | **Verified** | 23 production Sigma/YARA rules; closed-loop multi-campaign DAG engine with zero false positives on 1,755 benign manifests and 2,079 SVGs. | Closed-loop mutations test detection boundaries; does not represent live adversary operational campaigns. |
 | **CTI Collection & Protected Names** | **Verified** | `tools/cti/` pipeline (96–99% coverage), Certificate Transparency live acquisition, inventory-derived typosquat detection evaluated on 232k OpenSSF records. | Zero recall on packages outside local inventory; complete SBOM is a prerequisite. |
 | **Host Confinement & Agent Sandbox** | **Experimental (Linux/macOS) / Blocked (Windows)** | Bubblewrap (`bwrap`) on Linux, Seatbelt (`sandbox-exec`) on macOS. | Windows provides advisory environment sanitization and isolated temp trees; **disclaims kernel-level containment** without virtualization/JobObjects. |
 | **Dynamic Sandboxed Live Malware Execution** | **Deferred** | Static analysis, manifest audits, and synthetic telemetry fixtures only. | Strict safety policy: zero unvetted binary execution or payload downloads. |
+
+---
+
+## Pre-Registered ML Triage Studies (Email & Multimodal URLs)
+
+### 1. Seeing the Page Behind the Link (`tools/eg2_triage/`, `docs/research/eg2-url-benchmark/`)
+Evaluates whether reading the rendered destination page closes the gap left by link-only classifiers on trusted shared hosts (Canva, Google Sites, Azure Web Apps, Weebly, URL shorteners):
+- **Trusted-Host Phishing Recall ($n = 387$, Phishpedia):** Link-only reader caught **37.5%**; adding on-device OCR page text lifted the same reader to **91.0%** ($p \approx 5 \times 10^{-61}$); multimodal `EmbeddingGemma-2` (URL + screenshot) reached **99.0%** (Claude Haiku 4.5: **97.2%**, Haiku 5.5: **94.1%**).
+- **False-Alarm Reduction ($n = 672$ legitimate sites, grouped CV):** Adding the rendered page halved URL-only false alarms (**13.4% $\rightarrow$ 6.5%**, $p < 0.001$).
+- **Self-Explaining Verdicts & Kit Clustering:** A deterministic rule over 7 page-level analyst questions achieved **81.7% recall at 0.0% false alarms** with **99.4% explanation coverage**; embedding cosine clustering ($\le 0.10$) grouped **66% of phishing pages into multi-domain kits at 91.5% brand purity**.
+- Interactive brief: [`docs/research/eg2-url-benchmark/brief.html`](https://kylereid1017.github.io/threat-detection-lab/docs/research/eg2-url-benchmark/brief.html) · Visual gallery: [`docs/research/eg2-url-benchmark/gallery.html`](https://kylereid1017.github.io/threat-detection-lab/docs/research/eg2-url-benchmark/gallery.html) · Production shadow validation plan: `docs/research/eg2-url-benchmark/INTERNAL-VALIDATION.md`.
+
+### 2. High-Volume Email Triage Cascade (`tools/jev_triage/`, `docs/research/jev-email-triage/`)
+Pre-registered evaluation of a fast "System One" classifier (`jev`, 224ms p50, $\$0.041/1\text{k}$ emails) as a pre-gate in front of frontier LLM tiers (DeepSeek Flash, Claude Haiku 4.5, Sonnet 5, Opus 5), scaled to **$n = 18,314$ public emails**:
+- Demonstrates that while exact 4-class auto-decision misses its strict registered 2% error floor due to `gray`/`hard_ham` taxonomy ambiguity, harm-weighted gating at $t = 0.30$ auto-decides **64.8% of volume with zero attack$\rightarrow$safe deliveries and zero safe$\rightarrow$attack quarantines**, cutting Claude tier inference cost by **63–66%**.
+- See `docs/research/jev-email-triage/REPORT.md` and `docs/research/jev-email-triage/RESULTS-SCALE.md`.
 
 ---
 
@@ -166,6 +200,8 @@ The harness models three canonical adversary campaigns:
 - `tests/test_sigma_rules.py` — Sigma schema validation, regression tests, and SIEM conversion tests
 - `tests/test_swarm.py` — Swarm safety gates, mutators, and orchestration tests
 - `tests/test_multi_campaign_graphs.py` — Multi-campaign DAG state machine regression suite
+- `docs/assets/` — vendored assets (single Tailwind build) and README screenshots
+- `index.html` — landing page for the interactive artifacts
 - `ROADMAP.md` — project delivery roadmap
 
 ## Run locally

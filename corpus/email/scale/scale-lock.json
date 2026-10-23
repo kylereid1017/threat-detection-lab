@@ -1,0 +1,416 @@
+{
+  "corpus": "Jev email-triage SCALE public email corpus (PLAN-addendum-scale.md)",
+  "retrieval_date": "2026-09-17",
+  "sampling": "all eligible rows per source; no per-source sampling",
+  "caps": {
+    "safe": 6000,
+    "gray": 1000,
+    "spam": 4500,
+    "attack": 12000
+  },
+  "sampling_seed_note": "seed 20260917 retained for parity; caps truncate by content_sha256 sort order (deterministic, seed-independent)",
+  "license_and_scope": "Apache SpamAssassin public corpus (distributed publicly for spam-filter testing) and Zenodo record 8339691 'Phishing Email Curated Datasets' (CC-BY-4.0; Champa, Rabbi & Zibran - ISDFS 2024 / ICMI 2024; DOI 10.5281/zenodo.8339691). Files are retained locally under corpus/email/scale/_downloads_scale/ and are NOT redistributed in this repository; only this lock file (and ids/labels in records) is committed.",
+  "exclusion_rules": [
+    "unparseable message",
+    "no text/plain or text/html part",
+    "body over 100KB",
+    "body under 40 chars",
+    "fewer than 50% ASCII characters",
+    "missing or empty Subject header",
+    "corpus-conversion artifact (mbox internal-data stub)",
+    "duplicate of an earlier message (content sha256; within source and across sources in frozen source order)",
+    "label empty or unparseable (CSV sources)"
+  ],
+  "determinations": [
+    "S7 Nazario.csv schema verified during availability screening 2026-09-17: columns sender, receiver, date, subject, body, urls, label; all rows label=1; one mbox internal-data stub observed -> corpus-artifact rule added before freeze.",
+    "S12 Ling.csv resolved at build: columns subject, body, label (no sender); label distribution {0: 2401, 1: 458}; samples confirm Ling-Spam semantics (label 1 = bulk spam-style mail, label 0 = mailing-list traffic). Included as spam (label==1); label==0 rows recorded out of scope. 'from' is empty for these rows (source has no sender field).",
+    "Cross-source dedupe is global (first-seen wins in source order S1..S12); duplicate content from a later source is dropped and counted per source."
+  ],
+  "kept_with_note": [
+    {
+      "scope": "ling",
+      "note": "no sender field in the source; 'from' recorded as empty string"
+    }
+  ],
+  "sources": [
+    {
+      "source": {
+        "name": "spamassassin_easy_ham",
+        "file": "20030228_easy_ham.tar.bz2",
+        "label": "safe",
+        "label_basis": "easy_ham: mail the corpus authors consider obvious legitimate mail (2003 release)"
+      },
+      "url": "https://spamassassin.apache.org/old/publiccorpus/20030228_easy_ham.tar.bz2",
+      "info": {
+        "sha256": "2b7b65904bcfcc31d2b5f51946f2d261370b257402cbbd62930b46ab83367438",
+        "bytes": 1612216,
+        "cached": false
+      },
+      "rows_total": 2501,
+      "out_of_scope": 0,
+      "exclusions": {
+        "body-over-100KB": 1,
+        "duplicate": 28
+      },
+      "duplicates_across_sources": 0,
+      "kept_after_dedupe": 2472,
+      "included_final": 2472
+    },
+    {
+      "source": {
+        "name": "spamassassin_easy_ham_2",
+        "file": "20030228_easy_ham_2.tar.bz2",
+        "label": "safe",
+        "label_basis": "easy_ham_2: same category, second 2003 release"
+      },
+      "url": "https://spamassassin.apache.org/old/publiccorpus/20030228_easy_ham_2.tar.bz2",
+      "info": {
+        "sha256": "b4bd3dc5ae5b40f38e99a0e41ad7d16b428b56e818e3a6ffa07330d62004dd38",
+        "bytes": 1077892,
+        "cached": false
+      },
+      "rows_total": 1401,
+      "out_of_scope": 0,
+      "exclusions": {
+        "duplicate": 8,
+        "body-over-100KB": 2,
+        "no-subject": 5
+      },
+      "duplicates_across_sources": 1,
+      "kept_after_dedupe": 1385,
+      "included_final": 1385
+    },
+    {
+      "source": {
+        "name": "spamassassin_hard_ham",
+        "file": "20030228_hard_ham.tar.bz2",
+        "label": "gray",
+        "label_basis": "hard_ham: legitimate mail deliberately hard to distinguish from spam; primary mapping gray (sensitivity run treats as safe; both reported)"
+      },
+      "url": "https://spamassassin.apache.org/old/publiccorpus/20030228_hard_ham.tar.bz2",
+      "info": {
+        "sha256": "ce2ce67880643dbde65ea7f85bffbfe4417349c4bd80b6b0de56262ae6b0a9c9",
+        "bytes": 1029898,
+        "cached": false
+      },
+      "rows_total": 251,
+      "out_of_scope": 0,
+      "exclusions": {
+        "non-ascii-dominant": 1,
+        "no-subject": 2,
+        "duplicate": 2,
+        "body-over-100KB": 1
+      },
+      "duplicates_across_sources": 0,
+      "kept_after_dedupe": 245,
+      "included_final": 245
+    },
+    {
+      "source": {
+        "name": "spamassassin_spam",
+        "file": "20030228_spam.tar.bz2",
+        "label": "spam",
+        "label_basis": "spam: bulk unsolicited mail (2003 release)"
+      },
+      "url": "https://spamassassin.apache.org/old/publiccorpus/20030228_spam.tar.bz2",
+      "info": {
+        "sha256": "c08debc32413804949a866be45ef78195cec2cbafd1da744ed76cdb860589743",
+        "bytes": 1183768,
+        "cached": false
+      },
+      "rows_total": 501,
+      "out_of_scope": 0,
+      "exclusions": {
+        "duplicate": 16,
+        "non-ascii-dominant": 6,
+        "no-subject": 3,
+        "body-too-short": 3,
+        "no-text-body": 1,
+        "body-over-100KB": 1
+      },
+      "duplicates_across_sources": 0,
+      "kept_after_dedupe": 471,
+      "included_final": 471
+    },
+    {
+      "source": {
+        "name": "spamassassin_spam_2",
+        "file": "20030228_spam_2.tar.bz2",
+        "label": "spam",
+        "label_basis": "spam_2: bulk unsolicited mail (2003 release)"
+      },
+      "url": "https://spamassassin.apache.org/old/publiccorpus/20030228_spam_2.tar.bz2",
+      "info": {
+        "sha256": "40bc444c596ff3e71505ae334f115b16f9b946786ee68f09b921b6b99217fd00",
+        "bytes": 2059563,
+        "cached": false
+      },
+      "rows_total": 1398,
+      "out_of_scope": 0,
+      "exclusions": {
+        "body-over-100KB": 1,
+        "duplicate": 61,
+        "no-subject": 11,
+        "no-text-body": 2,
+        "body-too-short": 21,
+        "non-ascii-dominant": 6
+      },
+      "duplicates_across_sources": 0,
+      "kept_after_dedupe": 1296,
+      "included_final": 1296
+    },
+    {
+      "source": {
+        "name": "spamassassin_spam_2005_2",
+        "file": "20050311_spam_2.tar.bz2",
+        "label": "spam",
+        "label_basis": "spam_2 (2005 release): bulk unsolicited mail"
+      },
+      "url": "https://spamassassin.apache.org/old/publiccorpus/20050311_spam_2.tar.bz2",
+      "info": {
+        "sha256": "44280a0e28bf7645b2279e8e42659271ad82c6f40bf8d364dbda7f1df344a765",
+        "bytes": 2059029,
+        "cached": false
+      },
+      "rows_total": 1397,
+      "out_of_scope": 0,
+      "exclusions": {
+        "body-over-100KB": 1,
+        "duplicate": 61,
+        "no-subject": 11,
+        "no-text-body": 2,
+        "body-too-short": 21,
+        "non-ascii-dominant": 6
+      },
+      "duplicates_across_sources": 1295,
+      "kept_after_dedupe": 0,
+      "included_final": 0
+    },
+    {
+      "source": {
+        "name": "nazario",
+        "file": "Nazario.csv",
+        "label": "attack",
+        "select_label": "1",
+        "label_basis": "curated Nazario phishing corpus (Zenodo 8339691); rows label==1 are phishing"
+      },
+      "url": "https://zenodo.org/api/records/8339691/files/Nazario.csv/content",
+      "info": {
+        "sha256": "b8fbc4158fbdfaff1ed98584c43d72e283c6352d7ade4d457d34c1d79488d184",
+        "bytes": 7811841,
+        "cached": false
+      },
+      "rows_total": 1565,
+      "out_of_scope": 0,
+      "exclusions": {
+        "body-over-100KB": 2,
+        "body-too-short": 15,
+        "corpus-artifact": 1,
+        "non-ascii-dominant": 19,
+        "no-subject": 4,
+        "duplicate": 1
+      },
+      "columns": [
+        "sender",
+        "receiver",
+        "date",
+        "subject",
+        "body",
+        "urls",
+        "label"
+      ],
+      "duplicates_across_sources": 0,
+      "kept_after_dedupe": 1523,
+      "included_final": 1523
+    },
+    {
+      "source": {
+        "name": "nazario_5",
+        "file": "Nazario_5.csv",
+        "label": "attack",
+        "select_label": "1",
+        "label_basis": "curated Nazario phishing corpus, extended variant; rows label==1 are phishing"
+      },
+      "url": "https://zenodo.org/api/records/8339691/files/Nazario_5.csv/content",
+      "info": {
+        "sha256": "afef69828165619ced6661ca14a95444a1db82c7b25ae9c2619bbbb108844a44",
+        "bytes": 11755517,
+        "cached": false
+      },
+      "rows_total": 3065,
+      "out_of_scope": 1500,
+      "exclusions": {
+        "body-over-100KB": 2,
+        "body-too-short": 15,
+        "corpus-artifact": 1,
+        "non-ascii-dominant": 19,
+        "no-subject": 4,
+        "duplicate": 1
+      },
+      "columns": [
+        "sender",
+        "receiver",
+        "date",
+        "subject",
+        "body",
+        "label",
+        "urls"
+      ],
+      "duplicates_across_sources": 1523,
+      "kept_after_dedupe": 0,
+      "included_final": 0
+    },
+    {
+      "source": {
+        "name": "nigerian_5",
+        "file": "Nigerian_5.csv",
+        "label": "attack",
+        "select_label": "1",
+        "label_basis": "advance-fee fraud / social-engineering phishing; rows label==1 are malicious"
+      },
+      "url": "https://zenodo.org/api/records/8339691/files/Nigerian_5.csv/content",
+      "info": {
+        "sha256": "3171eeb9bf560059e7f88458efde65c056fc939b842a5edc158f2d7bb887c8b7",
+        "bytes": 18253749,
+        "cached": false
+      },
+      "rows_total": 6331,
+      "out_of_scope": 2999,
+      "exclusions": {
+        "no-subject": 39,
+        "duplicate": 15,
+        "body-too-short": 2,
+        "non-ascii-dominant": 1,
+        "body-over-100KB": 1
+      },
+      "columns": [
+        "sender",
+        "receiver",
+        "date",
+        "subject",
+        "body",
+        "label",
+        "urls"
+      ],
+      "duplicates_across_sources": 0,
+      "kept_after_dedupe": 3274,
+      "included_final": 3274
+    },
+    {
+      "source": {
+        "name": "nigerian_fraud",
+        "file": "Nigerian_Fraud.csv",
+        "label": "attack",
+        "select_label": "1",
+        "label_basis": "advance-fee fraud; rows label==1 are malicious"
+      },
+      "url": "https://zenodo.org/api/records/8339691/files/Nigerian_Fraud.csv/content",
+      "info": {
+        "sha256": "f5d6930763cae6feeae6484131c79655a7440abbb97d6f51eab757aea4e6ab4b",
+        "bytes": 9192393,
+        "cached": false
+      },
+      "rows_total": 3332,
+      "out_of_scope": 0,
+      "exclusions": {
+        "no-subject": 39,
+        "duplicate": 15,
+        "body-too-short": 2,
+        "non-ascii-dominant": 1,
+        "body-over-100KB": 1
+      },
+      "columns": [
+        "sender",
+        "receiver",
+        "date",
+        "subject",
+        "body",
+        "urls",
+        "label"
+      ],
+      "duplicates_across_sources": 3274,
+      "kept_after_dedupe": 0,
+      "included_final": 0
+    },
+    {
+      "source": {
+        "name": "ceas_08",
+        "file": "CEAS_08.csv",
+        "label": "attack",
+        "select_label": "1",
+        "label_basis": "CEAS 2008 corpus phishing subset; rows label==1 are phishing"
+      },
+      "url": "https://zenodo.org/api/records/8339691/files/CEAS_08.csv/content",
+      "info": {
+        "sha256": "22375e7d5f5a8229dbe987914ee9b3705656c590038662a7df6054629b376074",
+        "bytes": 67902056,
+        "cached": false
+      },
+      "rows_total": 39154,
+      "out_of_scope": 17312,
+      "exclusions": {
+        "body-too-short": 129,
+        "no-subject": 13,
+        "duplicate": 47,
+        "non-ascii-dominant": 1
+      },
+      "columns": [
+        "sender",
+        "receiver",
+        "date",
+        "subject",
+        "body",
+        "label",
+        "urls"
+      ],
+      "duplicates_across_sources": 0,
+      "kept_after_dedupe": 21652,
+      "included_final": 7203
+    },
+    {
+      "source": {
+        "name": "ling",
+        "file": "Ling.csv",
+        "label": "spam",
+        "select_label": "1",
+        "label_basis": "Ling-Spam corpus (spam=1 / ham=0); semantics confirmed 2026-09-17 by label distribution (458/2401) and content samples; rows label==0 out of scope"
+      },
+      "url": "https://zenodo.org/api/records/8339691/files/Ling.csv/content",
+      "info": {
+        "sha256": "9407c9e022accc6c831e54c5226b99b30ac4ae07682e63f5d483ed0ec17ff23c",
+        "bytes": 9337509,
+        "cached": false
+      },
+      "rows_total": 2859,
+      "out_of_scope": 2401,
+      "exclusions": {
+        "no-subject": 13
+      },
+      "columns": [
+        "subject",
+        "body",
+        "label"
+      ],
+      "duplicates_across_sources": 0,
+      "kept_after_dedupe": 445,
+      "included_final": 445
+    }
+  ],
+  "class_counts_before_caps": {
+    "attack": 26449,
+    "gray": 245,
+    "safe": 3857,
+    "spam": 2212
+  },
+  "class_counts_included": {
+    "attack": 12000,
+    "gray": 245,
+    "safe": 3857,
+    "spam": 2212
+  },
+  "cap_dropped": {
+    "attack": 14449
+  },
+  "included_total": 18314,
+  "repro_command": "python tools/jev_triage/fetch_scale.py"
+}

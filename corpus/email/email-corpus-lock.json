@@ -1,0 +1,68 @@
+{
+  "corpus": "Jev email-triage public email corpus",
+  "retrieval_date": "2026-09-17",
+  "sampling_seed": 20260917,
+  "sample_per_source": 25,
+  "license_and_scope": "Apache SpamAssassin public corpus, distributed publicly for spam-filter testing. Files are retained locally under corpus/email/_downloads/ and are NOT redistributed in this repository; only this lock file is committed. Labels are the corpus's own ham/spam categories mapped to this experiment's taxonomy as recorded per source.",
+  "exclusion_rules": [
+    "unparseable message",
+    "no text/plain or text/html part",
+    "body over 102400 bytes",
+    "body under 40 chars",
+    "fewer than 50% ASCII characters",
+    "missing or empty Subject header",
+    "duplicate of an earlier message (content sha256)"
+  ],
+  "sources": [
+    {
+      "name": "spamassassin_easy_ham",
+      "url": "https://spamassassin.apache.org/old/publiccorpus/20030228_easy_ham.tar.bz2",
+      "label": "safe",
+      "label_basis": "easy_ham: mail the corpus authors consider obvious legitimate mail",
+      "archive_sha256": "2b7b65904bcfcc31d2b5f51946f2d261370b257402cbbd62930b46ab83367438",
+      "archive_bytes": 1612216,
+      "pool_size": 2472,
+      "sampled": 25,
+      "exclusions": {
+        "body-over-100KB": 1,
+        "duplicate": 28
+      }
+    },
+    {
+      "name": "spamassassin_hard_ham",
+      "url": "https://spamassassin.apache.org/old/publiccorpus/20030228_hard_ham.tar.bz2",
+      "label": "gray",
+      "label_basis": "hard_ham: legitimate mail deliberately hard to distinguish from spam; mapped to the ambiguity band (sensitivity run treats as safe)",
+      "archive_sha256": "ce2ce67880643dbde65ea7f85bffbfe4417349c4bd80b6b0de56262ae6b0a9c9",
+      "archive_bytes": 1029898,
+      "pool_size": 245,
+      "sampled": 25,
+      "exclusions": {
+        "non-ascii-dominant": 1,
+        "no-subject": 2,
+        "duplicate": 2,
+        "body-over-100KB": 1
+      }
+    },
+    {
+      "name": "spamassassin_spam",
+      "url": "https://spamassassin.apache.org/old/publiccorpus/20030228_spam.tar.bz2",
+      "label": "spam",
+      "label_basis": "spam: bulk unsolicited mail (2003-era corpus)",
+      "archive_sha256": "c08debc32413804949a866be45ef78195cec2cbafd1da744ed76cdb860589743",
+      "archive_bytes": 1183768,
+      "pool_size": 471,
+      "sampled": 25,
+      "exclusions": {
+        "duplicate": 16,
+        "non-ascii-dominant": 6,
+        "no-subject": 3,
+        "body-too-short": 3,
+        "no-text-body": 1,
+        "body-over-100KB": 1
+      }
+    }
+  ],
+  "included_total": 75,
+  "repro_command": "python tools/jev_triage/fetch_public_corpus.py"
+}

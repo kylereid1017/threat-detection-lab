@@ -1,0 +1,31 @@
+{
+  "built_utc": "2026-09-17T14:37:43.245730+00:00",
+  "total": 200,
+  "by_label": {
+    "attack": 50,
+    "gray": 50,
+    "safe": 50,
+    "spam": 50
+  },
+  "by_source_label": {
+    "hand_authored|attack": 10,
+    "spamassassin_easy_ham|safe": 25,
+    "spamassassin_hard_ham|gray": 25,
+    "spamassassin_spam|spam": 25,
+    "synthetic|attack": 40,
+    "synthetic|gray": 25,
+    "synthetic|safe": 25,
+    "synthetic|spam": 25
+  },
+  "input_hashes": {
+    "normalized_public.jsonl": "932a433bbf244f253a544c2408121ca57ecf06847758ae16d4d45487aec972d1",
+    "synthetic.jsonl": "77264d6128db404dd3bb84dc5fb798c3d3691b4e5c4ce9d3de918e16f52db734",
+    "hand_authored_attacks.json": "558f80674e0cf618af93655374b2365041a6b3f09c8663f0110db32c07253c94"
+  },
+  "notes": [
+    "corpus.jsonl is local-only: it embeds public-corpus content that is not redistributed.",
+    "synthetic and hand-authored records are inert: hosts on reserved TLDs, no live URLs.",
+    "labels follow tools/jev_triage/PLAN.md; public-corpus labels are category mappings (easy_ham->safe, hard_ham->gray, spam->spam)."
+  ],
+  "repro_command": "python tools/jev_triage/build_corpus.py"
+}

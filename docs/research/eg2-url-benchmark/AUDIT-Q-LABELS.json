@@ -1,0 +1,381 @@
+{
+ "ts_utc": "2026-10-10",
+ "labeler": "Claude Opus 4.8 (analysis agent in this session)",
+ "n": 40,
+ "deviation": "frozen plan: 60 X + 60 A-legit = 120. Ran a documented subset: the first 20 of each seeded (20261009) stratum, 40 total, as a session-scoped spot-check. Labeler shares a model family with Q-H, so Q-H accuracy here is optimistic; Kyle to human-verify for the final.",
+ "strata": {
+  "x_phishing": 20,
+  "a_legit": 20
+ },
+ "keys": [
+  "login_form",
+  "asks_secrets",
+  "brand_shown",
+  "brand_domain_mismatch",
+  "file_share_lure",
+  "urgency_or_threat",
+  "dead_or_parked"
+ ],
+ "labels": {
+  "x_rand/0683": {
+   "login_form": true,
+   "asks_secrets": true,
+   "brand_shown": true,
+   "brand_domain_mismatch": true,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "x_rand/0953": {
+   "login_form": true,
+   "asks_secrets": true,
+   "brand_shown": true,
+   "brand_domain_mismatch": true,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "x_rand/0800": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": true,
+   "brand_domain_mismatch": true,
+   "file_share_lure": true,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "x_host/0204": {
+   "login_form": true,
+   "asks_secrets": true,
+   "brand_shown": true,
+   "brand_domain_mismatch": true,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "x_rand/0857": {
+   "login_form": true,
+   "asks_secrets": true,
+   "brand_shown": true,
+   "brand_domain_mismatch": true,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "x_rand/0472": {
+   "login_form": true,
+   "asks_secrets": true,
+   "brand_shown": true,
+   "brand_domain_mismatch": true,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "x_host/0142": {
+   "login_form": true,
+   "asks_secrets": true,
+   "brand_shown": true,
+   "brand_domain_mismatch": true,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "x_host/0342": {
+   "login_form": true,
+   "asks_secrets": true,
+   "brand_shown": true,
+   "brand_domain_mismatch": true,
+   "file_share_lure": false,
+   "urgency_or_threat": true,
+   "dead_or_parked": false
+  },
+  "x_host/0085": {
+   "login_form": true,
+   "asks_secrets": true,
+   "brand_shown": true,
+   "brand_domain_mismatch": true,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "x_host/0197": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": true,
+   "brand_domain_mismatch": true,
+   "file_share_lure": true,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "x_rand/0680": {
+   "login_form": true,
+   "asks_secrets": true,
+   "brand_shown": true,
+   "brand_domain_mismatch": true,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "x_rand/0664": {
+   "login_form": true,
+   "asks_secrets": true,
+   "brand_shown": true,
+   "brand_domain_mismatch": true,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "x_rand/0548": {
+   "login_form": true,
+   "asks_secrets": true,
+   "brand_shown": true,
+   "brand_domain_mismatch": true,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "x_rand/0844": {
+   "login_form": true,
+   "asks_secrets": true,
+   "brand_shown": true,
+   "brand_domain_mismatch": true,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "x_rand/0884": {
+   "login_form": true,
+   "asks_secrets": true,
+   "brand_shown": true,
+   "brand_domain_mismatch": true,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "x_rand/0810": {
+   "login_form": true,
+   "asks_secrets": true,
+   "brand_shown": true,
+   "brand_domain_mismatch": true,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "x_rand/0962": {
+   "login_form": true,
+   "asks_secrets": true,
+   "brand_shown": true,
+   "brand_domain_mismatch": true,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "x_host/0236": {
+   "login_form": true,
+   "asks_secrets": true,
+   "brand_shown": true,
+   "brand_domain_mismatch": true,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "x_host/0097": {
+   "login_form": true,
+   "asks_secrets": true,
+   "brand_shown": true,
+   "brand_domain_mismatch": true,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "x_rand/0952": {
+   "login_form": true,
+   "asks_secrets": true,
+   "brand_shown": true,
+   "brand_domain_mismatch": true,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "legitimate/heurekanet/signup.png": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": false,
+   "brand_domain_mismatch": false,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "legitimate/clarity/dashboard.png": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": false,
+   "brand_domain_mismatch": false,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "legitimate/dejusticia/homepage.png": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": false,
+   "brand_domain_mismatch": false,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "legitimate/digital_optics_inc/homepage.png": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": false,
+   "brand_domain_mismatch": false,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "legitimate/neurocritical_care_society/signup.png": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": false,
+   "brand_domain_mismatch": false,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "legitimate/dracaena_life/homepage.png": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": false,
+   "brand_domain_mismatch": false,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "legitimate/healthcare_staffing_company/login.png": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": false,
+   "brand_domain_mismatch": false,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "legitimate/public_library/payment.png": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": false,
+   "brand_domain_mismatch": false,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "legitimate/marshalltown_iowa/signup.png": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": false,
+   "brand_domain_mismatch": false,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "legitimate/locations_search/homepage.png": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": false,
+   "brand_domain_mismatch": false,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "legitimate/trace_ability_inc/homepage.png": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": false,
+   "brand_domain_mismatch": false,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "legitimate/nzdf/payment.png": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": true,
+   "brand_domain_mismatch": false,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "legitimate/ohiohealth_com/payment.png": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": false,
+   "brand_domain_mismatch": false,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "legitimate/universidad_an_huac_puebla/homepage.png": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": false,
+   "brand_domain_mismatch": false,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "legitimate/nea_baptist_memorial_hospital/payment.png": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": false,
+   "brand_domain_mismatch": false,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "legitimate/city_colleges_of_chicago/dashboard.png": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": false,
+   "brand_domain_mismatch": false,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "legitimate/innovate_uk/homepage.png": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": true,
+   "brand_domain_mismatch": false,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "legitimate/univercell_biosolutions/homepage.png": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": false,
+   "brand_domain_mismatch": false,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": true
+  },
+  "legitimate/us_ignite/dashboard.png": {
+   "login_form": false,
+   "asks_secrets": false,
+   "brand_shown": false,
+   "brand_domain_mismatch": false,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  },
+  "legitimate/elicityl_oligotech/login.png": {
+   "login_form": true,
+   "asks_secrets": true,
+   "brand_shown": true,
+   "brand_domain_mismatch": false,
+   "file_share_lure": false,
+   "urgency_or_threat": false,
+   "dead_or_parked": false
+  }
+ }
+}

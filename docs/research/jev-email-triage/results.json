@@ -1,0 +1,2698 @@
+{
+  "generated_utc": "2026-09-17T15:43:32.991697+00:00",
+  "exclusions": {
+    "audit_file": "corpus/email/corpus-audit.json",
+    "email_ids": [
+      "pub-052",
+      "pub-058",
+      "pub-072",
+      "syn-spam-promo-1-02"
+    ],
+    "dropped_per_run": {
+      "deepseek-deepseek-flash-20260917T143754Z.jsonl": 4,
+      "jev-20260917T143754Z.jsonl": 4,
+      "portal-anthropic_claude-fable-5_1-20260917T153601Z.jsonl": 1,
+      "portal-anthropic_claude-haiku-4_5-20260917T145522Z.jsonl": 4,
+      "portal-anthropic_claude-opus-5-20260917T151012Z.jsonl": 4,
+      "portal-anthropic_claude-sonnet-5-20260917T145915Z.jsonl": 4
+    }
+  },
+  "reconciliation": [
+    {
+      "run": "deepseek-deepseek-flash-20260917T143754Z.jsonl",
+      "observations": 200,
+      "errors": 0,
+      "unique_clean_ids": 200,
+      "expected": 200,
+      "unique_ids": true,
+      "ok": true
+    },
+    {
+      "run": "jev-20260917T143754Z.jsonl",
+      "observations": 200,
+      "errors": 0,
+      "unique_clean_ids": 200,
+      "expected": 200,
+      "unique_ids": true,
+      "ok": true
+    },
+    {
+      "run": "portal-anthropic_claude-fable-5_1-20260917T153601Z.jsonl",
+      "observations": 61,
+      "errors": 1,
+      "unique_clean_ids": 60,
+      "expected": 60,
+      "unique_ids": false,
+      "ok": true
+    },
+    {
+      "run": "portal-anthropic_claude-haiku-4_5-20260917T145522Z.jsonl",
+      "observations": 200,
+      "errors": 0,
+      "unique_clean_ids": 200,
+      "expected": 200,
+      "unique_ids": true,
+      "ok": true
+    },
+    {
+      "run": "portal-anthropic_claude-opus-5-20260917T151012Z.jsonl",
+      "observations": 233,
+      "errors": 33,
+      "unique_clean_ids": 200,
+      "expected": 200,
+      "unique_ids": false,
+      "ok": true
+    },
+    {
+      "run": "portal-anthropic_claude-sonnet-5-20260917T145915Z.jsonl",
+      "observations": 206,
+      "errors": 6,
+      "unique_clean_ids": 200,
+      "expected": 200,
+      "unique_ids": false,
+      "ok": true
+    }
+  ],
+  "summaries": {
+    "deepseek-deepseek-flash-20260917T143754Z.jsonl": {
+      "run_id": "deepseek-deepseek-flash-20260917T143754Z",
+      "file": "deepseek-deepseek-flash-20260917T143754Z.jsonl",
+      "provider": "deepseek",
+      "model": "deepseek-flash",
+      "by_source": {
+        "hand_authored": {
+          "n": 10,
+          "accuracy": 0.9
+        },
+        "spamassassin_easy_ham": {
+          "n": 25,
+          "accuracy": 0.72
+        },
+        "spamassassin_hard_ham": {
+          "n": 25,
+          "accuracy": 0.0
+        },
+        "spamassassin_spam": {
+          "n": 22,
+          "accuracy": 0.8636363636363636
+        },
+        "synthetic": {
+          "n": 114,
+          "accuracy": 0.868421052631579
+        }
+      },
+      "observations": 196,
+      "scored": 196,
+      "errors": 0,
+      "accuracy": 0.7397959183673469,
+      "confusion": {
+        "safe": {
+          "safe": 41,
+          "gray": 2,
+          "spam": 7,
+          "attack": 0
+        },
+        "gray": {
+          "safe": 20,
+          "gray": 14,
+          "spam": 11,
+          "attack": 5
+        },
+        "spam": {
+          "safe": 2,
+          "gray": 0,
+          "spam": 41,
+          "attack": 3
+        },
+        "attack": {
+          "safe": 0,
+          "gray": 1,
+          "spam": 0,
+          "attack": 49
+        }
+      },
+      "per_class": {
+        "safe": {
+          "support": 50,
+          "tp": 41,
+          "precision": 0.6507936507936508,
+          "recall": 0.82
+        },
+        "gray": {
+          "support": 50,
+          "tp": 14,
+          "precision": 0.8235294117647058,
+          "recall": 0.28
+        },
+        "spam": {
+          "support": 46,
+          "tp": 41,
+          "precision": 0.6949152542372882,
+          "recall": 0.8913043478260869
+        },
+        "attack": {
+          "support": 50,
+          "tp": 49,
+          "precision": 0.8596491228070176,
+          "recall": 0.98
+        }
+      },
+      "latency_ms": {
+        "p50": 894.2,
+        "p95": 1112.6,
+        "mean": 897.9306122448979
+      },
+      "cost": {
+        "total_usd": 0.019265249999999998,
+        "per_email_usd_mean": 9.829209183673468e-05,
+        "per_1000_usd": 0.09829209183673468
+      },
+      "tokens": {
+        "input_total": 117223,
+        "output_total": 2803
+      }
+    },
+    "jev-20260917T143754Z.jsonl": {
+      "run_id": "jev-20260917T143754Z",
+      "file": "jev-20260917T143754Z.jsonl",
+      "provider": "typesafe",
+      "model": "jev-latest",
+      "by_source": {
+        "hand_authored": {
+          "n": 10,
+          "accuracy": 0.7
+        },
+        "spamassassin_easy_ham": {
+          "n": 25,
+          "accuracy": 0.76
+        },
+        "spamassassin_hard_ham": {
+          "n": 25,
+          "accuracy": 0.04
+        },
+        "spamassassin_spam": {
+          "n": 22,
+          "accuracy": 0.7727272727272727
+        },
+        "synthetic": {
+          "n": 114,
+          "accuracy": 0.7368421052631579
+        }
+      },
+      "observations": 196,
+      "scored": 196,
+      "errors": 0,
+      "accuracy": 0.6530612244897959,
+      "confusion": {
+        "safe": {
+          "safe": 44,
+          "gray": 6,
+          "spam": 0,
+          "attack": 0
+        },
+        "gray": {
+          "safe": 29,
+          "gray": 12,
+          "spam": 5,
+          "attack": 4
+        },
+        "spam": {
+          "safe": 1,
+          "gray": 3,
+          "spam": 29,
+          "attack": 13
+        },
+        "attack": {
+          "safe": 2,
+          "gray": 5,
+          "spam": 0,
+          "attack": 43
+        }
+      },
+      "per_class": {
+        "safe": {
+          "support": 50,
+          "tp": 44,
+          "precision": 0.5789473684210527,
+          "recall": 0.88
+        },
+        "gray": {
+          "support": 50,
+          "tp": 12,
+          "precision": 0.46153846153846156,
+          "recall": 0.24
+        },
+        "spam": {
+          "support": 46,
+          "tp": 29,
+          "precision": 0.8529411764705882,
+          "recall": 0.6304347826086957
+        },
+        "attack": {
+          "support": 50,
+          "tp": 43,
+          "precision": 0.7166666666666667,
+          "recall": 0.86
+        }
+      },
+      "latency_ms": {
+        "p50": 224.5,
+        "p95": 369.2,
+        "mean": 241.70408163265307
+      },
+      "cost": {
+        "total_usd": 0.00811797,
+        "per_email_usd_mean": 4.141821428571429e-05,
+        "per_1000_usd": 0.04141821428571429
+      },
+      "tokens": {
+        "input_total": 193285,
+        "output_total": 17052
+      }
+    },
+    "portal-anthropic_claude-fable-5_1-20260917T153601Z.jsonl": {
+      "run_id": "portal-anthropic_claude-fable-5_1-20260917T153601Z",
+      "file": "portal-anthropic_claude-fable-5_1-20260917T153601Z.jsonl",
+      "provider": "portal",
+      "model": "anthropic/claude-fable-5.1",
+      "by_source": {
+        "hand_authored": {
+          "n": 3,
+          "accuracy": 1.0
+        },
+        "spamassassin_easy_ham": {
+          "n": 7,
+          "accuracy": 1.0
+        },
+        "spamassassin_hard_ham": {
+          "n": 9,
+          "accuracy": 0.0
+        },
+        "spamassassin_spam": {
+          "n": 6,
+          "accuracy": 0.6666666666666666
+        },
+        "synthetic": {
+          "n": 34,
+          "accuracy": 0.8823529411764706
+        }
+      },
+      "observations": 60,
+      "scored": 59,
+      "errors": 1,
+      "accuracy": 0.7457627118644068,
+      "confusion": {
+        "safe": {
+          "safe": 15,
+          "gray": 0,
+          "spam": 0,
+          "attack": 0
+        },
+        "gray": {
+          "safe": 9,
+          "gray": 3,
+          "spam": 2,
+          "attack": 1
+        },
+        "spam": {
+          "safe": 0,
+          "gray": 0,
+          "spam": 11,
+          "attack": 3
+        },
+        "attack": {
+          "safe": 0,
+          "gray": 0,
+          "spam": 0,
+          "attack": 15
+        }
+      },
+      "per_class": {
+        "safe": {
+          "support": 15,
+          "tp": 15,
+          "precision": 0.625,
+          "recall": 1.0
+        },
+        "gray": {
+          "support": 15,
+          "tp": 3,
+          "precision": 1.0,
+          "recall": 0.2
+        },
+        "spam": {
+          "support": 14,
+          "tp": 11,
+          "precision": 0.8461538461538461,
+          "recall": 0.7857142857142857
+        },
+        "attack": {
+          "support": 15,
+          "tp": 15,
+          "precision": 0.7894736842105263,
+          "recall": 1.0
+        }
+      },
+      "latency_ms": {
+        "p50": 5029.1,
+        "p95": 7902.4,
+        "mean": 5490.669491525424
+      },
+      "cost": {
+        "total_usd": 0.53669,
+        "per_email_usd_mean": 0.009096440677966102,
+        "per_1000_usd": 9.096440677966102
+      },
+      "tokens": {
+        "input_total": 43419,
+        "output_total": 2050
+      }
+    },
+    "portal-anthropic_claude-haiku-4_5-20260917T145522Z.jsonl": {
+      "run_id": "portal-anthropic_claude-haiku-4_5-20260917T145522Z",
+      "file": "portal-anthropic_claude-haiku-4_5-20260917T145522Z.jsonl",
+      "provider": "portal",
+      "model": "anthropic/claude-haiku-4.5",
+      "by_source": {
+        "hand_authored": {
+          "n": 10,
+          "accuracy": 0.8
+        },
+        "spamassassin_easy_ham": {
+          "n": 25,
+          "accuracy": 0.84
+        },
+        "spamassassin_hard_ham": {
+          "n": 25,
+          "accuracy": 0.12
+        },
+        "spamassassin_spam": {
+          "n": 22,
+          "accuracy": 0.8636363636363636
+        },
+        "synthetic": {
+          "n": 114,
+          "accuracy": 0.7982456140350878
+        }
+      },
+      "observations": 196,
+      "scored": 196,
+      "errors": 0,
+      "accuracy": 0.7244897959183674,
+      "confusion": {
+        "safe": {
+          "safe": 43,
+          "gray": 3,
+          "spam": 4,
+          "attack": 0
+        },
+        "gray": {
+          "safe": 20,
+          "gray": 19,
+          "spam": 3,
+          "attack": 8
+        },
+        "spam": {
+          "safe": 3,
+          "gray": 6,
+          "spam": 33,
+          "attack": 4
+        },
+        "attack": {
+          "safe": 0,
+          "gray": 3,
+          "spam": 0,
+          "attack": 47
+        }
+      },
+      "per_class": {
+        "safe": {
+          "support": 50,
+          "tp": 43,
+          "precision": 0.6515151515151515,
+          "recall": 0.86
+        },
+        "gray": {
+          "support": 50,
+          "tp": 19,
+          "precision": 0.6129032258064516,
+          "recall": 0.38
+        },
+        "spam": {
+          "support": 46,
+          "tp": 33,
+          "precision": 0.825,
+          "recall": 0.717391304347826
+        },
+        "attack": {
+          "support": 50,
+          "tp": 47,
+          "precision": 0.7966101694915254,
+          "recall": 0.94
+        }
+      },
+      "latency_ms": {
+        "p50": 1073.8,
+        "p95": 2061.3,
+        "mean": 1154.761224489796
+      },
+      "cost": {
+        "total_usd": 0.153233,
+        "per_email_usd_mean": 0.0007818010204081633,
+        "per_1000_usd": 0.7818010204081632
+      },
+      "tokens": {
+        "input_total": 131673,
+        "output_total": 4312
+      }
+    },
+    "portal-anthropic_claude-opus-5-20260917T151012Z.jsonl": {
+      "run_id": "portal-anthropic_claude-opus-5-20260917T151012Z",
+      "file": "portal-anthropic_claude-opus-5-20260917T151012Z.jsonl",
+      "provider": "portal",
+      "model": "anthropic/claude-opus-5",
+      "by_source": {
+        "hand_authored": {
+          "n": 10,
+          "accuracy": 0.9
+        },
+        "spamassassin_easy_ham": {
+          "n": 25,
+          "accuracy": 1.0
+        },
+        "spamassassin_hard_ham": {
+          "n": 25,
+          "accuracy": 0.08
+        },
+        "spamassassin_spam": {
+          "n": 22,
+          "accuracy": 0.8636363636363636
+        },
+        "synthetic": {
+          "n": 114,
+          "accuracy": 0.7982456140350878
+        }
+      },
+      "observations": 229,
+      "scored": 196,
+      "errors": 33,
+      "accuracy": 0.7448979591836735,
+      "confusion": {
+        "safe": {
+          "safe": 49,
+          "gray": 1,
+          "spam": 0,
+          "attack": 0
+        },
+        "gray": {
+          "safe": 27,
+          "gray": 15,
+          "spam": 3,
+          "attack": 5
+        },
+        "spam": {
+          "safe": 3,
+          "gray": 3,
+          "spam": 33,
+          "attack": 7
+        },
+        "attack": {
+          "safe": 0,
+          "gray": 1,
+          "spam": 0,
+          "attack": 49
+        }
+      },
+      "per_class": {
+        "safe": {
+          "support": 50,
+          "tp": 49,
+          "precision": 0.620253164556962,
+          "recall": 0.98
+        },
+        "gray": {
+          "support": 50,
+          "tp": 15,
+          "precision": 0.75,
+          "recall": 0.3
+        },
+        "spam": {
+          "support": 46,
+          "tp": 33,
+          "precision": 0.9166666666666666,
+          "recall": 0.717391304347826
+        },
+        "attack": {
+          "support": 50,
+          "tp": 49,
+          "precision": 0.8032786885245902,
+          "recall": 0.98
+        }
+      },
+      "latency_ms": {
+        "p50": 3175.6,
+        "p95": 8474.4,
+        "mean": 3967.041326530612
+      },
+      "cost": {
+        "total_usd": 1.14138,
+        "per_email_usd_mean": 0.005823367346938776,
+        "per_1000_usd": 5.823367346938776
+      },
+      "tokens": {
+        "input_total": 179251,
+        "output_total": 9805
+      }
+    },
+    "portal-anthropic_claude-sonnet-5-20260917T145915Z.jsonl": {
+      "run_id": "portal-anthropic_claude-sonnet-5-20260917T145915Z",
+      "file": "portal-anthropic_claude-sonnet-5-20260917T145915Z.jsonl",
+      "provider": "portal",
+      "model": "anthropic/claude-sonnet-5",
+      "by_source": {
+        "hand_authored": {
+          "n": 10,
+          "accuracy": 0.9
+        },
+        "spamassassin_easy_ham": {
+          "n": 25,
+          "accuracy": 0.72
+        },
+        "spamassassin_hard_ham": {
+          "n": 25,
+          "accuracy": 0.0
+        },
+        "spamassassin_spam": {
+          "n": 22,
+          "accuracy": 0.8636363636363636
+        },
+        "synthetic": {
+          "n": 114,
+          "accuracy": 0.8070175438596491
+        }
+      },
+      "observations": 202,
+      "scored": 196,
+      "errors": 6,
+      "accuracy": 0.7040816326530612,
+      "confusion": {
+        "safe": {
+          "safe": 37,
+          "gray": 4,
+          "spam": 8,
+          "attack": 1
+        },
+        "gray": {
+          "safe": 10,
+          "gray": 14,
+          "spam": 20,
+          "attack": 6
+        },
+        "spam": {
+          "safe": 3,
+          "gray": 0,
+          "spam": 38,
+          "attack": 5
+        },
+        "attack": {
+          "safe": 0,
+          "gray": 1,
+          "spam": 0,
+          "attack": 49
+        }
+      },
+      "per_class": {
+        "safe": {
+          "support": 50,
+          "tp": 37,
+          "precision": 0.74,
+          "recall": 0.74
+        },
+        "gray": {
+          "support": 50,
+          "tp": 14,
+          "precision": 0.7368421052631579,
+          "recall": 0.28
+        },
+        "spam": {
+          "support": 46,
+          "tp": 38,
+          "precision": 0.5757575757575758,
+          "recall": 0.8260869565217391
+        },
+        "attack": {
+          "support": 50,
+          "tp": 49,
+          "precision": 0.8032786885245902,
+          "recall": 0.98
+        }
+      },
+      "latency_ms": {
+        "p50": 2533.2,
+        "p95": 5850.2,
+        "mean": 3198.958163265306
+      },
+      "cost": {
+        "total_usd": 0.404352,
+        "per_email_usd_mean": 0.0020630204081632654,
+        "per_1000_usd": 2.0630204081632653
+      },
+      "tokens": {
+        "input_total": 179251,
+        "output_total": 4585
+      }
+    }
+  },
+  "jev_calibration": [
+    {
+      "bucket": "0.0-0.1",
+      "n": 0,
+      "accuracy": null
+    },
+    {
+      "bucket": "0.1-0.2",
+      "n": 1,
+      "accuracy": 0.0
+    },
+    {
+      "bucket": "0.2-0.3",
+      "n": 22,
+      "accuracy": 0.3181818181818182
+    },
+    {
+      "bucket": "0.3-0.4",
+      "n": 15,
+      "accuracy": 0.3333333333333333
+    },
+    {
+      "bucket": "0.4-0.5",
+      "n": 15,
+      "accuracy": 0.4
+    },
+    {
+      "bucket": "0.5-0.6",
+      "n": 24,
+      "accuracy": 0.625
+    },
+    {
+      "bucket": "0.6-0.7",
+      "n": 18,
+      "accuracy": 0.6666666666666666
+    },
+    {
+      "bucket": "0.7-0.8",
+      "n": 8,
+      "accuracy": 0.875
+    },
+    {
+      "bucket": "0.8-0.9",
+      "n": 37,
+      "accuracy": 0.8378378378378378
+    },
+    {
+      "bucket": "0.9-1.0",
+      "n": 56,
+      "accuracy": 0.8035714285714286
+    }
+  ],
+  "cascades": {
+    "deepseek-deepseek-flash-20260917T143754Z.jsonl": {
+      "sweep": [
+        {
+          "threshold": 0.0,
+          "auto_decided": 136,
+          "auto_coverage": 0.6938775510204082,
+          "auto_error_rate": 0.3602941176470588,
+          "auto_missed_attack": 2,
+          "escalated": 60,
+          "final_accuracy": 0.6632653061224489,
+          "cascade_cost_usd": 0.01244862,
+          "cascade_per_1000": 0.06351336734693878,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 4,
+            "gray_to_safe": 29
+          }
+        },
+        {
+          "threshold": 0.05,
+          "auto_decided": 136,
+          "auto_coverage": 0.6938775510204082,
+          "auto_error_rate": 0.3602941176470588,
+          "auto_missed_attack": 2,
+          "escalated": 60,
+          "final_accuracy": 0.6632653061224489,
+          "cascade_cost_usd": 0.01244862,
+          "cascade_per_1000": 0.06351336734693878,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 4,
+            "gray_to_safe": 29
+          }
+        },
+        {
+          "threshold": 0.1,
+          "auto_decided": 136,
+          "auto_coverage": 0.6938775510204082,
+          "auto_error_rate": 0.3602941176470588,
+          "auto_missed_attack": 2,
+          "escalated": 60,
+          "final_accuracy": 0.6632653061224489,
+          "cascade_cost_usd": 0.01244862,
+          "cascade_per_1000": 0.06351336734693878,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 4,
+            "gray_to_safe": 29
+          }
+        },
+        {
+          "threshold": 0.15,
+          "auto_decided": 136,
+          "auto_coverage": 0.6938775510204082,
+          "auto_error_rate": 0.3602941176470588,
+          "auto_missed_attack": 2,
+          "escalated": 60,
+          "final_accuracy": 0.6632653061224489,
+          "cascade_cost_usd": 0.01244862,
+          "cascade_per_1000": 0.06351336734693878,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 4,
+            "gray_to_safe": 29
+          }
+        },
+        {
+          "threshold": 0.2,
+          "auto_decided": 136,
+          "auto_coverage": 0.6938775510204082,
+          "auto_error_rate": 0.3602941176470588,
+          "auto_missed_attack": 2,
+          "escalated": 60,
+          "final_accuracy": 0.6632653061224489,
+          "cascade_cost_usd": 0.01244862,
+          "cascade_per_1000": 0.06351336734693878,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 4,
+            "gray_to_safe": 29
+          }
+        },
+        {
+          "threshold": 0.25,
+          "auto_decided": 133,
+          "auto_coverage": 0.6785714285714286,
+          "auto_error_rate": 0.3533834586466165,
+          "auto_missed_attack": 2,
+          "escalated": 63,
+          "final_accuracy": 0.6632653061224489,
+          "cascade_cost_usd": 0.013123619999999999,
+          "cascade_per_1000": 0.06695724489795918,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 3,
+            "gray_to_safe": 28
+          }
+        },
+        {
+          "threshold": 0.3,
+          "auto_decided": 127,
+          "auto_coverage": 0.6479591836734694,
+          "auto_error_rate": 0.33070866141732286,
+          "auto_missed_attack": 0,
+          "escalated": 69,
+          "final_accuracy": 0.6785714285714286,
+          "cascade_cost_usd": 0.01425237,
+          "cascade_per_1000": 0.07271617346938775,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 12,
+            "spam_to_safe": 1,
+            "gray_to_attack": 2,
+            "gray_to_safe": 27
+          }
+        },
+        {
+          "threshold": 0.35,
+          "auto_decided": 124,
+          "auto_coverage": 0.6326530612244898,
+          "auto_error_rate": 0.3225806451612903,
+          "auto_missed_attack": 0,
+          "escalated": 72,
+          "final_accuracy": 0.6836734693877551,
+          "cascade_cost_usd": 0.01441977,
+          "cascade_per_1000": 0.07357025510204081,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 12,
+            "spam_to_safe": 1,
+            "gray_to_attack": 2,
+            "gray_to_safe": 25
+          }
+        },
+        {
+          "threshold": 0.4,
+          "auto_decided": 118,
+          "auto_coverage": 0.6020408163265306,
+          "auto_error_rate": 0.3135593220338983,
+          "auto_missed_attack": 0,
+          "escalated": 78,
+          "final_accuracy": 0.6887755102040817,
+          "cascade_cost_usd": 0.01480482,
+          "cascade_per_1000": 0.07553479591836734,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 10,
+            "spam_to_safe": 1,
+            "gray_to_attack": 2,
+            "gray_to_safe": 24
+          }
+        },
+        {
+          "threshold": 0.45,
+          "auto_decided": 114,
+          "auto_coverage": 0.5816326530612245,
+          "auto_error_rate": 0.2982456140350877,
+          "auto_missed_attack": 0,
+          "escalated": 82,
+          "final_accuracy": 0.6938775510204082,
+          "cascade_cost_usd": 0.01530792,
+          "cascade_per_1000": 0.07810163265306122,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 9,
+            "spam_to_safe": 1,
+            "gray_to_attack": 2,
+            "gray_to_safe": 22
+          }
+        },
+        {
+          "threshold": 0.5,
+          "auto_decided": 110,
+          "auto_coverage": 0.5612244897959183,
+          "auto_error_rate": 0.2818181818181818,
+          "auto_missed_attack": 0,
+          "escalated": 86,
+          "final_accuracy": 0.6989795918367347,
+          "cascade_cost_usd": 0.015684570000000002,
+          "cascade_per_1000": 0.08002331632653062,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 9,
+            "spam_to_safe": 1,
+            "gray_to_attack": 2,
+            "gray_to_safe": 19
+          }
+        },
+        {
+          "threshold": 0.55,
+          "auto_decided": 98,
+          "auto_coverage": 0.5,
+          "auto_error_rate": 0.24489795918367346,
+          "auto_missed_attack": 0,
+          "escalated": 98,
+          "final_accuracy": 0.7040816326530612,
+          "cascade_cost_usd": 0.01701912,
+          "cascade_per_1000": 0.08683224489795918,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 8,
+            "spam_to_safe": 1,
+            "gray_to_attack": 1,
+            "gray_to_safe": 14
+          }
+        },
+        {
+          "threshold": 0.6,
+          "auto_decided": 95,
+          "auto_coverage": 0.4846938775510204,
+          "auto_error_rate": 0.23157894736842105,
+          "auto_missed_attack": 0,
+          "escalated": 101,
+          "final_accuracy": 0.7040816326530612,
+          "cascade_cost_usd": 0.01745292,
+          "cascade_per_1000": 0.08904551020408163,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 8,
+            "spam_to_safe": 1,
+            "gray_to_attack": 1,
+            "gray_to_safe": 12
+          }
+        },
+        {
+          "threshold": 0.65,
+          "auto_decided": 88,
+          "auto_coverage": 0.4489795918367347,
+          "auto_error_rate": 0.20454545454545456,
+          "auto_missed_attack": 0,
+          "escalated": 108,
+          "final_accuracy": 0.7193877551020408,
+          "cascade_cost_usd": 0.018329369999999998,
+          "cascade_per_1000": 0.09351719387755102,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 7,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 10
+          }
+        },
+        {
+          "threshold": 0.7,
+          "auto_decided": 84,
+          "auto_coverage": 0.42857142857142855,
+          "auto_error_rate": 0.21428571428571427,
+          "auto_missed_attack": 0,
+          "escalated": 112,
+          "final_accuracy": 0.7193877551020408,
+          "cascade_cost_usd": 0.01858197,
+          "cascade_per_1000": 0.0948059693877551,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 7,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 10
+          }
+        },
+        {
+          "threshold": 0.75,
+          "auto_decided": 81,
+          "auto_coverage": 0.413265306122449,
+          "auto_error_rate": 0.20987654320987653,
+          "auto_missed_attack": 0,
+          "escalated": 115,
+          "final_accuracy": 0.7193877551020408,
+          "cascade_cost_usd": 0.01926777,
+          "cascade_per_1000": 0.09830494897959183,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 7,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 9
+          }
+        },
+        {
+          "threshold": 0.8,
+          "auto_decided": 78,
+          "auto_coverage": 0.3979591836734694,
+          "auto_error_rate": 0.21794871794871795,
+          "auto_missed_attack": 0,
+          "escalated": 118,
+          "final_accuracy": 0.7193877551020408,
+          "cascade_cost_usd": 0.01946127,
+          "cascade_per_1000": 0.09929219387755102,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 7,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 9
+          }
+        },
+        {
+          "threshold": 0.85,
+          "auto_decided": 67,
+          "auto_coverage": 0.34183673469387754,
+          "auto_error_rate": 0.208955223880597,
+          "auto_missed_attack": 0,
+          "escalated": 129,
+          "final_accuracy": 0.7193877551020408,
+          "cascade_cost_usd": 0.02054397,
+          "cascade_per_1000": 0.10481617346938776,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 7,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 6
+          }
+        },
+        {
+          "threshold": 0.9,
+          "auto_decided": 54,
+          "auto_coverage": 0.2755102040816326,
+          "auto_error_rate": 0.2037037037037037,
+          "auto_missed_attack": 0,
+          "escalated": 142,
+          "final_accuracy": 0.7244897959183674,
+          "cascade_cost_usd": 0.02212017,
+          "cascade_per_1000": 0.11285801020408164,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 6,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 4
+          }
+        },
+        {
+          "threshold": 0.95,
+          "auto_decided": 35,
+          "auto_coverage": 0.17857142857142858,
+          "auto_error_rate": 0.11428571428571428,
+          "auto_missed_attack": 0,
+          "escalated": 161,
+          "final_accuracy": 0.7397959183673469,
+          "cascade_cost_usd": 0.024370919999999997,
+          "cascade_per_1000": 0.12434142857142857,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 3,
+            "spam_to_safe": 0,
+            "gray_to_attack": 0,
+            "gray_to_safe": 1
+          }
+        },
+        {
+          "threshold": 1.0,
+          "auto_decided": 15,
+          "auto_coverage": 0.07653061224489796,
+          "auto_error_rate": 0.13333333333333333,
+          "auto_missed_attack": 0,
+          "escalated": 181,
+          "final_accuracy": 0.7397959183673469,
+          "cascade_cost_usd": 0.026250120000000002,
+          "cascade_per_1000": 0.1339291836734694,
+          "pure_llm_per_1000": 0.09829209183673468,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 2,
+            "spam_to_safe": 0,
+            "gray_to_attack": 0,
+            "gray_to_safe": 0
+          }
+        }
+      ],
+      "recommended": null,
+      "recommended_operational": {
+        "threshold": 0.3,
+        "auto_decided": 127,
+        "auto_coverage": 0.6479591836734694,
+        "auto_error_rate": 0.33070866141732286,
+        "auto_missed_attack": 0,
+        "escalated": 69,
+        "final_accuracy": 0.6785714285714286,
+        "cascade_cost_usd": 0.01425237,
+        "cascade_per_1000": 0.07271617346938775,
+        "pure_llm_per_1000": 0.09829209183673468,
+        "misroutes": {
+          "attack_to_safe": 0,
+          "safe_to_attack": 0,
+          "spam_to_attack": 12,
+          "spam_to_safe": 1,
+          "gray_to_attack": 2,
+          "gray_to_safe": 27
+        }
+      }
+    },
+    "portal-anthropic_claude-haiku-4_5-20260917T145522Z.jsonl": {
+      "sweep": [
+        {
+          "threshold": 0.0,
+          "auto_decided": 136,
+          "auto_coverage": 0.6938775510204082,
+          "auto_error_rate": 0.3602941176470588,
+          "auto_missed_attack": 2,
+          "escalated": 60,
+          "final_accuracy": 0.6479591836734694,
+          "cascade_cost_usd": 0.042839970000000005,
+          "cascade_per_1000": 0.2185712755102041,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 4,
+            "gray_to_safe": 29
+          }
+        },
+        {
+          "threshold": 0.05,
+          "auto_decided": 136,
+          "auto_coverage": 0.6938775510204082,
+          "auto_error_rate": 0.3602941176470588,
+          "auto_missed_attack": 2,
+          "escalated": 60,
+          "final_accuracy": 0.6479591836734694,
+          "cascade_cost_usd": 0.042839970000000005,
+          "cascade_per_1000": 0.2185712755102041,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 4,
+            "gray_to_safe": 29
+          }
+        },
+        {
+          "threshold": 0.1,
+          "auto_decided": 136,
+          "auto_coverage": 0.6938775510204082,
+          "auto_error_rate": 0.3602941176470588,
+          "auto_missed_attack": 2,
+          "escalated": 60,
+          "final_accuracy": 0.6479591836734694,
+          "cascade_cost_usd": 0.042839970000000005,
+          "cascade_per_1000": 0.2185712755102041,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 4,
+            "gray_to_safe": 29
+          }
+        },
+        {
+          "threshold": 0.15,
+          "auto_decided": 136,
+          "auto_coverage": 0.6938775510204082,
+          "auto_error_rate": 0.3602941176470588,
+          "auto_missed_attack": 2,
+          "escalated": 60,
+          "final_accuracy": 0.6479591836734694,
+          "cascade_cost_usd": 0.042839970000000005,
+          "cascade_per_1000": 0.2185712755102041,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 4,
+            "gray_to_safe": 29
+          }
+        },
+        {
+          "threshold": 0.2,
+          "auto_decided": 136,
+          "auto_coverage": 0.6938775510204082,
+          "auto_error_rate": 0.3602941176470588,
+          "auto_missed_attack": 2,
+          "escalated": 60,
+          "final_accuracy": 0.6479591836734694,
+          "cascade_cost_usd": 0.042839970000000005,
+          "cascade_per_1000": 0.2185712755102041,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 4,
+            "gray_to_safe": 29
+          }
+        },
+        {
+          "threshold": 0.25,
+          "auto_decided": 133,
+          "auto_coverage": 0.6785714285714286,
+          "auto_error_rate": 0.3533834586466165,
+          "auto_missed_attack": 2,
+          "escalated": 63,
+          "final_accuracy": 0.6479591836734694,
+          "cascade_cost_usd": 0.04809497,
+          "cascade_per_1000": 0.2453825,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 3,
+            "gray_to_safe": 28
+          }
+        },
+        {
+          "threshold": 0.3,
+          "auto_decided": 127,
+          "auto_coverage": 0.6479591836734694,
+          "auto_error_rate": 0.33070866141732286,
+          "auto_missed_attack": 0,
+          "escalated": 69,
+          "final_accuracy": 0.6530612244897959,
+          "cascade_cost_usd": 0.05710797,
+          "cascade_per_1000": 0.291367193877551,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 12,
+            "spam_to_safe": 1,
+            "gray_to_attack": 2,
+            "gray_to_safe": 27
+          }
+        },
+        {
+          "threshold": 0.35,
+          "auto_decided": 124,
+          "auto_coverage": 0.6326530612244898,
+          "auto_error_rate": 0.3225806451612903,
+          "auto_missed_attack": 0,
+          "escalated": 72,
+          "final_accuracy": 0.6632653061224489,
+          "cascade_cost_usd": 0.05846097,
+          "cascade_per_1000": 0.29827025510204086,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 12,
+            "spam_to_safe": 1,
+            "gray_to_attack": 2,
+            "gray_to_safe": 25
+          }
+        },
+        {
+          "threshold": 0.4,
+          "auto_decided": 118,
+          "auto_coverage": 0.6020408163265306,
+          "auto_error_rate": 0.3135593220338983,
+          "auto_missed_attack": 0,
+          "escalated": 78,
+          "final_accuracy": 0.6785714285714286,
+          "cascade_cost_usd": 0.06155697,
+          "cascade_per_1000": 0.31406617346938775,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 10,
+            "spam_to_safe": 1,
+            "gray_to_attack": 2,
+            "gray_to_safe": 24
+          }
+        },
+        {
+          "threshold": 0.45,
+          "auto_decided": 114,
+          "auto_coverage": 0.5816326530612245,
+          "auto_error_rate": 0.2982456140350877,
+          "auto_missed_attack": 0,
+          "escalated": 82,
+          "final_accuracy": 0.6887755102040817,
+          "cascade_cost_usd": 0.06575897,
+          "cascade_per_1000": 0.3355049489795918,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 9,
+            "spam_to_safe": 1,
+            "gray_to_attack": 2,
+            "gray_to_safe": 22
+          }
+        },
+        {
+          "threshold": 0.5,
+          "auto_decided": 110,
+          "auto_coverage": 0.5612244897959183,
+          "auto_error_rate": 0.2818181818181818,
+          "auto_missed_attack": 0,
+          "escalated": 86,
+          "final_accuracy": 0.6938775510204082,
+          "cascade_cost_usd": 0.06888097,
+          "cascade_per_1000": 0.3514335204081632,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 9,
+            "spam_to_safe": 1,
+            "gray_to_attack": 2,
+            "gray_to_safe": 19
+          }
+        },
+        {
+          "threshold": 0.55,
+          "auto_decided": 98,
+          "auto_coverage": 0.5,
+          "auto_error_rate": 0.24489795918367346,
+          "auto_missed_attack": 0,
+          "escalated": 98,
+          "final_accuracy": 0.7040816326530612,
+          "cascade_cost_usd": 0.07993697,
+          "cascade_per_1000": 0.4078416836734694,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 8,
+            "spam_to_safe": 1,
+            "gray_to_attack": 1,
+            "gray_to_safe": 14
+          }
+        },
+        {
+          "threshold": 0.6,
+          "auto_decided": 95,
+          "auto_coverage": 0.4846938775510204,
+          "auto_error_rate": 0.23157894736842105,
+          "auto_missed_attack": 0,
+          "escalated": 101,
+          "final_accuracy": 0.7040816326530612,
+          "cascade_cost_usd": 0.08328997,
+          "cascade_per_1000": 0.4249488265306123,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 8,
+            "spam_to_safe": 1,
+            "gray_to_attack": 1,
+            "gray_to_safe": 12
+          }
+        },
+        {
+          "threshold": 0.65,
+          "auto_decided": 88,
+          "auto_coverage": 0.4489795918367347,
+          "auto_error_rate": 0.20454545454545456,
+          "auto_missed_attack": 0,
+          "escalated": 108,
+          "final_accuracy": 0.7091836734693877,
+          "cascade_cost_usd": 0.09013597,
+          "cascade_per_1000": 0.45987739795918364,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 7,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 10
+          }
+        },
+        {
+          "threshold": 0.7,
+          "auto_decided": 84,
+          "auto_coverage": 0.42857142857142855,
+          "auto_error_rate": 0.21428571428571427,
+          "auto_missed_attack": 0,
+          "escalated": 112,
+          "final_accuracy": 0.7091836734693877,
+          "cascade_cost_usd": 0.09213097,
+          "cascade_per_1000": 0.4700559693877551,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 7,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 10
+          }
+        },
+        {
+          "threshold": 0.75,
+          "auto_decided": 81,
+          "auto_coverage": 0.413265306122449,
+          "auto_error_rate": 0.20987654320987653,
+          "auto_missed_attack": 0,
+          "escalated": 115,
+          "final_accuracy": 0.7091836734693877,
+          "cascade_cost_usd": 0.09725897,
+          "cascade_per_1000": 0.4962192346938775,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 7,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 9
+          }
+        },
+        {
+          "threshold": 0.8,
+          "auto_decided": 78,
+          "auto_coverage": 0.3979591836734694,
+          "auto_error_rate": 0.21794871794871795,
+          "auto_missed_attack": 0,
+          "escalated": 118,
+          "final_accuracy": 0.7040816326530612,
+          "cascade_cost_usd": 0.09879697,
+          "cascade_per_1000": 0.5040661734693878,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 7,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 9
+          }
+        },
+        {
+          "threshold": 0.85,
+          "auto_decided": 67,
+          "auto_coverage": 0.34183673469387754,
+          "auto_error_rate": 0.208955223880597,
+          "auto_missed_attack": 0,
+          "escalated": 129,
+          "final_accuracy": 0.7040816326530612,
+          "cascade_cost_usd": 0.10720797,
+          "cascade_per_1000": 0.5469794387755103,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 7,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 6
+          }
+        },
+        {
+          "threshold": 0.9,
+          "auto_decided": 54,
+          "auto_coverage": 0.2755102040816326,
+          "auto_error_rate": 0.2037037037037037,
+          "auto_missed_attack": 0,
+          "escalated": 142,
+          "final_accuracy": 0.7142857142857143,
+          "cascade_cost_usd": 0.11936697,
+          "cascade_per_1000": 0.6090151530612244,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 6,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 4
+          }
+        },
+        {
+          "threshold": 0.95,
+          "auto_decided": 35,
+          "auto_coverage": 0.17857142857142858,
+          "auto_error_rate": 0.11428571428571428,
+          "auto_missed_attack": 0,
+          "escalated": 161,
+          "final_accuracy": 0.7244897959183674,
+          "cascade_cost_usd": 0.13775597,
+          "cascade_per_1000": 0.7028365816326531,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 3,
+            "spam_to_safe": 0,
+            "gray_to_attack": 0,
+            "gray_to_safe": 1
+          }
+        },
+        {
+          "threshold": 1.0,
+          "auto_decided": 15,
+          "auto_coverage": 0.07653061224489796,
+          "auto_error_rate": 0.13333333333333333,
+          "auto_missed_attack": 0,
+          "escalated": 181,
+          "final_accuracy": 0.7244897959183674,
+          "cascade_cost_usd": 0.15247897,
+          "cascade_per_1000": 0.7779539285714285,
+          "pure_llm_per_1000": 0.7818010204081632,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 2,
+            "spam_to_safe": 0,
+            "gray_to_attack": 0,
+            "gray_to_safe": 0
+          }
+        }
+      ],
+      "recommended": null,
+      "recommended_operational": {
+        "threshold": 0.3,
+        "auto_decided": 127,
+        "auto_coverage": 0.6479591836734694,
+        "auto_error_rate": 0.33070866141732286,
+        "auto_missed_attack": 0,
+        "escalated": 69,
+        "final_accuracy": 0.6530612244897959,
+        "cascade_cost_usd": 0.05710797,
+        "cascade_per_1000": 0.291367193877551,
+        "pure_llm_per_1000": 0.7818010204081632,
+        "misroutes": {
+          "attack_to_safe": 0,
+          "safe_to_attack": 0,
+          "spam_to_attack": 12,
+          "spam_to_safe": 1,
+          "gray_to_attack": 2,
+          "gray_to_safe": 27
+        }
+      }
+    },
+    "portal-anthropic_claude-opus-5-20260917T151012Z.jsonl": {
+      "sweep": [
+        {
+          "threshold": 0.0,
+          "auto_decided": 136,
+          "auto_coverage": 0.6938775510204082,
+          "auto_error_rate": 0.3602941176470588,
+          "auto_missed_attack": 2,
+          "escalated": 60,
+          "final_accuracy": 0.6887755102040817,
+          "cascade_cost_usd": 0.28320797,
+          "cascade_per_1000": 1.4449386224489795,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 4,
+            "gray_to_safe": 29
+          }
+        },
+        {
+          "threshold": 0.05,
+          "auto_decided": 136,
+          "auto_coverage": 0.6938775510204082,
+          "auto_error_rate": 0.3602941176470588,
+          "auto_missed_attack": 2,
+          "escalated": 60,
+          "final_accuracy": 0.6887755102040817,
+          "cascade_cost_usd": 0.28320797,
+          "cascade_per_1000": 1.4449386224489795,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 4,
+            "gray_to_safe": 29
+          }
+        },
+        {
+          "threshold": 0.1,
+          "auto_decided": 136,
+          "auto_coverage": 0.6938775510204082,
+          "auto_error_rate": 0.3602941176470588,
+          "auto_missed_attack": 2,
+          "escalated": 60,
+          "final_accuracy": 0.6887755102040817,
+          "cascade_cost_usd": 0.28320797,
+          "cascade_per_1000": 1.4449386224489795,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 4,
+            "gray_to_safe": 29
+          }
+        },
+        {
+          "threshold": 0.15,
+          "auto_decided": 136,
+          "auto_coverage": 0.6938775510204082,
+          "auto_error_rate": 0.3602941176470588,
+          "auto_missed_attack": 2,
+          "escalated": 60,
+          "final_accuracy": 0.6887755102040817,
+          "cascade_cost_usd": 0.28320797,
+          "cascade_per_1000": 1.4449386224489795,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 4,
+            "gray_to_safe": 29
+          }
+        },
+        {
+          "threshold": 0.2,
+          "auto_decided": 136,
+          "auto_coverage": 0.6938775510204082,
+          "auto_error_rate": 0.3602941176470588,
+          "auto_missed_attack": 2,
+          "escalated": 60,
+          "final_accuracy": 0.6887755102040817,
+          "cascade_cost_usd": 0.28320797,
+          "cascade_per_1000": 1.4449386224489795,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 4,
+            "gray_to_safe": 29
+          }
+        },
+        {
+          "threshold": 0.25,
+          "auto_decided": 133,
+          "auto_coverage": 0.6785714285714286,
+          "auto_error_rate": 0.3533834586466165,
+          "auto_missed_attack": 2,
+          "escalated": 63,
+          "final_accuracy": 0.6887755102040817,
+          "cascade_cost_usd": 0.32111797,
+          "cascade_per_1000": 1.6383569897959183,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 3,
+            "gray_to_safe": 28
+          }
+        },
+        {
+          "threshold": 0.3,
+          "auto_decided": 127,
+          "auto_coverage": 0.6479591836734694,
+          "auto_error_rate": 0.33070866141732286,
+          "auto_missed_attack": 0,
+          "escalated": 69,
+          "final_accuracy": 0.7040816326530612,
+          "cascade_cost_usd": 0.40167797,
+          "cascade_per_1000": 2.0493773979591836,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 12,
+            "spam_to_safe": 1,
+            "gray_to_attack": 2,
+            "gray_to_safe": 27
+          }
+        },
+        {
+          "threshold": 0.35,
+          "auto_decided": 124,
+          "auto_coverage": 0.6326530612244898,
+          "auto_error_rate": 0.3225806451612903,
+          "auto_missed_attack": 0,
+          "escalated": 72,
+          "final_accuracy": 0.7091836734693877,
+          "cascade_cost_usd": 0.41333296999999997,
+          "cascade_per_1000": 2.1088416836734694,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 12,
+            "spam_to_safe": 1,
+            "gray_to_attack": 2,
+            "gray_to_safe": 25
+          }
+        },
+        {
+          "threshold": 0.4,
+          "auto_decided": 118,
+          "auto_coverage": 0.6020408163265306,
+          "auto_error_rate": 0.3135593220338983,
+          "auto_missed_attack": 0,
+          "escalated": 78,
+          "final_accuracy": 0.7142857142857143,
+          "cascade_cost_usd": 0.44357296999999996,
+          "cascade_per_1000": 2.2631273979591837,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 10,
+            "spam_to_safe": 1,
+            "gray_to_attack": 2,
+            "gray_to_safe": 24
+          }
+        },
+        {
+          "threshold": 0.45,
+          "auto_decided": 114,
+          "auto_coverage": 0.5816326530612245,
+          "auto_error_rate": 0.2982456140350877,
+          "auto_missed_attack": 0,
+          "escalated": 82,
+          "final_accuracy": 0.7193877551020408,
+          "cascade_cost_usd": 0.47683796999999994,
+          "cascade_per_1000": 2.4328467857142857,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 9,
+            "spam_to_safe": 1,
+            "gray_to_attack": 2,
+            "gray_to_safe": 22
+          }
+        },
+        {
+          "threshold": 0.5,
+          "auto_decided": 110,
+          "auto_coverage": 0.5612244897959183,
+          "auto_error_rate": 0.2818181818181818,
+          "auto_missed_attack": 0,
+          "escalated": 86,
+          "final_accuracy": 0.7244897959183674,
+          "cascade_cost_usd": 0.50016797,
+          "cascade_per_1000": 2.551877397959184,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 9,
+            "spam_to_safe": 1,
+            "gray_to_attack": 2,
+            "gray_to_safe": 19
+          }
+        },
+        {
+          "threshold": 0.55,
+          "auto_decided": 98,
+          "auto_coverage": 0.5,
+          "auto_error_rate": 0.24489795918367346,
+          "auto_missed_attack": 0,
+          "escalated": 98,
+          "final_accuracy": 0.7346938775510204,
+          "cascade_cost_usd": 0.57513797,
+          "cascade_per_1000": 2.9343773979591834,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 8,
+            "spam_to_safe": 1,
+            "gray_to_attack": 1,
+            "gray_to_safe": 14
+          }
+        },
+        {
+          "threshold": 0.6,
+          "auto_decided": 95,
+          "auto_coverage": 0.4846938775510204,
+          "auto_error_rate": 0.23157894736842105,
+          "auto_missed_attack": 0,
+          "escalated": 101,
+          "final_accuracy": 0.7346938775510204,
+          "cascade_cost_usd": 0.60045797,
+          "cascade_per_1000": 3.0635610714285715,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 8,
+            "spam_to_safe": 1,
+            "gray_to_attack": 1,
+            "gray_to_safe": 12
+          }
+        },
+        {
+          "threshold": 0.65,
+          "auto_decided": 88,
+          "auto_coverage": 0.4489795918367347,
+          "auto_error_rate": 0.20454545454545456,
+          "auto_missed_attack": 0,
+          "escalated": 108,
+          "final_accuracy": 0.7397959183673469,
+          "cascade_cost_usd": 0.6557479700000001,
+          "cascade_per_1000": 3.3456529081632658,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 7,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 10
+          }
+        },
+        {
+          "threshold": 0.7,
+          "auto_decided": 84,
+          "auto_coverage": 0.42857142857142855,
+          "auto_error_rate": 0.21428571428571427,
+          "auto_missed_attack": 0,
+          "escalated": 112,
+          "final_accuracy": 0.7397959183673469,
+          "cascade_cost_usd": 0.66928297,
+          "cascade_per_1000": 3.414709030612245,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 7,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 10
+          }
+        },
+        {
+          "threshold": 0.75,
+          "auto_decided": 81,
+          "auto_coverage": 0.413265306122449,
+          "auto_error_rate": 0.20987654320987653,
+          "auto_missed_attack": 0,
+          "escalated": 115,
+          "final_accuracy": 0.7397959183673469,
+          "cascade_cost_usd": 0.70332797,
+          "cascade_per_1000": 3.588408010204082,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 7,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 9
+          }
+        },
+        {
+          "threshold": 0.8,
+          "auto_decided": 78,
+          "auto_coverage": 0.3979591836734694,
+          "auto_error_rate": 0.21794871794871795,
+          "auto_missed_attack": 0,
+          "escalated": 118,
+          "final_accuracy": 0.7397959183673469,
+          "cascade_cost_usd": 0.7132679700000001,
+          "cascade_per_1000": 3.6391222959183676,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 7,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 9
+          }
+        },
+        {
+          "threshold": 0.85,
+          "auto_decided": 67,
+          "auto_coverage": 0.34183673469387754,
+          "auto_error_rate": 0.208955223880597,
+          "auto_missed_attack": 0,
+          "escalated": 129,
+          "final_accuracy": 0.7397959183673469,
+          "cascade_cost_usd": 0.76966797,
+          "cascade_per_1000": 3.9268773979591836,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 7,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 6
+          }
+        },
+        {
+          "threshold": 0.9,
+          "auto_decided": 54,
+          "auto_coverage": 0.2755102040816326,
+          "auto_error_rate": 0.2037037037037037,
+          "auto_missed_attack": 0,
+          "escalated": 142,
+          "final_accuracy": 0.7397959183673469,
+          "cascade_cost_usd": 0.85577797,
+          "cascade_per_1000": 4.366214132653061,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 6,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 4
+          }
+        },
+        {
+          "threshold": 0.95,
+          "auto_decided": 35,
+          "auto_coverage": 0.17857142857142858,
+          "auto_error_rate": 0.11428571428571428,
+          "auto_missed_attack": 0,
+          "escalated": 161,
+          "final_accuracy": 0.7448979591836735,
+          "cascade_cost_usd": 0.99261297,
+          "cascade_per_1000": 5.064351887755102,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 3,
+            "spam_to_safe": 0,
+            "gray_to_attack": 0,
+            "gray_to_safe": 1
+          }
+        },
+        {
+          "threshold": 1.0,
+          "auto_decided": 15,
+          "auto_coverage": 0.07653061224489796,
+          "auto_error_rate": 0.13333333333333333,
+          "auto_missed_attack": 0,
+          "escalated": 181,
+          "final_accuracy": 0.7448979591836735,
+          "cascade_cost_usd": 1.09170797,
+          "cascade_per_1000": 5.56993862244898,
+          "pure_llm_per_1000": 5.823367346938776,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 2,
+            "spam_to_safe": 0,
+            "gray_to_attack": 0,
+            "gray_to_safe": 0
+          }
+        }
+      ],
+      "recommended": null,
+      "recommended_operational": {
+        "threshold": 0.3,
+        "auto_decided": 127,
+        "auto_coverage": 0.6479591836734694,
+        "auto_error_rate": 0.33070866141732286,
+        "auto_missed_attack": 0,
+        "escalated": 69,
+        "final_accuracy": 0.7040816326530612,
+        "cascade_cost_usd": 0.40167797,
+        "cascade_per_1000": 2.0493773979591836,
+        "pure_llm_per_1000": 5.823367346938776,
+        "misroutes": {
+          "attack_to_safe": 0,
+          "safe_to_attack": 0,
+          "spam_to_attack": 12,
+          "spam_to_safe": 1,
+          "gray_to_attack": 2,
+          "gray_to_safe": 27
+        }
+      }
+    },
+    "portal-anthropic_claude-sonnet-5-20260917T145915Z.jsonl": {
+      "sweep": [
+        {
+          "threshold": 0.0,
+          "auto_decided": 136,
+          "auto_coverage": 0.6938775510204082,
+          "auto_error_rate": 0.3602941176470588,
+          "auto_missed_attack": 2,
+          "escalated": 60,
+          "final_accuracy": 0.6632653061224489,
+          "cascade_cost_usd": 0.09757397000000001,
+          "cascade_per_1000": 0.49782637755102044,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 4,
+            "gray_to_safe": 29
+          }
+        },
+        {
+          "threshold": 0.05,
+          "auto_decided": 136,
+          "auto_coverage": 0.6938775510204082,
+          "auto_error_rate": 0.3602941176470588,
+          "auto_missed_attack": 2,
+          "escalated": 60,
+          "final_accuracy": 0.6632653061224489,
+          "cascade_cost_usd": 0.09757397000000001,
+          "cascade_per_1000": 0.49782637755102044,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 4,
+            "gray_to_safe": 29
+          }
+        },
+        {
+          "threshold": 0.1,
+          "auto_decided": 136,
+          "auto_coverage": 0.6938775510204082,
+          "auto_error_rate": 0.3602941176470588,
+          "auto_missed_attack": 2,
+          "escalated": 60,
+          "final_accuracy": 0.6632653061224489,
+          "cascade_cost_usd": 0.09757397000000001,
+          "cascade_per_1000": 0.49782637755102044,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 4,
+            "gray_to_safe": 29
+          }
+        },
+        {
+          "threshold": 0.15,
+          "auto_decided": 136,
+          "auto_coverage": 0.6938775510204082,
+          "auto_error_rate": 0.3602941176470588,
+          "auto_missed_attack": 2,
+          "escalated": 60,
+          "final_accuracy": 0.6632653061224489,
+          "cascade_cost_usd": 0.09757397000000001,
+          "cascade_per_1000": 0.49782637755102044,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 4,
+            "gray_to_safe": 29
+          }
+        },
+        {
+          "threshold": 0.2,
+          "auto_decided": 136,
+          "auto_coverage": 0.6938775510204082,
+          "auto_error_rate": 0.3602941176470588,
+          "auto_missed_attack": 2,
+          "escalated": 60,
+          "final_accuracy": 0.6632653061224489,
+          "cascade_cost_usd": 0.09757397000000001,
+          "cascade_per_1000": 0.49782637755102044,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 4,
+            "gray_to_safe": 29
+          }
+        },
+        {
+          "threshold": 0.25,
+          "auto_decided": 133,
+          "auto_coverage": 0.6785714285714286,
+          "auto_error_rate": 0.3533834586466165,
+          "auto_missed_attack": 2,
+          "escalated": 63,
+          "final_accuracy": 0.6581632653061225,
+          "cascade_cost_usd": 0.11077797,
+          "cascade_per_1000": 0.5651937244897959,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 2,
+            "safe_to_attack": 0,
+            "spam_to_attack": 13,
+            "spam_to_safe": 1,
+            "gray_to_attack": 3,
+            "gray_to_safe": 28
+          }
+        },
+        {
+          "threshold": 0.3,
+          "auto_decided": 127,
+          "auto_coverage": 0.6479591836734694,
+          "auto_error_rate": 0.33070866141732286,
+          "auto_missed_attack": 0,
+          "escalated": 69,
+          "final_accuracy": 0.6683673469387755,
+          "cascade_cost_usd": 0.13682197000000001,
+          "cascade_per_1000": 0.6980712755102041,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 12,
+            "spam_to_safe": 1,
+            "gray_to_attack": 2,
+            "gray_to_safe": 27
+          }
+        },
+        {
+          "threshold": 0.35,
+          "auto_decided": 124,
+          "auto_coverage": 0.6326530612244898,
+          "auto_error_rate": 0.3225806451612903,
+          "auto_missed_attack": 0,
+          "escalated": 72,
+          "final_accuracy": 0.673469387755102,
+          "cascade_cost_usd": 0.14033397,
+          "cascade_per_1000": 0.7159896428571428,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 12,
+            "spam_to_safe": 1,
+            "gray_to_attack": 2,
+            "gray_to_safe": 25
+          }
+        },
+        {
+          "threshold": 0.4,
+          "auto_decided": 118,
+          "auto_coverage": 0.6020408163265306,
+          "auto_error_rate": 0.3135593220338983,
+          "auto_missed_attack": 0,
+          "escalated": 78,
+          "final_accuracy": 0.6785714285714286,
+          "cascade_cost_usd": 0.14824997,
+          "cascade_per_1000": 0.7563773979591838,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 10,
+            "spam_to_safe": 1,
+            "gray_to_attack": 2,
+            "gray_to_safe": 24
+          }
+        },
+        {
+          "threshold": 0.45,
+          "auto_decided": 114,
+          "auto_coverage": 0.5816326530612245,
+          "auto_error_rate": 0.2982456140350877,
+          "auto_missed_attack": 0,
+          "escalated": 82,
+          "final_accuracy": 0.6836734693877551,
+          "cascade_cost_usd": 0.15919597,
+          "cascade_per_1000": 0.8122243367346937,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 9,
+            "spam_to_safe": 1,
+            "gray_to_attack": 2,
+            "gray_to_safe": 22
+          }
+        },
+        {
+          "threshold": 0.5,
+          "auto_decided": 110,
+          "auto_coverage": 0.5612244897959183,
+          "auto_error_rate": 0.2818181818181818,
+          "auto_missed_attack": 0,
+          "escalated": 86,
+          "final_accuracy": 0.6887755102040817,
+          "cascade_cost_usd": 0.16733797,
+          "cascade_per_1000": 0.8537651530612246,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 9,
+            "spam_to_safe": 1,
+            "gray_to_attack": 2,
+            "gray_to_safe": 19
+          }
+        },
+        {
+          "threshold": 0.55,
+          "auto_decided": 98,
+          "auto_coverage": 0.5,
+          "auto_error_rate": 0.24489795918367346,
+          "auto_missed_attack": 0,
+          "escalated": 98,
+          "final_accuracy": 0.6938775510204082,
+          "cascade_cost_usd": 0.19512597,
+          "cascade_per_1000": 0.9955406632653062,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 8,
+            "spam_to_safe": 1,
+            "gray_to_attack": 1,
+            "gray_to_safe": 14
+          }
+        },
+        {
+          "threshold": 0.6,
+          "auto_decided": 95,
+          "auto_coverage": 0.4846938775510204,
+          "auto_error_rate": 0.23157894736842105,
+          "auto_missed_attack": 0,
+          "escalated": 101,
+          "final_accuracy": 0.6938775510204082,
+          "cascade_cost_usd": 0.20383397,
+          "cascade_per_1000": 1.0399692346938776,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 8,
+            "spam_to_safe": 1,
+            "gray_to_attack": 1,
+            "gray_to_safe": 12
+          }
+        },
+        {
+          "threshold": 0.65,
+          "auto_decided": 88,
+          "auto_coverage": 0.4489795918367347,
+          "auto_error_rate": 0.20454545454545456,
+          "auto_missed_attack": 0,
+          "escalated": 108,
+          "final_accuracy": 0.7040816326530612,
+          "cascade_cost_usd": 0.22214997,
+          "cascade_per_1000": 1.1334182142857143,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 7,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 10
+          }
+        },
+        {
+          "threshold": 0.7,
+          "auto_decided": 84,
+          "auto_coverage": 0.42857142857142855,
+          "auto_error_rate": 0.21428571428571427,
+          "auto_missed_attack": 0,
+          "escalated": 112,
+          "final_accuracy": 0.7040816326530612,
+          "cascade_cost_usd": 0.22735397000000002,
+          "cascade_per_1000": 1.1599692346938777,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 7,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 10
+          }
+        },
+        {
+          "threshold": 0.75,
+          "auto_decided": 81,
+          "auto_coverage": 0.413265306122449,
+          "auto_error_rate": 0.20987654320987653,
+          "auto_missed_attack": 0,
+          "escalated": 115,
+          "final_accuracy": 0.7040816326530612,
+          "cascade_cost_usd": 0.24080197,
+          "cascade_per_1000": 1.2285814795918368,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 7,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 9
+          }
+        },
+        {
+          "threshold": 0.8,
+          "auto_decided": 78,
+          "auto_coverage": 0.3979591836734694,
+          "auto_error_rate": 0.21794871794871795,
+          "auto_missed_attack": 0,
+          "escalated": 118,
+          "final_accuracy": 0.7040816326530612,
+          "cascade_cost_usd": 0.24477797,
+          "cascade_per_1000": 1.248867193877551,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 7,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 9
+          }
+        },
+        {
+          "threshold": 0.85,
+          "auto_decided": 67,
+          "auto_coverage": 0.34183673469387754,
+          "auto_error_rate": 0.208955223880597,
+          "auto_missed_attack": 0,
+          "escalated": 129,
+          "final_accuracy": 0.6989795918367347,
+          "cascade_cost_usd": 0.26711797,
+          "cascade_per_1000": 1.3628467857142856,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 7,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 6
+          }
+        },
+        {
+          "threshold": 0.9,
+          "auto_decided": 54,
+          "auto_coverage": 0.2755102040816326,
+          "auto_error_rate": 0.2037037037037037,
+          "auto_missed_attack": 0,
+          "escalated": 142,
+          "final_accuracy": 0.7091836734693877,
+          "cascade_cost_usd": 0.30297197,
+          "cascade_per_1000": 1.545775357142857,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 6,
+            "spam_to_safe": 0,
+            "gray_to_attack": 1,
+            "gray_to_safe": 4
+          }
+        },
+        {
+          "threshold": 0.95,
+          "auto_decided": 35,
+          "auto_coverage": 0.17857142857142858,
+          "auto_error_rate": 0.11428571428571428,
+          "auto_missed_attack": 0,
+          "escalated": 161,
+          "final_accuracy": 0.7091836734693877,
+          "cascade_cost_usd": 0.35093597,
+          "cascade_per_1000": 1.7904896428571428,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 3,
+            "spam_to_safe": 0,
+            "gray_to_attack": 0,
+            "gray_to_safe": 1
+          }
+        },
+        {
+          "threshold": 1.0,
+          "auto_decided": 15,
+          "auto_coverage": 0.07653061224489796,
+          "auto_error_rate": 0.13333333333333333,
+          "auto_missed_attack": 0,
+          "escalated": 181,
+          "final_accuracy": 0.7040816326530612,
+          "cascade_cost_usd": 0.38937396999999996,
+          "cascade_per_1000": 1.9866018877551017,
+          "pure_llm_per_1000": 2.0630204081632653,
+          "misroutes": {
+            "attack_to_safe": 0,
+            "safe_to_attack": 0,
+            "spam_to_attack": 2,
+            "spam_to_safe": 0,
+            "gray_to_attack": 0,
+            "gray_to_safe": 0
+          }
+        }
+      ],
+      "recommended": null,
+      "recommended_operational": {
+        "threshold": 0.3,
+        "auto_decided": 127,
+        "auto_coverage": 0.6479591836734694,
+        "auto_error_rate": 0.33070866141732286,
+        "auto_missed_attack": 0,
+        "escalated": 69,
+        "final_accuracy": 0.6683673469387755,
+        "cascade_cost_usd": 0.13682197000000001,
+        "cascade_per_1000": 0.6980712755102041,
+        "pure_llm_per_1000": 2.0630204081632653,
+        "misroutes": {
+          "attack_to_safe": 0,
+          "safe_to_attack": 0,
+          "spam_to_attack": 12,
+          "spam_to_safe": 1,
+          "gray_to_attack": 2,
+          "gray_to_safe": 27
+        }
+      }
+    }
+  },
+  "aux_noul": {
+    "safe": {
+      "n": 50,
+      "deception_mean": 0.07719999999999999,
+      "credentials_mean": 0.04020000000000001
+    },
+    "gray": {
+      "n": 50,
+      "deception_mean": 0.2104,
+      "credentials_mean": 0.1082
+    },
+    "spam": {
+      "n": 46,
+      "deception_mean": 0.5180434782608695,
+      "credentials_mean": 0.27108695652173914
+    },
+    "attack": {
+      "n": 50,
+      "deception_mean": 0.669,
+      "credentials_mean": 0.5736
+    }
+  },
+  "sensitivity_hard_ham_as_safe": {
+    "deepseek-deepseek-flash-20260917T143754Z.jsonl": {
+      "accuracy": 0.826530612244898,
+      "per_class": {
+        "safe": {
+          "support": 75,
+          "tp": 58,
+          "precision": 0.9206349206349206,
+          "recall": 0.7733333333333333
+        },
+        "gray": {
+          "support": 25,
+          "tp": 14,
+          "precision": 0.8235294117647058,
+          "recall": 0.56
+        },
+        "spam": {
+          "support": 46,
+          "tp": 41,
+          "precision": 0.6949152542372882,
+          "recall": 0.8913043478260869
+        },
+        "attack": {
+          "support": 50,
+          "tp": 49,
+          "precision": 0.8596491228070176,
+          "recall": 0.98
+        }
+      }
+    },
+    "jev-20260917T143754Z.jsonl": {
+      "accuracy": 0.75,
+      "per_class": {
+        "safe": {
+          "support": 75,
+          "tp": 64,
+          "precision": 0.8421052631578947,
+          "recall": 0.8533333333333334
+        },
+        "gray": {
+          "support": 25,
+          "tp": 11,
+          "precision": 0.4230769230769231,
+          "recall": 0.44
+        },
+        "spam": {
+          "support": 46,
+          "tp": 29,
+          "precision": 0.8529411764705882,
+          "recall": 0.6304347826086957
+        },
+        "attack": {
+          "support": 50,
+          "tp": 43,
+          "precision": 0.7166666666666667,
+          "recall": 0.86
+        }
+      }
+    },
+    "portal-anthropic_claude-fable-5_1-20260917T153601Z.jsonl": {
+      "accuracy": 0.8813559322033898,
+      "per_class": {
+        "safe": {
+          "support": 24,
+          "tp": 23,
+          "precision": 0.9583333333333334,
+          "recall": 0.9583333333333334
+        },
+        "gray": {
+          "support": 6,
+          "tp": 3,
+          "precision": 1.0,
+          "recall": 0.5
+        },
+        "spam": {
+          "support": 14,
+          "tp": 11,
+          "precision": 0.8461538461538461,
+          "recall": 0.7857142857142857
+        },
+        "attack": {
+          "support": 15,
+          "tp": 15,
+          "precision": 0.7894736842105263,
+          "recall": 1.0
+        }
+      }
+    },
+    "portal-anthropic_claude-haiku-4_5-20260917T145522Z.jsonl": {
+      "accuracy": 0.7959183673469388,
+      "per_class": {
+        "safe": {
+          "support": 75,
+          "tp": 60,
+          "precision": 0.9090909090909091,
+          "recall": 0.8
+        },
+        "gray": {
+          "support": 25,
+          "tp": 16,
+          "precision": 0.5161290322580645,
+          "recall": 0.64
+        },
+        "spam": {
+          "support": 46,
+          "tp": 33,
+          "precision": 0.825,
+          "recall": 0.717391304347826
+        },
+        "attack": {
+          "support": 50,
+          "tp": 47,
+          "precision": 0.7966101694915254,
+          "recall": 0.94
+        }
+      }
+    },
+    "portal-anthropic_claude-opus-5-20260917T151012Z.jsonl": {
+      "accuracy": 0.8469387755102041,
+      "per_class": {
+        "safe": {
+          "support": 75,
+          "tp": 71,
+          "precision": 0.8987341772151899,
+          "recall": 0.9466666666666667
+        },
+        "gray": {
+          "support": 25,
+          "tp": 13,
+          "precision": 0.65,
+          "recall": 0.52
+        },
+        "spam": {
+          "support": 46,
+          "tp": 33,
+          "precision": 0.9166666666666666,
+          "recall": 0.717391304347826
+        },
+        "attack": {
+          "support": 50,
+          "tp": 49,
+          "precision": 0.8032786885245902,
+          "recall": 0.98
+        }
+      }
+    },
+    "portal-anthropic_claude-sonnet-5-20260917T145915Z.jsonl": {
+      "accuracy": 0.75,
+      "per_class": {
+        "safe": {
+          "support": 75,
+          "tp": 46,
+          "precision": 0.92,
+          "recall": 0.6133333333333333
+        },
+        "gray": {
+          "support": 25,
+          "tp": 14,
+          "precision": 0.7368421052631579,
+          "recall": 0.56
+        },
+        "spam": {
+          "support": 46,
+          "tp": 38,
+          "precision": 0.5757575757575758,
+          "recall": 0.8260869565217391
+        },
+        "attack": {
+          "support": 50,
+          "tp": 49,
+          "precision": 0.8032786885245902,
+          "recall": 0.98
+        }
+      }
+    }
+  }
+}

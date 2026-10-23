@@ -1,0 +1,112 @@
+[
+  {
+    "email_id": "hand-attack-01",
+    "label": "attack",
+    "subtype": "credential_phishing",
+    "difficulty": 3,
+    "from_name": "Microsoft 365 Message Center",
+    "from_addr": "no-reply@m365-security-notice.example",
+    "reply_to": null,
+    "subject": "Undelivered messages: 3 emails held due to storage policy",
+    "body": "Your mailbox has reached its safety threshold and 3 incoming messages were placed in the Quarantine Review queue on Tuesday.\n\nMessages from senders outside your organization will continue to be rejected until the review is completed. Reviews not completed within 24 hours cause older quarantined mail to be deleted permanently.\n\nReview held messages: hxxps://m365-security-notice.example/quarantine/review?tid=9f21c\n\nSign in with your work account to release or delete the held messages. This alert is sent automatically and replies are not monitored.\n\nMicrosoft 365 Message Center\nReference: QRN-2291-4471"
+  },
+  {
+    "email_id": "hand-attack-02",
+    "label": "attack",
+    "subtype": "invoice_fraud",
+    "difficulty": 3,
+    "from_name": "Dana Whitfield",
+    "from_addr": "dana.whitfield@northgate-builders.example",
+    "reply_to": "ap.department@northgate-builders.example",
+    "subject": "RE: Northgate invoice 4471 — banking details update",
+    "body": "Hi,\n\nFollowing up on the call with your AR team this morning — we've moved our receivables to our new bank as part of the merger with Kellerman Group. Attached is invoice 4471 again with the updated remittance details on the last page.\n\nPlease make sure the payment scheduled for Friday (net-30 window closes 5pm) goes to the new account. If it goes to the old one it'll bounce back through the clearing house and we'll have to re-raise the invoice next month, which I'd rather avoid given how tight your month-end is.\n\nNew details are on the PDF: Invoice_4471_REV2.pdf\n\nThanks,\nDana Whitfield\nAccounts Receivable — Northgate Builders\nDirect: 555-0117"
+  },
+  {
+    "email_id": "hand-attack-03",
+    "label": "attack",
+    "subtype": "invoice_fraud",
+    "difficulty": 2,
+    "from_name": "Karen Ilves (CEO)",
+    "from_addr": "karen.ilves@meridian-holdings.example",
+    "reply_to": "karen@executive-mail.example",
+    "subject": "Quick confidential task",
+    "body": "Are you at your desk? I need this handled discreetly before the board call this afternoon — don't discuss it with the finance team yet.\n\nWe're acquiring a small supplier and the signing fee needs to go out today to keep the exclusivity window. I need you to process a wire for $48,500 to the escrow account below and send me the confirmation slip. I'll get the paperwork squared away with finance once the announcement lands.\n\nBank: Meridian Escrow Services\nAccount: 4451-8873-2029\nSWIFT: MRDNUS33XXX\n\nPlease handle this now and keep it between us for the moment.\n\nKaren"
+  },
+  {
+    "email_id": "hand-attack-04",
+    "label": "attack",
+    "subtype": "malware_lure",
+    "difficulty": 3,
+    "from_name": "HR Benefits Desk",
+    "from_addr": "benefits@peopleops-meridian.example",
+    "reply_to": null,
+    "subject": "Action needed: your 2026 benefits enrollment is incomplete",
+    "body": "Hello,\n\nOur records show your benefits enrollment for the 2026 plan year is still incomplete. Employees with unfinished enrollment by the end of the week are defaulted into the standard plan without dependents.\n\nYour current selections are shown in the attached summary. To keep or change your coverage, open and return the enrollment form:\n\nBenefits_Enrollment_2026.html\n\n(If the form does not open, save it first and open it from your downloads folder.)\n\nPeople Operations\nMeridian Holdings — peopleops-meridian.example\nQuestions: benefits desk ext. 2260"
+  },
+  {
+    "email_id": "hand-attack-05",
+    "label": "attack",
+    "subtype": "malware_lure",
+    "difficulty": 2,
+    "from_name": "eFax Notifications",
+    "from_addr": "inbound@efax-delivery.example",
+    "reply_to": null,
+    "subject": "You have received a secure fax — 4 pages",
+    "body": "You have a new inbound fax.\n\nPages: 4\nCaller: +1 555-0173\nReceived: today, 09:41\n\nOpen the attached document to view your fax. The document is protected; the password is your fax account PIN (default 4471).\n\nFax_Delivery_0917.zip\n\nIf you did not request this fax, please disregard this notice. eFax Notifications — efax-delivery.example\n\nAutomated message. Do not reply directly."
+  },
+  {
+    "email_id": "hand-attack-06",
+    "label": "attack",
+    "subtype": "extortion",
+    "difficulty": 2,
+    "from_name": "Security Notice",
+    "from_addr": "notice@mailbox-security.example",
+    "reply_to": null,
+    "subject": "Your device was compromised last week",
+    "body": "I have your passwords. I'm not going to waste time — here's how I got in: one of the sites you use saves passwords in plain text, and I've had access to your mailbox and browsing history for a while now.\n\nLet's keep this simple. Transfer 0.034 BTC to the wallet in the attachment list below within 72 hours and I delete everything. This mailbox is a one-time throwaway, so replying won't do anything — the transfer is the only language I speak.\n\n1BvXM9kE4cH2mT7qR5wY8uNa3sD6fG1jZ4 (this is the address format, copy it exactly from the attached text file)\n\nIf you go to the police it costs you nothing to make my files public. Your call.\n\ndetails_verify.txt"
+  },
+  {
+    "email_id": "hand-attack-07",
+    "label": "attack",
+    "subtype": "qr_phishing",
+    "difficulty": 2,
+    "from_name": "IT Service Desk",
+    "from_addr": "it-helpdesk@service-desk-notices.example",
+    "reply_to": null,
+    "subject": "MFA re-enrollment required for all staff this week",
+    "body": "Hi team,\n\nAs part of our annual access review, everyone must re-enroll their MFA device before Friday 5pm. Enrollment now uses the QR flow from your phone's authenticator app.\n\n1. Scan the QR code from your phone (code below — do not scan from desktop camera)\n2. Sign in with your network credentials when prompted\n3. Confirm the 6-digit code shown\n\n[QR CODE IMAGE]\n\nStaff who have not re-enrolled by Friday will be moved to the legacy access group and will need a manager's approval to regain email access.\n\nIT Service Desk\nInternal extension 4111"
+  },
+  {
+    "email_id": "hand-attack-08",
+    "label": "attack",
+    "subtype": "tech_support_scam",
+    "difficulty": 1,
+    "from_name": "Norton Renewals",
+    "from_addr": "renewals@billing-support-center.example",
+    "reply_to": null,
+    "subject": "RECEIPT: Norton 360 subscription renewed — $429.99 (auto-debit)",
+    "body": "Dear Customer,\n\nThis is to confirm that your Norton 360 Premium subscription was renewed on 09/17/2026 and $429.99 was auto-debited from your account on file.\n\nInvoice number: NR-2026-01744\nAmount: USD 429.99\nTerm: 12 months, auto-renewing\n\nIf you did NOT authorize this charge, you must call our billing department immediately to cancel and request a refund within 24 hours:\n\nBilling support: +1 555-0147\n\nPlease have your invoice number ready. Our agents will help you reverse the charge and secure your device from remote access risks.\n\nNorton Renewals Desk"
+  },
+  {
+    "email_id": "hand-attack-09",
+    "label": "attack",
+    "subtype": "credential_phishing",
+    "difficulty": 3,
+    "from_name": "Anna Sorensen (Contracts)",
+    "from_addr": "anna.sorensen@meridian-holdings.example",
+    "reply_to": "anna.sorensen@meridian-h0ldings.example",
+    "subject": "Fwd: Q3 vendor agreements — signature envelope",
+    "body": "Forwarding the envelope the legal team set up for the Q3 renewals. They've moved to the new e-sign portal this quarter so the link looks different to the old one.\n\nThe envelope covers the three agreements we discussed: the Halvorsen MSA, the logistics addendum, and the data processing rider. Please sign all three in one go — it takes about two minutes.\n\nReview and sign: hxxps://esign-meridian.secure-portal.example/envelope/4471-q3\n\nSignature link expires in 48 hours; if it lapses, legal has to re-issue the whole envelope, so please do it today.\n\nThanks!\nAnna\nContracts — Meridian Holdings\n(sent from my phone)"
+  },
+  {
+    "email_id": "hand-attack-10",
+    "label": "attack",
+    "subtype": "malware_lure",
+    "difficulty": 3,
+    "from_name": "Meridian Document Cloud",
+    "from_addr": "sharing@docs-meridian.example",
+    "reply_to": null,
+    "subject": "Priya Nair shared \"Invoice copy & delivery note\" with you",
+    "body": "Priya Nair (priya.nair@meridian-holdings.example) has shared a document with you:\n\nInvoice copy & delivery note — updated August 2026\nView document: hxxps://docs-meridian.example/s/8kQz2mR4vT\n\nThis link is valid for 30 days. You are receiving this because the document was shared with your address directly.\n\n— Meridian Document Cloud\nNeed help? See the sharing FAQ in your portal."
+  }
+]

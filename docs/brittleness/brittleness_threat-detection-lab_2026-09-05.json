@@ -1,0 +1,715 @@
+{
+  "corpus": "threat-detection-lab",
+  "rules_scored": 15,
+  "rules_skipped": 3,
+  "skipped_reasons": {
+    "correlation_imds_checkpoint_exfiltration.yml": "no detection block (correlation or malformed rule)",
+    "correlation_lsass_dump.yml": "no detection block (correlation or malformed rule)",
+    "correlation_supply_chain_credential_theft.yml": "no detection block (correlation or malformed rule)"
+  },
+  "composite_mean": 0.306,
+  "band_counts": {
+    "durable": 9,
+    "conditional": 4,
+    "fragile": 2
+  },
+  "dimension_means": {
+    "commandline_dependence": 0.3,
+    "literal_enumeration": 0.2867,
+    "lineage_dependence": 0.2,
+    "substring_reliance": 0.7444,
+    "environment_coupling": 0.1667,
+    "documentation_gap": 0.0533
+  },
+  "weights": {
+    "commandline_dependence": 0.25,
+    "literal_enumeration": 0.2,
+    "lineage_dependence": 0.2,
+    "substring_reliance": 0.15,
+    "environment_coupling": 0.1,
+    "documentation_gap": 0.1
+  },
+  "weights_note": "Composite weights are policy, not measurement. They encode a judgment that a rule which cannot fire at all under a plausible telemetry gap is worse off than one which merely enumerates many strings.",
+  "share_commandline_dependent": 0.2,
+  "share_lineage_dependent": 0.2,
+  "most_fragile": [
+    {
+      "rule_id": "7c3d1f04-9a28-4e17-b732-4d5162a8c901",
+      "title": "Suspicious Developer Runtime Access to Sensitive Workstation Credentials",
+      "path": "proc_creation_macos_dev_credential_theft.yml",
+      "logsource": "macos/process_creation",
+      "composite": 0.7,
+      "band": "fragile",
+      "dimensions": {
+        "literal_enumeration": 0.3,
+        "substring_reliance": 1.0,
+        "commandline_dependence": 1.0,
+        "lineage_dependence": 1.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.4
+      },
+      "literal_count": 12,
+      "match_count": 2,
+      "substring_matches": 2,
+      "observations": [
+        "cannot fire without command-line capture; an in-process or SDK-driven adversary produces nothing for this rule to read",
+        "requires a specific parent process; one intermediate process defeats it",
+        "declares no false positives"
+      ],
+      "parse_error": null
+    },
+    {
+      "rule_id": "8d2b8b93-5f8a-4d37-8b06-a21c5f3b7c89",
+      "title": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "path": "proc_creation_win_explorer_clickfix_execution.yml",
+      "logsource": "windows/process_creation",
+      "composite": 0.675,
+      "band": "fragile",
+      "dimensions": {
+        "literal_enumeration": 1.0,
+        "substring_reliance": 1.0,
+        "commandline_dependence": 0.5,
+        "lineage_dependence": 1.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 54,
+      "match_count": 14,
+      "substring_matches": 14,
+      "observations": [
+        "enumerates 54 literal alternatives; each evasion adds a string and the rule never becomes durable, only longer",
+        "requires a specific parent process; one intermediate process defeats it",
+        "14 of 14 matches are substring operations over text the adversary chooses"
+      ],
+      "parse_error": null
+    },
+    {
+      "rule_id": "9a8b7c6d-5e4f-3a2b-1c0d-9e8f7a6b5c4d",
+      "title": "Suspicious Scheduled Task Creation Spawning Shell or Script Engine",
+      "path": "proc_creation_win_schtasks_persistence.yml",
+      "logsource": "windows/process_creation",
+      "composite": 0.485,
+      "band": "conditional",
+      "dimensions": {
+        "literal_enumeration": 0.425,
+        "substring_reliance": 1.0,
+        "commandline_dependence": 1.0,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 17,
+      "match_count": 4,
+      "substring_matches": 4,
+      "observations": [
+        "cannot fire without command-line capture; an in-process or SDK-driven adversary produces nothing for this rule to read",
+        "4 of 4 matches are substring operations over text the adversary chooses"
+      ],
+      "parse_error": null
+    },
+    {
+      "rule_id": "7f8a9b0c-1d2e-4f3a-8b9c-0d1e2f3a4b5c",
+      "title": "LSASS Process Memory Dump via Rundll32 Comsvcs.dll",
+      "path": "proc_creation_win_rundll32_lsass_dump.yml",
+      "logsource": "windows/process_creation",
+      "composite": 0.435,
+      "band": "conditional",
+      "dimensions": {
+        "literal_enumeration": 0.175,
+        "substring_reliance": 1.0,
+        "commandline_dependence": 1.0,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 7,
+      "match_count": 3,
+      "substring_matches": 3,
+      "observations": [
+        "cannot fire without command-line capture; an in-process or SDK-driven adversary produces nothing for this rule to read",
+        "3 of 3 matches are substring operations over text the adversary chooses"
+      ],
+      "parse_error": null
+    },
+    {
+      "rule_id": "b8e4c7a2-5d31-4f96-8a07-1c3e9d2b6f48",
+      "title": "Package Manager Lifecycle Hook Spawning an Interpreter or Downloader",
+      "path": "proc_creation_macos_package_manager_hook_execution.yml",
+      "logsource": "macos/process_creation",
+      "composite": 0.42,
+      "band": "conditional",
+      "dimensions": {
+        "literal_enumeration": 0.35,
+        "substring_reliance": 1.0,
+        "commandline_dependence": 0.0,
+        "lineage_dependence": 1.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 14,
+      "match_count": 2,
+      "substring_matches": 2,
+      "observations": [
+        "requires a specific parent process; one intermediate process defeats it"
+      ],
+      "parse_error": null
+    },
+    {
+      "rule_id": "9f4e2a15-8b39-4d26-a641-5e6273b9d812",
+      "title": "Suspicious Cloud IMDSv2 Credential Acquisition and S3 Checkpoint Exfiltration",
+      "path": "proc_creation_cloud_imds_checkpoint_exfiltration.yml",
+      "logsource": "linux/process_creation",
+      "composite": 0.375,
+      "band": "conditional",
+      "dimensions": {
+        "literal_enumeration": 0.3,
+        "substring_reliance": 1.0,
+        "commandline_dependence": 0.5,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.4
+      },
+      "literal_count": 12,
+      "match_count": 4,
+      "substring_matches": 4,
+      "observations": [
+        "4 of 4 matches are substring operations over text the adversary chooses",
+        "declares no false positives"
+      ],
+      "parse_error": null
+    },
+    {
+      "rule_id": "5d1e2a9b-3c4f-4a8e-b7d1-0f8e9c2b4a6d",
+      "title": "Suspicious Event Log Clearing or Security Software Tampering",
+      "path": "proc_creation_win_defense_evasion_tampering.yml",
+      "logsource": "windows/process_creation",
+      "composite": 0.31,
+      "band": "durable",
+      "dimensions": {
+        "literal_enumeration": 0.175,
+        "substring_reliance": 1.0,
+        "commandline_dependence": 0.5,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 7,
+      "match_count": 4,
+      "substring_matches": 4,
+      "observations": [
+        "4 of 4 matches are substring operations over text the adversary chooses"
+      ],
+      "parse_error": null
+    },
+    {
+      "rule_id": "2c4f6a1b-9d7e-4c3a-8b21-6e5d4c3b2a10",
+      "title": "PowerShell Script Block Download Cradle Execution",
+      "path": "posh_script_block_download_cradle.yml",
+      "logsource": "windows/ps_script",
+      "composite": 0.26,
+      "band": "durable",
+      "dimensions": {
+        "literal_enumeration": 0.3,
+        "substring_reliance": 1.0,
+        "commandline_dependence": 0.0,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 0.5,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 12,
+      "match_count": 2,
+      "substring_matches": 2,
+      "observations": [],
+      "parse_error": null
+    },
+    {
+      "rule_id": "c1a7e5b2-3d94-4f18-9a06-2b7c4d8e1f30",
+      "title": "GPU Node Role Credentials Used From Outside the Cluster Network",
+      "path": "aws_cloudtrail_node_role_credentials_used_offhost.yml",
+      "logsource": "aws//cloudtrail",
+      "composite": 0.2575,
+      "band": "durable",
+      "dimensions": {
+        "literal_enumeration": 0.225,
+        "substring_reliance": 0.75,
+        "commandline_dependence": 0.0,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 1.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 9,
+      "match_count": 4,
+      "substring_matches": 3,
+      "observations": [],
+      "parse_error": null
+    },
+    {
+      "rule_id": "d4f8c2a1-6b53-4e07-8c19-3a5d7e2b9f41",
+      "title": "Bulk Retrieval of Model Checkpoint Objects From Storage",
+      "path": "aws_cloudtrail_model_weight_bulk_retrieval.yml",
+      "logsource": "aws//cloudtrail",
+      "composite": 0.235,
+      "band": "durable",
+      "dimensions": {
+        "literal_enumeration": 0.3,
+        "substring_reliance": 0.5,
+        "commandline_dependence": 0.0,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 1.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 12,
+      "match_count": 4,
+      "substring_matches": 2,
+      "observations": [],
+      "parse_error": null
+    }
+  ],
+  "most_durable": [
+    {
+      "rule_id": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
+      "title": "LSASS Memory Dump File Creation in User Temp",
+      "path": "sysmon_file_create_lsass_dump.yml",
+      "logsource": "windows/file_event",
+      "composite": 0.17,
+      "band": "durable",
+      "dimensions": {
+        "literal_enumeration": 0.1,
+        "substring_reliance": 1.0,
+        "commandline_dependence": 0.0,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 4,
+      "match_count": 1,
+      "substring_matches": 1,
+      "observations": [],
+      "parse_error": null
+    },
+    {
+      "rule_id": "3b5d7e2c-1a9f-4d6b-9c30-7f6e5d4c3b21",
+      "title": "LSASS Process Access With Memory-Read Rights",
+      "path": "sysmon_process_access_lsass.yml",
+      "logsource": "windows/process_access",
+      "composite": 0.105,
+      "band": "durable",
+      "dimensions": {
+        "literal_enumeration": 0.15,
+        "substring_reliance": 0.5,
+        "commandline_dependence": 0.0,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 6,
+      "match_count": 2,
+      "substring_matches": 1,
+      "observations": [],
+      "parse_error": null
+    },
+    {
+      "rule_id": "e2b6d9f3-7a41-4c85-b30d-6f1e8c4a7b52",
+      "title": "Role Chaining From an Assumed Workload Role",
+      "path": "aws_cloudtrail_role_chain_from_workload_role.yml",
+      "logsource": "aws//cloudtrail",
+      "composite": 0.0725,
+      "band": "durable",
+      "dimensions": {
+        "literal_enumeration": 0.175,
+        "substring_reliance": 0.25,
+        "commandline_dependence": 0.0,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 7,
+      "match_count": 4,
+      "substring_matches": 1,
+      "observations": [],
+      "parse_error": null
+    },
+    {
+      "rule_id": "f6c3a8d2-1e57-4b90-a2c4-8d0b5e3f7a19",
+      "title": "Privileged or Host-Namespace Pod Created in a Training Namespace",
+      "path": "k8s_audit_training_pod_escape_primitives.yml",
+      "logsource": "kubernetes//audit",
+      "composite": 0.07,
+      "band": "durable",
+      "dimensions": {
+        "literal_enumeration": 0.225,
+        "substring_reliance": 0.1667,
+        "commandline_dependence": 0.0,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 9,
+      "match_count": 6,
+      "substring_matches": 1,
+      "observations": [],
+      "parse_error": null
+    },
+    {
+      "rule_id": "a9d5f1c7-4b28-4e63-9f10-7c2a6b8d3e04",
+      "title": "Interactive Exec Into a Running Training Workload",
+      "path": "k8s_audit_exec_into_training_workload.yml",
+      "logsource": "kubernetes//audit",
+      "composite": 0.02,
+      "band": "durable",
+      "dimensions": {
+        "literal_enumeration": 0.1,
+        "substring_reliance": 0.0,
+        "commandline_dependence": 0.0,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 4,
+      "match_count": 3,
+      "substring_matches": 0,
+      "observations": [],
+      "parse_error": null
+    }
+  ],
+  "generated": "2026-09-05",
+  "rules": [
+    {
+      "rule_id": "7c3d1f04-9a28-4e17-b732-4d5162a8c901",
+      "title": "Suspicious Developer Runtime Access to Sensitive Workstation Credentials",
+      "path": "proc_creation_macos_dev_credential_theft.yml",
+      "logsource": "macos/process_creation",
+      "composite": 0.7,
+      "band": "fragile",
+      "dimensions": {
+        "literal_enumeration": 0.3,
+        "substring_reliance": 1.0,
+        "commandline_dependence": 1.0,
+        "lineage_dependence": 1.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.4
+      },
+      "literal_count": 12,
+      "match_count": 2,
+      "substring_matches": 2,
+      "observations": [
+        "cannot fire without command-line capture; an in-process or SDK-driven adversary produces nothing for this rule to read",
+        "requires a specific parent process; one intermediate process defeats it",
+        "declares no false positives"
+      ],
+      "parse_error": null
+    },
+    {
+      "rule_id": "8d2b8b93-5f8a-4d37-8b06-a21c5f3b7c89",
+      "title": "Suspicious Process Spawning From Explorer Run Prompt (ClickFix Pattern)",
+      "path": "proc_creation_win_explorer_clickfix_execution.yml",
+      "logsource": "windows/process_creation",
+      "composite": 0.675,
+      "band": "fragile",
+      "dimensions": {
+        "literal_enumeration": 1.0,
+        "substring_reliance": 1.0,
+        "commandline_dependence": 0.5,
+        "lineage_dependence": 1.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 54,
+      "match_count": 14,
+      "substring_matches": 14,
+      "observations": [
+        "enumerates 54 literal alternatives; each evasion adds a string and the rule never becomes durable, only longer",
+        "requires a specific parent process; one intermediate process defeats it",
+        "14 of 14 matches are substring operations over text the adversary chooses"
+      ],
+      "parse_error": null
+    },
+    {
+      "rule_id": "9a8b7c6d-5e4f-3a2b-1c0d-9e8f7a6b5c4d",
+      "title": "Suspicious Scheduled Task Creation Spawning Shell or Script Engine",
+      "path": "proc_creation_win_schtasks_persistence.yml",
+      "logsource": "windows/process_creation",
+      "composite": 0.485,
+      "band": "conditional",
+      "dimensions": {
+        "literal_enumeration": 0.425,
+        "substring_reliance": 1.0,
+        "commandline_dependence": 1.0,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 17,
+      "match_count": 4,
+      "substring_matches": 4,
+      "observations": [
+        "cannot fire without command-line capture; an in-process or SDK-driven adversary produces nothing for this rule to read",
+        "4 of 4 matches are substring operations over text the adversary chooses"
+      ],
+      "parse_error": null
+    },
+    {
+      "rule_id": "7f8a9b0c-1d2e-4f3a-8b9c-0d1e2f3a4b5c",
+      "title": "LSASS Process Memory Dump via Rundll32 Comsvcs.dll",
+      "path": "proc_creation_win_rundll32_lsass_dump.yml",
+      "logsource": "windows/process_creation",
+      "composite": 0.435,
+      "band": "conditional",
+      "dimensions": {
+        "literal_enumeration": 0.175,
+        "substring_reliance": 1.0,
+        "commandline_dependence": 1.0,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 7,
+      "match_count": 3,
+      "substring_matches": 3,
+      "observations": [
+        "cannot fire without command-line capture; an in-process or SDK-driven adversary produces nothing for this rule to read",
+        "3 of 3 matches are substring operations over text the adversary chooses"
+      ],
+      "parse_error": null
+    },
+    {
+      "rule_id": "b8e4c7a2-5d31-4f96-8a07-1c3e9d2b6f48",
+      "title": "Package Manager Lifecycle Hook Spawning an Interpreter or Downloader",
+      "path": "proc_creation_macos_package_manager_hook_execution.yml",
+      "logsource": "macos/process_creation",
+      "composite": 0.42,
+      "band": "conditional",
+      "dimensions": {
+        "literal_enumeration": 0.35,
+        "substring_reliance": 1.0,
+        "commandline_dependence": 0.0,
+        "lineage_dependence": 1.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 14,
+      "match_count": 2,
+      "substring_matches": 2,
+      "observations": [
+        "requires a specific parent process; one intermediate process defeats it"
+      ],
+      "parse_error": null
+    },
+    {
+      "rule_id": "9f4e2a15-8b39-4d26-a641-5e6273b9d812",
+      "title": "Suspicious Cloud IMDSv2 Credential Acquisition and S3 Checkpoint Exfiltration",
+      "path": "proc_creation_cloud_imds_checkpoint_exfiltration.yml",
+      "logsource": "linux/process_creation",
+      "composite": 0.375,
+      "band": "conditional",
+      "dimensions": {
+        "literal_enumeration": 0.3,
+        "substring_reliance": 1.0,
+        "commandline_dependence": 0.5,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.4
+      },
+      "literal_count": 12,
+      "match_count": 4,
+      "substring_matches": 4,
+      "observations": [
+        "4 of 4 matches are substring operations over text the adversary chooses",
+        "declares no false positives"
+      ],
+      "parse_error": null
+    },
+    {
+      "rule_id": "5d1e2a9b-3c4f-4a8e-b7d1-0f8e9c2b4a6d",
+      "title": "Suspicious Event Log Clearing or Security Software Tampering",
+      "path": "proc_creation_win_defense_evasion_tampering.yml",
+      "logsource": "windows/process_creation",
+      "composite": 0.31,
+      "band": "durable",
+      "dimensions": {
+        "literal_enumeration": 0.175,
+        "substring_reliance": 1.0,
+        "commandline_dependence": 0.5,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 7,
+      "match_count": 4,
+      "substring_matches": 4,
+      "observations": [
+        "4 of 4 matches are substring operations over text the adversary chooses"
+      ],
+      "parse_error": null
+    },
+    {
+      "rule_id": "2c4f6a1b-9d7e-4c3a-8b21-6e5d4c3b2a10",
+      "title": "PowerShell Script Block Download Cradle Execution",
+      "path": "posh_script_block_download_cradle.yml",
+      "logsource": "windows/ps_script",
+      "composite": 0.26,
+      "band": "durable",
+      "dimensions": {
+        "literal_enumeration": 0.3,
+        "substring_reliance": 1.0,
+        "commandline_dependence": 0.0,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 0.5,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 12,
+      "match_count": 2,
+      "substring_matches": 2,
+      "observations": [],
+      "parse_error": null
+    },
+    {
+      "rule_id": "c1a7e5b2-3d94-4f18-9a06-2b7c4d8e1f30",
+      "title": "GPU Node Role Credentials Used From Outside the Cluster Network",
+      "path": "aws_cloudtrail_node_role_credentials_used_offhost.yml",
+      "logsource": "aws//cloudtrail",
+      "composite": 0.2575,
+      "band": "durable",
+      "dimensions": {
+        "literal_enumeration": 0.225,
+        "substring_reliance": 0.75,
+        "commandline_dependence": 0.0,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 1.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 9,
+      "match_count": 4,
+      "substring_matches": 3,
+      "observations": [],
+      "parse_error": null
+    },
+    {
+      "rule_id": "d4f8c2a1-6b53-4e07-8c19-3a5d7e2b9f41",
+      "title": "Bulk Retrieval of Model Checkpoint Objects From Storage",
+      "path": "aws_cloudtrail_model_weight_bulk_retrieval.yml",
+      "logsource": "aws//cloudtrail",
+      "composite": 0.235,
+      "band": "durable",
+      "dimensions": {
+        "literal_enumeration": 0.3,
+        "substring_reliance": 0.5,
+        "commandline_dependence": 0.0,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 1.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 12,
+      "match_count": 4,
+      "substring_matches": 2,
+      "observations": [],
+      "parse_error": null
+    },
+    {
+      "rule_id": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
+      "title": "LSASS Memory Dump File Creation in User Temp",
+      "path": "sysmon_file_create_lsass_dump.yml",
+      "logsource": "windows/file_event",
+      "composite": 0.17,
+      "band": "durable",
+      "dimensions": {
+        "literal_enumeration": 0.1,
+        "substring_reliance": 1.0,
+        "commandline_dependence": 0.0,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 4,
+      "match_count": 1,
+      "substring_matches": 1,
+      "observations": [],
+      "parse_error": null
+    },
+    {
+      "rule_id": "3b5d7e2c-1a9f-4d6b-9c30-7f6e5d4c3b21",
+      "title": "LSASS Process Access With Memory-Read Rights",
+      "path": "sysmon_process_access_lsass.yml",
+      "logsource": "windows/process_access",
+      "composite": 0.105,
+      "band": "durable",
+      "dimensions": {
+        "literal_enumeration": 0.15,
+        "substring_reliance": 0.5,
+        "commandline_dependence": 0.0,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 6,
+      "match_count": 2,
+      "substring_matches": 1,
+      "observations": [],
+      "parse_error": null
+    },
+    {
+      "rule_id": "e2b6d9f3-7a41-4c85-b30d-6f1e8c4a7b52",
+      "title": "Role Chaining From an Assumed Workload Role",
+      "path": "aws_cloudtrail_role_chain_from_workload_role.yml",
+      "logsource": "aws//cloudtrail",
+      "composite": 0.0725,
+      "band": "durable",
+      "dimensions": {
+        "literal_enumeration": 0.175,
+        "substring_reliance": 0.25,
+        "commandline_dependence": 0.0,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 7,
+      "match_count": 4,
+      "substring_matches": 1,
+      "observations": [],
+      "parse_error": null
+    },
+    {
+      "rule_id": "f6c3a8d2-1e57-4b90-a2c4-8d0b5e3f7a19",
+      "title": "Privileged or Host-Namespace Pod Created in a Training Namespace",
+      "path": "k8s_audit_training_pod_escape_primitives.yml",
+      "logsource": "kubernetes//audit",
+      "composite": 0.07,
+      "band": "durable",
+      "dimensions": {
+        "literal_enumeration": 0.225,
+        "substring_reliance": 0.1667,
+        "commandline_dependence": 0.0,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 9,
+      "match_count": 6,
+      "substring_matches": 1,
+      "observations": [],
+      "parse_error": null
+    },
+    {
+      "rule_id": "a9d5f1c7-4b28-4e63-9f10-7c2a6b8d3e04",
+      "title": "Interactive Exec Into a Running Training Workload",
+      "path": "k8s_audit_exec_into_training_workload.yml",
+      "logsource": "kubernetes//audit",
+      "composite": 0.02,
+      "band": "durable",
+      "dimensions": {
+        "literal_enumeration": 0.1,
+        "substring_reliance": 0.0,
+        "commandline_dependence": 0.0,
+        "lineage_dependence": 0.0,
+        "environment_coupling": 0.0,
+        "documentation_gap": 0.0
+      },
+      "literal_count": 4,
+      "match_count": 3,
+      "substring_matches": 0,
+      "observations": [],
+      "parse_error": null
+    }
+  ],
+  "rules_detail_note": "Per-rule detail is limited to the 250 most fragile of 15 scored rules. Every aggregate above covers all of them."
+}

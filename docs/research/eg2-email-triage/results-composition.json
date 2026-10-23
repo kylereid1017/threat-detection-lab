@@ -1,0 +1,2036 @@
+{
+  "ts_utc": "2026-10-09T03:02:33.260169+00:00",
+  "plan": "tools/eg2_triage/PLAN-addendum-D-composition.md",
+  "remap": {
+    "n": 18314,
+    "n_attack": 4797,
+    "policies": {
+      "J": {
+        "tp": 4587,
+        "fp": 1704,
+        "fn": 210,
+        "tn": 11813,
+        "recall": [
+          0.9562226391494684,
+          0.9500585487464632,
+          0.9616566239974289
+        ],
+        "fpr": [
+          0.12606347562328918,
+          0.12057395584772457,
+          0.1317654765209757
+        ],
+        "precision": [
+          0.7291368621840725,
+          0.7180178376918124,
+          0.7399762228150523
+        ],
+        "projected_precision": {
+          "0.001": 0.007535623364843696,
+          "0.0001": 0.0007580255522595914
+        }
+      },
+      "E": {
+        "tp": 4747,
+        "fp": 172,
+        "fn": 50,
+        "tn": 13345,
+        "recall": [
+          0.9895768188451115,
+          0.9862856324352822,
+          0.9920845220947752
+        ],
+        "fpr": [
+          0.012724717023008064,
+          0.010968843072904423,
+          0.014757474326728496
+        ],
+        "precision": [
+          0.9650335434031307,
+          0.9595264314768992,
+          0.9698148926777199
+        ],
+        "projected_precision": {
+          "0.001": 0.07222361248039738,
+          "0.0001": 0.007717561817579171
+        }
+      },
+      "J_and_E": {
+        "tp": 4557,
+        "fp": 127,
+        "fn": 240,
+        "tn": 13390,
+        "recall": [
+          0.9499687304565353,
+          0.9434313096663084,
+          0.9557860539926776
+        ],
+        "fpr": [
+          0.009395575941407117,
+          0.00790285996945191,
+          0.011167066977434251
+        ],
+        "precision": [
+          0.9728864218616567,
+          0.9678335088350516,
+          0.9771643198793123
+        ],
+        "projected_precision": {
+          "0.001": 0.09190741364511772,
+          "0.0001": 0.010010594769507513
+        }
+      },
+      "J_or_E": {
+        "tp": 4777,
+        "fp": 1749,
+        "fn": 20,
+        "tn": 11768,
+        "recall": [
+          0.9958307275380446,
+          0.9935686136444685,
+          0.9972993499704949
+        ],
+        "fpr": [
+          0.12939261670489013,
+          0.12383959324978214,
+          0.13515622957166493
+        ],
+        "precision": [
+          0.7319950965369292,
+          0.721114831289292,
+          0.7426023996829224
+        ],
+        "projected_precision": {
+          "0.001": 0.007645001945905722,
+          "0.0001": 0.0007691044292110333
+        }
+      }
+    },
+    "mcnemar": {
+      "J_and_E_vs_J": {
+        "negatives": {
+          "a_only_right": 1577,
+          "b_only_right": 0,
+          "p_exact": 0.0
+        },
+        "positives": {
+          "a_only_right": 0,
+          "b_only_right": 30,
+          "p_exact": 1.862645149230957e-09
+        }
+      },
+      "E_vs_J": {
+        "negatives": {
+          "a_only_right": 1577,
+          "b_only_right": 45,
+          "p_exact": 0.0
+        },
+        "positives": {
+          "a_only_right": 190,
+          "b_only_right": 30,
+          "p_exact": 1.250807380850966e-29
+        }
+      }
+    },
+    "veto": {
+      "jev_delivered_attacks": 60,
+      "jev_delivered_attacks_clean": 60,
+      "after_veto_delivered_attacks": 4,
+      "after_veto_delivered_attacks_clean": 4,
+      "jev_correct_safe_deliveries": 3452,
+      "legit_safe_held": 6,
+      "legit_safe_held_pct": 0.0017381228273464658,
+      "all_held": 69
+    },
+    "cascade": {
+      "jev_alone_T030": {
+        "auto_share": 0.6084416293545921,
+        "human_share": 0.3915583706454079,
+        "delivered_attacks": 60,
+        "quarantined_safe": 3,
+        "auto_error_rate": 0.2813425468904245
+      },
+      "registered": {
+        "0.5": {
+          "cascade": {
+            "auto_share": 0.6416948782352299,
+            "human_share": 0.35830512176477014,
+            "delivered_attacks": 60,
+            "quarantined_safe": 3,
+            "auto_error_rate": 0.2734002722940776,
+            "stage2_share": 0.3915583706454079,
+            "stage2_auto_share": 0.03325324888063776
+          },
+          "eg2_alone_matched": {
+            "t": 0.0,
+            "auto_share": 0.48001528885006006,
+            "human_share": 0.5199847111499399,
+            "delivered_attacks": 3,
+            "quarantined_safe": 7,
+            "auto_error_rate": 0.034580821294505744
+          }
+        },
+        "0.9": {
+          "cascade": {
+            "auto_share": 0.6244949219176587,
+            "human_share": 0.3755050780823414,
+            "delivered_attacks": 60,
+            "quarantined_safe": 3,
+            "auto_error_rate": 0.2741977791378858,
+            "stage2_share": 0.3915583706454079,
+            "stage2_auto_share": 0.016053292563066507
+          },
+          "eg2_alone_matched": {
+            "t": 0.0,
+            "auto_share": 0.48001528885006006,
+            "human_share": 0.5199847111499399,
+            "delivered_attacks": 3,
+            "quarantined_safe": 7,
+            "auto_error_rate": 0.034580821294505744
+          }
+        }
+      },
+      "sweep": [
+        {
+          "t2": 0.3,
+          "auto_share": 0.6452440755706017,
+          "human_share": 0.3547559244293983,
+          "delivered_attacks": 60,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.27587374122027586,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.03680244621600961
+        },
+        {
+          "t2": 0.31,
+          "auto_share": 0.6452440755706017,
+          "human_share": 0.3547559244293983,
+          "delivered_attacks": 60,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.27587374122027586,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.03680244621600961
+        },
+        {
+          "t2": 0.32,
+          "auto_share": 0.6452440755706017,
+          "human_share": 0.3547559244293983,
+          "delivered_attacks": 60,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.27587374122027586,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.03680244621600961
+        },
+        {
+          "t2": 0.33,
+          "auto_share": 0.6452440755706017,
+          "human_share": 0.3547559244293983,
+          "delivered_attacks": 60,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.27587374122027586,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.03680244621600961
+        },
+        {
+          "t2": 0.34,
+          "auto_share": 0.645189472534673,
+          "human_share": 0.3548105274653271,
+          "delivered_attacks": 60,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.2758124576844956,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.036747843180080814
+        },
+        {
+          "t2": 0.35,
+          "auto_share": 0.645189472534673,
+          "human_share": 0.3548105274653271,
+          "delivered_attacks": 60,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.2758124576844956,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.036747843180080814
+        },
+        {
+          "t2": 0.36,
+          "auto_share": 0.6451348694987441,
+          "human_share": 0.35486513050125584,
+          "delivered_attacks": 60,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.2757511637748625,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.03669324014415201
+        },
+        {
+          "t2": 0.37,
+          "auto_share": 0.6449710603909578,
+          "human_share": 0.35502893960904225,
+          "delivered_attacks": 60,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.27556721977649845,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.03652943103636562
+        },
+        {
+          "t2": 0.38,
+          "auto_share": 0.6449164573550289,
+          "human_share": 0.35508354264497105,
+          "delivered_attacks": 60,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.27550588434510204,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.036474828000436825
+        },
+        {
+          "t2": 0.39,
+          "auto_share": 0.6448072512831713,
+          "human_share": 0.35519274871682865,
+          "delivered_attacks": 60,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.2754678634939453,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.03636562192857923
+        },
+        {
+          "t2": 0.4,
+          "auto_share": 0.6446434421753849,
+          "human_share": 0.35535655782461506,
+          "delivered_attacks": 60,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.2753684567169236,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.036201812820792836
+        },
+        {
+          "t2": 0.41,
+          "auto_share": 0.6445342361035273,
+          "human_share": 0.35546576389647266,
+          "delivered_attacks": 60,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.2753303964757709,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.03609260674893524
+        },
+        {
+          "t2": 0.42,
+          "auto_share": 0.6443158239598121,
+          "human_share": 0.3556841760401878,
+          "delivered_attacks": 60,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.2752542372881356,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.03587419460522005
+        },
+        {
+          "t2": 0.43,
+          "auto_share": 0.6442612209238834,
+          "human_share": 0.3557387790761166,
+          "delivered_attacks": 60,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.27519281295025,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.03581959156929125
+        },
+        {
+          "t2": 0.44,
+          "auto_share": 0.6440974118160969,
+          "human_share": 0.355902588183903,
+          "delivered_attacks": 60,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.275008477449983,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.03565578246150486
+        },
+        {
+          "t2": 0.45,
+          "auto_share": 0.6437151905645954,
+          "human_share": 0.3562848094354046,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2749172957842056,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.035273561210003274
+        },
+        {
+          "t2": 0.46,
+          "auto_share": 0.6433875723490226,
+          "human_share": 0.3566124276509774,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2746329457693287,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.03494594299443049
+        },
+        {
+          "t2": 0.47,
+          "auto_share": 0.6429507480615922,
+          "human_share": 0.35704925193840775,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.27422505307855627,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.03450911870700011
+        },
+        {
+          "t2": 0.48,
+          "auto_share": 0.6426231298460194,
+          "human_share": 0.35737687015398056,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2738550429093381,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.034181500491427326
+        },
+        {
+          "t2": 0.49,
+          "auto_share": 0.642186305558589,
+          "human_share": 0.3578136944414109,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.27370121588300317,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.033744676203996946
+        },
+        {
+          "t2": 0.5,
+          "auto_share": 0.6416948782352299,
+          "human_share": 0.35830512176477014,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2734002722940776,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.03325324888063776
+        },
+        {
+          "t2": 0.51,
+          "auto_share": 0.6412034509118707,
+          "human_share": 0.3587965490881293,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2730137102954952,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.03276182155727859
+        },
+        {
+          "t2": 0.52,
+          "auto_share": 0.6407120235885115,
+          "human_share": 0.35928797641148846,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.27279700017044484,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.032270394233919406
+        },
+        {
+          "t2": 0.53,
+          "auto_share": 0.6402205962651524,
+          "human_share": 0.3597794037348477,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.27223880597014927,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.03177896691056023
+        },
+        {
+          "t2": 0.54,
+          "auto_share": 0.6399475810855083,
+          "human_share": 0.36005241891449163,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2720136518771331,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.03150595173091624
+        },
+        {
+          "t2": 0.55,
+          "auto_share": 0.6398383750136507,
+          "human_share": 0.36016162498634924,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2719747397166752,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.031396745659058645
+        },
+        {
+          "t2": 0.56,
+          "auto_share": 0.6395653598340068,
+          "human_share": 0.36043464016599325,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.27174933834201315,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.031123730479414656
+        },
+        {
+          "t2": 0.57,
+          "auto_share": 0.6393469476902915,
+          "human_share": 0.3606530523097084,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2715005551285336,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.030905318335699466
+        },
+        {
+          "t2": 0.58,
+          "auto_share": 0.63896472643879,
+          "human_share": 0.36103527356121,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.271321141685182,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.03052309708419788
+        },
+        {
+          "t2": 0.59,
+          "auto_share": 0.6388555203669324,
+          "human_share": 0.3611444796330676,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2712820512820513,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.030413891012340287
+        },
+        {
+          "t2": 0.6,
+          "auto_share": 0.6388009173310036,
+          "human_share": 0.3611990826689964,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2713052397640824,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.03035928797641149
+        },
+        {
+          "t2": 0.61,
+          "auto_share": 0.6383640930435732,
+          "human_share": 0.3616359069564268,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2711487468993243,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.029922463688981108
+        },
+        {
+          "t2": 0.62,
+          "auto_share": 0.6379818717920717,
+          "human_share": 0.36201812820792834,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.27096884628551865,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.029540242437479523
+        },
+        {
+          "t2": 0.63,
+          "auto_share": 0.6376542535764989,
+          "human_share": 0.36234574642350115,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2710224353485186,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.02921262422190674
+        },
+        {
+          "t2": 0.64,
+          "auto_share": 0.6374904444687125,
+          "human_share": 0.36250955553128755,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2709207708779443,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.029048815114120344
+        },
+        {
+          "t2": 0.65,
+          "auto_share": 0.6371628262531397,
+          "human_share": 0.3628371737468603,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.27088867940697575,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.02872119689854756
+        },
+        {
+          "t2": 0.66,
+          "auto_share": 0.6368352080375669,
+          "human_share": 0.3631647919624331,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2707708136843008,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.028393578682974773
+        },
+        {
+          "t2": 0.67,
+          "auto_share": 0.6367806050016381,
+          "human_share": 0.3632193949983619,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2707940318984737,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.028338975647045975
+        },
+        {
+          "t2": 0.68,
+          "auto_share": 0.6363983837501365,
+          "human_share": 0.3636016162498635,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2707850707850708,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.027956754395544393
+        },
+        {
+          "t2": 0.69,
+          "auto_share": 0.6360707655345638,
+          "human_share": 0.3639292344654363,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.27075285432225943,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.027629136179971606
+        },
+        {
+          "t2": 0.7,
+          "auto_share": 0.6358523533908486,
+          "human_share": 0.36414764660915144,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2707599828252469,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.027410724036256415
+        },
+        {
+          "t2": 0.71,
+          "auto_share": 0.6355247351752757,
+          "human_share": 0.36447526482472425,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.27072772574963483,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.02708310582068363
+        },
+        {
+          "t2": 0.72,
+          "auto_share": 0.6352517199956318,
+          "human_share": 0.36474828000436826,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.27067216778408115,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.026810090641039643
+        },
+        {
+          "t2": 0.73,
+          "auto_share": 0.634924101780059,
+          "human_share": 0.365075898219941,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.27063983488132093,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.026482472425466856
+        },
+        {
+          "t2": 0.74,
+          "auto_share": 0.6347056896363438,
+          "human_share": 0.3652943103636562,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.27064693737095663,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.026264060281751666
+        },
+        {
+          "t2": 0.75,
+          "auto_share": 0.6344326744566998,
+          "human_share": 0.3655673255433002,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2705912729150529,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.025991045102107677
+        },
+        {
+          "t2": 0.76,
+          "auto_share": 0.6341596592770558,
+          "human_share": 0.3658403407229442,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2706216635095574,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.02571802992246369
+        },
+        {
+          "t2": 0.77,
+          "auto_share": 0.6337774380255542,
+          "human_share": 0.3662225619744458,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2706125613853709,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.025335808670962107
+        },
+        {
+          "t2": 0.78,
+          "auto_share": 0.6334498198099814,
+          "human_share": 0.36655018019001856,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2707525213343677,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.02500819045538932
+        },
+        {
+          "t2": 0.79,
+          "auto_share": 0.6331222015944087,
+          "human_share": 0.36687779840559137,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2708063820612333,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.024680572239816533
+        },
+        {
+          "t2": 0.8,
+          "auto_share": 0.6327945833788359,
+          "human_share": 0.3672054166211641,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2709465872810424,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.02435295402424375
+        },
+        {
+          "t2": 0.81,
+          "auto_share": 0.6321939499836191,
+          "human_share": 0.3678060500163809,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.27111763689756435,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.023752320629026973
+        },
+        {
+          "t2": 0.82,
+          "auto_share": 0.63170252266026,
+          "human_share": 0.3682974773397401,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2712421125421385,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.023260893305667794
+        },
+        {
+          "t2": 0.83,
+          "auto_share": 0.6311564923009719,
+          "human_share": 0.3688435076990281,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2714767713470023,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.022714862946379817
+        },
+        {
+          "t2": 0.84,
+          "auto_share": 0.6301190346183247,
+          "human_share": 0.3698809653816752,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.27192374350086657,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.021677405263732664
+        },
+        {
+          "t2": 0.85,
+          "auto_share": 0.629518401223108,
+          "human_share": 0.370481598776892,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2721831902159771,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.02107677186851589
+        },
+        {
+          "t2": 0.86,
+          "auto_share": 0.628699355684176,
+          "human_share": 0.37130064431582394,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.27245092930345666,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.020257726329583926
+        },
+        {
+          "t2": 0.87,
+          "auto_share": 0.6276072949656001,
+          "human_share": 0.3723927050343999,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2728380024360536,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.019165665611007972
+        },
+        {
+          "t2": 0.88,
+          "auto_share": 0.626842852462597,
+          "human_share": 0.3731571475374031,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2731707317073171,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.018401223108004804
+        },
+        {
+          "t2": 0.89,
+          "auto_share": 0.6253685704925194,
+          "human_share": 0.37463142950748063,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2738147210337903,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.016926941137927268
+        },
+        {
+          "t2": 0.9,
+          "auto_share": 0.6244949219176587,
+          "human_share": 0.3755050780823414,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2741977791378858,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.016053292563066507
+        },
+        {
+          "t2": 0.91,
+          "auto_share": 0.6227476247679371,
+          "human_share": 0.3772523752320629,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.27496711968434895,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.014305995413344982
+        },
+        {
+          "t2": 0.92,
+          "auto_share": 0.6216009610134323,
+          "human_share": 0.3783990389865676,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.275474349964863,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.013159331658840232
+        },
+        {
+          "t2": 0.93,
+          "auto_share": 0.6196898547559244,
+          "human_share": 0.3803101452440756,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.27623579169970924,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.011248225401332313
+        },
+        {
+          "t2": 0.94,
+          "auto_share": 0.6171235120672709,
+          "human_share": 0.38287648793272905,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.27738453371084765,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.008681882712678824
+        },
+        {
+          "t2": 0.95,
+          "auto_share": 0.6154854209894071,
+          "human_share": 0.384514579010593,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.27812278211497515,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.007043791634814896
+        },
+        {
+          "t2": 0.96,
+          "auto_share": 0.6130828874085399,
+          "human_share": 0.3869171125914601,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2792126825792661,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.0046412580539478
+        },
+        {
+          "t2": 0.97,
+          "auto_share": 0.610898765971388,
+          "human_share": 0.38910123402861196,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.28021094029317123,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.002457136616795894
+        },
+        {
+          "t2": 0.98,
+          "auto_share": 0.6095882931090969,
+          "human_share": 0.39041170689090315,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.2808133285560731,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.0011466637545047504
+        },
+        {
+          "t2": 0.99,
+          "auto_share": 0.6086054384623785,
+          "human_share": 0.3913945615376215,
+          "delivered_attacks": 60,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.28126682217835997,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.00016380910778639293
+        }
+      ]
+    }
+  },
+  "registered": {
+    "n": 18314,
+    "n_attack": 12000,
+    "policies": {
+      "J": {
+        "tp": 5762,
+        "fp": 529,
+        "fn": 6238,
+        "tn": 5785,
+        "recall": [
+          0.4801666666666667,
+          0.47123551186327783,
+          0.48911051556214924
+        ],
+        "fpr": [
+          0.08378207158694964,
+          0.07719860474593875,
+          0.09087168726631394
+        ],
+        "precision": [
+          0.9159116197742807,
+          0.9087974318809481,
+          0.9225181833228059
+        ],
+        "projected_precision": {
+          "0.001": 0.00570415149487113,
+          "0.0001": 0.0005728428427438878
+        }
+      },
+      "E": {
+        "tp": 11091,
+        "fp": 171,
+        "fn": 909,
+        "tn": 6143,
+        "recall": [
+          0.92425,
+          0.9193788763333393,
+          0.928849587436201
+        ],
+        "fpr": [
+          0.02708267342413684,
+          0.023357258877358296,
+          0.031383187069592436
+        ],
+        "precision": [
+          0.9848161960575387,
+          0.982386785580975,
+          0.9869149785044181
+        ],
+        "projected_precision": {
+          "0.001": 0.033032711237874275,
+          "0.0001": 0.0034014306237572273
+        }
+      },
+      "J_and_E": {
+        "tp": 5594,
+        "fp": 91,
+        "fn": 6406,
+        "tn": 6223,
+        "recall": [
+          0.4661666666666667,
+          0.45725344920160543,
+          0.47510153875941713
+        ],
+        "fpr": [
+          0.014412416851441241,
+          0.011754010460163826,
+          0.01766133022079765
+        ],
+        "precision": [
+          0.9839929639401935,
+          0.9803885302349232,
+          0.986943753460351
+        ],
+        "projected_precision": {
+          "0.001": 0.03136176672692241,
+          "0.0001": 0.00322437275691392
+        }
+      },
+      "J_or_E": {
+        "tp": 11259,
+        "fp": 609,
+        "fn": 741,
+        "tn": 5705,
+        "recall": [
+          0.93825,
+          0.9338015503855195,
+          0.9424179528484253
+        ],
+        "fpr": [
+          0.09645232815964523,
+          0.08941416370297342,
+          0.1039812335752685
+        ],
+        "precision": [
+          0.948685540950455,
+          0.9445688027057152,
+          0.952511910247435
+        ],
+        "projected_precision": {
+          "0.001": 0.009643439333892147,
+          "0.0001": 0.0009719120984893665
+        }
+      }
+    },
+    "mcnemar": {
+      "J_and_E_vs_J": {
+        "negatives": {
+          "a_only_right": 438,
+          "b_only_right": 0,
+          "p_exact": 2.817681462947307e-132
+        },
+        "positives": {
+          "a_only_right": 0,
+          "b_only_right": 168,
+          "p_exact": 5.345529420184391e-51
+        }
+      },
+      "E_vs_J": {
+        "negatives": {
+          "a_only_right": 438,
+          "b_only_right": 80,
+          "p_exact": 8.909046179403167e-61
+        },
+        "positives": {
+          "a_only_right": 5497,
+          "b_only_right": 168,
+          "p_exact": 0.0
+        }
+      }
+    },
+    "veto": {
+      "jev_delivered_attacks": 1301,
+      "jev_delivered_attacks_clean": 60,
+      "after_veto_delivered_attacks": 322,
+      "after_veto_delivered_attacks_clean": 6,
+      "jev_correct_safe_deliveries": 3452,
+      "legit_safe_held": 18,
+      "legit_safe_held_pct": 0.005214368482039398,
+      "all_held": 1004
+    },
+    "cascade": {
+      "jev_alone_T030": {
+        "auto_share": 0.6084416293545921,
+        "human_share": 0.3915583706454079,
+        "delivered_attacks": 1301,
+        "quarantined_safe": 3,
+        "auto_error_rate": 0.18083101498698734
+      },
+      "registered": {
+        "0.5": {
+          "cascade": {
+            "auto_share": 0.8814022059626515,
+            "human_share": 0.11859779403734848,
+            "delivered_attacks": 1325,
+            "quarantined_safe": 7,
+            "auto_error_rate": 0.12978565233552225,
+            "stage2_share": 0.3915583706454079,
+            "stage2_auto_share": 0.2729605766080594
+          },
+          "eg2_alone_matched": {
+            "t": 0.0,
+            "auto_share": 0.8255979032434203,
+            "human_share": 0.17440209675657967,
+            "delivered_attacks": 72,
+            "quarantined_safe": 26,
+            "auto_error_rate": 0.019576719576719578
+          }
+        },
+        "0.9": {
+          "cascade": {
+            "auto_share": 0.7392159004040625,
+            "human_share": 0.2607840995959375,
+            "delivered_attacks": 1301,
+            "quarantined_safe": 3,
+            "auto_error_rate": 0.14891416752843847,
+            "stage2_share": 0.3915583706454079,
+            "stage2_auto_share": 0.13077427104947034
+          },
+          "eg2_alone_matched": {
+            "t": 0.596,
+            "auto_share": 0.739052091296276,
+            "human_share": 0.2609479087037239,
+            "delivered_attacks": 13,
+            "quarantined_safe": 3,
+            "auto_error_rate": 0.011304026597709642
+          }
+        }
+      },
+      "sweep": [
+        {
+          "t2": 0.3,
+          "auto_share": 0.8871355247351753,
+          "human_share": 0.11286447526482472,
+          "delivered_attacks": 1340,
+          "quarantined_safe": 11,
+          "auto_error_rate": 0.13159352495845386,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.27869389538058315
+        },
+        {
+          "t2": 0.31,
+          "auto_share": 0.8871355247351753,
+          "human_share": 0.11286447526482472,
+          "delivered_attacks": 1340,
+          "quarantined_safe": 11,
+          "auto_error_rate": 0.13159352495845386,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.27869389538058315
+        },
+        {
+          "t2": 0.32,
+          "auto_share": 0.8870809216992465,
+          "human_share": 0.11291907830075353,
+          "delivered_attacks": 1340,
+          "quarantined_safe": 11,
+          "auto_error_rate": 0.13154007140219132,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.27863929234465434
+        },
+        {
+          "t2": 0.33,
+          "auto_share": 0.8870809216992465,
+          "human_share": 0.11291907830075353,
+          "delivered_attacks": 1340,
+          "quarantined_safe": 11,
+          "auto_error_rate": 0.13154007140219132,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.27863929234465434
+        },
+        {
+          "t2": 0.34,
+          "auto_share": 0.8870809216992465,
+          "human_share": 0.11291907830075353,
+          "delivered_attacks": 1340,
+          "quarantined_safe": 11,
+          "auto_error_rate": 0.13154007140219132,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.27863929234465434
+        },
+        {
+          "t2": 0.35,
+          "auto_share": 0.8869717156273889,
+          "human_share": 0.11302828437261112,
+          "delivered_attacks": 1340,
+          "quarantined_safe": 11,
+          "auto_error_rate": 0.13149470573750308,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2785300862727968
+        },
+        {
+          "t2": 0.36,
+          "auto_share": 0.8868625095555313,
+          "human_share": 0.11313749044446872,
+          "delivered_attacks": 1339,
+          "quarantined_safe": 11,
+          "auto_error_rate": 0.13144932890038172,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2784208802009392
+        },
+        {
+          "t2": 0.37,
+          "auto_share": 0.8865894943758873,
+          "human_share": 0.1134105056241127,
+          "delivered_attacks": 1337,
+          "quarantined_safe": 11,
+          "auto_error_rate": 0.13124345630350434,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2781478650212952
+        },
+        {
+          "t2": 0.38,
+          "auto_share": 0.8864802883040297,
+          "human_share": 0.11351971169597029,
+          "delivered_attacks": 1336,
+          "quarantined_safe": 11,
+          "auto_error_rate": 0.13119802894979982,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2780386589494376
+        },
+        {
+          "t2": 0.39,
+          "auto_share": 0.8862618761603145,
+          "human_share": 0.11373812383968548,
+          "delivered_attacks": 1336,
+          "quarantined_safe": 11,
+          "auto_error_rate": 0.1311071406567679,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.27782024680572237
+        },
+        {
+          "t2": 0.4,
+          "auto_share": 0.8860980670525281,
+          "human_share": 0.11390193294747188,
+          "delivered_attacks": 1336,
+          "quarantined_safe": 11,
+          "auto_error_rate": 0.13100813408922848,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.277656437697936
+        },
+        {
+          "t2": 0.41,
+          "auto_share": 0.8857158458010266,
+          "human_share": 0.11428415419897346,
+          "delivered_attacks": 1336,
+          "quarantined_safe": 10,
+          "auto_error_rate": 0.13087972381480797,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2772742164464344
+        },
+        {
+          "t2": 0.42,
+          "auto_share": 0.8853336245495249,
+          "human_share": 0.11466637545047505,
+          "delivered_attacks": 1336,
+          "quarantined_safe": 10,
+          "auto_error_rate": 0.13075120266436413,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.27689199519493285
+        },
+        {
+          "t2": 0.43,
+          "auto_share": 0.885060609369881,
+          "human_share": 0.11493939063011903,
+          "delivered_attacks": 1336,
+          "quarantined_safe": 9,
+          "auto_error_rate": 0.13060645320500958,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.27661898001528884
+        },
+        {
+          "t2": 0.44,
+          "auto_share": 0.8845145790105929,
+          "human_share": 0.115485420989407,
+          "delivered_attacks": 1334,
+          "quarantined_safe": 8,
+          "auto_error_rate": 0.13044015062658187,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2760729496560009
+        },
+        {
+          "t2": 0.45,
+          "auto_share": 0.8842961668668778,
+          "human_share": 0.1157038331331222,
+          "delivered_attacks": 1334,
+          "quarantined_safe": 8,
+          "auto_error_rate": 0.1304106205619018,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.27585453751228567
+        },
+        {
+          "t2": 0.46,
+          "auto_share": 0.8839139456153762,
+          "human_share": 0.11608605438462379,
+          "delivered_attacks": 1334,
+          "quarantined_safe": 8,
+          "auto_error_rate": 0.13040523844823326,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2754723162607841
+        },
+        {
+          "t2": 0.47,
+          "auto_share": 0.8832587091842307,
+          "human_share": 0.11674129081576935,
+          "delivered_attacks": 1331,
+          "quarantined_safe": 8,
+          "auto_error_rate": 0.13019287833827894,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.27481707982963854
+        },
+        {
+          "t2": 0.48,
+          "auto_share": 0.8826580757890139,
+          "human_share": 0.11734192421098613,
+          "delivered_attacks": 1328,
+          "quarantined_safe": 8,
+          "auto_error_rate": 0.13003402412619858,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2742164464344218
+        },
+        {
+          "t2": 0.49,
+          "auto_share": 0.8820574423937971,
+          "human_share": 0.11794255760620291,
+          "delivered_attacks": 1327,
+          "quarantined_safe": 7,
+          "auto_error_rate": 0.12987495357187073,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.27361581303920496
+        },
+        {
+          "t2": 0.5,
+          "auto_share": 0.8814022059626515,
+          "human_share": 0.11859779403734848,
+          "delivered_attacks": 1325,
+          "quarantined_safe": 7,
+          "auto_error_rate": 0.12978565233552225,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2729605766080594
+        },
+        {
+          "t2": 0.51,
+          "auto_share": 0.8805831604237195,
+          "human_share": 0.11941683957628044,
+          "delivered_attacks": 1324,
+          "quarantined_safe": 7,
+          "auto_error_rate": 0.1297203447634402,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2721415310691274
+        },
+        {
+          "t2": 0.52,
+          "auto_share": 0.8789996723817844,
+          "human_share": 0.12100032761821557,
+          "delivered_attacks": 1321,
+          "quarantined_safe": 7,
+          "auto_error_rate": 0.12958131444899987,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.27055804302719233
+        },
+        {
+          "t2": 0.53,
+          "auto_share": 0.8779622146991373,
+          "human_share": 0.12203778530086273,
+          "delivered_attacks": 1319,
+          "quarantined_safe": 7,
+          "auto_error_rate": 0.1296100503762672,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.26952058534454515
+        },
+        {
+          "t2": 0.54,
+          "auto_share": 0.8768701539805613,
+          "human_share": 0.12312984601943867,
+          "delivered_attacks": 1317,
+          "quarantined_safe": 7,
+          "auto_error_rate": 0.12946011582290304,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2684285246259692
+        },
+        {
+          "t2": 0.55,
+          "auto_share": 0.8755596811182702,
+          "human_share": 0.12444031888172982,
+          "delivered_attacks": 1316,
+          "quarantined_safe": 7,
+          "auto_error_rate": 0.1295291549734955,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2671180517636781
+        },
+        {
+          "t2": 0.56,
+          "auto_share": 0.874795238615267,
+          "human_share": 0.125204761384733,
+          "delivered_attacks": 1315,
+          "quarantined_safe": 6,
+          "auto_error_rate": 0.12926783596529556,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2663536092606749
+        },
+        {
+          "t2": 0.57,
+          "auto_share": 0.8729387353936879,
+          "human_share": 0.12706126460631212,
+          "delivered_attacks": 1314,
+          "quarantined_safe": 5,
+          "auto_error_rate": 0.12916744855194845,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.26449710603909576
+        },
+        {
+          "t2": 0.58,
+          "auto_share": 0.871573659495468,
+          "human_share": 0.12842634050453205,
+          "delivered_attacks": 1313,
+          "quarantined_safe": 5,
+          "auto_error_rate": 0.12918180679112892,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.26313203014087583
+        },
+        {
+          "t2": 0.59,
+          "auto_share": 0.8703723927050344,
+          "human_share": 0.1296276072949656,
+          "delivered_attacks": 1312,
+          "quarantined_safe": 5,
+          "auto_error_rate": 0.12923462986198245,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2619307633504423
+        },
+        {
+          "t2": 0.6,
+          "auto_share": 0.8691711259146009,
+          "human_share": 0.13082887408539914,
+          "delivered_attacks": 1311,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.1292247769820329,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2607294965600087
+        },
+        {
+          "t2": 0.61,
+          "auto_share": 0.8678606530523097,
+          "human_share": 0.13213934694769028,
+          "delivered_attacks": 1311,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.1293569900591418,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2594190236977176
+        },
+        {
+          "t2": 0.62,
+          "auto_share": 0.866440974118161,
+          "human_share": 0.13355902588183904,
+          "delivered_attacks": 1311,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.1293168641290648,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.25799934476356884
+        },
+        {
+          "t2": 0.63,
+          "auto_share": 0.8644206617887955,
+          "human_share": 0.13557933821120455,
+          "delivered_attacks": 1311,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.1294927673551892,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.25597903243420334
+        },
+        {
+          "t2": 0.64,
+          "auto_share": 0.8624549524953588,
+          "human_share": 0.13754504750464125,
+          "delivered_attacks": 1308,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.1294713516935739,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.25401332314076663
+        },
+        {
+          "t2": 0.65,
+          "auto_share": 0.8602708310582068,
+          "human_share": 0.13972916894179316,
+          "delivered_attacks": 1308,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.12967311964455727,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2518292017036147
+        },
+        {
+          "t2": 0.66,
+          "auto_share": 0.8585781369444141,
+          "human_share": 0.14142186305558588,
+          "delivered_attacks": 1308,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.12992877130501146,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.250136507589822
+        },
+        {
+          "t2": 0.67,
+          "auto_share": 0.8567216337228349,
+          "human_share": 0.143278366277165,
+          "delivered_attacks": 1307,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.13008285532186106,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.24828000436824288
+        },
+        {
+          "t2": 0.68,
+          "auto_share": 0.8539368788904663,
+          "human_share": 0.14606312110953368,
+          "delivered_attacks": 1306,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.13031523754715774,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2454952495358742
+        },
+        {
+          "t2": 0.69,
+          "auto_share": 0.8516981544173856,
+          "human_share": 0.1483018455826144,
+          "delivered_attacks": 1306,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.13040133350429542,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2432565250627935
+        },
+        {
+          "t2": 0.7,
+          "auto_share": 0.8490772086928033,
+          "human_share": 0.15092279130719669,
+          "delivered_attacks": 1304,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.13061093247588423,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2406355793382112
+        },
+        {
+          "t2": 0.71,
+          "auto_share": 0.8462924538604346,
+          "human_share": 0.15370754613956536,
+          "delivered_attacks": 1303,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.13091167172075618,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.23785082450584252
+        },
+        {
+          "t2": 0.72,
+          "auto_share": 0.8440537293873539,
+          "human_share": 0.15594627061264607,
+          "delivered_attacks": 1303,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.13119420364859619,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2356121000327618
+        },
+        {
+          "t2": 0.73,
+          "auto_share": 0.8415965927705581,
+          "human_share": 0.15840340722944196,
+          "delivered_attacks": 1302,
+          "quarantined_safe": 4,
+          "auto_error_rate": 0.13151235969636021,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.23315496341596592
+        },
+        {
+          "t2": 0.74,
+          "auto_share": 0.8384842197226166,
+          "human_share": 0.16151578027738342,
+          "delivered_attacks": 1302,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.13187027871841625,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.23004259036802446
+        },
+        {
+          "t2": 0.75,
+          "auto_share": 0.8356994648902479,
+          "human_share": 0.1643005351097521,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.13224436458673636,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2272578355356558
+        },
+        {
+          "t2": 0.76,
+          "auto_share": 0.8322048705908048,
+          "human_share": 0.16779512940919517,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.13279968506003542,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.22376324123621275
+        },
+        {
+          "t2": 0.77,
+          "auto_share": 0.828655673255433,
+          "human_share": 0.171344326744567,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.13317079599367423,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2202140439008409
+        },
+        {
+          "t2": 0.78,
+          "auto_share": 0.8237414000218413,
+          "human_share": 0.1762585999781588,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.13389897918600027,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.2152997706672491
+        },
+        {
+          "t2": 0.79,
+          "auto_share": 0.8186087146445342,
+          "human_share": 0.18139128535546575,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.1347385272145144,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.21016708528994213
+        },
+        {
+          "t2": 0.8,
+          "auto_share": 0.8136944414109425,
+          "human_share": 0.18630555858905756,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.13548516977586902,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.20525281205635032
+        },
+        {
+          "t2": 0.81,
+          "auto_share": 0.808670962105493,
+          "human_share": 0.19132903789450695,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.1363268062120189,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.20022933275090096
+        },
+        {
+          "t2": 0.82,
+          "auto_share": 0.8035382767281861,
+          "human_share": 0.1964617232718139,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.13719760804566458,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.19509664737359397
+        },
+        {
+          "t2": 0.83,
+          "auto_share": 0.7976957518838047,
+          "human_share": 0.20230424811619527,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.13820247792456705,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.18925412252921262
+        },
+        {
+          "t2": 0.84,
+          "auto_share": 0.7907065632849186,
+          "human_share": 0.20929343671508135,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.13942407292314066,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.18226493393032653
+        },
+        {
+          "t2": 0.85,
+          "auto_share": 0.7833897564704597,
+          "human_share": 0.21661024352954025,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.14065658325782393,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.17494812711586763
+        },
+        {
+          "t2": 0.86,
+          "auto_share": 0.7760183466200721,
+          "human_share": 0.22398165337992793,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.14199268224036027,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.16757671726547996
+        },
+        {
+          "t2": 0.87,
+          "auto_share": 0.7677186851588949,
+          "human_share": 0.23228131484110517,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.14352773826458037,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.1592770558043027
+        },
+        {
+          "t2": 0.88,
+          "auto_share": 0.7585999781587857,
+          "human_share": 0.24140002184121437,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.14510904772187433,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.15015834880419351
+        },
+        {
+          "t2": 0.89,
+          "auto_share": 0.7481707982963853,
+          "human_share": 0.2518292017036147,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.14713180557582833,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.13972916894179316
+        },
+        {
+          "t2": 0.9,
+          "auto_share": 0.7392159004040625,
+          "human_share": 0.2607840995959375,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.14891416752843847,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.13077427104947034
+        },
+        {
+          "t2": 0.91,
+          "auto_share": 0.7276946598230861,
+          "human_share": 0.2723053401769138,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.15119681848878216,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.11925303046849405
+        },
+        {
+          "t2": 0.92,
+          "auto_share": 0.7170470678169706,
+          "human_share": 0.28295293218302936,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.15344197380444716,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.10860543846237851
+        },
+        {
+          "t2": 0.93,
+          "auto_share": 0.7051982090204215,
+          "human_share": 0.2948017909795785,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.15602013162988773,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.09675657966582941
+        },
+        {
+          "t2": 0.94,
+          "auto_share": 0.69345855629573,
+          "human_share": 0.30654144370426994,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.15866141732283465,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.08501692694113792
+        },
+        {
+          "t2": 0.95,
+          "auto_share": 0.6802992246368899,
+          "human_share": 0.3197007753631102,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.1617304759611526,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.0718575952822977
+        },
+        {
+          "t2": 0.96,
+          "auto_share": 0.6674129081576936,
+          "human_share": 0.33258709184230645,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.16485314570890944,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.058971278803101455
+        },
+        {
+          "t2": 0.97,
+          "auto_share": 0.6513050125586982,
+          "human_share": 0.34869498744130173,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.16893024815560026,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.04286338320410615
+        },
+        {
+          "t2": 0.98,
+          "auto_share": 0.6317571256961887,
+          "human_share": 0.3682428743038113,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.17415730337078653,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.023315496341596593
+        },
+        {
+          "t2": 0.99,
+          "auto_share": 0.6131920934803975,
+          "human_share": 0.3868079065196025,
+          "delivered_attacks": 1301,
+          "quarantined_safe": 3,
+          "auto_error_rate": 0.1794300979519145,
+          "stage2_share": 0.3915583706454079,
+          "stage2_auto_share": 0.004750464125805395
+        }
+      ]
+    }
+  },
+  "stacking_remap": {
+    "S-E": {
+      "roc_auc": 0.9956851099062263,
+      "roc_auc_ci": [
+        0.9947875060596258,
+        0.996566544211831
+      ],
+      "pr_auc": 0.9796891705642274,
+      "pr_auc_ci": [
+        0.9747671601173232,
+        0.984386450342217
+      ],
+      "macro_f1": 0.8110406551203813,
+      "accuracy": 0.9396636452986786,
+      "clean_attack_recall": 0.9895768188451115,
+      "safe_to_attack": 7
+    },
+    "S-J": {
+      "roc_auc": 0.989691252527392,
+      "roc_auc_ci": [
+        0.9878905670156569,
+        0.9912778660860345
+      ],
+      "pr_auc": 0.9581289113261702,
+      "pr_auc_ci": [
+        0.9502813310083731,
+        0.965858690056707
+      ],
+      "macro_f1": 0.7216731335798904,
+      "accuracy": 0.8516981544173856,
+      "clean_attack_recall": 0.9724828017510945,
+      "safe_to_attack": 6
+    },
+    "S-EJ": {
+      "roc_auc": 0.9956253329584474,
+      "roc_auc_ci": [
+        0.994610130382067,
+        0.9965432279635081
+      ],
+      "pr_auc": 0.9841639305400058,
+      "pr_auc_ci": [
+        0.980238254146845,
+        0.9876150886830892
+      ],
+      "macro_f1": 0.7635412922619299,
+      "accuracy": 0.8964726438789997,
+      "clean_attack_recall": 0.9874921826141339,
+      "safe_to_attack": 6
+    },
+    "T-IDF": {
+      "roc_auc": 0.9972983009574691,
+      "roc_auc_ci": [
+        0.9966326323622556,
+        0.997902264428202
+      ],
+      "pr_auc": 0.9885099587420754,
+      "pr_auc_ci": [
+        0.9847192771251243,
+        0.9919868718648417
+      ],
+      "macro_f1": 0.9456442940083818,
+      "accuracy": 0.981107349568636,
+      "clean_attack_recall": 0.9881175734834271,
+      "safe_to_attack": 0
+    },
+    "D-c_SEJ_minus_SE": {
+      "d_roc_auc": -5.9776947778922285e-05,
+      "d_roc_auc_ci": [
+        -0.0005754591508844692,
+        0.0003877755740811242
+      ],
+      "d_pr_auc": 0.004474759975778397,
+      "d_pr_auc_ci": [
+        0.002045375234887714,
+        0.006856225388178891
+      ]
+    },
+    "D-d_SE_minus_TIDF": {
+      "d_roc_auc": -0.0016131910512428016,
+      "d_roc_auc_ci": [
+        -0.002216731179040621,
+        -0.0010448905599907581
+      ],
+      "d_pr_auc": -0.008820788177847927,
+      "d_pr_auc_ci": [
+        -0.012940229347078901,
+        -0.004875198071228085
+      ]
+    },
+    "label_efficiency": {
+      "S-E@25": {
+        "roc_auc": 0.9853699621670217,
+        "roc_auc_ci": [
+          0.9838298255322797,
+          0.9868644675998378
+        ],
+        "pr_auc": 0.9546123349937299,
+        "pr_auc_ci": [
+          0.9483106516930871,
+          0.9608800899400289
+        ],
+        "macro_f1": 0.7364733993949965,
+        "accuracy": 0.8726111171781151,
+        "clean_attack_recall": 0.9189076506149677,
+        "safe_to_attack": 11
+      },
+      "T-IDF@25": {
+        "roc_auc": 0.9866617056118262,
+        "roc_auc_ci": [
+          0.9846732114096427,
+          0.9882549660015525
+        ],
+        "pr_auc": 0.962327761779926,
+        "pr_auc_ci": [
+          0.9559409732851682,
+          0.9677917624573786
+        ],
+        "macro_f1": 0.7561584021043036,
+        "accuracy": 0.8833133122201594,
+        "clean_attack_recall": 0.9318323952470294,
+        "safe_to_attack": 2
+      },
+      "S-E@100": {
+        "roc_auc": 0.9941119243767941,
+        "roc_auc_ci": [
+          0.9931528212938072,
+          0.9950661663416334
+        ],
+        "pr_auc": 0.9738353916173232,
+        "pr_auc_ci": [
+          0.9678844711426765,
+          0.9789731073127115
+        ],
+        "macro_f1": 0.7791713124471596,
+        "accuracy": 0.9120891121546358,
+        "clean_attack_recall": 0.9829059829059829,
+        "safe_to_attack": 6
+      },
+      "T-IDF@100": {
+        "roc_auc": 0.9942074502835387,
+        "roc_auc_ci": [
+          0.9931548396911346,
+          0.9951051485919051
+        ],
+        "pr_auc": 0.9784178638962763,
+        "pr_auc_ci": [
+          0.9734890259154233,
+          0.9828104439802329
+        ],
+        "macro_f1": 0.8006080947486767,
+        "accuracy": 0.9235011466637545,
+        "clean_attack_recall": 0.9693558474046279,
+        "safe_to_attack": 0
+      },
+      "S-E@400": {
+        "roc_auc": 0.9945827218187047,
+        "roc_auc_ci": [
+          0.9936191370068673,
+          0.9955643754313722
+        ],
+        "pr_auc": 0.9752468760134451,
+        "pr_auc_ci": [
+          0.9693682053759147,
+          0.9804132770982907
+        ],
+        "macro_f1": 0.7887678780234806,
+        "accuracy": 0.9211532161188162,
+        "clean_attack_recall": 0.9881175734834271,
+        "safe_to_attack": 10
+      },
+      "T-IDF@400": {
+        "roc_auc": 0.9957965670789812,
+        "roc_auc_ci": [
+          0.9949092206234973,
+          0.9965685757181381
+        ],
+        "pr_auc": 0.9822022054808104,
+        "pr_auc_ci": [
+          0.9775433447055722,
+          0.9866715536560597
+        ],
+        "macro_f1": 0.8411496160111331,
+        "accuracy": 0.9454515671071312,
+        "clean_attack_recall": 0.9760266833437565,
+        "safe_to_attack": 1
+      }
+    },
+    "jev_missing_feature_rows": 0
+  },
+  "criteria": [
+    {
+      "id": "D-a",
+      "desc": "J\u2227E fewer FPs than J (McNemar p<0.05) and J\u2227E recall >= 0.90",
+      "actual": {
+        "fp_J": 1704,
+        "fp_JE": 127,
+        "recall_JE": 0.9499687304565353,
+        "p": 0.0
+      },
+      "pass": true
+    },
+    {
+      "id": "D-b",
+      "desc": "Veto cuts clean-source confident-safe attack deliveries >= 50% holding <= 1.0% of correct safe deliveries",
+      "actual": {
+        "before": 60,
+        "after": 4,
+        "held_pct": 0.0017381228273464658
+      },
+      "pass": true
+    },
+    {
+      "id": "D-c",
+      "desc": "S-EJ attack PR-AUC > S-E (bootstrap CI excludes 0)",
+      "actual": {
+        "d_roc_auc": -5.9776947778922285e-05,
+        "d_roc_auc_ci": [
+          -0.0005754591508844692,
+          0.0003877755740811242
+        ],
+        "d_pr_auc": 0.004474759975778397,
+        "d_pr_auc_ci": [
+          0.002045375234887714,
+          0.006856225388178891
+        ]
+      },
+      "pass": true
+    },
+    {
+      "id": "D-d",
+      "desc": "S-E attack PR-AUC > T-IDF (bootstrap CI excludes 0)",
+      "actual": {
+        "d_roc_auc": -0.0016131910512428016,
+        "d_roc_auc_ci": [
+          -0.002216731179040621,
+          -0.0010448905599907581
+        ],
+        "d_pr_auc": -0.008820788177847927,
+        "d_pr_auc_ci": [
+          -0.012940229347078901,
+          -0.004875198071228085
+        ]
+      },
+      "pass": false
+    }
+  ]
+}

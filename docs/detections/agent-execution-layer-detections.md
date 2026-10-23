@@ -27,7 +27,7 @@ is an unmonitored attack vector:
 ## Authored Detection Content
 
 ### 1. Process Creation: Unpinned Dynamic Tool Execution
-- **File**: [`rules/sigma/proc_creation_agent_runtime_unpinned_tool_execution.yml`](file:///c:/Users/kyler/Projects/threat-detection-lab/rules/sigma/proc_creation_agent_runtime_unpinned_tool_execution.yml)
+- **File**: [`rules/sigma/proc_creation_agent_runtime_unpinned_tool_execution.yml`](../../rules/sigma/proc_creation_agent_runtime_unpinned_tool_execution.yml)
 - **ID**: `c7b2e1f4-3d6a-4c89-9a25-8e1f0b7c4d32`
 - **Logic**: Identifies agent hosts (`Claude.exe`, `Cursor.exe`, `electron.exe`, `agent.exe`) spawning dynamic runners (`npx.cmd`, `uvx.exe`, `pipx.exe`, `bunx.exe`) with unprompted execution flags (`-y`, `--yes`).
 - **ATT&CK**:
@@ -35,7 +35,7 @@ is an unmonitored attack vector:
   - `T1059.007` (Command and Scripting Interpreter: JavaScript)
 
 ### 2. Process Creation: Alien Runtime Bun Infostealer
-- **File**: [`rules/sigma/proc_creation_agent_alien_runtime_bun_infostealer.yml`](file:///c:/Users/kyler/Projects/threat-detection-lab/rules/sigma/proc_creation_agent_alien_runtime_bun_infostealer.yml)
+- **File**: [`rules/sigma/proc_creation_agent_alien_runtime_bun_infostealer.yml`](../../rules/sigma/proc_creation_agent_alien_runtime_bun_infostealer.yml)
 - **ID**: `e5a8d2c1-7b94-4f32-8a16-9c4d2e0f1b78`
 - **Logic**: Detects `bun.exe` executed from temporary folders (`\Temp\`, `\AppData\Local\Temp\`, `\tmp\`) or referencing Python distribution paths (`site-packages`, `dist-packages`, `_index.js`, `.bun_ran`).
 - **ATT&CK**:
@@ -44,7 +44,7 @@ is an unmonitored attack vector:
   - `T1036` (Masquerading)
 
 ### 3. Correlation Rule: Unpinned Tool Spawning Followed by Credential Access
-- **File**: [`rules/sigma/correlation/correlation_agent_unpinned_tool_credential_access.yml`](file:///c:/Users/kyler/Projects/threat-detection-lab/rules/sigma/correlation/correlation_agent_unpinned_tool_credential_access.yml)
+- **File**: [`rules/sigma/correlation/correlation_agent_unpinned_tool_credential_access.yml`](../../rules/sigma/correlation/correlation_agent_unpinned_tool_credential_access.yml)
 - **ID**: `f9a2c4e6-8b01-4d35-9e72-1c3f5a7d9b14`
 - **Type**: Event correlation (`temporal` sequence, 60-second window)
 - **Condition**: Unpinned tool execution (`agent_runtime_unpinned_tool_execution`) followed on the same host/user by developer credential access (`proc_creation_macos_dev_credential_theft` or file access to `.aws`, `.ssh`, `.gnupg`, browser state).
@@ -66,7 +66,7 @@ A local configuration auditing scanner that validates agent configs against stat
 6. **Excessive Root Scopes**: Warns if filesystem tools are mounted to root directories (`/`, `C:\`, `C:\Users\`).
 
 ### Upstream Specification: MCP Telemetry & Capabilities
-- **File**: [`docs/upstream/MCP_TELEMETRY_AND_CAPABILITY_SPECIFICATION.md`](file:///c:/Users/kyler/Projects/threat-detection-lab/docs/upstream/MCP_TELEMETRY_AND_CAPABILITY_SPECIFICATION.md)
+- **File**: [`docs/upstream/MCP_TELEMETRY_AND_CAPABILITY_SPECIFICATION.md`](../upstream/MCP_TELEMETRY_AND_CAPABILITY_SPECIFICATION.md)
 - Proposes two upstream additions to the Model Context Protocol standard:
   1. `mcp.tool_call` structured telemetry schema with execution duration, payload hashing, client session lineage, and permission provenance.
   2. Static capability manifests (`mcp-manifest.json`) declaring permissible filesystem root paths, allowed network hosts, and child execution constraints.
