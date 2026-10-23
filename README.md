@@ -45,6 +45,8 @@ Static, self-contained pages — no external scripts or runtime fetches (guarded
 
 **Seeing the Page Behind the Link (EG2 & Vision-LLM Link Triage)** — interactive research brief ([brief.html](https://kylereid1017.github.io/threat-detection-lab/docs/research/eg2-url-benchmark/brief.html)) and visual kit gallery ([gallery.html](https://kylereid1017.github.io/threat-detection-lab/docs/research/eg2-url-benchmark/gallery.html)).
 
+**Static Malware Triage, Cross-OS Endpoint Forensics & Hunt Pack** — zero-execution PE binary header/entropy packer detector, Windows API IAT capability mapper, 4-layer loader unpacker, and Hayabusa/Chainsaw/RegRipper/OSquery/Velociraptor forensic workbench ([malware-endpoint-forensics.html](https://kylereid1017.github.io/threat-detection-lab/docs/research/malware-endpoint-forensics.html)).
+
 ---
 
 ## Status & Governance Matrix
@@ -53,6 +55,7 @@ Static, self-contained pages — no external scripts or runtime fetches (guarded
 |---|---|---|---|
 | **Agent Exposure Review & Composition** | **Verified** | `tools/agent_graph/` (91–99% coverage), 545+ passing unit tests in CI. Evaluated across 336 real public configurations. | Static analysis taxonomy (P=0.73, R=0.53); measures potential capability co-occurrence across static configurations, not runtime telemetry. |
 | **Multimodal Link & Email Triage (`eg2_triage`, `jev_triage`)** | **Verified** | Pre-registered across **18,314 public emails** (`docs/research/jev-email-triage/`) and **1,995 rendered pages** (`docs/research/eg2-url-benchmark/`). 28 registered URL criteria (22 PASS / 6 MISS). | Public corpora (Phishpedia + 2026 screenshot benchmark + public email sets); benign shared-host false-alarm bounds require production shadow validation (`INTERNAL-VALIDATION.md`). |
+| **Static Malware Triage & Cross-OS Forensics (`malware_triage`, `endpoint_forensics`)** | **Verified** | `tools/malware_triage/` (95% coverage) & `tools/endpoint_forensics/` (100% coverage): PE section Shannon entropy, 26 Win32/NT API capability mappings, 4-layer script unpacker, 13 cross-OS forensic rules, and 8 OSquery/Velociraptor/KQL/SPL/ES\|QL hunt queries. | Strictly static binary/script inspection and telemetry artifact evaluation; never executes untrusted binaries. |
 | **Detection Engineering & Swarm Sparring** | **Verified** | 23 production Sigma/YARA rules; closed-loop multi-campaign DAG engine with zero false positives on 1,755 benign manifests and 2,079 SVGs. | Closed-loop mutations test detection boundaries; does not represent live adversary operational campaigns. |
 | **CTI Collection & Protected Names** | **Verified** | `tools/cti/` pipeline (96–99% coverage), Certificate Transparency live acquisition, inventory-derived typosquat detection evaluated on 232k OpenSSF records. | Zero recall on packages outside local inventory; complete SBOM is a prerequisite. |
 | **Host Confinement & Agent Sandbox** | **Experimental (Linux/macOS) / Blocked (Windows)** | Bubblewrap (`bwrap`) on Linux, Seatbelt (`sandbox-exec`) on macOS. | Windows provides advisory environment sanitization and isolated temp trees; **disclaims kernel-level containment** without virtualization/JobObjects. |
@@ -60,7 +63,7 @@ Static, self-contained pages — no external scripts or runtime fetches (guarded
 
 ---
 
-## Pre-Registered ML Triage Studies (Email & Multimodal URLs)
+## Pre-Registered ML Triage & Forensic Studies
 
 ### 1. Seeing the Page Behind the Link (`tools/eg2_triage/`, `docs/research/eg2-url-benchmark/`)
 Evaluates whether reading the rendered destination page closes the gap left by link-only classifiers on trusted shared hosts (Canva, Google Sites, Azure Web Apps, Weebly, URL shorteners):
@@ -73,6 +76,13 @@ Evaluates whether reading the rendered destination page closes the gap left by l
 Pre-registered evaluation of a fast "System One" classifier (`jev`, 224ms p50, $\$0.041/1\text{k}$ emails) as a pre-gate in front of frontier LLM tiers (DeepSeek Flash, Claude Haiku 4.5, Sonnet 5, Opus 5), scaled to **$n = 18,314$ public emails**:
 - Demonstrates that while exact 4-class auto-decision misses its strict registered 2% error floor due to `gray`/`hard_ham` taxonomy ambiguity, harm-weighted gating at $t = 0.30$ auto-decides **64.8% of volume with zero attack$\rightarrow$safe deliveries and zero safe$\rightarrow$attack quarantines**, cutting Claude tier inference cost by **63–66%**.
 - See `docs/research/jev-email-triage/REPORT.md` and `docs/research/jev-email-triage/RESULTS-SCALE.md`.
+
+### 3. Static Malware Triage, Cross-OS Endpoint Forensics & Hunt Pack (`tools/malware_triage/`, `tools/endpoint_forensics/`, `docs/research/malware-endpoint-forensics.html`)
+Zero-execution binary/loader reverse-engineering triage and multi-OS endpoint forensic correlation (`96%–100%` test coverage):
+- **PE Binary Attributes & Packer Detection (`pe_analyzer.py`):** Parses DOS/COFF PE headers, calculates per-section **Shannon entropy** ($\ge 7.2$ bits/byte), detects `RWX` self-modifying sections and minimal-IAT dynamic resolvers (`LoadLibraryA` + `GetProcAddress`), and maps **26 Windows Win32 / Native NT APIs** (`NtUnmapViewOfSection`, `VirtualAllocEx`, `MiniDumpWriteDump`, `CryptUnprotectData`, `AmsiScanBuffer`, `EtwEventWrite`) to adversary capabilities.
+- **Staged Loader Deobfuscator (`loader_unpacker.py`):** Unpacks PowerShell UTF-16LE `-EncodedCommand`, standard Base64 (`atob`), JS `fromCharCode` arrays, and single-byte XOR payloads to classify **Lumma Stealer**, **Cobalt Strike Beacon**, **ClickFix**, **EvilProxy / Tycoon 2FA**, and **RMM Abuse (ScreenConnect / AnyDesk)** and auto-synthesize YARA rules.
+- **Cross-OS Forensic Timeline & Live-Response Queries (`artifact_triage.py`, `hunt_queries.py`):** Correlates **Windows** (`EVTX` Sysmon/Security/PowerShell, Registry `RunMRU`/`Run`/`Services`, Prefetch/Amcache modeled on Hayabusa, Chainsaw, RegRipper, and EZ Tools), **Linux** (`ld.so.preload`, `systemd`, `memfd_create`), **macOS** (`LaunchAgents`, `TCC.db`/Keychain), and **Cloud** (`Microsoft 365`, `Azure / Entra ID`, `AWS`, `Google Workspace`), paired with **OSquery SQL**, **Velociraptor VQL**, **KQL**, **Splunk SPL**, and **Elastic ES|QL** hunt queries.
+- Interactive workbench: [`docs/research/malware-endpoint-forensics.html`](https://kylereid1017.github.io/threat-detection-lab/docs/research/malware-endpoint-forensics.html).
 
 ---
 

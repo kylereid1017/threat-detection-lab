@@ -28,6 +28,7 @@ ARTIFACTS = (
     "docs/cables/CABLE-2026-STRAT-003.html",
     "docs/research/agent-capability-composition.html",
     "docs/research/agent-execution-layer-dashboard.html",
+    "docs/research/malware-endpoint-forensics.html",
     "docs/research/eg2-url-benchmark/brief.html",
     "docs/research/eg2-url-benchmark/gallery.html",
 )
