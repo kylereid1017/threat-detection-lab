@@ -28,9 +28,11 @@ ARTIFACTS = (
     "docs/cables/CABLE-2026-STRAT-003.html",
     "docs/research/agent-capability-composition.html",
     "docs/research/agent-execution-layer-dashboard.html",
+    "docs/research/eg2-url-benchmark/brief.html",
+    "docs/research/eg2-url-benchmark/gallery.html",
 )
 
-ARTIFACT_DIRS = ("docs/cables/*.html", "docs/research/*.html", "tools/agent_graph/*.html")
+ARTIFACT_DIRS = ("docs/cables/*.html", "docs/research/*.html", "docs/research/eg2-url-benchmark/*.html", "tools/agent_graph/*.html")
 
 EXTERNAL_REF = re.compile(
     r"""<(?:script[^>]+?src|link[^>]+?href)\s*=\s*["']https?://""",

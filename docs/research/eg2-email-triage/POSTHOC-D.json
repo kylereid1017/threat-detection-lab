@@ -1,0 +1,51 @@
+{
+  "label": "POST-HOC",
+  "records": "eg2-email-20261009T030203Z.jsonl",
+  "veto_cross_source": {
+    "nazario": {
+      "jev_confident_safe_attacks": 48,
+      "eg2_unseen_source_flags_attack": 16,
+      "eg2_unseen_source_not_safe": 44,
+      "jev_attack_recall_on_source": 0.8910045961917269,
+      "eg2_heldout_confident_safe_T030": 36,
+      "eg2_heldout_confident_safe_T_matched": 0,
+      "t_matched": 0.795
+    },
+    "nigerian_5": {
+      "jev_confident_safe_attacks": 12,
+      "eg2_unseen_source_flags_attack": 5,
+      "eg2_unseen_source_not_safe": 9,
+      "jev_attack_recall_on_source": 0.9865607819181429,
+      "eg2_heldout_confident_safe_T030": 4,
+      "eg2_heldout_confident_safe_T_matched": 0,
+      "t_matched": 0.795
+    }
+  },
+  "tfidf_cross_source": {
+    "nazario": {
+      "n": 1523,
+      "attack_recall": 0.6375574523965857,
+      "pred_counts": {
+        "attack": 971,
+        "gray": 19,
+        "safe": 32,
+        "spam": 501
+      }
+    },
+    "nigerian_5": {
+      "n": 3274,
+      "attack_recall": 0.020769700671960906,
+      "pred_counts": {
+        "attack": 68,
+        "safe": 13,
+        "spam": 3193
+      }
+    }
+  },
+  "strict_veto_e1_remap": {
+    "jev_confident_safe_attacks": 60,
+    "attacks_remaining": 3,
+    "jev_correct_safe_deliveries": 3452,
+    "legit_safe_held": 99
+  }
+}

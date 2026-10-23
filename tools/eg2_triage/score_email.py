@@ -233,7 +233,7 @@ def main() -> int:
 
     print("Running E1 OOF (Registered basis, MRL 256d sensitivity)...")
     vecs_256 = truncate_and_normalize_mrl(vecs_768, 256)
-    e1_256_preds, e1_256_confs, e1_256_probs, _ = run_e1_oof(vecs_256, ids, labels_reg, groups)
+    e1_256_preds, e1_256_confs, e1_256_probs, e1_256_folds = run_e1_oof(vecs_256, ids, labels_reg, groups)
 
     # E2 Holdouts
     print("Running E2a (Nazario holdout)...")
@@ -318,8 +318,24 @@ def main() -> int:
     mat_256 = confusion_matrix(labels_reg, e1_256_preds)
     acc_256 = sum(mat_256[l][l] for l in LABELS) / len(ids)
 
-    # Write committed records JSONL
+    # Jev on the same rows, recomputed from records (no hard-coded figures)
+    jev_preds = [jev_obs[eid]["label_pred"] for eid in ids]
+    mat_jev = confusion_matrix(labels_reg, jev_preds)
+    acc_jev = sum(mat_jev[l][l] for l in LABELS) / len(ids)
+    mat_jev_remap = confusion_matrix(labels_remap, jev_preds)
+    acc_jev_remap = sum(mat_jev_remap[l][l] for l in LABELS) / len(ids)
+
+    # Write committed records JSONL: one row per email x eval x basis (PLAN C8)
     print(f"Writing records to {records_file}...")
+    naz_idx = [i for i in range(len(ids)) if nazario_mask[i]]
+    nig_idx = [i for i in range(len(ids)) if nig5_mask[i]]
+    record_sets = [
+        ("E1_oof", "registered", range(len(ids)), e1_reg_preds, e1_reg_confs, e1_reg_probs, e1_reg_folds, labels_reg),
+        ("E1_oof", "remap", range(len(ids)), e1_remap_preds, e1_remap_confs, e1_remap_probs, e1_remap_folds, labels_remap),
+        ("E1_oof_mrl256", "registered", range(len(ids)), e1_256_preds, e1_256_confs, e1_256_probs, e1_256_folds, labels_reg),
+        ("E2a_nazario", "registered", naz_idx, e2a_preds, e2a_confs, e2a_probs, None, labels_reg),
+        ("E2b_nigerian_5", "registered", nig_idx, e2b_preds, e2b_confs, e2b_probs, None, labels_reg),
+    ]
     with records_file.open("w", encoding="utf-8") as rf:
         rf.write(json.dumps({
             "kind": "run_meta", "run_id": run_id, "model": "google/embeddinggemma-2",
@@ -327,15 +343,18 @@ def main() -> int:
             "head": "LogisticRegression(C=1.0, class_weight='balanced')",
         }) + "\n")
         seq = 1
-        for i, eid in enumerate(ids):
-            rf.write(json.dumps({
-                "kind": "observation", "run_id": run_id, "seq": seq, "ts_utc": ts,
-                "email_id": eid, "source": sources[i],
-                "eval": "E1_oof", "basis": "registered", "fold": e1_reg_folds[i],
-                "label_true": labels_reg[i], "label_pred": e1_reg_preds[i],
-                "confidence": round(e1_reg_confs[i], 4), "probabilities": {k: round(v, 4) for k, v in e1_reg_probs[i].items()},
-            }) + "\n")
-            seq += 1
+        for ev, basis, rows, preds, confs, probs, folds, truth in record_sets:
+            for k, i in enumerate(rows):
+                # E1 arrays are indexed by global row; E2 arrays by position within the holdout
+                j = i if ev.startswith("E1") else k
+                rf.write(json.dumps({
+                    "kind": "observation", "run_id": run_id, "seq": seq, "ts_utc": ts,
+                    "email_id": ids[i], "source": sources[i],
+                    "eval": ev, "basis": basis, "fold": folds[i] if folds is not None else None,
+                    "label_true": truth[i], "label_pred": preds[j],
+                    "confidence": round(confs[j], 4), "probabilities": {c: round(v, 4) for c, v in probs[j].items()},
+                }) + "\n")
+                seq += 1
 
     # Save summary json
     summary = {
@@ -343,6 +362,10 @@ def main() -> int:
         "criteria": crit,
         "registered_basis": {"accuracy": acc_reg, "matrix": mat_reg, "per_class": stats_reg},
         "remap_basis": {"accuracy": acc_remap, "matrix": mat_remap, "per_class": stats_remap},
+        "jev_same_rows": {"accuracy_registered": acc_jev, "accuracy_remap": acc_jev_remap,
+                          "matrix_registered": mat_jev, "clean_attack_recall": jev_clean_recall,
+                          "clean_delivered_030": jev_clean_delivered_030},
+        "e2_holdouts": {"nazario_recall": e2a_naz_recall, "nigerian_5_recall": e2b_nig_recall},
         "mrl_256_sensitivity": {"accuracy": acc_256},
         "matched_gate": {
             "jev_auto_share_030": jev_auto_share_030,
@@ -377,7 +400,7 @@ def main() -> int:
         "",
         "| Metric | Jev Scale | EG2 E1 (Registered) | EG2 E1 (CEAS Remap) | EG2 256-d MRL |",
         "|---|---|---|---|---|",
-        f"| Exact Accuracy | 0.599 | **{acc_reg:.4f}** | **{acc_remap:.4f}** | {acc_256:.4f} |",
+        f"| Exact Accuracy | {acc_jev:.4f} (remap basis {acc_jev_remap:.4f}) | **{acc_reg:.4f}** | **{acc_remap:.4f}** | {acc_256:.4f} |",
         f"| Clean Attack Recall (Nazario+Nig5) | {jev_clean_recall:.4f} | **{eg2_clean_recall:.4f}** | - | - |",
         f"| Clean Delivered Attacks (matched share) | {jev_clean_delivered_030} (@T=0.30) | **{eg2_clean_delivered_matched}** (@T={t_matched:.3f}) | - | - |",
         "",
@@ -394,11 +417,24 @@ def main() -> int:
 
     md_lines.extend([
         "",
-        "## 4. Key Takeaways & Limitations",
+        "## 4. Cross-source holdouts (PLAN C5.E2 — the fairer generalization test)",
         "",
-        "- Supervised vs Zero-Shot: EG2 uses in-distribution supervision on held-out folds; cross-source holdouts (E2a/E2b) confirm strong out-of-domain generalization.",
-        "- Clean Source Safety: EG2 dramatically reduces the delivered-attack failure mode that broke Jev at scale.",
-        "- MRL Retention: 256-d truncation preserves over 98% of full 768-d quality at 3x storage savings.",
+        f"- E2a nazario: attack recall {e2a_naz_recall:.4f} ({naz_correct}/{naz_attacks_total})",
+        f"- E2b nigerian_5: attack recall {e2b_nig_recall:.4f} ({nig5_correct}/{nig5_attacks_total})",
+        f"- MRL 256-d accuracy {acc_256:.4f} vs 768-d {acc_reg:.4f} (registered basis)",
+        "",
+        "## 5. Limitations (PLAN C9)",
+        "",
+        "- EG2's head is supervised on in-distribution labels; Jev was zero-shot. E1 favours EG2.",
+        "- Corpus era 2003–2008; CEAS_08 label semantics per `SCALE-READINGS.md` §2.",
+        "- Subject-hash grouping reduces but does not remove template leakage.",
+        "",
+        "## 6. Deviations",
+        "",
+        "- Harness errata fixed before scoring (2026-10-08): records now hold every eval × basis "
+        "row as PLAN C8 specifies (previously E1-registered only); the Jev comparison column is "
+        "recomputed from records (previously a hard-coded 0.599); pre-written takeaway bullets "
+        "authored before any data were removed and replaced with computed figures.",
     ])
     (OUT_DIR / "RESULTS-EMAIL.md").write_text("\n".join(md_lines), encoding="utf-8")
     print(f"Report written to {OUT_DIR / 'RESULTS-EMAIL.md'}")

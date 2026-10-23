@@ -57,3 +57,8 @@ docs/reviews/
 *.pptx
 *.key
 *.odp
+
+# EG2 email-battery records: plaintext local; committed artifact is the deterministic gzip (mtime=0)
+docs/research/eg2-email-triage/records/*.jsonl
+# EG2 URL OCR records: contain raw visible text from Phishpedia screenshots (~15 pre-filled target emails); kept local per tools/eg2_triage/ERRATA.md
+docs/research/eg2-url-benchmark/records/ocr-*.jsonl

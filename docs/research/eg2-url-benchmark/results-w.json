@@ -1,0 +1,57 @@
+{
+  "ts_utc": "2026-10-10T04:55:33.886287+00:00",
+  "n": 20,
+  "t2": 0.67404,
+  "eps_255": 8.0,
+  "steps": 12,
+  "flip_rate_0.5": [
+    0.7,
+    0.4810271799475211,
+    0.8545227559784271
+  ],
+  "flip_rate_t2": [
+    1.0,
+    0.8156818626193445,
+    1.0
+  ],
+  "n_above_t2": 17,
+  "mean_base_prob1": 0.738,
+  "mean_min_prob1": 0.428,
+  "flip_curve_by_linf255": {
+    "linf_2": [
+      0.0,
+      0.0,
+      0.16112516018512965
+    ],
+    "linf_4": [
+      0.0,
+      0.0,
+      0.16112516018512965
+    ],
+    "linf_6": [
+      0.05,
+      0.008881448702335523,
+      0.23613119546428119
+    ],
+    "linf_8": [
+      0.7,
+      0.4810271799475211,
+      0.8545227559784271
+    ]
+  },
+  "deviation": "CPU: one eps=8/255 trajectory (12 steps) per page on 20 pages, vs frozen 100 pages / eps{1,2,4,8} / 20 steps. Curve read from per-step scores.",
+  "interpretation": "EG2 is a frozen embedding model with no adversarial training; a high flip rate is expected and argues for pairing it with a black-box reader, not exposing it as the sole gate.",
+  "criteria": [
+    {
+      "id": "W-a",
+      "desc": "Report EG2 flip rate at each L-inf (descriptive)",
+      "actual": {
+        "linf_2": 0.0,
+        "linf_4": 0.0,
+        "linf_6": 0.05,
+        "linf_8": 0.7
+      },
+      "pass": true
+    }
+  ]
+}

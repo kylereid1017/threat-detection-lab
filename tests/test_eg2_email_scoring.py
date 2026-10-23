@@ -15,7 +15,11 @@ from __future__ import annotations
 
 import re
 import unittest
-import numpy as np
+
+try:
+    import numpy as np
+except ImportError:  # pragma: no cover - lightweight CI carries no numpy
+    np = None
 
 
 def normalize_subject(subj: str) -> str:
@@ -96,6 +100,7 @@ class TestEG2EmailScoring(unittest.TestCase):
         t = find_matched_threshold(rows, 0.40)
         self.assertEqual(t, 0.501)
 
+    @unittest.skipIf(np is None, "numpy not installed")
     def test_mrl_truncation_and_l2(self):
         rng = np.random.default_rng(42)
         v = rng.standard_normal((10, 768)).astype(np.float32)
